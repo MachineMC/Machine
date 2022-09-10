@@ -11,17 +11,12 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static me.pesekjak.machine.world.biomes.BiomeEffects.DEFAULT_EFFECTS;
+
 @Builder
 public class Biome implements NBTSerializable {
 
     public static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
-
-    private static final BiomeEffects DEFAULT_EFFECTS = BiomeEffects.builder()
-            .fogColor(0xC0D8FF)
-            .skyColor(0x78A7FF)
-            .waterColor(0x3F76E4)
-            .waterFogColor(0x50533)
-            .build();
 
     public static final Biome PLAINS = Biome.builder()
             .category(Category.NONE)
