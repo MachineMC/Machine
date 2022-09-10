@@ -12,7 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +34,11 @@ public class FriendlyByteBuf {
         buf.writeBytes(bytes);
     }
 
+    /**
+     * Returns content of the full buffer, doesn't move with
+     * reader index and starts from byte 0.
+     * @return all bytes of the buffer
+     */
     public byte[] bytes() {
         int length = buf.writerIndex();
         int reader = buf.readerIndex();
@@ -46,7 +50,21 @@ public class FriendlyByteBuf {
         return bytes;
     }
 
-    public DataOutputStream steam() throws IOException {
+    /**
+     * Reads all remaining bytes of the buffer, moves
+     * reader index at the end.
+     * @return all remaining bytes of the buffer to read
+     */
+    public byte[] finish() {
+        int length = buf.writerIndex();
+        int reader = buf.readerIndex();
+        byte[] bytes = new byte[length - reader];
+        for(int i = 0; i < length - reader; i++)
+            bytes[i] = readByte();
+        return bytes;
+    }
+
+    public DataOutputStream stream() throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         DataOutputStream stream = new DataOutputStream(buffer);
         stream.write(bytes());

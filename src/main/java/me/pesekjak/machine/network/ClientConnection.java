@@ -15,25 +15,19 @@ import me.pesekjak.machine.network.packets.out.*;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
-import me.pesekjak.machine.world.dimensions.DimensionType;
-import me.pesekjak.machine.entities.Gamemode;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBT;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.UUID;
 
 public class ClientConnection extends Thread implements ServerProperty, AutoCloseable {
 
-    private static final NamespacedKey BRAND_ANNOUNCE_CHANNEL = NamespacedKey.minecraft("brand");
     private static final NamespacedKey DEFAULT_HANDLER_NAMESPACE = NamespacedKey.minecraft("default");
 
     @Getter
@@ -156,6 +150,7 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
 
     @Override
     public void close() throws Exception {
+        owner = null;
         channel.close();
         clientSocket.close();
     }

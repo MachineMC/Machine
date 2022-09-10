@@ -5,6 +5,7 @@ import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.out.PacketPlayLogin;
+import me.pesekjak.machine.network.packets.out.PacketPlayPluginMessage;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.world.World;
 import net.kyori.adventure.text.Component;
@@ -49,7 +50,7 @@ public class Player extends LivingEntity {
         List<String> worlds = new ArrayList<>();
         for(World world : getServer().getWorldManager().getWorlds())
             worlds.add(world.getName().toString());
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        FriendlyByteBuf playLoginBuf = new FriendlyByteBuf()
                 .writeInt(1)
                 .writeBoolean(false)
                 .writeByte((byte) gamemode.getID())
@@ -67,7 +68,10 @@ public class Player extends LivingEntity {
                 .writeBoolean(false)
                 .writeBoolean(false) // TODO World - Is Spawn World Flat
                 .writeBoolean(false);
-        connection.sendPacket(new PacketPlayLogin(buf));
+        connection.sendPacket(new PacketPlayLogin(playLoginBuf));
+
+        // TODO Add this as option in server properties
+        connection.sendPacket(PacketPlayPluginMessage.getBrandPacket("Machine server"));
     }
 
 }
