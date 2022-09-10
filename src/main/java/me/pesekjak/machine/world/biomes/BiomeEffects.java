@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import me.pesekjak.machine.nbt.NBTSerializable;
 import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.world.particles.Particle;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
@@ -14,6 +15,13 @@ import java.util.Map;
 @SuppressWarnings("ClassCanBeRecord")
 @Builder
 public class BiomeEffects implements NBTSerializable {
+
+    public static final BiomeEffects DEFAULT_EFFECTS = BiomeEffects.builder()
+            .fogColor(0xC0D8FF)
+            .skyColor(0x78A7FF)
+            .waterColor(0x3F76E4)
+            .waterFogColor(0x50533)
+            .build();
 
     @Getter
     private final int fogColor;
@@ -37,6 +45,10 @@ public class BiomeEffects implements NBTSerializable {
     private final AdditionsSound additionsSound;
     @Getter @Nullable
     private final Music music;
+    @Getter
+    private final int biomeParticleProbability;
+    @Getter @Nullable
+    private final Particle biomeParticle;
 
     @Override
     public NBTCompound toNBT() {
@@ -59,7 +71,11 @@ public class BiomeEffects implements NBTSerializable {
                 nbt.set("additions_sound", additionsSound.toNBT());
             if (music != null)
                 nbt.set("music", music.toNBT());
-            // TODO BiomeParticle Implementation
+            if(biomeParticle != null && biomeParticleProbability != -1)
+                nbt.set("particle", NBT.Compound(Map.of(
+                        "probability", NBT.Float(biomeParticleProbability),
+                        "options", biomeParticle.toNBT()))
+                );
         });
     }
 
