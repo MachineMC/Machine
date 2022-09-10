@@ -3,6 +3,7 @@ package me.pesekjak.machine.file;
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.world.Difficulty;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
@@ -25,6 +26,8 @@ public class ServerProperties implements ServerFile {
     private final Component motd;
     @Getter
     private final NamespacedKey defaultWorld;
+    @Getter
+    private final Difficulty defaultDifficulty;
 
     public ServerProperties(File file) throws IOException {
         final Properties original = new Properties();
@@ -55,6 +58,11 @@ public class ServerProperties implements ServerFile {
         } catch (Exception ignored) { }
         defaultWorld = defaultWorldParsed;
 
+        Difficulty difficulty = Difficulty.DEFAULT_DIFFICULTY;
+        try {
+            difficulty = Difficulty.valueOf(properties.getProperty("default-difficulty").toUpperCase());
+        } catch (Exception ignore) { }
+        defaultDifficulty = difficulty;
     }
 
     @Override

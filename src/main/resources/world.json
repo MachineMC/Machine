@@ -1,5 +1,6 @@
 {
   "name": "machine:main",
   "dimension": "minecraft:overworld",
-  "seed": 1
+  "seed": 1,
+  "difficulty": ""
 }
