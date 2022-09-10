@@ -1,12 +1,16 @@
 package me.pesekjak.machine.network;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
+import me.pesekjak.machine.network.packets.out.PacketLoginSetCompression;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.utils.Pair;
+import me.pesekjak.machine.utils.ZLib;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
@@ -28,6 +32,11 @@ public class Channel implements AutoCloseable {
 
     @Getter
     private boolean open = true;
+
+    @Getter @Setter(AccessLevel.PROTECTED)
+    private boolean compressed;
+    @Getter @Setter(AccessLevel.PROTECTED)
+    private int threshold;
 
     /**
      * Adds new handler before the all existing ones.
@@ -58,6 +67,31 @@ public class Channel implements AutoCloseable {
     }
 
     /**
+     * Enables the packet compression for this channel.
+     * @param threshold maximum packet size without compression
+     * @return true if client accepted the compression
+     */
+    public boolean setCompression(int threshold) throws IOException {
+        if(threshold <= 0) threshold = -1;
+        boolean success = writePacket(
+                new PacketLoginSetCompression(new FriendlyByteBuf()
+                        .writeVarInt(threshold)));
+        if(success) {
+            compressed = true;
+            this.threshold = threshold;
+        }
+        return success;
+    }
+
+    /**
+     * Disables the packet compression for this channel.
+     * @return true if client accepted cancellation of the compression
+     */
+    public boolean disableCompression() throws IOException {
+        return setCompression(-1);
+    }
+
+    /**
      * Reads the packet, handles, and returns.
      * @return handled packet
      */
@@ -66,8 +100,22 @@ public class Channel implements AutoCloseable {
         if(!open) return null;
         FriendlyByteBuf buf = new FriendlyByteBuf();
         int length = readVarInt(input);
-        buf.writeVarInt(length);
-        buf.writeBytes(input.readNBytes(length));
+        if(compressed) {
+            FriendlyByteBuf compressed = new FriendlyByteBuf();
+            compressed.writeBytes(input.readNBytes(length));
+            if(compressed.readVarInt() == 0) { // Was too small to be compressed
+                byte[] uncompressedData = compressed.finish();
+                buf.writeVarInt(uncompressedData.length);
+                buf.writeBytes(uncompressedData);
+            } else { // Actually compressed
+                buf.writeVarInt(compressed.readVarInt());
+                byte[] decompressedData = ZLib.decompress(compressed.finish());
+                buf.writeBytes(decompressedData);
+            }
+        } else {
+            buf.writeVarInt(length);
+            buf.writeBytes(input.readNBytes(length));
+        }
         PacketReader read = new PacketReader(buf, state.in);
         for(Pair<NamespacedKey, PacketHandler> pair : handlers)
             read = pair.getSecond().read(read);
@@ -85,7 +133,12 @@ public class Channel implements AutoCloseable {
         for(Pair<NamespacedKey, PacketHandler> pair : handlers)
             write = pair.getSecond().write(write);
         if(write.getPacket() == null) return false;
-        output.write(write.getPacket().rawSerialize());
+        FriendlyByteBuf buf = new FriendlyByteBuf();
+        if(compressed)
+            buf.writeBytes(write.getPacket().rawCompressedSerialize(threshold));
+        else
+            buf.writeBytes(write.getPacket().rawSerialize());
+        output.write(buf.bytes());
         return true;
     }
 
