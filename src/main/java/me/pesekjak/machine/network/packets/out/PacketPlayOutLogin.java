@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PacketPlayLogin extends PacketOut {
+public class PacketPlayOutLogin extends PacketOut {
 
     public static int ID = 0x25;
 
@@ -56,12 +56,12 @@ public class PacketPlayLogin extends PacketOut {
     private final boolean hasDeathLocation = false; // TODO implement later
 
     static {
-        PacketOut.register(PacketPlayLogin.class, ID, PacketState.PLAY_OUT,
-                PacketPlayLogin::new
+        PacketOut.register(PacketPlayOutLogin.class, ID, PacketState.PLAY_OUT,
+                PacketPlayOutLogin::new
         );
     }
 
-    public PacketPlayLogin(FriendlyByteBuf buf) {
+    public PacketPlayOutLogin(FriendlyByteBuf buf) {
         entityID = buf.readInt();
         isHardcore = buf.readBoolean();
         gamemode = Gamemode.fromID(buf.readByte());
@@ -111,7 +111,7 @@ public class PacketPlayLogin extends PacketOut {
 
     @Override
     public PacketOut clone() {
-        return new PacketPlayLogin(new FriendlyByteBuf(serialize()));
+        return new PacketPlayOutLogin(new FriendlyByteBuf(serialize()));
     }
 
 }

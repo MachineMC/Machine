@@ -91,20 +91,20 @@ public abstract class Packet implements Cloneable {
 
     public enum PacketState {
 
-        HANDSHAKING_IN ("000"),
-        HANDSHAKING_OUT("001"),
-        STATUS_IN      ("010"),
-        STATUS_OUT     ("011"),
-        LOGIN_IN       ("100"),
-        LOGIN_OUT      ("101"),
-        PLAY_IN        ("110"),
-        PLAY_OUT       ("111");
+        HANDSHAKING_IN (0b000),
+        HANDSHAKING_OUT(0b001),
+        STATUS_IN      (0b010),
+        STATUS_OUT     (0b011),
+        LOGIN_IN       (0b100),
+        LOGIN_OUT      (0b101),
+        PLAY_IN        (0b110),
+        PLAY_OUT       (0b111);
 
         @Getter
         private final int mask;
 
-        PacketState(String mask) {
-            this.mask = Integer.parseInt(mask + "000000000000", 2);
+        PacketState(int mask) {
+            this.mask = mask << 12;
         }
 
     }

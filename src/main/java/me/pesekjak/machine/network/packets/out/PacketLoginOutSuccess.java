@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-public class PacketLoginSuccess extends PacketOut {
+public class PacketLoginOutSuccess extends PacketOut {
 
     public static int ID = 0x02;
 
@@ -21,12 +21,12 @@ public class PacketLoginSuccess extends PacketOut {
     private final int properties = 0; // TODO edit for online-mode
 
     static {
-        PacketOut.register(PacketLoginSuccess.class, ID, PacketState.LOGIN_OUT,
-                PacketLoginSuccess::new
+        PacketOut.register(PacketLoginOutSuccess.class, ID, PacketState.LOGIN_OUT,
+                PacketLoginOutSuccess::new
         );
     }
 
-    public PacketLoginSuccess(FriendlyByteBuf buf) {
+    public PacketLoginOutSuccess(FriendlyByteBuf buf) {
         uuid = buf.readUUID();
         userName = buf.readString(StandardCharsets.UTF_8);
         buf.readVarInt(); // reading properties
@@ -48,7 +48,7 @@ public class PacketLoginSuccess extends PacketOut {
 
     @Override
     public PacketOut clone() {
-        return new PacketLoginSuccess(new FriendlyByteBuf(serialize()));
+        return new PacketLoginOutSuccess(new FriendlyByteBuf(serialize()));
     }
 
 }

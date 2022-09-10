@@ -5,7 +5,7 @@ import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
-public class PacketLoginSetCompression extends PacketOut {
+public class PacketLoginOutSetCompression extends PacketOut {
 
     public static final int ID = 0x03;
 
@@ -13,12 +13,12 @@ public class PacketLoginSetCompression extends PacketOut {
     private int threshold;
 
     static {
-        PacketOut.register(PacketLoginSetCompression.class, ID, PacketState.LOGIN_OUT,
-                PacketLoginSetCompression::new
+        PacketOut.register(PacketLoginOutSetCompression.class, ID, PacketState.LOGIN_OUT,
+                PacketLoginOutSetCompression::new
         );
     }
 
-    public PacketLoginSetCompression(FriendlyByteBuf buf) {
+    public PacketLoginOutSetCompression(FriendlyByteBuf buf) {
         threshold = buf.readVarInt();
     }
 
@@ -36,7 +36,7 @@ public class PacketLoginSetCompression extends PacketOut {
 
     @Override
     public PacketOut clone() {
-        return new PacketLoginSetCompression(new FriendlyByteBuf(serialize()));
+        return new PacketLoginOutSetCompression(new FriendlyByteBuf(serialize()));
     }
 
 }

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 
-public class PacketLoginStart extends PacketIn {
+public class PacketLoginInStart extends PacketIn {
 
     public static final int ID = 0x00;
 
@@ -16,12 +16,12 @@ public class PacketLoginStart extends PacketIn {
     private String username;
 
     static {
-        PacketIn.register(PacketLoginStart.class, ID, PacketState.LOGIN_IN,
-                PacketLoginStart::new
+        PacketIn.register(PacketLoginInStart.class, ID, PacketState.LOGIN_IN,
+                PacketLoginInStart::new
         );
     }
 
-    public PacketLoginStart(FriendlyByteBuf buf) {
+    public PacketLoginInStart(FriendlyByteBuf buf) {
         username = buf.readString(StandardCharsets.UTF_8);
     }
 
@@ -39,7 +39,7 @@ public class PacketLoginStart extends PacketIn {
 
     @Override
     public PacketIn clone() {
-        return new PacketLoginStart(new FriendlyByteBuf(serialize()));
+        return new PacketLoginInStart(new FriendlyByteBuf(serialize()));
     }
 
 }

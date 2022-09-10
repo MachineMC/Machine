@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
-import me.pesekjak.machine.network.packets.out.PacketLoginSetCompression;
+import me.pesekjak.machine.network.packets.out.PacketLoginOutSetCompression;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.utils.Pair;
@@ -74,7 +74,7 @@ public class Channel implements AutoCloseable {
     public boolean setCompression(int threshold) throws IOException {
         if(threshold <= 0) threshold = -1;
         boolean success = writePacket(
-                new PacketLoginSetCompression(new FriendlyByteBuf()
+                new PacketLoginOutSetCompression(new FriendlyByteBuf()
                         .writeVarInt(threshold)));
         if(success) {
             compressed = true;
