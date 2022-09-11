@@ -99,6 +99,10 @@ public class FriendlyByteBuf {
         return this;
     }
 
+    public short readUnsignedByte() {
+        return buf.readUnsignedByte();
+    }
+
     public short readShort() {
         return buf.readShort();
     }
@@ -123,6 +127,15 @@ public class FriendlyByteBuf {
 
     public FriendlyByteBuf writeLong(long value) {
         buf.writeLong(value);
+        return this;
+    }
+
+    public float readFloat() {
+        return buf.readFloat();
+    }
+
+    public FriendlyByteBuf writeFloat(float value) {
+        buf.writeFloat(value);
         return this;
     }
 
