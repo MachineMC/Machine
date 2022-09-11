@@ -71,7 +71,7 @@ public class Player extends LivingEntity {
                 .writeBoolean(false)
                 .writeBoolean(false) // TODO World - Is Spawn World Flat
                 .writeBoolean(false);
-        connection.sendPacket(new PacketPlayLogin(playLoginBuf));
+        connection.sendPacket(new PacketPlayOutLogin(playLoginBuf));
 
         // TODO Add this as option in server properties
         connection.sendPacket(PacketPlayPluginMessage.getBrandPacket("Machine server"));

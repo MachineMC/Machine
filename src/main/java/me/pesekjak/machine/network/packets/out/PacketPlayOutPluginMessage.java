@@ -8,7 +8,7 @@ import me.pesekjak.machine.utils.NamespacedKey;
 
 import java.nio.charset.StandardCharsets;
 
-public class PacketPlayPluginMessage extends PacketOut {
+public class PacketPlayOutPluginMessage extends PacketOut {
 
     public static final int ID = 0x16;
 
@@ -18,12 +18,12 @@ public class PacketPlayPluginMessage extends PacketOut {
     private FriendlyByteBuf data;
 
     static {
-        PacketOut.register(PacketPlayPluginMessage.class, ID, PacketState.PLAY_OUT,
-                PacketPlayPluginMessage::new
+        PacketOut.register(PacketPlayOutPluginMessage.class, ID, PacketState.PLAY_OUT,
+                PacketPlayOutPluginMessage::new
         );
     }
 
-    public PacketPlayPluginMessage(FriendlyByteBuf buf) {
+    public PacketPlayOutPluginMessage(FriendlyByteBuf buf) {
         channel = NamespacedKey.parse(buf.readString(StandardCharsets.UTF_8));
         data = new FriendlyByteBuf(buf.finish());
     }
@@ -43,12 +43,12 @@ public class PacketPlayPluginMessage extends PacketOut {
 
     @Override
     public PacketOut clone() {
-        return new PacketPlayPluginMessage(new FriendlyByteBuf(serialize()));
+        return new PacketPlayOutPluginMessage(new FriendlyByteBuf(serialize()));
     }
 
     public static NamespacedKey BRAND_CHANNEL = NamespacedKey.minecraft("brand");
 
-    public static PacketPlayPluginMessage getBrandPacket(String brand) {
+    public static PacketPlayOutPluginMessage getBrandPacket(String brand) {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(BRAND_CHANNEL.toString(), StandardCharsets.UTF_8)
                 .writeBytes(
@@ -56,7 +56,7 @@ public class PacketPlayPluginMessage extends PacketOut {
                         .writeString(brand, StandardCharsets.UTF_8)
                         .bytes()
                 );
-        return new PacketPlayPluginMessage(buf);
+        return new PacketPlayOutPluginMessage(buf);
     }
 
 }

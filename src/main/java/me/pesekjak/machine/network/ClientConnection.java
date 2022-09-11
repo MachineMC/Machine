@@ -7,10 +7,10 @@ import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
-import me.pesekjak.machine.network.packets.in.PacketHandshakingHandshake;
-import me.pesekjak.machine.network.packets.in.PacketLoginStart;
+import me.pesekjak.machine.network.packets.in.PacketHandshakingInHandshake;
+import me.pesekjak.machine.network.packets.in.PacketLoginInStart;
 import me.pesekjak.machine.network.packets.in.PacketStatusInRequest;
-import me.pesekjak.machine.network.packets.in.PacketStatusPing;
+import me.pesekjak.machine.network.packets.in.PacketStatusInPing;
 import me.pesekjak.machine.network.packets.out.*;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
@@ -86,7 +86,7 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
             );
 
             PacketIn packet = readPacket();
-            if(!(packet instanceof PacketHandshakingHandshake handshake)) {
+            if(!(packet instanceof PacketHandshakingInHandshake handshake)) {
                 close();
                 return;
             }
@@ -105,7 +105,7 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                             FriendlyByteBuf buf = new FriendlyByteBuf()
                                     .writeString(server.statusJson(), StandardCharsets.UTF_8);
                             sendPacket(new PacketStatusOutResponse(buf));
-                        } else if(packetIn instanceof PacketStatusPing packetPing) {
+                        } else if(packetIn instanceof PacketStatusInPing packetPing) {
                             FriendlyByteBuf buf = new FriendlyByteBuf()
                                     .writeLong(packetPing.getPayload());
                             sendPacket(new PacketStatusOutPong(buf));
@@ -118,14 +118,14 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                     clientState = ClientState.LOGIN;
                     while (clientSocket.isConnected()) {
                         PacketIn packetIn = readPacket();
-                        if (packetIn instanceof PacketLoginStart packetLogin) {
+                        if (packetIn instanceof PacketLoginInStart packetLogin) {
                             username = packetLogin.getUsername();
                             uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + username).getBytes(StandardCharsets.UTF_8));
                             FriendlyByteBuf buf = new FriendlyByteBuf()
                                     .writeUUID(uuid)
                                     .writeString(username, StandardCharsets.UTF_8)
                                     .writeVarInt(0);
-                            sendPacket(new PacketLoginSuccess(buf));
+                            sendPacket(new PacketLoginOutSuccess(buf));
                             clientState = ClientState.PLAY;
                             break;
                         }
@@ -160,7 +160,7 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
             try {
                 FriendlyByteBuf buf = new FriendlyByteBuf()
                         .writeString(GsonComponentSerializer.gson().serialize(reason), StandardCharsets.UTF_8);
-                PacketLoginDisconnect packet = new PacketLoginDisconnect(buf);
+                PacketLoginOutDisconnect packet = new PacketLoginOutDisconnect(buf);
                 sendPacket(packet);
                 close();
             } catch (Exception ignored) { }
