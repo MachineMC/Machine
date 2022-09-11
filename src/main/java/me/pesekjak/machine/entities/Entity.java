@@ -19,6 +19,8 @@ public class Entity implements ServerProperty {
     private final UUID uuid;
     @Getter
     private final int entityId;
+    @Getter @Setter
+    private String displayName = null;
 
     @Getter @Setter
     private boolean active;

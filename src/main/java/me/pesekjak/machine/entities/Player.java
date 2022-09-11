@@ -1,14 +1,19 @@
 package me.pesekjak.machine.entities;
 
+import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
+import me.pesekjak.machine.chat.ChatUtils;
 import me.pesekjak.machine.network.ClientConnection;
+import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.out.PacketPlayLogin;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutSystemChatMessage;
 import me.pesekjak.machine.network.packets.out.PacketPlayPluginMessage;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.world.World;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
@@ -33,6 +38,7 @@ public class Player extends LivingEntity {
     public Player(Machine server, @NotNull UUID uuid, @NotNull String username, @NotNull ClientConnection connection) {
         super(server, EntityType.PLAYER, uuid);
         this.username = username;
+        setDisplayName(username);
         if(connection.getOwner() != null)
             throw new UnsupportedOperationException("There can't be multiple players with the same ClientConnection");
         this.connection = connection;
@@ -59,7 +65,7 @@ public class Player extends LivingEntity {
                 .writeNBT("", nbt)
                 .writeString(getServer().getDefaultWorld().getDimensionType().getName().toString(), StandardCharsets.UTF_8)
                 .writeString(getServer().getDefaultWorld().getName().toString(), StandardCharsets.UTF_8)
-                .writeLong(getServer().getDefaultWorld().getSeed())
+                .writeLong(Hashing.sha256().hashLong(getServer().getDefaultWorld().getSeed()).asLong())
                 .writeVarInt(getServer().getProperties().getMaxPlayers())
                 .writeVarInt(8) // TODO Server Properties - View Distance
                 .writeVarInt(8) // TODO Server Properties - Simulation Distance
@@ -72,6 +78,27 @@ public class Player extends LivingEntity {
 
         // TODO Add this as option in server properties
         connection.sendPacket(PacketPlayPluginMessage.getBrandPacket("Machine server"));
+    }
+
+    public void sendMessage(String string) {
+        sendMessage(ChatUtils.parse(string));
+    }
+
+    public void sendMessage(Component component) {
+        sendJsonMessage(GsonComponentSerializer.gson().serialize(component));
+    }
+
+    private void sendJsonMessage(String json) {
+        try {
+            json = json.replace(String.valueOf(ChatUtils.COLOR_CHAR), "");
+            PacketOut packet = new PacketPlayOutSystemChatMessage(new FriendlyByteBuf()
+                    .writeString(json, StandardCharsets.UTF_8)
+                    .writeBoolean(false));
+            connection.sendPacket(packet);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

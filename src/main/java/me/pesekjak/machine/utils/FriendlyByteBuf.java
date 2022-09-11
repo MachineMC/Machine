@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -97,6 +98,21 @@ public class FriendlyByteBuf {
     public FriendlyByteBuf writeBytes(byte... bytes) {
         buf.writeBytes(bytes);
         return this;
+    }
+
+    public FriendlyByteBuf writeByteArray(byte[] bytes) {
+        writeVarInt(bytes.length);
+        for (byte b : bytes)
+            writeByte(b);
+        return this;
+    }
+
+    public byte[] readByteArray() {
+        int length = readVarInt();
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < length; i++)
+            bytes[i] = readByte();
+        return bytes;
     }
 
     public short readShort() {
@@ -247,6 +263,19 @@ public class FriendlyByteBuf {
         } catch (Exception ignored) { }
         buf.readerIndex(bytes.length - buffer.available());
         return tag;
+    }
+
+    public FriendlyByteBuf writeInstant(Instant instant) {
+        buf.writeLong(instant.toEpochMilli());
+        return this;
+    }
+
+    public Instant readInstant() {
+        return Instant.ofEpochMilli(readLong());
+    }
+
+    public int readableBytes() {
+        return buf.readableBytes();
     }
 
 }
