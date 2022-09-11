@@ -9,7 +9,7 @@ build/
 *.iws
 
 # IntelliJ
-out/
+/out/
 
 # Compiled class file
 *.class
