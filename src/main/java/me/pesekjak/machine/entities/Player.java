@@ -76,7 +76,8 @@ public class Player extends LivingEntity {
         // TODO Add this as option in server properties
         connection.sendPacket(PacketPlayOutPluginMessage.getBrandPacket("Machine server"));
         FriendlyByteBuf playDiffBuf = new FriendlyByteBuf()
-                .writeByte((byte) getWorld().getDifficulty().getId());
+                .writeByte((byte) getWorld().getDifficulty().getId())
+                .writeBoolean(true);
         connection.sendPacket(new PacketPlayOutChangeDifficulty(playDiffBuf));
     }
 
