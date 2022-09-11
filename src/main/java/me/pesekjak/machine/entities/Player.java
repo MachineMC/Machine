@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.out.PacketPlayLogin;
-import me.pesekjak.machine.network.packets.out.PacketPlayPluginMessage;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutLogin;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutPluginMessage;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.world.World;
 import net.kyori.adventure.text.Component;
@@ -68,10 +68,10 @@ public class Player extends LivingEntity {
                 .writeBoolean(false)
                 .writeBoolean(false) // TODO World - Is Spawn World Flat
                 .writeBoolean(false);
-        connection.sendPacket(new PacketPlayLogin(playLoginBuf));
+        connection.sendPacket(new PacketPlayOutLogin(playLoginBuf));
 
         // TODO Add this as option in server properties
-        connection.sendPacket(PacketPlayPluginMessage.getBrandPacket("Machine server"));
+        connection.sendPacket(PacketPlayOutPluginMessage.getBrandPacket("Machine server"));
     }
 
 }

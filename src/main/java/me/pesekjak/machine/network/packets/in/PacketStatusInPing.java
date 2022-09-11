@@ -5,7 +5,7 @@ import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
-public class PacketStatusPing extends PacketIn {
+public class PacketStatusInPing extends PacketIn {
 
     public static final int ID = 0x01;
 
@@ -13,12 +13,12 @@ public class PacketStatusPing extends PacketIn {
     private long payload;
 
     static {
-        PacketIn.register(PacketStatusPing.class, ID, PacketState.STATUS_IN,
-                PacketStatusPing::new
+        PacketIn.register(PacketStatusInPing.class, ID, PacketState.STATUS_IN,
+                PacketStatusInPing::new
         );
     }
 
-    public PacketStatusPing(FriendlyByteBuf buf) {
+    public PacketStatusInPing(FriendlyByteBuf buf) {
         payload = buf.readLong();
     }
 
@@ -36,7 +36,7 @@ public class PacketStatusPing extends PacketIn {
 
     @Override
     public PacketIn clone() {
-        return new PacketStatusPing(new FriendlyByteBuf(serialize()));
+        return new PacketStatusInPing(new FriendlyByteBuf(serialize()));
     }
 
 }

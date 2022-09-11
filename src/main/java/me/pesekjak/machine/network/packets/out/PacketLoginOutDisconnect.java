@@ -10,20 +10,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 
-public class PacketLoginDisconnect extends PacketOut {
+public class PacketLoginOutDisconnect extends PacketOut {
 
     public static final int ID = 0x00;
 
     static {
-        PacketOut.register(PacketLoginDisconnect.class, ID, PacketState.LOGIN_OUT,
-                PacketLoginDisconnect::new
+        PacketOut.register(PacketLoginOutDisconnect.class, ID, PacketState.LOGIN_OUT,
+                PacketLoginOutDisconnect::new
         );
     }
 
     @Getter @Setter @NotNull
     private Component message;
 
-    public PacketLoginDisconnect(FriendlyByteBuf buf) {
+    public PacketLoginOutDisconnect(FriendlyByteBuf buf) {
         message = GsonComponentSerializer.gson().deserialize(buf.readString(StandardCharsets.UTF_8));
     }
 
@@ -41,7 +41,7 @@ public class PacketLoginDisconnect extends PacketOut {
 
     @Override
     public PacketOut clone() {
-        return new PacketLoginDisconnect(new FriendlyByteBuf(serialize()));
+        return new PacketLoginOutDisconnect(new FriendlyByteBuf(serialize()));
     }
 
 }
