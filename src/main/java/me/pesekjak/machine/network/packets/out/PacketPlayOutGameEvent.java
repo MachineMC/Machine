@@ -20,7 +20,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
     }
 
     public PacketPlayOutGameEvent(FriendlyByteBuf buf) {
-        event = (byte) buf.readUnsignedByte();
+        event = buf.readByte();
         value = buf.readFloat();
     }
 

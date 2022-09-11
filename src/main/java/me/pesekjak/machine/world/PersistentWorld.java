@@ -14,8 +14,9 @@ public class PersistentWorld extends World {
     private PersistentWorld(String folderName,
             NamespacedKey name,
             DimensionType dimensionType,
-            long seed) {
-        super(name, dimensionType, seed);
+            long seed,
+            Difficulty difficulty) {
+        super(name, dimensionType, seed, difficulty);
         this.folderName = folderName;
     }
 
@@ -23,7 +24,8 @@ public class PersistentWorld extends World {
         this(folderName,
                 world.getName(),
                 world.getDimensionType(),
-                world.getSeed()
+                world.getSeed(),
+                world.getDifficulty()
         );
     }
 

@@ -1,19 +1,17 @@
 package me.pesekjak.machine.file;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.world.Difficulty;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.dimensions.DimensionType;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 public class WorldJson implements ServerFile, ServerProperty {
 
@@ -27,13 +25,15 @@ public class WorldJson implements ServerFile, ServerProperty {
     private final DimensionType dimension;
     @Getter
     private final long seed;
+    @Getter
+    private final Difficulty difficulty;
 
     public WorldJson(Machine server, File file) throws IOException, ParseException {
         this.server = server;
-        final JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(new FileReader(file));
+        final JsonParser parser = new JsonParser();
+        JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
 
-        final String unparsedName = (String) json.get("name");
+        final String unparsedName = json.get("name").getAsString();
         NamespacedKey name;
         try {
             name = NamespacedKey.parse(unparsedName);
@@ -44,7 +44,7 @@ public class WorldJson implements ServerFile, ServerProperty {
 
         worldName = name;
 
-        final String unparsedDimensionType = (String) json.get("dimension");
+        final String unparsedDimensionType = json.get("dimension").getAsString();
         NamespacedKey dimensionKey;
         try {
             dimensionKey = NamespacedKey.parse(unparsedDimensionType);
@@ -61,11 +61,21 @@ public class WorldJson implements ServerFile, ServerProperty {
 
         long seedValue = 1;
         try {
-            seedValue = ((Number) json.get("seed")).longValue();
+            seedValue = json.get("seed").getAsNumber().longValue();
         } catch (Exception exception) {
             getServer().getConsole().severe("World '" + worldName + "' has not valid defined seed, defaulting to '1' instead");
         }
         seed = seedValue;
+
+        Difficulty difficulty = Difficulty.getByName(json.get("difficulty").getAsString());
+        if (difficulty == null) {
+            difficulty = getServer().getProperties().getDefaultDifficulty();
+            json.addProperty("difficulty", difficulty.getName());
+        }
+        Writer writer = new FileWriter(file);
+        getServer().getGson().toJson(json, writer);
+        writer.close();
+        this.difficulty = difficulty;
     }
 
     @Override
@@ -83,6 +93,7 @@ public class WorldJson implements ServerFile, ServerProperty {
                 .name(worldName)
                 .dimensionType(dimension)
                 .seed(seed)
+                .difficulty(difficulty)
                 .build();
     }
 

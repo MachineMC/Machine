@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.network.ClientConnection;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutChangeDifficulty;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutLogin;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutPluginMessage;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
@@ -38,12 +39,14 @@ public class Player extends LivingEntity {
         this.connection = connection;
         try {
             init();
-        } catch (Exception e) {
+        } catch (IOException e) {
             connection.disconnect(Component.text("Failed initialization."));
         }
     }
 
-    private void init() throws IOException {
+    @Override
+    protected void init() throws IOException {
+        super.init();
         NBTCompound nbt = NBT.Compound(Map.of(
                 "minecraft:dimension_type", getServer().getDimensionTypeManager().toNBT(),
                 "minecraft:worldgen/biome", getServer().getBiomeManager().toNBT()));
@@ -57,9 +60,9 @@ public class Player extends LivingEntity {
                 .writeByte((byte) -1)
                 .writeStringList(worlds, StandardCharsets.UTF_8)
                 .writeNBT("", nbt)
-                .writeString(getServer().getDefaultWorld().getDimensionType().getName().toString(), StandardCharsets.UTF_8)
-                .writeString(getServer().getDefaultWorld().getName().toString(), StandardCharsets.UTF_8)
-                .writeLong(getServer().getDefaultWorld().getSeed())
+                .writeString(getWorld().getDimensionType().getName().toString(), StandardCharsets.UTF_8)
+                .writeString(getWorld().getName().toString(), StandardCharsets.UTF_8)
+                .writeLong(getWorld().getSeed())
                 .writeVarInt(getServer().getProperties().getMaxPlayers())
                 .writeVarInt(8) // TODO Server Properties - View Distance
                 .writeVarInt(8) // TODO Server Properties - Simulation Distance
@@ -72,6 +75,10 @@ public class Player extends LivingEntity {
 
         // TODO Add this as option in server properties
         connection.sendPacket(PacketPlayOutPluginMessage.getBrandPacket("Machine server"));
+        FriendlyByteBuf playDiffBuf = new FriendlyByteBuf()
+                .writeByte((byte) getWorld().getDifficulty().getId())
+                .writeBoolean(true);
+        connection.sendPacket(new PacketPlayOutChangeDifficulty(playDiffBuf));
     }
 
 }

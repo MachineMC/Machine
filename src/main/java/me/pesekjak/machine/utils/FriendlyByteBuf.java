@@ -99,10 +99,6 @@ public class FriendlyByteBuf {
         return this;
     }
 
-    public short readUnsignedByte() {
-        return buf.readUnsignedByte();
-    }
-
     public short readShort() {
         return buf.readShort();
     }

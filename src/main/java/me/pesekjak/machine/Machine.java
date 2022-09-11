@@ -1,6 +1,8 @@
 package me.pesekjak.machine;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +21,6 @@ import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.WorldManager;
 import me.pesekjak.machine.world.biomes.BiomeManager;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import java.io.File;
@@ -27,10 +28,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Machine {
@@ -50,6 +48,10 @@ public class Machine {
     @Getter @Setter
     private IConsole console;
 
+    @Getter
+    protected final Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .create();
     @Getter
     protected ServerProperties properties;
     @Getter
@@ -180,25 +182,22 @@ public class Machine {
 
     @SuppressWarnings("unchecked")
     public String statusJson() {
-        JSONObject json = new JSONObject();
+        JsonObject json = new JsonObject();
 
-        JSONObject versionJson = new JSONObject();
-        versionJson.put("name", SERVER_IMPLEMENTATION_VERSION);
-        versionJson.put("protocol", SERVER_IMPLEMENTATION_PROTOCOL);
-        json.put("version", versionJson);
+        JsonObject versionJson = new JsonObject();
+        versionJson.addProperty("name", SERVER_IMPLEMENTATION_VERSION);
+        versionJson.addProperty("protocol", SERVER_IMPLEMENTATION_PROTOCOL);
+        json.add("version", versionJson);
 
-        JSONObject playersJson = new JSONObject();
-        playersJson.put("max", properties.getMaxPlayers());
-        playersJson.put("online", 0);
-        json.put("players", playersJson);
+        JsonObject playersJson = new JsonObject();
+        playersJson.addProperty("max", properties.getMaxPlayers());
+        playersJson.addProperty("online", 0);
+        json.add("players", playersJson);
 
-        json.put("description", "%MOTD%");
+        json.addProperty("description", "%MOTD%");
 
-        TreeMap<String, Object> treeMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        treeMap.putAll(json);
-
-        return new GsonBuilder().create()
-                .toJson(treeMap)
+        return gson
+                .toJson(json)
                 .replace("\"%MOTD%\"", GsonComponentSerializer.gson().serialize(properties.getMotd()));
     }
 
