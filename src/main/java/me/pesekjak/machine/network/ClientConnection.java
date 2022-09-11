@@ -3,14 +3,12 @@ package me.pesekjak.machine.network;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
+import me.pesekjak.machine.chat.ChatType;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
-import me.pesekjak.machine.network.packets.in.PacketHandshakingHandshake;
-import me.pesekjak.machine.network.packets.in.PacketLoginStart;
-import me.pesekjak.machine.network.packets.in.PacketStatusInRequest;
-import me.pesekjak.machine.network.packets.in.PacketStatusPing;
+import me.pesekjak.machine.network.packets.in.*;
 import me.pesekjak.machine.network.packets.out.*;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
@@ -137,7 +135,9 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                     throw new IllegalStateException("Client with no username tried to login play");
                 owner = new Player(server, uuid, username, this);
                 while (clientSocket.isConnected()) {
-
+                    PacketIn packetIn = readPacket();
+                    if (packetIn instanceof PacketPlayInChatMessage chatPacket)
+                        handleChat(chatPacket);
                 }
             }
 
@@ -164,6 +164,30 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                 sendPacket(packet);
                 close();
             } catch (Exception ignored) { }
+        }
+    }
+
+    private void handleChat(PacketPlayInChatMessage packet) {
+        if (owner == null)
+            return;
+        FriendlyByteBuf buf = new FriendlyByteBuf()
+                .writeString(packet.getMessage(), StandardCharsets.UTF_8)
+                .writeBoolean(false)
+                .writeString(packet.getMessage(), StandardCharsets.UTF_8)
+                .writeVarInt(ChatType.CHAT.id)
+                .writeUUID(owner.getUuid())
+                .writeString(owner.getDisplayName(), StandardCharsets.UTF_8)
+                .writeBoolean(false)
+                .writeString("{\"text\":\"default\"}", StandardCharsets.UTF_8)
+                .writeLong(packet.getTimestamp().toEpochMilli())
+                .writeLong(packet.getSalt())
+                .writeByteArray(packet.getSignature());
+        PacketOut packetOut = new PacketPlayOutChatMessage(buf);
+        try {
+            sendPacket(packetOut);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
