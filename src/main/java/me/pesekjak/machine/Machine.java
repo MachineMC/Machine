@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import me.pesekjak.machine.events.translations.TranslatorDispatcher;
 import me.pesekjak.machine.file.DimensionsJson;
 import me.pesekjak.machine.file.ServerProperties;
 import me.pesekjak.machine.file.WorldJson;
@@ -54,12 +55,17 @@ public class Machine {
             .create();
     @Getter
     protected ServerProperties properties;
+
+    @Getter
+    protected TranslatorDispatcher translatorDispatcher;
+
     @Getter
     protected DimensionTypeManager dimensionTypeManager;
     @Getter
     protected WorldManager worldManager;
     @Getter
     protected BiomeManager biomeManager;
+
     @Getter
     protected ServerConnection connection;
 
@@ -174,6 +180,9 @@ public class Machine {
 
         ClassUtils.loadClass(PacketFactory.class);
         console.info("Loaded all packet mappings");
+
+        translatorDispatcher = TranslatorDispatcher.createDefault(this);
+        console.info("Loaded all packet translators");
 
         connection = new ServerConnection(this);
 
