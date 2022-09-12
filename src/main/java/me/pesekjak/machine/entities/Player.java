@@ -2,18 +2,10 @@ package me.pesekjak.machine.entities;
 
 import com.google.common.hash.Hashing;
 import lombok.Getter;
-import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.chat.Messenger;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.out.PacketPlayLogin;
-import me.pesekjak.machine.network.packets.out.PacketPlayOutSystemChatMessage;
-import me.pesekjak.machine.network.packets.out.PacketPlayPluginMessage;
-import me.pesekjak.machine.network.packets.out.PacketPlayOutChangeDifficulty;
-import me.pesekjak.machine.network.packets.out.PacketPlayOutGameEvent;
-import me.pesekjak.machine.network.packets.out.PacketPlayOutLogin;
-import me.pesekjak.machine.network.packets.out.PacketPlayOutPluginMessage;
-import me.pesekjak.machine.network.packets.out.PacketPlayOutWorldSpawnPosition;
+import me.pesekjak.machine.network.packets.out.*;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.Difficulty;
@@ -68,7 +60,7 @@ public class Player extends LivingEntity implements Audience {
         for(World world : getServer().getWorldManager().getWorlds())
             worlds.add(world.getName().toString());
         FriendlyByteBuf playLoginBuf = new FriendlyByteBuf()
-                .writeInt(1)
+                .writeInt(getEntityId())
                 .writeBoolean(false)
                 .writeByte((byte) gamemode.getID())
                 .writeByte((byte) -1)
@@ -76,7 +68,7 @@ public class Player extends LivingEntity implements Audience {
                 .writeNBT("", nbt)
                 .writeString(getWorld().getDimensionType().getName().toString(), StandardCharsets.UTF_8)
                 .writeString(getWorld().getName().toString(), StandardCharsets.UTF_8)
-                .writeLong(getWorld().getSeed())
+                .writeLong(Hashing.sha256().hashLong(getWorld().getSeed()).asLong())
                 .writeVarInt(getServer().getProperties().getMaxPlayers())
                 .writeVarInt(8) // TODO Server Properties - View Distance
                 .writeVarInt(8) // TODO Server Properties - Simulation Distance

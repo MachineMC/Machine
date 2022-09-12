@@ -16,7 +16,7 @@ public class PersistentWorld extends World {
             DimensionType dimensionType,
             long seed,
             Difficulty difficulty) {
-        super(name, dimensionType, seed, difficulty);
+        super(name, dimensionType, seed, difficulty, new BlockPosition(0, 0, 0), 0.0F);
         this.folderName = folderName;
     }
 
