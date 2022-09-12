@@ -9,19 +9,22 @@ import java.util.regex.Pattern;
 public class ChatUtils {
 
     private static final LegacyComponentSerializer legacyComponentSerializer = LegacyComponentSerializer.builder()
-            .hexColors()
             .build();
     public static final char COLOR_CHAR = 167; // §
-    public static final Pattern CHAT_COLOR_PATTERN = Pattern.compile("(?i)(?=" + COLOR_CHAR + "([\\da-fk-or]))");
+    public static final String DEFAULT_CHAT_FORMAT = "<%name%> %message%";
 
     private ChatUtils() {
         throw new UnsupportedOperationException();
     }
 
-    public static TextComponent parse(String string) {
+    public static TextComponent stringToComponent(String string) {
         if (string == null)
             return Component.text("");
         return legacyComponentSerializer.deserialize(string);
+    }
+
+    public static String componentToString(Component component) {
+        return legacyComponentSerializer.serialize(component);
     }
 
 }
