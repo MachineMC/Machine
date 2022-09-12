@@ -62,7 +62,7 @@ public class Player extends LivingEntity implements Audience {
         FriendlyByteBuf playLoginBuf = new FriendlyByteBuf()
                 .writeInt(getEntityId())
                 .writeBoolean(false)
-                .writeByte((byte) gamemode.getID())
+                .writeByte((byte) gamemode.getId())
                 .writeByte((byte) -1)
                 .writeStringList(worlds, StandardCharsets.UTF_8)
                 .writeNBT("", nbt)
@@ -133,7 +133,7 @@ public class Player extends LivingEntity implements Audience {
     private void sendGamemodeChange(Gamemode gamemode) throws IOException {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeByte((byte) 3)
-                .writeFloat(gamemode.getID());
+                .writeFloat(gamemode.getId());
         connection.sendPacket(new PacketPlayOutGameEvent(buf));
     }
 

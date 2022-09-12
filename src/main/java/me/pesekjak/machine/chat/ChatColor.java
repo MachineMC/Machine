@@ -1,5 +1,6 @@
 package me.pesekjak.machine.chat;
 
+import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -7,133 +8,133 @@ import org.jetbrains.annotations.Range;
 
 public enum ChatColor {
 
-    BLACK('0', 0x0) {
+    BLACK('0') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.BLACK);
         }
     },
-    DARK_BLUE('1', 0x1) {
+    DARK_BLUE('1') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.DARK_BLUE);
         }
     },
-    DARK_GREEN('2', 0x2) {
+    DARK_GREEN('2') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.DARK_GREEN);
         }
     },
-    DARK_CYAN('3', 0x3) {
+    DARK_CYAN('3') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.DARK_AQUA);
         }
     },
-    DARK_RED('4', 0x4) {
+    DARK_RED('4') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.DARK_RED);
         }
     },
-    DARK_PURPLE('5', 0x5) {
+    DARK_PURPLE('5') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.DARK_PURPLE);
         }
     },
-    GOLD('6', 0x6) {
+    GOLD('6') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.GOLD);
         }
     },
-    LIGHT_GRAY('7', 0x7) {
+    LIGHT_GRAY('7') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.GRAY);
         }
     },
-    DARK_GRAY('8', 0x8) {
+    DARK_GRAY('8') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.DARK_GRAY);
         }
     },
-    BLUE('9', 0x9) {
+    BLUE('9') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.BLUE);
         }
     },
-    GREEN('a', 0xA) {
+    GREEN('a') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.GREEN);
         }
     },
-    CYAN('b', 0xB) {
+    CYAN('b') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.AQUA);
         }
     },
-    RED('c', 0xC) {
+    RED('c') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.RED);
         }
     },
-    LIGHT_PURPLE('d', 0xD) {
+    LIGHT_PURPLE('d') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.LIGHT_PURPLE);
         }
     },
-    YELLOW('e', 0xE) {
+    YELLOW('e') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.YELLOW);
         }
     },
-    WHITE('f', 0xF) {
+    WHITE('f') {
         @Override
         public Style asStyle() {
             return Style.style(NamedTextColor.WHITE);
         }
     },
-    OBFUSCATED('k', 0x10, true) {
+    OBFUSCATED('k', true) {
         @Override
         public Style asStyle() {
             return Style.style(TextDecoration.OBFUSCATED);
         }
     },
-    BOLD('l', 0x11, true) {
+    BOLD('l', true) {
         @Override
         public Style asStyle() {
             return Style.style(TextDecoration.BOLD);
         }
     },
-    STRIKETHROUGH('m', 0x12, true) {
+    STRIKETHROUGH('m', true) {
         @Override
         public Style asStyle() {
             return Style.style(TextDecoration.STRIKETHROUGH);
         }
     },
-    UNDERLINED('n', 0x13, true) {
+    UNDERLINED('n', true) {
         @Override
         public Style asStyle() {
             return Style.style(TextDecoration.UNDERLINED);
         }
     },
-    ITALIC('o', 0x14, true) {
+    ITALIC('o', true) {
         @Override
         public Style asStyle() {
             return Style.style(TextDecoration.ITALIC);
         }
     },
-    RESET('r', 0x15) {
+    RESET('r') {
         @Override
         public Style asStyle() {
             return Style.empty();
@@ -141,19 +142,21 @@ public enum ChatColor {
     };
 
     public final char code;
-    public final int intCode;
     public final boolean isFormat;
     public final boolean isColor;
 
-    ChatColor(char code, int intCode, boolean isFormat) {
+    ChatColor(char code, boolean isFormat) {
         this.code = code;
-        this.intCode = intCode;
         this.isFormat = isFormat;
         isColor = !isFormat && code != 'r';
     }
 
-    ChatColor(char code, int intCode) {
-        this(code, intCode, false);
+    ChatColor(char code) {
+        this(code, false);
+    }
+
+    public int getIntCode() {
+        return ordinal();
     }
 
     public abstract Style asStyle();
@@ -178,10 +181,8 @@ public enum ChatColor {
     }
 
     public static ChatColor byCode(@Range(from = 0, to = 21) int code) {
-        for (ChatColor value : values()) {
-            if (value.intCode == code)
-                return value;
-        }
-        return null;
+        Preconditions.checkArgument(code < values().length, "Unsupported ChatColor");
+        return values()[code];
+
     }
 }

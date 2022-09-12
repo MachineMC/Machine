@@ -1,5 +1,6 @@
 package me.pesekjak.machine.world;
 
+import com.google.common.base.Preconditions;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.Range;
@@ -7,24 +8,23 @@ import org.jetbrains.annotations.Range;
 @AllArgsConstructor
 public enum Difficulty {
 
-    PEACEFUL(0, "peaceful"),
-    EASY(1, "easy"),
-    NORMAL(2, "normal"),
-    HARD(3, "hard");
+    PEACEFUL("peaceful"),
+    EASY("easy"),
+    NORMAL("normal"),
+    HARD("hard");
 
     public static final Difficulty DEFAULT_DIFFICULTY = EASY;
 
     @Getter
-    private final int id;
-    @Getter
     private final String name;
 
+    public int getId() {
+        return ordinal();
+    }
+
     public static Difficulty getByID(@Range(from = 0, to = 3) int id) {
-        for (Difficulty value : values()) {
-            if (value.id == id)
-                return value;
-        }
-        return null;
+        Preconditions.checkArgument(id < values().length, "Unsupported difficulty type");
+        return values()[id];
     }
 
     public static Difficulty getByName(String name) {
