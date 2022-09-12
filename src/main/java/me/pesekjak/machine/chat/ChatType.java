@@ -1,5 +1,6 @@
 package me.pesekjak.machine.chat;
 
+import com.google.common.base.Preconditions;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +28,6 @@ public enum ChatType implements NBTSerializable {
 
     CHAT(
             NamespacedKey.minecraft("chat"),
-            0,
             Element.chat(
                     Set.of(Parameter.SENDER, Parameter.CONTENT),
                     "chat.type.text",
@@ -37,7 +37,6 @@ public enum ChatType implements NBTSerializable {
     ),
     SAY_COMMAND(
             NamespacedKey.minecraft("say_command"),
-            1,
             Element.chat(
                     Set.of(Parameter.SENDER, Parameter.CONTENT),
                     "chat.type.announcement",
@@ -47,7 +46,6 @@ public enum ChatType implements NBTSerializable {
     ),
     MSG_COMMAND_INCOMING(
             NamespacedKey.minecraft("msg_command_incoming"),
-            2,
             Element.chat(
                     Set.of(Parameter.SENDER, Parameter.CONTENT),
                     "commands.message.display.incoming",
@@ -60,7 +58,6 @@ public enum ChatType implements NBTSerializable {
     ),
     MSG_COMMAND_OUTGOING(
             NamespacedKey.minecraft("msg_command_outgoing"),
-            3,
             Element.chat(
                     Set.of(Parameter.TARGET, Parameter.CONTENT),
                     "commands.message.display.outgoing",
@@ -73,7 +70,6 @@ public enum ChatType implements NBTSerializable {
     ),
     TEAM_MSG_COMMAND_INCOMING(
             NamespacedKey.minecraft("team_msg_command_incoming"),
-            4,
             Element.chat(
                     Set.of(Parameter.TARGET, Parameter.SENDER, Parameter.CONTENT),
                     "chat.type.team.text",
@@ -83,7 +79,6 @@ public enum ChatType implements NBTSerializable {
     ),
     TEAM_MSG_COMMAND_OUTGOING(
             NamespacedKey.minecraft("team_msg_command_outgoing"),
-            5,
             Element.chat(
                     Set.of(Parameter.TARGET, Parameter.SENDER, Parameter.CONTENT),
                     "chat.type.team.sent",
@@ -93,7 +88,6 @@ public enum ChatType implements NBTSerializable {
     ),
     EMOTE_COMMAND(
             NamespacedKey.minecraft("emote_command"),
-            6,
             Element.chat(
                     Set.of(Parameter.SENDER, Parameter.TARGET),
                     "chat.type.emote",
@@ -108,7 +102,6 @@ public enum ChatType implements NBTSerializable {
     @Deprecated // Is not used by vanilla server?
     TELLRAW(
             NamespacedKey.minecraft("raw"),
-            7,
             Element.chat(
                     Set.of(Parameter.CONTENT),
                     "%s",
@@ -123,26 +116,26 @@ public enum ChatType implements NBTSerializable {
 
     @Getter @NotNull
     private final NamespacedKey name;
-    @Getter
-    private final int id;
     @Getter(AccessLevel.PROTECTED) @NotNull
     protected final Element chatElement;
     @Getter(AccessLevel.PROTECTED) @NotNull
     protected final Element narrationElement;
 
+    public int getId() {
+        return ordinal();
+    }
+
     public static ChatType fromId(@Range(from = 0, to = 7) int id) {
-        for (ChatType value : values()) {
-            if (value.id == id)
-                return value;
-        }
-        throw new IllegalArgumentException("Unsupported chat type");
+        Preconditions.checkArgument(id < values().length, "Unsupported Chat type");
+        return values()[id];
+
     }
 
     @Override
     public NBTCompound toNBT() {
         return NBT.Compound(chatType -> {
             chatType.setString("name", name.toString());
-            chatType.setInt("id", id);
+            chatType.setInt("id", ordinal());
             chatType.set("element",
                     NBT.Compound(element -> {
                         element.set("chat", chatElement.toNBT());
@@ -152,10 +145,10 @@ public enum ChatType implements NBTSerializable {
         });
     }
 
-    protected static record Element(ElementType type,
-                          Set<Parameter> parameters,
-                          String translationKey,
-                          @Nullable Style style) implements NBTSerializable {
+    protected record Element(ElementType type,
+                             Set<Parameter> parameters,
+                             String translationKey,
+                             @Nullable Style style) implements NBTSerializable {
 
         static final Element DEFAULT_NARRATION_ELEMENT = Element.narration(
                 Set.of(Parameter.SENDER, Parameter.CONTENT),
