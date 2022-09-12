@@ -28,19 +28,19 @@ import java.util.UUID;
 public class Player extends LivingEntity implements Audience {
 
     @Getter
-    private final String username;
+    private final String name;
     @Getter
     private final ClientConnection connection;
 
     @Getter
     private Gamemode gamemode = Gamemode.CREATIVE; // for now
 
-    public Player(Machine server, @NotNull UUID uuid, @NotNull String username, @NotNull ClientConnection connection) {
+    public Player(Machine server, @NotNull UUID uuid, @NotNull String name, @NotNull ClientConnection connection) {
         super(server, EntityType.PLAYER, uuid);
         if(connection.getOwner() != null)
             throw new UnsupportedOperationException("There can't be multiple players with the same ClientConnection");
-        this.username = username;
-        setDisplayName(Component.text(username));
+        this.name = name;
+        setDisplayName(Component.text(name));
         this.connection = connection;
         try {
             init();
