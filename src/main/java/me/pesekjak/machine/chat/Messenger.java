@@ -1,14 +1,18 @@
 package me.pesekjak.machine.chat;
 
+import me.pesekjak.machine.entities.Player;
+import me.pesekjak.machine.entities.player.ChatMode;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutSystemChatMessage;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTType;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +41,38 @@ public class Messenger {
                     chatTypes
             ));
         });
+    }
+
+    public static boolean canReceiveMessage(@NotNull Player player) {
+        return player.getChatMode() == ChatMode.ENABLED;
+    }
+
+    public static boolean canReceiveCommand(@NotNull Player player) {
+        return player.getChatMode() != ChatMode.HIDDEN;
+    }
+
+    // TODO Replace with actual chat message once we get the Player Chat working
+    public static boolean sendChatMessage(@NotNull Player player, @NotNull Component message) {
+        if(!canReceiveMessage(player)) {
+            sendRejectionMessage(player);
+            return false;
+        }
+        return sendSystemMessage(player, message);
+    }
+
+    public static boolean sendSystemMessage(@NotNull Player player, @NotNull Component message) {
+        if(!canReceiveCommand(player)) {
+            sendRejectionMessage(player);
+            return false;
+        }
+        player.sendMessage(message);
+        return true;
+    }
+
+    public static void sendRejectionMessage(@NotNull Player player) {
+        try {
+            player.getConnection().sendPacket(CANNOT_SEND_PACKET);
+        } catch (IOException ignored) { }
     }
 
 }

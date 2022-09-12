@@ -2,8 +2,12 @@ package me.pesekjak.machine.entities;
 
 import com.google.common.hash.Hashing;
 import lombok.Getter;
+import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.chat.Messenger;
+import me.pesekjak.machine.entities.player.ChatMode;
+import me.pesekjak.machine.entities.player.Hand;
+import me.pesekjak.machine.entities.player.SkinPart;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.out.*;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
@@ -20,10 +24,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Player extends LivingEntity implements Audience {
 
@@ -34,6 +35,17 @@ public class Player extends LivingEntity implements Audience {
 
     @Getter
     private Gamemode gamemode = Gamemode.CREATIVE; // for now
+
+    @Getter @Setter
+    private String locale;
+    @Getter @Setter
+    private byte viewDistance;
+    @Getter @Setter
+    private ChatMode chatMode;
+    @Getter @Setter
+    private Set<SkinPart> displayedSkinParts;
+    @Getter @Setter
+    private Hand mainHand;
 
     public Player(Machine server, @NotNull UUID uuid, @NotNull String name, @NotNull ClientConnection connection) {
         super(server, EntityType.PLAYER, uuid);
@@ -132,7 +144,7 @@ public class Player extends LivingEntity implements Audience {
 
     private void sendGamemodeChange(Gamemode gamemode) throws IOException {
         FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeByte((byte) 3)
+                .writeByte((byte) 3) // TODO Enum for the event
                 .writeFloat(gamemode.getID());
         connection.sendPacket(new PacketPlayOutGameEvent(buf));
     }

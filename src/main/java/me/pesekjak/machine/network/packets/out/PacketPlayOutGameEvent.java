@@ -10,7 +10,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
     private static final int ID = 0x1D;
 
     @Getter @Setter
-    private byte event;
+    private byte event; // TODO Enum for the event
     @Getter @Setter
     private float value;
 
