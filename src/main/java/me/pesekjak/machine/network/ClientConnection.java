@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.entities.Player;
-import me.pesekjak.machine.events.TranslatorHandler;
+import me.pesekjak.machine.events.translations.TranslatorHandler;
 import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;

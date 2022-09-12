@@ -1,4 +1,4 @@
-package me.pesekjak.machine.events;
+package me.pesekjak.machine.events.translations;
 
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.Packet;

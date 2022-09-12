@@ -1,4 +1,4 @@
-package me.pesekjak.machine.events;
+package me.pesekjak.machine.events.translations;
 
 import lombok.AllArgsConstructor;
 import me.pesekjak.machine.network.Channel;

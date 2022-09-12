@@ -4,7 +4,7 @@ import com.google.gson.GsonBuilder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import me.pesekjak.machine.events.TranslatorDispatcher;
+import me.pesekjak.machine.events.translations.TranslatorDispatcher;
 import me.pesekjak.machine.file.DimensionsJson;
 import me.pesekjak.machine.file.ServerProperties;
 import me.pesekjak.machine.file.WorldJson;

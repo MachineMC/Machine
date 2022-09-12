@@ -1,4 +1,4 @@
-package me.pesekjak.machine.events;
+package me.pesekjak.machine.events.translations;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
