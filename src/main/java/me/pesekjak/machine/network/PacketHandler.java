@@ -8,19 +8,21 @@ public class PacketHandler {
 
     /**
      * Called when channel reads the packet.
+     * @param channel Channel packet is read from
      * @param read Previous reader
      * @return Next reader
      */
-    public PacketReader read(PacketReader read) {
+    public PacketReader read(Channel channel, PacketReader read) {
         return read;
     }
 
     /**
      * Called when channel writes the packet.
+     * @param channel Channel packet is written to
      * @param write Previous writer
      * @return Next writer
      */
-    public PacketWriter write(PacketWriter write) {
+    public PacketWriter write(Channel channel, PacketWriter write) {
         return write;
     }
 

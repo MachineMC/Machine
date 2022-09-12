@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -32,22 +33,31 @@ public class ClassUtils {
      * @throws IOException jar is invalid
      */
     public static void loadClasses(String basePackage) throws IOException {
-        JarFile jar = new JarFile(FileUtils.getMachineJar());
-        basePackage = basePackage.replace('.', '/') + "/";
-        List<String> classNames = new ArrayList<>();
-
-        for (Iterator<JarEntry> entries = jar.entries().asIterator(); entries.hasNext(); ) {
-            JarEntry entry = entries.next();
-            if (entry.getName().startsWith(basePackage) && entry.getName().endsWith(".class"))
-                classNames.add(entry.getName().replace('/', '.').substring(0, entry.getName().length() - ".class".length()));
-        }
-
+        List<String> classNames = getClasses(basePackage);
         for (String className : classNames) {
             try {
                 Class.forName(className, true, Machine.CLASS_LOADER);
             } catch (ClassNotFoundException | ExceptionInInitializerError ignored) { }
         }
+    }
+
+    /**
+     * Returns list of class names inside of a package.
+     * @param basePackage Base package of the classes
+     * @return list of the class inside
+     * @throws IOException jar is invalid
+     */
+    public static List<String> getClasses(String basePackage) throws IOException {
+        JarFile jar = new JarFile(FileUtils.getMachineJar());
+        basePackage = basePackage.replace('.', '/') + "/";
+        List<String> classNames = new ArrayList<>();
+        for (Iterator<JarEntry> entries = jar.entries().asIterator(); entries.hasNext(); ) {
+            JarEntry entry = entries.next();
+            if (entry.getName().startsWith(basePackage) && entry.getName().endsWith(".class"))
+                classNames.add(entry.getName().replace('/', '.').substring(0, entry.getName().length() - ".class".length()));
+        }
         jar.close();
+        return classNames;
     }
 
 }
