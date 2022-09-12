@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Range;
 
 import java.nio.charset.StandardCharsets;
 
-public class PacketHandshakingHandshake extends PacketIn {
+public class PacketHandshakingInHandshake extends PacketIn {
 
     public static final int ID = 0x00;
 
@@ -24,12 +24,12 @@ public class PacketHandshakingHandshake extends PacketIn {
     private HandshakeType handshakeType;
 
     static {
-        PacketIn.register(PacketHandshakingHandshake.class, ID, PacketState.HANDSHAKING_IN,
-                PacketHandshakingHandshake::new
+        PacketIn.register(PacketHandshakingInHandshake.class, ID, PacketState.HANDSHAKING_IN,
+                PacketHandshakingInHandshake::new
         );
     }
 
-    public PacketHandshakingHandshake(FriendlyByteBuf buf) {
+    public PacketHandshakingInHandshake(FriendlyByteBuf buf) {
         protocolVersion = buf.readVarInt();
         serverAddress = buf.readString(StandardCharsets.UTF_8);
         serverPort = buf.readShort() & 0xFFFF;
@@ -53,7 +53,7 @@ public class PacketHandshakingHandshake extends PacketIn {
 
     @Override
     public PacketIn clone() {
-        return new PacketHandshakingHandshake(new FriendlyByteBuf(serialize()));
+        return new PacketHandshakingInHandshake(new FriendlyByteBuf(serialize()));
     }
 
     @AllArgsConstructor

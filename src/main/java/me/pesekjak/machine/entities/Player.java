@@ -9,7 +9,14 @@ import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.out.PacketPlayLogin;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutSystemChatMessage;
 import me.pesekjak.machine.network.packets.out.PacketPlayPluginMessage;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutChangeDifficulty;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutGameEvent;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutLogin;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutPluginMessage;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutWorldSpawnPosition;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.world.BlockPosition;
+import me.pesekjak.machine.world.Difficulty;
 import me.pesekjak.machine.world.World;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.MessageType;
@@ -33,8 +40,8 @@ public class Player extends LivingEntity implements Audience {
     @Getter
     private final ClientConnection connection;
 
-    @Getter @Setter
-    private Gamemode gamemode = Gamemode.SURVIVAL; // for now
+    @Getter
+    private Gamemode gamemode = Gamemode.CREATIVE; // for now
 
     public Player(Machine server, @NotNull UUID uuid, @NotNull String username, @NotNull ClientConnection connection) {
         super(server, EntityType.PLAYER, uuid);
@@ -45,12 +52,14 @@ public class Player extends LivingEntity implements Audience {
         this.connection = connection;
         try {
             init();
-        } catch (Exception e) {
+        } catch (IOException e) {
             connection.disconnect(Component.text("Failed initialization."));
         }
     }
 
-    private void init() throws IOException {
+    @Override
+    protected void init() throws IOException {
+        super.init();
         NBTCompound nbt = NBT.Compound(Map.of(
                 "minecraft:chat_type", Messenger.CHAT_REGISTRY,
                 "minecraft:dimension_type", getServer().getDimensionTypeManager().toNBT(),
@@ -65,9 +74,9 @@ public class Player extends LivingEntity implements Audience {
                 .writeByte((byte) -1)
                 .writeStringList(worlds, StandardCharsets.UTF_8)
                 .writeNBT("", nbt)
-                .writeString(getServer().getDefaultWorld().getDimensionType().getName().toString(), StandardCharsets.UTF_8)
-                .writeString(getServer().getDefaultWorld().getName().toString(), StandardCharsets.UTF_8)
-                .writeLong(Hashing.sha256().hashLong(getServer().getDefaultWorld().getSeed()).asLong())
+                .writeString(getWorld().getDimensionType().getName().toString(), StandardCharsets.UTF_8)
+                .writeString(getWorld().getName().toString(), StandardCharsets.UTF_8)
+                .writeLong(getWorld().getSeed())
                 .writeVarInt(getServer().getProperties().getMaxPlayers())
                 .writeVarInt(8) // TODO Server Properties - View Distance
                 .writeVarInt(8) // TODO Server Properties - Simulation Distance
@@ -76,10 +85,31 @@ public class Player extends LivingEntity implements Audience {
                 .writeBoolean(false)
                 .writeBoolean(false) // TODO World - Is Spawn World Flat
                 .writeBoolean(false);
-        connection.sendPacket(new PacketPlayLogin(playLoginBuf));
+        connection.sendPacket(new PacketPlayOutLogin(playLoginBuf));
 
         // TODO Add this as option in server properties
-        connection.sendPacket(PacketPlayPluginMessage.getBrandPacket("Machine server"));
+        connection.sendPacket(PacketPlayOutPluginMessage.getBrandPacket("Machine server"));
+
+        sendDifficultyChange(getWorld().getDifficulty());
+        sendWorldSpawnChange(new BlockPosition(0, 0, 0), 0.0F);
+        sendGamemodeChange(gamemode);
+    }
+
+    public void setGamemode(Gamemode gamemode) {
+        try {
+            this.gamemode = gamemode;
+            sendGamemodeChange(gamemode);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void sendDifficultyChange(Difficulty difficulty) throws IOException {
+        FriendlyByteBuf buf = new FriendlyByteBuf()
+                .writeByte((byte) difficulty.getId())
+                .writeBoolean(true);
+        connection.sendPacket(new PacketPlayOutChangeDifficulty(buf));
     }
 
     @Override
@@ -99,6 +129,20 @@ public class Player extends LivingEntity implements Audience {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
+    }
+
+    private void sendWorldSpawnChange(BlockPosition position, float angle) throws IOException {
+        FriendlyByteBuf buf = new FriendlyByteBuf()
+                .writeBlockPos(position)
+                .writeFloat(angle);
+        connection.sendPacket(new PacketPlayOutWorldSpawnPosition(buf));
+    }
+
+    private void sendGamemodeChange(Gamemode gamemode) throws IOException {
+        FriendlyByteBuf buf = new FriendlyByteBuf()
+                .writeByte((byte) 3)
+                .writeFloat(gamemode.getID());
+        connection.sendPacket(new PacketPlayOutGameEvent(buf));
     }
 
 }

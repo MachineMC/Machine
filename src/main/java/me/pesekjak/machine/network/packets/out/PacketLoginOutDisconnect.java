@@ -7,20 +7,20 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class PacketLoginDisconnect extends PacketOut {
+public class PacketLoginOutDisconnect extends PacketOut {
 
     public static final int ID = 0x00;
 
     static {
-        PacketOut.register(PacketLoginDisconnect.class, ID, PacketState.LOGIN_OUT,
-                PacketLoginDisconnect::new
+        PacketOut.register(PacketLoginOutDisconnect.class, ID, PacketState.LOGIN_OUT,
+                PacketLoginOutDisconnect::new
         );
     }
 
     @Getter @Setter @NotNull
     private Component message;
 
-    public PacketLoginDisconnect(FriendlyByteBuf buf) {
+    public PacketLoginOutDisconnect(FriendlyByteBuf buf) {
         message = buf.readComponent();
     }
 
@@ -38,7 +38,7 @@ public class PacketLoginDisconnect extends PacketOut {
 
     @Override
     public PacketOut clone() {
-        return new PacketLoginDisconnect(new FriendlyByteBuf(serialize()));
+        return new PacketLoginOutDisconnect(new FriendlyByteBuf(serialize()));
     }
 
 }

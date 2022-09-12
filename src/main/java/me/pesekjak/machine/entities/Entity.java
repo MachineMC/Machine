@@ -8,7 +8,9 @@ import me.pesekjak.machine.utils.EntityUtils;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
+import me.pesekjak.machine.world.World;
 
+import java.io.IOException;
 import java.util.UUID;
 
 public class Entity implements Identity, ServerProperty {
@@ -24,8 +26,10 @@ public class Entity implements Identity, ServerProperty {
     private final int entityId;
     @Getter @Setter
     private Component displayName = null;
+    @Getter
+    private World world;
 
-    @Getter @Setter
+    @Getter
     private boolean active;
 
     public Entity(Machine server, EntityType entityType, UUID uuid) {
@@ -33,6 +37,7 @@ public class Entity implements Identity, ServerProperty {
         this.entityType = entityType;
         this.uuid = uuid;
         this.entityId = EntityUtils.getEmptyID();
+        this.world = getServer().getDefaultWorld();
         active = false;
     }
 
@@ -41,4 +46,10 @@ public class Entity implements Identity, ServerProperty {
         return uuid;
     }
 
+    protected void init() throws IOException {
+        if (active)
+            throw new IllegalStateException(this + " is already initiated");
+        active = true;
+        getWorld().getEntityList().add(this);
+    }
 }

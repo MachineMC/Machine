@@ -10,7 +10,10 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    maven("https://jitpack.io")
+    maven {
+        url = uri("https://jitpack.io")
+        url = uri("https://repo.kenzie.mx/releases")
+    }
 }
 
 dependencies {
@@ -46,10 +49,16 @@ dependencies {
     // Guava
     implementation("com.google.guava:guava:11.0.2")
 
+    // Kenzie's Mirror <3
+    implementation("mx.kenzie:mirror:5.0.4")
 }
 
 application {
     mainClass.set("me.pesekjak.machine.Machine")
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 tasks {

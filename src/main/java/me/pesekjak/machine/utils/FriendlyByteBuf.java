@@ -145,6 +145,15 @@ public class FriendlyByteBuf {
         return this;
     }
 
+    public float readFloat() {
+        return buf.readFloat();
+    }
+
+    public FriendlyByteBuf writeFloat(float value) {
+        buf.writeFloat(value);
+        return this;
+    }
+
     public int readVarInt() {
         int value = 0;
         int position = 0;

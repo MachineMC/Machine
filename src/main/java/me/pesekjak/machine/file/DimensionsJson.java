@@ -1,16 +1,17 @@
 package me.pesekjak.machine.file;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.dimensions.DimensionType;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class DimensionsJson implements ServerFile, ServerProperty {
@@ -21,13 +22,13 @@ public class DimensionsJson implements ServerFile, ServerProperty {
     private final Machine server;
     private final Set<DimensionType> dimensions = new HashSet<>();
 
-    public DimensionsJson(Machine server, File file) throws IOException, ParseException {
+    public DimensionsJson(Machine server, File file) throws IOException {
         this.server = server;
-        final JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(new FileReader(file));
-        JSONObject dimensions = (JSONObject) json.get("dimensions");
-        for(Object dimensionsKey : dimensions.keySet()) {
-            if(!(dimensionsKey instanceof String unparsed)) continue;
+        final JsonParser parser = new JsonParser();
+        JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
+        JsonObject dimensions = json.get("dimensions").getAsJsonObject();
+        for(Map.Entry<String, JsonElement> dimensionKey : dimensions.entrySet()) {
+            String unparsed = dimensionKey.getKey();
             NamespacedKey key;
             try {
                 key = NamespacedKey.parse(unparsed);
@@ -35,30 +36,30 @@ public class DimensionsJson implements ServerFile, ServerProperty {
                 server.getConsole().severe("Dimension '" + unparsed + "' uses illegal identifier and can't be registered");
                 continue;
             }
-            JSONObject dimension = (JSONObject) dimensions.get(key.toString());
+            JsonObject dimension = dimensionKey.getValue().getAsJsonObject();
 
-            Boolean natural = (Boolean) dimension.get("natural");
-            Number ambientLight = (Number) dimension.get("ambient_light");
-            Boolean ceilingEnabled = (Boolean) dimension.get("has_ceiling");
-            Boolean skylightEnabled = (Boolean) dimension.get("has_skylight");
-            Number fixedTime = (Number) dimension.get("fixed_time");
+            Boolean natural = dimension.get("natural").getAsBoolean();
+            Number ambientLight = dimension.get("ambient_light").getAsNumber();
+            Boolean ceilingEnabled = dimension.get("has_ceiling").getAsBoolean();
+            Boolean skylightEnabled = dimension.get("has_skylight").getAsBoolean();
+            Number fixedTime = dimension.get("fixed_time").getAsNumber();
             if(fixedTime != null && fixedTime.intValue() == -1) fixedTime = null; // nullable option
-            Boolean raidCapable = (Boolean) dimension.get("has_raids");
-            Boolean respawnAnchorSafe = (Boolean) dimension.get("respawn_anchor_works");
-            Boolean ultrawarm = (Boolean) dimension.get("ultrawarm");
-            Boolean bedSafe = (Boolean) dimension.get("bed_works");
-            String effects = (String) dimension.get("effects");
-            Boolean piglinSafe = (Boolean) dimension.get("piglin_safe");
-            Number minY = (Number) dimension.get("min_y");
-            Number height = (Number) dimension.get("height");
-            Number logicalHeight = (Number) dimension.get("logical_height");
-            Number coordinateScale = (Number) dimension.get("coordinate_scale");
+            Boolean raidCapable = dimension.get("has_raids").getAsBoolean();
+            Boolean respawnAnchorSafe = dimension.get("respawn_anchor_works").getAsBoolean();
+            Boolean ultrawarm = dimension.get("ultrawarm").getAsBoolean();
+            Boolean bedSafe = dimension.get("bed_works").getAsBoolean();
+            String effects = dimension.get("effects").getAsString();
+            Boolean piglinSafe = dimension.get("piglin_safe").getAsBoolean();
+            Number minY = dimension.get("min_y").getAsNumber();
+            Number height = dimension.get("height").getAsNumber();
+            Number logicalHeight = dimension.get("logical_height").getAsNumber();
+            Number coordinateScale = dimension.get("coordinate_scale").getAsNumber();
             NamespacedKey infiniburn = null;
             try {
-                infiniburn = NamespacedKey.minecraft((String) dimension.get("infiniburn"));
+                infiniburn = NamespacedKey.minecraft(dimension.get("infiniburn").getAsString());
             } catch (Exception ignored) { }
-            Number monsterSpawnBlockLightLimit = (Number) dimension.get("monster_spawn_block_light_limit");
-            Number monsterSpawnLightLevel = (Number) dimension.get("monster_spawn_light_level");
+            Number monsterSpawnBlockLightLimit = dimension.get("monster_spawn_block_light_limit").getAsNumber();
+            Number monsterSpawnLightLevel = dimension.get("monster_spawn_light_level").getAsNumber();
 
             if(natural == null | ambientLight == null | ceilingEnabled == null |
             skylightEnabled == null | raidCapable == null | respawnAnchorSafe == null |

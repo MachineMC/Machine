@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
-import me.pesekjak.machine.network.packets.out.PacketLoginSetCompression;
+import me.pesekjak.machine.network.packets.out.PacketLoginOutSetCompression;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.utils.Pair;
@@ -20,13 +20,15 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Handles the stream of the packets.
+ * Handles the stream of the packets of ClientConnection.
  */
 @RequiredArgsConstructor
 public class Channel implements AutoCloseable {
 
     private final List<Pair<NamespacedKey, PacketHandler>> handlers = new CopyOnWriteArrayList<>();
 
+    @Getter
+    private final ClientConnection connection;
     protected final DataInputStream input;
     protected final DataOutputStream output;
 
@@ -74,7 +76,7 @@ public class Channel implements AutoCloseable {
     public boolean setCompression(int threshold) throws IOException {
         if(threshold <= 0) threshold = -1;
         boolean success = writePacket(
-                new PacketLoginSetCompression(new FriendlyByteBuf()
+                new PacketLoginOutSetCompression(new FriendlyByteBuf()
                         .writeVarInt(threshold)));
         if(success) {
             compressed = true;
@@ -118,7 +120,7 @@ public class Channel implements AutoCloseable {
         }
         PacketReader read = new PacketReader(buf, state.in);
         for(Pair<NamespacedKey, PacketHandler> pair : handlers)
-            read = pair.getSecond().read(read);
+            read = pair.getSecond().read(this, read);
         return read.getPacket();
     }
 
@@ -131,7 +133,7 @@ public class Channel implements AutoCloseable {
         if(!open) return false;
         PacketWriter write = new PacketWriter(packet);
         for(Pair<NamespacedKey, PacketHandler> pair : handlers)
-            write = pair.getSecond().write(write);
+            write = pair.getSecond().write(this, write);
         if(write.getPacket() == null) return false;
         FriendlyByteBuf buf = new FriendlyByteBuf();
         if(compressed)
