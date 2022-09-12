@@ -5,9 +5,13 @@ import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutChangeDifficulty;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutGameEvent;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutLogin;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutPluginMessage;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutWorldSpawnPosition;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.world.BlockPosition;
+import me.pesekjak.machine.world.Difficulty;
 import me.pesekjak.machine.world.World;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
@@ -28,8 +32,8 @@ public class Player extends LivingEntity {
     @Getter
     private final ClientConnection connection;
 
-    @Getter @Setter
-    private Gamemode gamemode = Gamemode.SURVIVAL; // for now
+    @Getter
+    private Gamemode gamemode = Gamemode.CREATIVE; // for now
 
     public Player(Machine server, @NotNull UUID uuid, @NotNull String username, @NotNull ClientConnection connection) {
         super(server, EntityType.PLAYER, uuid);
@@ -75,10 +79,40 @@ public class Player extends LivingEntity {
 
         // TODO Add this as option in server properties
         connection.sendPacket(PacketPlayOutPluginMessage.getBrandPacket("Machine server"));
-        FriendlyByteBuf playDiffBuf = new FriendlyByteBuf()
-                .writeByte((byte) getWorld().getDifficulty().getId())
-                .writeBoolean(true);
-        connection.sendPacket(new PacketPlayOutChangeDifficulty(playDiffBuf));
+
+        sendDifficultyChange(getWorld().getDifficulty());
+        sendWorldSpawnChange(new BlockPosition(0, 0, 0), 0.0F);
+        sendGamemodeChange(gamemode);
     }
 
+    public void setGamemode(Gamemode gamemode) {
+        try {
+            this.gamemode = gamemode;
+            sendGamemodeChange(gamemode);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void sendDifficultyChange(Difficulty difficulty) throws IOException {
+        FriendlyByteBuf buf = new FriendlyByteBuf()
+                .writeByte((byte) difficulty.getId())
+                .writeBoolean(true);
+        connection.sendPacket(new PacketPlayOutChangeDifficulty(buf));
+    }
+
+    private void sendWorldSpawnChange(BlockPosition position, float angle) throws IOException {
+        FriendlyByteBuf buf = new FriendlyByteBuf()
+                .writeBlockPos(position)
+                .writeFloat(angle);
+        connection.sendPacket(new PacketPlayOutWorldSpawnPosition(buf));
+    }
+
+    private void sendGamemodeChange(Gamemode gamemode) throws IOException {
+        FriendlyByteBuf buf = new FriendlyByteBuf()
+                .writeByte((byte) 3)
+                .writeFloat(gamemode.getID());
+        connection.sendPacket(new PacketPlayOutGameEvent(buf));
+    }
 }
