@@ -5,7 +5,7 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jetbrains.annotations.Range;
 
-public enum ChatFormat {
+public enum ChatColor {
 
     BLACK('0', 0x0) {
         @Override
@@ -145,14 +145,14 @@ public enum ChatFormat {
     public final boolean isFormat;
     public final boolean isColor;
 
-    ChatFormat(char code, int intCode, boolean isFormat) {
+    ChatColor(char code, int intCode, boolean isFormat) {
         this.code = code;
         this.intCode = intCode;
         this.isFormat = isFormat;
         isColor = !isFormat && code != 'r';
     }
 
-    ChatFormat(char code, int intCode) {
+    ChatColor(char code, int intCode) {
         this(code, intCode, false);
     }
 
@@ -163,22 +163,22 @@ public enum ChatFormat {
         return new String(new char[]{ChatUtils.COLOR_CHAR, code});
     }
 
-    public static ChatFormat byChar(char code) {
-        for (ChatFormat value : values()) {
+    public static ChatColor byChar(char code) {
+        for (ChatColor value : values()) {
             if (value.code == code)
                 return value;
         }
         return null;
     }
 
-    public static ChatFormat byChar(String code) {
+    public static ChatColor byChar(String code) {
         if (code.length() != 1)
             return null;
         return byChar(code.charAt(0));
     }
 
-    public static ChatFormat byCode(@Range(from = 0, to = 21) int code) {
-        for (ChatFormat value : values()) {
+    public static ChatColor byCode(@Range(from = 0, to = 21) int code) {
+        for (ChatColor value : values()) {
             if (value.intCode == code)
                 return value;
         }

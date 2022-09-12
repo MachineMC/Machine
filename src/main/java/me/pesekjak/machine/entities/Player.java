@@ -4,16 +4,17 @@ import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
-import me.pesekjak.machine.chat.ChatUtils;
+import me.pesekjak.machine.chat.Messenger;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.out.PacketPlayLogin;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutSystemChatMessage;
 import me.pesekjak.machine.network.packets.out.PacketPlayPluginMessage;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.world.World;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.MessageType;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class Player extends LivingEntity {
+public class Player extends LivingEntity implements Audience {
 
     @Getter
     private final String username;
@@ -37,10 +38,10 @@ public class Player extends LivingEntity {
 
     public Player(Machine server, @NotNull UUID uuid, @NotNull String username, @NotNull ClientConnection connection) {
         super(server, EntityType.PLAYER, uuid);
-        this.username = username;
-        setDisplayName(username);
         if(connection.getOwner() != null)
             throw new UnsupportedOperationException("There can't be multiple players with the same ClientConnection");
+        this.username = username;
+        setDisplayName(Component.text(username));
         this.connection = connection;
         try {
             init();
@@ -51,6 +52,7 @@ public class Player extends LivingEntity {
 
     private void init() throws IOException {
         NBTCompound nbt = NBT.Compound(Map.of(
+                "minecraft:chat_type", Messenger.CHAT_REGISTRY,
                 "minecraft:dimension_type", getServer().getDimensionTypeManager().toNBT(),
                 "minecraft:worldgen/biome", getServer().getBiomeManager().toNBT()));
         List<String> worlds = new ArrayList<>();
@@ -80,24 +82,22 @@ public class Player extends LivingEntity {
         connection.sendPacket(PacketPlayPluginMessage.getBrandPacket("Machine server"));
     }
 
-    public void sendMessage(String string) {
-        sendMessage(ChatUtils.parse(string));
+    @Override
+    public void sendMessage(final @NotNull Identity source, final @NotNull Component message, final @NotNull MessageType type) {
+        sendSystem(message);
     }
 
-    public void sendMessage(Component component) {
-        sendJsonMessage(GsonComponentSerializer.gson().serialize(component));
-    }
-
-    private void sendJsonMessage(String json) {
+    // TODO Move this to Messenger class + handle if player can display the message (chat settings),
+    //  that means implementing Client Information packet
+    private void sendSystem(Component message) {
         try {
-            json = json.replace(String.valueOf(ChatUtils.COLOR_CHAR), "");
-            PacketOut packet = new PacketPlayOutSystemChatMessage(new FriendlyByteBuf()
-                    .writeString(json, StandardCharsets.UTF_8)
-                    .writeBoolean(false));
-            connection.sendPacket(packet);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
+            connection.sendPacket(new PacketPlayOutSystemChatMessage(
+                    new FriendlyByteBuf()
+                            .writeComponent(message)
+                            .writeBoolean(false)
+            ));
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 

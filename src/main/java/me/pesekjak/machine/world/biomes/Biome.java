@@ -20,7 +20,7 @@ public class Biome implements NBTSerializable {
 
     public static final Biome PLAINS = Biome.builder()
             .category(Category.NONE)
-            .name(new NamespacedKey(NamespacedKey.MINECRAFT_KEY, "plains"))
+            .name(new NamespacedKey(NamespacedKey.MINECRAFT_NAMESPACE, "plains"))
             .depth(0.125F)
             .temperature(0.8F)
             .scale(0.05F)

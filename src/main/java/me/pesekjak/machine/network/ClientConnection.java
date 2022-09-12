@@ -3,7 +3,6 @@ package me.pesekjak.machine.network;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
-import me.pesekjak.machine.chat.ChatType;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.network.packets.PacketIn;
@@ -136,16 +135,12 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                 owner = new Player(server, uuid, username, this);
                 while (clientSocket.isConnected()) {
                     PacketIn packetIn = readPacket();
-                    if (packetIn instanceof PacketPlayInChatMessage chatPacket)
-                        handleChat(chatPacket);
                 }
             }
 
             close();
 
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
+        } catch (Exception ignored) { }
     }
 
     @Override
@@ -164,30 +159,6 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                 sendPacket(packet);
                 close();
             } catch (Exception ignored) { }
-        }
-    }
-
-    private void handleChat(PacketPlayInChatMessage packet) {
-        if (owner == null)
-            return;
-        FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeString(packet.getMessage(), StandardCharsets.UTF_8)
-                .writeBoolean(false)
-                .writeString(packet.getMessage(), StandardCharsets.UTF_8)
-                .writeVarInt(ChatType.CHAT.id)
-                .writeUUID(owner.getUuid())
-                .writeString(owner.getDisplayName(), StandardCharsets.UTF_8)
-                .writeBoolean(false)
-                .writeString("{\"text\":\"default\"}", StandardCharsets.UTF_8)
-                .writeLong(packet.getTimestamp().toEpochMilli())
-                .writeLong(packet.getSalt())
-                .writeByteArray(packet.getSignature());
-        PacketOut packetOut = new PacketPlayOutChatMessage(buf);
-        try {
-            sendPacket(packetOut);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 

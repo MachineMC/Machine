@@ -18,7 +18,7 @@ public class DimensionType implements NBTSerializable {
     private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
 
     public static final DimensionType OVERWORLD = DimensionType.builder()
-            .name(new NamespacedKey(NamespacedKey.MINECRAFT_KEY, "overworld"))
+            .name(new NamespacedKey(NamespacedKey.MINECRAFT_NAMESPACE, "overworld"))
             .natural(true)
             .ambientLight(0)
             .ceilingEnabled(false)
@@ -34,7 +34,7 @@ public class DimensionType implements NBTSerializable {
             .height(384)
             .logicalHeight(384)
             .coordinateScale(1)
-            .infiniburn(new NamespacedKey(NamespacedKey.MINECRAFT_KEY, "infiniburn_overworld"))
+            .infiniburn(new NamespacedKey(NamespacedKey.MINECRAFT_NAMESPACE, "infiniburn_overworld"))
             .monsterSpawnBlockLightLimit(5)
             .monsterSpawnLightLevel(1)
             .build();

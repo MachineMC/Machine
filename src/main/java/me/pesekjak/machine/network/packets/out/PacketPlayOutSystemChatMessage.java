@@ -4,16 +4,15 @@ import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
-
-import java.nio.charset.StandardCharsets;
 
 public class PacketPlayOutSystemChatMessage extends PacketOut {
 
     private static final int ID = 0x62;
 
     @Getter @Setter @NotNull
-    private String json;
+    private Component message;
     @Getter @Setter
     private boolean overlay;
 
@@ -23,7 +22,7 @@ public class PacketPlayOutSystemChatMessage extends PacketOut {
     }
 
     public PacketPlayOutSystemChatMessage(FriendlyByteBuf buf) {
-        json = buf.readString(StandardCharsets.UTF_8);
+        message = buf.readComponent();
         overlay = buf.readBoolean();
     }
 
@@ -35,7 +34,7 @@ public class PacketPlayOutSystemChatMessage extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeString(json, StandardCharsets.UTF_8)
+                .writeComponent(message)
                 .writeBoolean(overlay)
                 .bytes();
     }
@@ -44,4 +43,5 @@ public class PacketPlayOutSystemChatMessage extends PacketOut {
     public PacketOut clone() {
         return new PacketPlayOutSystemChatMessage(new FriendlyByteBuf(serialize()));
     }
+
 }

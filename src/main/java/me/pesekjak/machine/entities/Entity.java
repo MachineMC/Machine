@@ -5,10 +5,13 @@ import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.EntityUtils;
+import net.kyori.adventure.identity.Identity;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class Entity implements ServerProperty {
+public class Entity implements Identity, ServerProperty {
 
     @Getter
     private final Machine server;
@@ -20,7 +23,7 @@ public class Entity implements ServerProperty {
     @Getter
     private final int entityId;
     @Getter @Setter
-    private String displayName = null;
+    private Component displayName = null;
 
     @Getter @Setter
     private boolean active;
@@ -31,6 +34,11 @@ public class Entity implements ServerProperty {
         this.uuid = uuid;
         this.entityId = EntityUtils.getEmptyID();
         active = false;
+    }
+
+    @Override @NotNull
+    public UUID uuid() {
+        return uuid;
     }
 
 }

@@ -7,8 +7,11 @@ import lombok.Setter;
 import me.pesekjak.machine.chat.ChatType;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data @EqualsAndHashCode(callSuper = false)
@@ -16,24 +19,20 @@ public class PacketPlayOutChatMessage extends PacketOut {
 
     private static final int ID = 0x33;
 
-    @Getter
-    private final String signedMessage;
-    @Getter @Setter
-    private boolean hasUnsignedContent;
-    @Getter @Setter
-    private String unsignedMessage;
+    @Getter @Setter @NotNull
+    private Component signedMessage;
+    @Getter @Setter @Nullable
+    private Component unsignedMessage;
     @Getter @Setter
     private ChatType chatType;
     @Getter @Setter
     private UUID uuid;
     @Getter @Setter
-    private String displayName;
+    private Component displayName;
+    @Getter @Setter @Nullable
+    private Component teamName;
     @Getter @Setter
-    private boolean hasTeamName;
-    @Getter @Setter
-    private String teamName;
-    @Getter @Setter
-    private long timestamp;
+    private Instant timestamp;
     @Getter @Setter
     private long salt;
     @Getter @Setter
@@ -45,15 +44,15 @@ public class PacketPlayOutChatMessage extends PacketOut {
     }
 
     public PacketPlayOutChatMessage(FriendlyByteBuf buf) {
-        signedMessage = buf.readString(StandardCharsets.UTF_8);
-        hasUnsignedContent = buf.readBoolean();
-        unsignedMessage = buf.readString(StandardCharsets.UTF_8);
+        signedMessage = buf.readComponent();
+        if(buf.readBoolean()) // has unsigned content
+            unsignedMessage = buf.readComponent();
         chatType = ChatType.fromId(buf.readVarInt());
         uuid = buf.readUUID();
-        displayName = buf.readString(StandardCharsets.UTF_8);
-        hasTeamName = buf.readBoolean();
-        teamName = buf.readString(StandardCharsets.UTF_8);
-        timestamp = buf.readLong();
+        displayName = buf.readComponent();
+        if(buf.readBoolean()) // has team
+            teamName = buf.readComponent();
+        timestamp = buf.readInstant();
         salt = buf.readLong();
         signature = buf.readByteArray();
     }
@@ -65,16 +64,19 @@ public class PacketPlayOutChatMessage extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        return new FriendlyByteBuf()
-                .writeString(signedMessage, StandardCharsets.UTF_8)
-                .writeBoolean(hasUnsignedContent)
-                .writeString(unsignedMessage, StandardCharsets.UTF_8)
-                .writeVarInt(chatType.id)
+        FriendlyByteBuf buf = new FriendlyByteBuf()
+                .writeComponent(signedMessage)
+                .writeBoolean(unsignedMessage != null);
+        if(unsignedMessage != null)
+            buf.writeComponent(unsignedMessage);
+        buf.writeVarInt(chatType.getId())
                 .writeUUID(uuid)
-                .writeString(displayName, StandardCharsets.UTF_8)
-                .writeBoolean(hasTeamName)
-                .writeString(teamName, StandardCharsets.UTF_8)
-                .writeLong(timestamp)
+                .writeComponent(displayName)
+                .writeBoolean(teamName != null);
+        if(teamName != null)
+            buf.writeComponent(teamName);
+        return buf
+                .writeInstant(timestamp)
                 .writeLong(salt)
                 .writeByteArray(signature)
                 .bytes();

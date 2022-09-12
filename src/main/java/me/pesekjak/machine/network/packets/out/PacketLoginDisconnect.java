@@ -5,10 +5,7 @@ import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
-
-import java.nio.charset.StandardCharsets;
 
 public class PacketLoginDisconnect extends PacketOut {
 
@@ -24,7 +21,7 @@ public class PacketLoginDisconnect extends PacketOut {
     private Component message;
 
     public PacketLoginDisconnect(FriendlyByteBuf buf) {
-        message = GsonComponentSerializer.gson().deserialize(buf.readString(StandardCharsets.UTF_8));
+        message = buf.readComponent();
     }
 
     @Override
@@ -35,7 +32,7 @@ public class PacketLoginDisconnect extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeString(GsonComponentSerializer.gson().serialize(message), StandardCharsets.UTF_8)
+                .writeComponent(message)
                 .bytes();
     }
 

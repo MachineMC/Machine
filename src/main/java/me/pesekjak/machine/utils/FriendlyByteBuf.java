@@ -5,6 +5,8 @@ import io.netty.buffer.Unpooled;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import me.pesekjak.machine.world.BlockPosition;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jglrxavpok.hephaistos.nbt.*;
 
 import java.io.ByteArrayInputStream;
@@ -12,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -265,13 +268,22 @@ public class FriendlyByteBuf {
         return tag;
     }
 
-    public FriendlyByteBuf writeInstant(Instant instant) {
-        buf.writeLong(instant.toEpochMilli());
+    public Component readComponent() {
+        return GsonComponentSerializer.gson().deserialize(readString(StandardCharsets.UTF_8));
+    }
+
+    public FriendlyByteBuf writeComponent(Component component) {
+        writeString(GsonComponentSerializer.gson().serialize(component), StandardCharsets.UTF_8);
         return this;
     }
 
     public Instant readInstant() {
         return Instant.ofEpochMilli(readLong());
+    }
+
+    public FriendlyByteBuf writeInstant(Instant instant) {
+        buf.writeLong(instant.toEpochMilli());
+        return this;
     }
 
     public int readableBytes() {
