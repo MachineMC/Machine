@@ -19,6 +19,7 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
                 .replace("%name%", player.getName())
                 .replace("%message%", packet.getMessage());
         player.sendMessage(Component.text(message));
+        // TODO replace it with actual chat message packet once we get that figured out
     }
 
     @Override
