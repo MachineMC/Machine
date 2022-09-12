@@ -7,21 +7,23 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class PacketLoginOutDisconnect extends PacketOut {
+public class PacketPlayOutSystemChatMessage extends PacketOut {
 
-    public static final int ID = 0x00;
-
-    static {
-        PacketOut.register(PacketLoginOutDisconnect.class, ID, PacketState.LOGIN_OUT,
-                PacketLoginOutDisconnect::new
-        );
-    }
+    private static final int ID = 0x62;
 
     @Getter @Setter @NotNull
     private Component message;
+    @Getter @Setter
+    private boolean overlay;
 
-    public PacketLoginOutDisconnect(FriendlyByteBuf buf) {
+    static {
+        PacketOut.register(PacketPlayOutSystemChatMessage.class, ID, PacketState.PLAY_OUT,
+                PacketPlayOutSystemChatMessage::new);
+    }
+
+    public PacketPlayOutSystemChatMessage(FriendlyByteBuf buf) {
         message = buf.readComponent();
+        overlay = buf.readBoolean();
     }
 
     @Override
@@ -33,12 +35,13 @@ public class PacketLoginOutDisconnect extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeComponent(message)
+                .writeBoolean(overlay)
                 .bytes();
     }
 
     @Override
     public PacketOut clone() {
-        return new PacketLoginOutDisconnect(new FriendlyByteBuf(serialize()));
+        return new PacketPlayOutSystemChatMessage(new FriendlyByteBuf(serialize()));
     }
 
 }

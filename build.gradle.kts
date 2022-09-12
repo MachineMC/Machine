@@ -29,13 +29,13 @@ dependencies {
 
     // Adventure
     implementation("net.kyori:adventure-api:4.11.0")
-    implementation("net.kyori:adventure-nbt:4.11.0")
     implementation("net.kyori:adventure-text-serializer-gson:4.11.0")
     implementation("net.kyori:adventure-text-serializer-legacy:4.11.0")
     implementation("net.kyori:adventure-text-serializer-plain:4.11.0")
 
     // Hephaistos
     implementation("io.github.jglrxavpok.hephaistos:common:2.5.1")
+    implementation("io.github.jglrxavpok.hephaistos:gson:2.5.1")
 
     // JSON Simple
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
