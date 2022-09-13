@@ -5,11 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.chat.Messenger;
-import me.pesekjak.machine.entities.player.ChatMode;
+import me.pesekjak.machine.chat.ChatMode;
+import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.entities.player.Hand;
 import me.pesekjak.machine.entities.player.SkinPart;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.out.*;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutGameEvent.Event;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.Difficulty;
@@ -144,7 +146,7 @@ public class Player extends LivingEntity implements Audience {
 
     private void sendGamemodeChange(Gamemode gamemode) throws IOException {
         FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeByte((byte) 3) // TODO Enum for the event
+                .writeByte(Event.CHANGE_GAMEMODE.getId())
                 .writeFloat(gamemode.getId());
         connection.sendPacket(new PacketPlayOutGameEvent(buf));
     }

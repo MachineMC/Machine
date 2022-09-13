@@ -1,7 +1,6 @@
 package me.pesekjak.machine.chat;
 
 import me.pesekjak.machine.entities.Player;
-import me.pesekjak.machine.entities.player.ChatMode;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutSystemChatMessage;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;

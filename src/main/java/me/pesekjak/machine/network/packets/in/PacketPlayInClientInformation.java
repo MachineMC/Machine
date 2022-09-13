@@ -2,7 +2,7 @@ package me.pesekjak.machine.network.packets.in;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.pesekjak.machine.entities.player.ChatMode;
+import me.pesekjak.machine.chat.ChatMode;
 import me.pesekjak.machine.entities.player.Hand;
 import me.pesekjak.machine.entities.player.SkinPart;
 import me.pesekjak.machine.network.packets.PacketIn;

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
-import me.pesekjak.machine.entities.Gamemode;
+import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.utils.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
@@ -91,7 +91,7 @@ public class PacketPlayOutLogin extends PacketOut {
         return new FriendlyByteBuf()
                 .writeInt(entityID)
                 .writeBoolean(isHardcore)
-                .writeByte((byte) gamemode.getID())
+                .writeByte((byte) gamemode.getId())
                 .writeByte(previousGamemode)
                 .writeStringList(new ArrayList<>(dimensions), StandardCharsets.UTF_8)
                 .writeNBT("", dimensionCodec)

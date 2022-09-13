@@ -1,8 +1,7 @@
-package me.pesekjak.machine.entities;
+package me.pesekjak.machine.entities.player;
 
 import com.google.common.base.Preconditions;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 

@@ -1,4 +1,4 @@
-package me.pesekjak.machine.entities.player;
+package me.pesekjak.machine.chat;
 
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
