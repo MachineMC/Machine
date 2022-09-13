@@ -93,9 +93,11 @@ public class Machine {
 
         // Setting up server properties
         File propertiesFile = new File(ServerProperties.PROPERTIES_FILE_NAME);
-        if(!propertiesFile.exists())
+        if(!propertiesFile.exists()) {
             FileUtils.createFromDefault(propertiesFile);
-        properties = new ServerProperties(propertiesFile);
+            FileUtils.createFromDefault(new File(ServerProperties.ICON_FILE_NAME));
+        }
+        properties = new ServerProperties(this, propertiesFile);
         console.info("Loaded server properties");
 
         // Checking if the port in the properties in empty
@@ -189,7 +191,6 @@ public class Machine {
         console.info("Server loaded in " + (System.currentTimeMillis() - start) + "ms");
     }
 
-    @SuppressWarnings("unchecked")
     public String statusJson() {
         JsonObject json = new JsonObject();
 
@@ -204,6 +205,9 @@ public class Machine {
         json.add("players", playersJson);
 
         json.addProperty("description", "%MOTD%");
+
+        if (properties.getIcon() != null)
+            json.addProperty("favicon", "data:image/png;base64," + properties.getEncodedIcon());
 
         return gson
                 .toJson(json)

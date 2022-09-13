@@ -91,7 +91,7 @@ public class PacketPlayOutLogin extends PacketOut {
         return new FriendlyByteBuf()
                 .writeInt(entityID)
                 .writeBoolean(isHardcore)
-                .writeByte((byte) gamemode.getID())
+                .writeByte((byte) gamemode.getId())
                 .writeByte(previousGamemode)
                 .writeStringList(new ArrayList<>(dimensions), StandardCharsets.UTF_8)
                 .writeNBT("", dimensionCodec)
