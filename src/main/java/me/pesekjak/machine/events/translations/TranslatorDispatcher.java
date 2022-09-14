@@ -83,21 +83,43 @@ public class TranslatorDispatcher implements ServerProperty {
         OUT_TRANSLATORS.clear();
     }
 
-    protected void play(ClientConnection connection, Packet packet) {
+    protected boolean play(ClientConnection connection, Packet packet) {
         if(packet instanceof PacketIn)
-            playIn(connection, (PacketIn) packet);
+            return playIn(connection, (PacketIn) packet);
         else if (packet instanceof PacketOut)
-            playOut(connection, (PacketOut) packet);
+            return playOut(connection, (PacketOut) packet);
+        return false;
     }
 
-    protected void playIn(ClientConnection connection, PacketIn packet) {
+    protected boolean playIn(ClientConnection connection, PacketIn packet) {
+        boolean result = true;
         for(PacketTranslator<? extends PacketIn> translator : IN_TRANSLATORS.get(packet.getClass()))
-            translator.rawTranslate(connection, packet);
+            result = translator.rawTranslate(connection, packet);
+        return result;
     }
 
-    protected void playOut(ClientConnection connection, PacketOut packet) {
+    protected boolean playOut(ClientConnection connection, PacketOut packet) {
+        boolean result = true;
         for(PacketTranslator<? extends PacketOut> translator : OUT_TRANSLATORS.get(packet.getClass()))
-            translator.rawTranslate(connection, packet);
+            result = translator.rawTranslate(connection, packet);
+        return result;
+    }
+
+    protected void playAfter(ClientConnection connection, Packet packet) {
+        if(packet instanceof PacketIn)
+            playInAfter(connection, (PacketIn) packet);
+        else if (packet instanceof PacketOut)
+            playOutAfter(connection, (PacketOut) packet);
+    }
+
+    protected void playInAfter(ClientConnection connection, PacketIn packet) {
+        for(PacketTranslator<? extends PacketIn> translator : IN_TRANSLATORS.get(packet.getClass()))
+            translator.rawTranslateAfter(connection, packet);
+    }
+
+    protected void playOutAfter(ClientConnection connection, PacketOut packet) {
+        for(PacketTranslator<? extends PacketOut> translator : OUT_TRANSLATORS.get(packet.getClass()))
+            translator.rawTranslateAfter(connection, packet);
     }
 
 }

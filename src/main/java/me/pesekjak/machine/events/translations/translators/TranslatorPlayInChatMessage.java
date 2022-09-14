@@ -11,7 +11,12 @@ import org.jetbrains.annotations.NotNull;
 public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInChatMessage> {
 
     @Override
-    public void translate(ClientConnection connection, PacketPlayInChatMessage packet) {
+    public boolean translate(ClientConnection connection, PacketPlayInChatMessage packet) {
+        return true;
+    }
+
+    @Override
+    public void translateAfter(ClientConnection connection, PacketPlayInChatMessage packet) {
         Player player = connection.getOwner();
         if (player == null)
             return;

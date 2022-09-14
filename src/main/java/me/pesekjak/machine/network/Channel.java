@@ -121,6 +121,10 @@ public class Channel implements AutoCloseable {
         PacketReader read = new PacketReader(buf, state.in);
         for(Pair<NamespacedKey, PacketHandler> pair : handlers)
             read = pair.getSecond().read(this, read);
+        if(read.getPacket() != null) {
+            for(Pair<NamespacedKey, PacketHandler> pair : handlers)
+                pair.getSecond().afterRead(this, read.getPacket());
+        }
         return read.getPacket();
     }
 
@@ -141,6 +145,8 @@ public class Channel implements AutoCloseable {
         else
             buf.writeBytes(write.getPacket().rawSerialize());
         output.write(buf.bytes());
+        for(Pair<NamespacedKey, PacketHandler> pair : handlers)
+            pair.getSecond().afterWrite(this, write.getPacket());
         return true;
     }
 
