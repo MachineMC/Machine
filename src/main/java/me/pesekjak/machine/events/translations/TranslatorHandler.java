@@ -30,11 +30,13 @@ public class TranslatorHandler extends PacketHandler {
     @Override
     public void afterRead(Channel channel, PacketIn packet) {
         dispatcher.playInAfter(channel.getConnection(), packet);
+        super.afterRead(channel, packet);
     }
 
     @Override
     public void afterWrite(Channel channel, PacketOut packet) {
         dispatcher.playOutAfter(channel.getConnection(), packet);
+        super.afterWrite(channel, packet);
     }
 
 }

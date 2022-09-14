@@ -9,7 +9,12 @@ import org.jetbrains.annotations.NotNull;
 public class TranslatorPlayInClientInformation extends PacketTranslator<PacketPlayInClientInformation> {
 
     @Override
-    public void translate(ClientConnection connection, PacketPlayInClientInformation packet) {
+    public boolean translate(ClientConnection connection, PacketPlayInClientInformation packet) {
+        return true;
+    }
+
+    @Override
+    public void translateAfter(ClientConnection connection, PacketPlayInClientInformation packet) {
         Player player = connection.getOwner();
         if(player == null)
             return;
