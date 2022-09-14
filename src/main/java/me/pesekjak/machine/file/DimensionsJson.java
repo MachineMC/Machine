@@ -38,18 +38,18 @@ public class DimensionsJson implements ServerFile, ServerProperty {
             }
             JsonObject dimension = dimensionKey.getValue().getAsJsonObject();
 
-            Boolean natural = dimension.get("natural").getAsBoolean();
+            Boolean natural = dimension.get("natural") != null ? dimension.get("natural").getAsBoolean() : null;
             Number ambientLight = dimension.get("ambient_light").getAsNumber();
-            Boolean ceilingEnabled = dimension.get("has_ceiling").getAsBoolean();
-            Boolean skylightEnabled = dimension.get("has_skylight").getAsBoolean();
+            Boolean ceilingEnabled = dimension.get("has_ceiling") != null ? dimension.get("has_ceiling").getAsBoolean() : null;
+            Boolean skylightEnabled = dimension.get("has_skylight") != null ? dimension.get("has_skylight").getAsBoolean() : null;
             Number fixedTime = dimension.get("fixed_time").getAsNumber();
             if(fixedTime != null && fixedTime.intValue() == -1) fixedTime = null; // nullable option
-            Boolean raidCapable = dimension.get("has_raids").getAsBoolean();
-            Boolean respawnAnchorSafe = dimension.get("respawn_anchor_works").getAsBoolean();
-            Boolean ultrawarm = dimension.get("ultrawarm").getAsBoolean();
-            Boolean bedSafe = dimension.get("bed_works").getAsBoolean();
+            Boolean raidCapable = dimension.get("has_raids") != null ? dimension.get("has_raids").getAsBoolean() : null;
+            Boolean respawnAnchorSafe = dimension.get("respawn_anchor_works") != null ? dimension.get("respawn_anchor_works").getAsBoolean() : null;
+            Boolean ultrawarm = dimension.get("ultrawarm") != null ? dimension.get("ultrawarm").getAsBoolean() : null;
+            Boolean bedSafe = dimension.get("bed_works") != null ? dimension.get("bed_works").getAsBoolean() : null;
             String effects = dimension.get("effects").getAsString();
-            Boolean piglinSafe = dimension.get("piglin_safe").getAsBoolean();
+            Boolean piglinSafe = dimension.get("piglin_safe") != null ? dimension.get("piglin_safe").getAsBoolean() : null;
             Number minY = dimension.get("min_y").getAsNumber();
             Number height = dimension.get("height").getAsNumber();
             Number logicalHeight = dimension.get("logical_height").getAsNumber();
