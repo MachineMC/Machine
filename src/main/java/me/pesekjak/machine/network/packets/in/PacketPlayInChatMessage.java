@@ -1,5 +1,6 @@
 package me.pesekjak.machine.network.packets.in;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketIn;
@@ -8,6 +9,7 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
+@AllArgsConstructor
 public class PacketPlayInChatMessage extends PacketIn {
 
     private static final int ID = 0x05;

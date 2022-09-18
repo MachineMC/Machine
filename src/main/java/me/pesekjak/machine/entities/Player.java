@@ -8,6 +8,7 @@ import me.pesekjak.machine.chat.Messenger;
 import me.pesekjak.machine.chat.ChatMode;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.entities.player.Hand;
+import me.pesekjak.machine.entities.player.PlayerProfile;
 import me.pesekjak.machine.entities.player.SkinPart;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.out.*;
@@ -31,9 +32,9 @@ import java.util.*;
 public class Player extends LivingEntity implements Audience {
 
     @Getter
-    private final String name;
-    @Getter
     private final ClientConnection connection;
+    @Getter @Setter
+    private PlayerProfile profile;
 
     @Getter
     private Gamemode gamemode = Gamemode.CREATIVE; // for now
@@ -49,12 +50,13 @@ public class Player extends LivingEntity implements Audience {
     @Getter @Setter
     private Hand mainHand;
 
-    public Player(Machine server, @NotNull UUID uuid, @NotNull String name, @NotNull ClientConnection connection) {
-        super(server, EntityType.PLAYER, uuid);
+    public Player(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
+        super(server, EntityType.PLAYER, profile.getUuid());
+        this.profile = profile;
         if(connection.getOwner() != null)
             throw new UnsupportedOperationException("There can't be multiple players with the same ClientConnection");
-        this.name = name;
-        setDisplayName(Component.text(name));
+        connection.setOwner(this);
+        setDisplayName(Component.text(profile.getUsername()));
         this.connection = connection;
         try {
             init();
@@ -91,7 +93,7 @@ public class Player extends LivingEntity implements Audience {
                 .writeBoolean(false)
                 .writeBoolean(false) // TODO World - Is Spawn World Flat
                 .writeBoolean(false);
-        connection.sendPacket(new PacketPlayOutLogin(playLoginBuf));
+        connection.sendPacket(new PacketPlayOutLogin(playLoginBuf)); // TODO Rework to the second constructor
 
         // TODO Add this as option in server properties
         connection.sendPacket(PacketPlayOutPluginMessage.getBrandPacket("Machine server"));
@@ -99,6 +101,14 @@ public class Player extends LivingEntity implements Audience {
         sendDifficultyChange(getWorld().getDifficulty());
         sendWorldSpawnChange(new BlockPosition(0, 0, 0), 0.0F);
         sendGamemodeChange(gamemode);
+    }
+
+    public String getName() {
+        return profile.getUsername();
+    }
+
+    public String getUsername() {
+        return profile.getUsername();
     }
 
     public void setGamemode(Gamemode gamemode) {
@@ -112,10 +122,7 @@ public class Player extends LivingEntity implements Audience {
     }
 
     private void sendDifficultyChange(Difficulty difficulty) throws IOException {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeByte((byte) difficulty.getId())
-                .writeBoolean(true);
-        connection.sendPacket(new PacketPlayOutChangeDifficulty(buf));
+        connection.sendPacket(new PacketPlayOutChangeDifficulty(difficulty));
     }
 
     @Override
@@ -127,28 +134,18 @@ public class Player extends LivingEntity implements Audience {
     //  that means implementing Client Information packet
     private void sendSystem(Component message) {
         try {
-            connection.sendPacket(new PacketPlayOutSystemChatMessage(
-                    new FriendlyByteBuf()
-                            .writeComponent(message)
-                            .writeBoolean(false)
-            ));
+            connection.sendPacket(new PacketPlayOutSystemChatMessage(message, false));
         } catch (IOException exception) {
             exception.printStackTrace();
         }
     }
 
     private void sendWorldSpawnChange(BlockPosition position, float angle) throws IOException {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeBlockPos(position)
-                .writeFloat(angle);
-        connection.sendPacket(new PacketPlayOutWorldSpawnPosition(buf));
+        connection.sendPacket(new PacketPlayOutWorldSpawnPosition(position, angle));
     }
 
     private void sendGamemodeChange(Gamemode gamemode) throws IOException {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeByte(Event.CHANGE_GAMEMODE.getId())
-                .writeFloat(gamemode.getId());
-        connection.sendPacket(new PacketPlayOutGameEvent(buf));
+        connection.sendPacket(new PacketPlayOutGameEvent(Event.CHANGE_GAMEMODE, gamemode.getId()));
     }
 
 }

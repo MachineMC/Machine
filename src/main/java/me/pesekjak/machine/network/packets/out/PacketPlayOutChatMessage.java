@@ -1,9 +1,6 @@
 package me.pesekjak.machine.network.packets.out;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import me.pesekjak.machine.chat.ChatType;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
@@ -14,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.time.Instant;
 import java.util.UUID;
 
-@Data @EqualsAndHashCode(callSuper = false)
+@AllArgsConstructor
 public class PacketPlayOutChatMessage extends PacketOut {
 
     private static final int ID = 0x33;

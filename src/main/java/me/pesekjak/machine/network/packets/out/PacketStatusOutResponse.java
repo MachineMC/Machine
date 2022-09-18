@@ -1,5 +1,6 @@
 package me.pesekjak.machine.network.packets.out;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
@@ -7,6 +8,7 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 
+@AllArgsConstructor
 public class PacketStatusOutResponse extends PacketOut {
 
     public static final int ID = 0x00;

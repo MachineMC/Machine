@@ -2,6 +2,7 @@ package me.pesekjak.machine.network;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.events.translations.TranslatorHandler;
@@ -11,18 +12,15 @@ import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.in.*;
 import me.pesekjak.machine.network.packets.out.*;
 import me.pesekjak.machine.server.ServerProperty;
-import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.Nullable;
 
+import javax.crypto.SecretKey;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
 public class ClientConnection extends Thread implements ServerProperty, AutoCloseable {
 
@@ -34,10 +32,15 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
     private final Socket clientSocket;
     @Getter
     protected Channel channel;
-    @Getter
+    @Getter @Setter
     private ClientState clientState;
     @Getter
     private long lastPacketTimestamp;
+
+    @Getter @Setter
+    private String loginUsername;
+    @Getter @Setter
+    private SecretKey encryptionKey;
 
     @Getter @Nullable
     private Player owner;
@@ -64,6 +67,8 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
      */
     public synchronized PacketIn readPacket() throws IOException {
         assert channel != null;
+        if(clientState == ClientState.DISCONNECTED)
+            return null;
         return channel.readPacket(clientState);
     }
 
@@ -88,59 +93,13 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
             );
 
             PacketIn packet = readPacket();
-            if(!(packet instanceof PacketHandshakingInHandshake handshake)) {
+            if(!(packet instanceof PacketHandshakingInHandshake)) {
                 close();
                 return;
             }
 
-            // Later defined in login and used in play
-            String username = null;
-            UUID uuid = null;
-
-            switch (handshake.getHandshakeType()) {
-                // Status
-                case STATUS -> {
-                    clientState = ClientState.STATUS;
-                    while (clientSocket.isConnected()) {
-                        PacketIn packetIn = readPacket();
-                        if(packetIn instanceof PacketStatusInRequest) {
-                            FriendlyByteBuf buf = new FriendlyByteBuf()
-                                    .writeString(server.statusJson(), StandardCharsets.UTF_8);
-                            sendPacket(new PacketStatusOutResponse(buf));
-                        } else if(packetIn instanceof PacketStatusInPing packetPing) {
-                            FriendlyByteBuf buf = new FriendlyByteBuf()
-                                    .writeLong(packetPing.getPayload());
-                            sendPacket(new PacketStatusOutPong(buf));
-                            break;
-                        }
-                    }
-                }
-                // Login
-                case LOGIN -> {
-                    clientState = ClientState.LOGIN;
-                    while (clientSocket.isConnected()) {
-                        PacketIn packetIn = readPacket();
-                        if (packetIn instanceof PacketLoginInStart packetLogin) {
-                            username = packetLogin.getUsername();
-                            uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + username).getBytes(StandardCharsets.UTF_8));
-                            FriendlyByteBuf buf = new FriendlyByteBuf()
-                                    .writeUUID(uuid)
-                                    .writeString(username, StandardCharsets.UTF_8)
-                                    .writeVarInt(0);
-                            sendPacket(new PacketLoginOutSuccess(buf));
-                            clientState = ClientState.PLAY;
-                            break;
-                        }
-                    }
-                }
-            }
-            if(clientState == ClientState.PLAY) {
-                if(username == null)
-                    throw new IllegalStateException("Client with no username tried to login play");
-                owner = new Player(server, uuid, username, this);
-                while (clientSocket.isConnected()) {
-                    PacketIn packetIn = readPacket();
-                }
+            while (clientSocket.isConnected() && clientState != ClientState.DISCONNECTED) {
+                readPacket();
             }
 
             close();
@@ -155,16 +114,29 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
         clientSocket.close();
     }
 
+    public void setOwner(Player player) {
+        if(owner != null)
+            throw new IllegalStateException("Connection has been already initialized");
+        if(!player.getName().equals(loginUsername))
+            throw new IllegalStateException("Player's name and login name has to match");
+        owner = player;
+    }
+
+    public void disconnect() {
+        disconnect(Component.text("Disconnected"));
+    }
+
     public void disconnect(Component reason) {
         if(clientState == ClientState.LOGIN) {
             try {
-                FriendlyByteBuf buf = new FriendlyByteBuf()
-                        .writeString(GsonComponentSerializer.gson().serialize(reason), StandardCharsets.UTF_8);
-                PacketLoginOutDisconnect packet = new PacketLoginOutDisconnect(buf);
+                PacketLoginOutDisconnect packet = new PacketLoginOutDisconnect(reason);
                 sendPacket(packet);
-                close();
             } catch (Exception ignored) { }
         }
+        try {
+            clientState = ClientState.DISCONNECTED;
+            close();
+        } catch (Exception ignored) { }
     }
 
     @AllArgsConstructor
@@ -172,7 +144,8 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
         HANDSHAKE(Packet.PacketState.HANDSHAKING_IN, Packet.PacketState.HANDSHAKING_OUT),
         STATUS(Packet.PacketState.STATUS_IN, Packet.PacketState.STATUS_OUT),
         LOGIN(Packet.PacketState.LOGIN_IN, Packet.PacketState.LOGIN_OUT),
-        PLAY(Packet.PacketState.PLAY_IN, Packet.PacketState.PLAY_OUT);
+        PLAY(Packet.PacketState.PLAY_IN, Packet.PacketState.PLAY_OUT),
+        DISCONNECTED(null, null);
 
         protected final Packet.PacketState in;
         protected final Packet.PacketState out;

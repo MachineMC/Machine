@@ -1,11 +1,13 @@
 package me.pesekjak.machine.network.packets.out;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.world.BlockPosition;
 
+@AllArgsConstructor
 public class PacketPlayOutWorldSpawnPosition extends PacketOut {
 
     private static final int ID = 0x4D;

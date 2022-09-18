@@ -1,5 +1,6 @@
 package me.pesekjak.machine.network.packets.out;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
@@ -13,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+@AllArgsConstructor
 public class PacketPlayOutLogin extends PacketOut {
 
     public static int ID = 0x25;

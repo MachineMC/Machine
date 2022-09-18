@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import me.pesekjak.machine.auth.Crypt;
+import me.pesekjak.machine.auth.PublicKeyData;
 import me.pesekjak.machine.world.BlockPosition;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -103,19 +105,19 @@ public class FriendlyByteBuf {
         return this;
     }
 
-    public FriendlyByteBuf writeByteArray(byte[] bytes) {
-        writeVarInt(bytes.length);
-        for (byte b : bytes)
-            writeByte(b);
-        return this;
-    }
-
     public byte[] readByteArray() {
         int length = readVarInt();
         byte[] bytes = new byte[length];
         for (int i = 0; i < length; i++)
             bytes[i] = readByte();
         return bytes;
+    }
+
+    public FriendlyByteBuf writeByteArray(byte[] bytes) {
+        writeVarInt(bytes.length);
+        for (byte b : bytes)
+            writeByte(b);
+        return this;
     }
 
     public short readShort() {
@@ -292,6 +294,18 @@ public class FriendlyByteBuf {
 
     public FriendlyByteBuf writeInstant(Instant instant) {
         buf.writeLong(instant.toEpochMilli());
+        return this;
+    }
+
+    public PublicKeyData readPublicKey() {
+        Instant instant = Instant.ofEpochMilli(readLong());
+        return new PublicKeyData(Crypt.pubicKeyFrom(readByteArray()), readByteArray(), instant);
+    }
+
+    public FriendlyByteBuf writePublicKey(PublicKeyData publicKeyData) {
+        writeByteArray(publicKeyData.publicKey().getEncoded())
+                .writeByteArray(publicKeyData.signature())
+                .writeLong(publicKeyData.timestamp().toEpochMilli());
         return this;
     }
 

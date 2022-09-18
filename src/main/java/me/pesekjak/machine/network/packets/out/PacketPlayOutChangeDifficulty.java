@@ -1,16 +1,19 @@
 package me.pesekjak.machine.network.packets.out;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.world.Difficulty;
 
+@AllArgsConstructor
 public class PacketPlayOutChangeDifficulty extends PacketOut {
 
     private static final int ID = 0x0B;
 
     @Getter @Setter
-    private byte difficulty;
+    private Difficulty difficulty;
     // Always locked in multiplayer
     @Getter
     private final boolean isLocked = true;
@@ -21,7 +24,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
     }
 
     public PacketPlayOutChangeDifficulty(FriendlyByteBuf buf) {
-        difficulty = buf.readByte();
+        difficulty = Difficulty.fromId(buf.readByte());
         buf.readBoolean();
     }
 
@@ -33,7 +36,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeByte(difficulty)
+                .writeByte((byte) difficulty.getId())
                 .writeBoolean(isLocked)
                 .bytes();
     }

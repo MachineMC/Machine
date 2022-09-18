@@ -42,9 +42,7 @@ public class World {
 
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
-        FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeByte((byte) difficulty.getId());
-        PacketOut packet = new PacketPlayOutChangeDifficulty(buf);
+        PacketOut packet = new PacketPlayOutChangeDifficulty(difficulty);
         for (Entity entity : entityList) {
             if (!(entity instanceof Player player))
                 continue;
@@ -60,10 +58,7 @@ public class World {
     public void setWorldSpawn(BlockPosition position, float angle) {
         this.worldSpawnPosition = position;
         this.worldSpawnAngle = angle;
-        FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeBlockPos(position)
-                .writeFloat(angle);
-        PacketOut packet = new PacketPlayOutWorldSpawnPosition(buf);
+        PacketOut packet = new PacketPlayOutWorldSpawnPosition(position, angle);
         for (Entity entity : entityList) {
             if (!(entity instanceof Player player))
                 continue;

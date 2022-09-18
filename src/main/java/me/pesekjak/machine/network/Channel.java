@@ -75,9 +75,7 @@ public class Channel implements AutoCloseable {
      */
     public boolean setCompression(int threshold) throws IOException {
         if(threshold <= 0) threshold = -1;
-        boolean success = writePacket(
-                new PacketLoginOutSetCompression(new FriendlyByteBuf()
-                        .writeVarInt(threshold)));
+        boolean success = writePacket(new PacketLoginOutSetCompression(threshold));
         if(success) {
             compressed = true;
             this.threshold = threshold;
@@ -117,8 +115,20 @@ public class Channel implements AutoCloseable {
         } else {
             buf.writeVarInt(length);
             buf.writeBytes(input.readNBytes(length));
+//            System.out.println(".");
+//            FriendlyByteBuf translate = new FriendlyByteBuf();
+//            while(true) {
+//                byte b = input.readByte();
+//                System.out.print(b + " ");
+//                if(b == -1) break;
+//                translate.writeByte(b);
+//            }
+//            for(int i = 0; i < length; i++)
+//                buf.writeByte(translate.readByte());
+//            System.out.println("read: " + Arrays.toString(buf.bytes()));
         }
         PacketReader read = new PacketReader(buf, state.in);
+        if(read.getPacket() == null) return null;
         for(Pair<NamespacedKey, PacketHandler> pair : handlers)
             read = pair.getSecond().read(this, read);
         if(read.getPacket() != null) {

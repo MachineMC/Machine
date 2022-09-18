@@ -1,5 +1,6 @@
 package me.pesekjak.machine.network.packets.out;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+@AllArgsConstructor
 public class PacketLoginOutSuccess extends PacketOut {
 
     public static int ID = 0x02;
@@ -17,8 +19,8 @@ public class PacketLoginOutSuccess extends PacketOut {
     private UUID uuid;
     @Getter @Setter @NotNull
     private String userName;
-    @SuppressWarnings("FieldCanBeLocal")
-    private final int properties = 0; // TODO edit for online-mode
+    @Getter @Setter
+    private int properties;
 
     static {
         PacketOut.register(PacketLoginOutSuccess.class, ID, PacketState.LOGIN_OUT,
@@ -29,7 +31,7 @@ public class PacketLoginOutSuccess extends PacketOut {
     public PacketLoginOutSuccess(FriendlyByteBuf buf) {
         uuid = buf.readUUID();
         userName = buf.readString(StandardCharsets.UTF_8);
-        buf.readVarInt(); // reading properties
+        properties = buf.readVarInt();
     }
 
     @Override

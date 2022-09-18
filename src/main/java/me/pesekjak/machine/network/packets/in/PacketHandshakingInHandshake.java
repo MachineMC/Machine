@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Range;
 
 import java.nio.charset.StandardCharsets;
 
+@AllArgsConstructor
 public class PacketHandshakingInHandshake extends PacketIn {
 
     public static final int ID = 0x00;

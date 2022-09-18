@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import me.pesekjak.machine.auth.OnlineServer;
 import me.pesekjak.machine.events.translations.TranslatorDispatcher;
 import me.pesekjak.machine.file.DimensionsJson;
 import me.pesekjak.machine.file.ServerProperties;
@@ -22,6 +23,7 @@ import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.WorldManager;
 import me.pesekjak.machine.world.biomes.BiomeManager;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.jetbrains.annotations.Nullable;
 import org.json.simple.parser.ParseException;
 
 import java.io.File;
@@ -48,6 +50,9 @@ public class Machine {
 
     @Getter @Setter
     private IConsole console;
+
+    @Getter @Nullable
+    private OnlineServer onlineServer;
 
     @Getter
     protected final Gson gson = new GsonBuilder()
@@ -105,6 +110,14 @@ public class Machine {
             console.severe("Failed to bind port '" + properties.getServerPort() + "', it's already in use.");
             console.severe("Perhaps another instance of the server is already running?");
             System.exit(2);
+        }
+
+        if(properties.isOnline()) {
+            onlineServer = new OnlineServer(this);
+        } else {
+            console.warning("The server will make no attempt to authenticate usernames and encrypt packets. Beware. " +
+                    "While this makes the game possible to play without internet access, it also opens up " +
+                    "the ability for others to connect with any username they choose.");
         }
 
         // Loading dimensions json file
@@ -212,6 +225,10 @@ public class Machine {
         return gson
                 .toJson(json)
                 .replace("\"%MOTD%\"", GsonComponentSerializer.gson().serialize(properties.getMotd()));
+    }
+
+    public boolean isOnline() {
+        return onlineServer != null;
     }
 
 }
