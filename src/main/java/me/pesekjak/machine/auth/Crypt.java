@@ -1,6 +1,7 @@
 package me.pesekjak.machine.auth;
 
 import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
@@ -9,13 +10,15 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Crypt {
 
-    private static final String ASYMMETRIC_ALGORITHM = "RSA";
-    private static final int ASYMMETRIC_BITS = 1024;
+    public static final String ASYMMETRIC_ALGORITHM = "RSA";
+    public static final int ASYMMETRIC_BITS = 1024;
 
-    private static final String SYMMETRIC_ALGORITHM = "AES";
+    public static final String SYMMETRIC_ALGORITHM = "AES";
 
-    private static final String HASH_ALGORITHM = "SHA-1";
-    private static final String BYTE_ENCODING = "ISO_8859_1";
+    public static final String HASH_ALGORITHM = "SHA-1";
+    public static final String BYTE_ENCODING = "ISO_8859_1";
+
+    public static final String ENCRYPTION = "AES/CFB8/NoPadding";
 
     public static KeyPair generateKeyPair() {
         try {
@@ -57,6 +60,16 @@ public class Crypt {
             return keyFactory.generatePublic(spec);
         }
         catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Cipher getCipher(int mode, Key key) {
+        try {
+            Cipher cipher = Cipher.getInstance(ENCRYPTION);
+            cipher.init(mode, key, new IvParameterSpec(key.getEncoded()));
+            return cipher;
+        } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
         }
     }

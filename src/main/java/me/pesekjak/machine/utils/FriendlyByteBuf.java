@@ -100,6 +100,13 @@ public class FriendlyByteBuf {
         return this;
     }
 
+    public byte[] readBytes(int length) {
+        byte[] result = new byte[length];
+        for(int i = 0; i < length; i++)
+            result[i] = readByte();
+        return result;
+    }
+
     public FriendlyByteBuf writeBytes(byte... bytes) {
         buf.writeBytes(bytes);
         return this;

@@ -8,6 +8,7 @@ import me.pesekjak.machine.events.translations.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.in.PacketLoginInEncryptionResponse;
 import me.pesekjak.machine.network.packets.out.PacketLoginOutSuccess;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.SecretKey;
@@ -39,17 +40,15 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
         }
 
         SecretKey secretkey = onlineServer.getSecretKey(onlineServer.getKey().getPrivate(), packet.getSecret());
-        connection.setEncryptionKey(secretkey);
+        connection.setSecretKey(secretkey);
 
         final String serverId = (new BigInteger(onlineServer.digestData(SERVER_ID, onlineServer.getKey().getPublic(), secretkey))).toString(16);
         final String username = URLEncoder.encode(connection.getLoginUsername(), StandardCharsets.UTF_8);
 
-        final String url = String.format(MojangAuth.AUTH_URL, username, serverId);
-
         MojangAuth.getAuthData(serverId, username).thenAccept(json -> {
             if(json == null) {
                 try {
-                    connection.close(); // TODO replace this with disconnect message
+                    connection.disconnect(Component.text("Invalid session (Try restarting your game)"));
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
@@ -63,13 +62,11 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
             String authUsername = json.get("name").getAsString();
             final PlayerProfile profile = PlayerProfile.online(authUsername, authUUID);
             try {
-                // TODO doesn't work because it has to synchronized
                 connection.sendPacket(new PacketLoginOutSuccess(authUUID, authUsername, 0));
             } catch (IOException ignored) {
                 connection.disconnect();
                 return;
             }
-            connection.getServer().getConsole().info(profile.toString());
             connection.setClientState(ClientConnection.ClientState.PLAY);
             new Player(connection.getServer(), profile, connection);
         });

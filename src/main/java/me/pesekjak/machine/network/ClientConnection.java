@@ -9,7 +9,6 @@ import me.pesekjak.machine.events.translations.TranslatorHandler;
 import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
-import me.pesekjak.machine.network.packets.in.*;
 import me.pesekjak.machine.network.packets.out.*;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NamespacedKey;
@@ -39,8 +38,6 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
 
     @Getter @Setter
     private String loginUsername;
-    @Getter @Setter
-    private SecretKey encryptionKey;
 
     @Getter @Nullable
     private Player owner;
@@ -65,11 +62,11 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
      * Reads packet from the client.
      * @return packet sent by client
      */
-    public synchronized PacketIn readPacket() throws IOException {
+    public synchronized PacketIn[] readPackets() throws IOException {
         assert channel != null;
         if(clientState == ClientState.DISCONNECTED)
             return null;
-        return channel.readPacket(clientState);
+        return channel.readPackets();
     }
 
     private void setChannel(DataInputStream input, DataOutputStream output) {
@@ -92,19 +89,14 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                     new TranslatorHandler(server.getTranslatorDispatcher())
             );
 
-            PacketIn packet = readPacket();
-            if(!(packet instanceof PacketHandshakingInHandshake)) {
-                close();
-                return;
-            }
-
-            while (clientSocket.isConnected() && clientState != ClientState.DISCONNECTED) {
-                readPacket();
-            }
+            while (clientSocket.isConnected() && clientState != ClientState.DISCONNECTED)
+                readPackets();
 
             close();
 
-        } catch (Exception ignored) { }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
     }
 
     @Override
@@ -112,6 +104,14 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
         owner = null;
         channel.close();
         clientSocket.close();
+    }
+
+    public SecretKey getSecretKey() {
+        return channel.getSecretKey();
+    }
+
+    public void setSecretKey(SecretKey key) {
+        channel.setSecretKey(key);
     }
 
     public void setOwner(Player player) {
