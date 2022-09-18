@@ -3,9 +3,11 @@ package me.pesekjak.machine.network.packets.out;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import me.pesekjak.machine.entities.player.PlayerTextures;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -19,8 +21,8 @@ public class PacketLoginOutSuccess extends PacketOut {
     private UUID uuid;
     @Getter @Setter @NotNull
     private String userName;
-    @Getter @Setter
-    private int properties;
+    @Getter @Setter @Nullable
+    private PlayerTextures textures;
 
     static {
         PacketOut.register(PacketLoginOutSuccess.class, ID, PacketState.LOGIN_OUT,
@@ -31,7 +33,7 @@ public class PacketLoginOutSuccess extends PacketOut {
     public PacketLoginOutSuccess(FriendlyByteBuf buf) {
         uuid = buf.readUUID();
         userName = buf.readString(StandardCharsets.UTF_8);
-        properties = buf.readVarInt();
+        textures = buf.readTextures();
     }
 
     @Override
@@ -44,7 +46,7 @@ public class PacketLoginOutSuccess extends PacketOut {
         return new FriendlyByteBuf()
                 .writeUUID(uuid)
                 .writeString(userName, StandardCharsets.UTF_8)
-                .writeVarInt(properties)
+                .writeTextures(textures)
                 .bytes();
     }
 

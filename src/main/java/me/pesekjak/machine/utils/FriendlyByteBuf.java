@@ -6,9 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import me.pesekjak.machine.auth.Crypt;
 import me.pesekjak.machine.auth.PublicKeyData;
+import me.pesekjak.machine.entities.player.PlayerTextures;
 import me.pesekjak.machine.world.BlockPosition;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.*;
 
 import java.io.ByteArrayInputStream;
@@ -316,8 +318,30 @@ public class FriendlyByteBuf {
         return this;
     }
 
+    public PlayerTextures readTextures() {
+        if (readVarInt() == 0)
+            return null;
+        readString(StandardCharsets.UTF_8);
+        String value = readString(StandardCharsets.UTF_8);
+        String signature = null;
+        if (readBoolean())
+            signature = readString(StandardCharsets.UTF_8);
+        return PlayerTextures.buildSkin(value, signature);
+    }
+
+    public FriendlyByteBuf writeTextures(@Nullable PlayerTextures playerSkin) {
+        if (playerSkin == null) {
+            writeVarInt(0);
+            return this;
+        }
+        writeVarInt(1);
+        writeString("textures", StandardCharsets.UTF_8);
+        writeString(playerSkin.value(), StandardCharsets.UTF_8);
+        writeBoolean(true);
+        writeString(playerSkin.signature(), StandardCharsets.UTF_8);
+        return this;
+    }
     public int readableBytes() {
         return buf.readableBytes();
     }
-
 }

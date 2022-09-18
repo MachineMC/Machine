@@ -26,7 +26,7 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
         if(!connection.getServer().isOnline()) {
             final PlayerProfile profile = PlayerProfile.offline(packet.getUsername());
             try {
-                connection.sendPacket(new PacketLoginOutSuccess(profile.getUuid(), profile.getUsername(), 0));
+                connection.sendPacket(new PacketLoginOutSuccess(profile.getUuid(), profile.getUsername(), profile.getTextures()));
             } catch (IOException exception) {
                 connection.disconnect();
                 return;
@@ -43,6 +43,7 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
         byte[] publicKey = onlineServer.getKey().getPublic().getEncoded();
         byte[] verifyToken = onlineServer.nextVerifyToken();
 
+        connection.setPublicKeyData(packet.getPublicKeyData());
         try {
             connection.sendPacket(new PacketLoginOutEncryptionRequest(publicKey, verifyToken));
         } catch (IOException exception) {

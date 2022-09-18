@@ -98,6 +98,8 @@ public class Player extends LivingEntity implements Audience {
         // TODO Add this as option in server properties
         connection.sendPacket(PacketPlayOutPluginMessage.getBrandPacket("Machine server"));
 
+        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, this));
+
         sendDifficultyChange(getWorld().getDifficulty());
         sendWorldSpawnChange(new BlockPosition(0, 0, 0), 0.0F);
         sendGamemodeChange(gamemode);

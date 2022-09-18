@@ -62,7 +62,7 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
             String authUsername = json.get("name").getAsString();
             final PlayerProfile profile = PlayerProfile.online(authUsername, authUUID);
             try {
-                connection.sendPacket(new PacketLoginOutSuccess(authUUID, authUsername, 0));
+                connection.sendPacket(new PacketLoginOutSuccess(authUUID, authUsername, profile.getTextures()));
             } catch (IOException ignored) {
                 connection.disconnect();
                 return;

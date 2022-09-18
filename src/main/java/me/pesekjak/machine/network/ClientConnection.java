@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
+import me.pesekjak.machine.auth.PublicKeyData;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.events.translations.TranslatorHandler;
 import me.pesekjak.machine.network.packets.Packet;
@@ -35,6 +36,8 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
     private ClientState clientState;
     @Getter
     private long lastPacketTimestamp;
+    @Getter @Setter
+    private PublicKeyData publicKeyData;
 
     @Getter @Setter
     private String loginUsername;
