@@ -4,6 +4,7 @@ import me.pesekjak.machine.auth.MojangAuth;
 import me.pesekjak.machine.auth.OnlineServer;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.entities.player.PlayerProfile;
+import me.pesekjak.machine.entities.player.PlayerTextures;
 import me.pesekjak.machine.events.translations.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.in.PacketLoginInEncryptionResponse;
@@ -60,7 +61,8 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
                                     "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5"
                             ));
             String authUsername = json.get("name").getAsString();
-            final PlayerProfile profile = PlayerProfile.online(authUsername, authUUID);
+            PlayerTextures playerTextures = PlayerTextures.buildSkin(json.getAsJsonArray("properties").get(0).getAsJsonObject().get("value"));
+            final PlayerProfile profile = PlayerProfile.online(authUsername, authUUID, playerTextures);
             try {
                 connection.sendPacket(new PacketLoginOutSuccess(authUUID, authUsername, profile.getTextures()));
             } catch (IOException ignored) {

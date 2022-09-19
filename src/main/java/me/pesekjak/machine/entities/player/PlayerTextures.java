@@ -31,7 +31,10 @@ public record PlayerTextures(String value, String signature, URL skinUrl, @Nulla
         }
     }
 
-    public static PlayerTextures buildSkin(JsonObject texturesJson) {
+    public static PlayerTextures buildSkin(JsonElement jsonElement) {
+        if (!jsonElement.isJsonObject())
+            return null;
+        JsonObject texturesJson = jsonElement.getAsJsonObject();
         if (!(texturesJson.has("value") || texturesJson.has("signature")))
             return null;
         String value = texturesJson.get("value").getAsString();
