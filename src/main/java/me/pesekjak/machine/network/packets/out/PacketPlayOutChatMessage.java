@@ -1,6 +1,7 @@
 package me.pesekjak.machine.network.packets.out;
 
 import lombok.*;
+import me.pesekjak.machine.auth.MessageSignature;
 import me.pesekjak.machine.chat.ChatType;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
@@ -8,7 +9,6 @@ import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -29,11 +29,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
     @Getter @Setter @Nullable
     private Component teamName;
     @Getter @Setter
-    private Instant timestamp;
-    @Getter @Setter
-    private long salt;
-    @Getter @Setter
-    private byte[] signature;
+    private MessageSignature messageSignature;
 
     static {
         PacketOut.register(PacketPlayOutChatMessage.class, ID, PacketState.PLAY_OUT,
@@ -49,9 +45,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
         displayName = buf.readComponent();
         if(buf.readBoolean()) // has team
             teamName = buf.readComponent();
-        timestamp = buf.readInstant();
-        salt = buf.readLong();
-        signature = buf.readByteArray();
+        messageSignature = buf.readSignature();
     }
 
     @Override
@@ -73,9 +67,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
         if(teamName != null)
             buf.writeComponent(teamName);
         return buf
-                .writeInstant(timestamp)
-                .writeLong(salt)
-                .writeByteArray(signature)
+                .writeSignature(messageSignature)
                 .bytes();
     }
 

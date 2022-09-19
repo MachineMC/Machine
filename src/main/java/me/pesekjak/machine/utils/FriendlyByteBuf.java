@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import me.pesekjak.machine.auth.Crypt;
 import me.pesekjak.machine.auth.PublicKeyData;
+import me.pesekjak.machine.auth.MessageSignature;
 import me.pesekjak.machine.entities.player.PlayerTextures;
 import me.pesekjak.machine.world.BlockPosition;
 import net.kyori.adventure.text.Component;
@@ -341,6 +342,21 @@ public class FriendlyByteBuf {
         writeString(playerSkin.signature(), StandardCharsets.UTF_8);
         return this;
     }
+
+    public MessageSignature readSignature() {
+        Instant timestamp = readInstant();
+        long salt = readLong();
+        byte[] signature = readByteArray();
+        return new MessageSignature(timestamp, salt, signature);
+    }
+
+    public FriendlyByteBuf writeSignature(@Nullable MessageSignature messageSignature) {
+        if (messageSignature == null)
+            return this;
+        messageSignature.write(this);
+        return this;
+    }
+
     public int readableBytes() {
         return buf.readableBytes();
     }
