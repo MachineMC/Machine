@@ -1,6 +1,7 @@
 package me.pesekjak.machine.network.packets.out;
 
 import com.google.common.base.Preconditions;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.auth.PublicKeyData;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.Range;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+@AllArgsConstructor
 public class PacketPlayOutPlayerInfo extends PacketOut {
 
     private static final int ID = 0x37;
@@ -122,6 +124,8 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
             buf.writeUUID(uuid);
             switch (action) {
                 case ADD_PLAYER -> {
+                    assert name != null;
+                    assert gamemode != null;
                     buf.writeString(name, StandardCharsets.UTF_8)
                             .writeTextures(playerTextures)
                             .writeVarInt(gamemode.getId())
@@ -133,7 +137,10 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     if (publicKeyData != null)
                         buf.writePublicKey(publicKeyData);
                 }
-                case UPDATE_GAMEMODE -> buf.writeVarInt(gamemode.getId());
+                case UPDATE_GAMEMODE -> {
+                    assert gamemode != null;
+                    buf.writeVarInt(gamemode.getId());
+                }
                 case UPDATE_LATENCY -> buf.writeVarInt(ping);
                 case UPDATE_DISPLAY_NAME -> buf.writeComponent(displayName);
                 case REMOVE_PLAYER -> {}

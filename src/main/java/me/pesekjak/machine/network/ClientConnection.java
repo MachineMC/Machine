@@ -7,6 +7,7 @@ import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.auth.PublicKeyData;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.events.translations.TranslatorHandler;
+import me.pesekjak.machine.logging.Console;
 import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
@@ -57,6 +58,9 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
      * @param packet packet sent to the client
      */
     public synchronized void sendPacket(PacketOut packet) throws IOException {
+        assert channel != null;
+        if(clientState == ClientState.DISCONNECTED)
+            return;
         if (channel.writePacket(packet))
             lastPacketTimestamp = System.currentTimeMillis();
     }
@@ -80,7 +84,6 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
     @Override
     public void run() {
         try {
-            // Handshaking
             clientState = ClientState.HANDSHAKE;
             clientSocket.setKeepAlive(true);
             setChannel(
@@ -98,13 +101,21 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
             close();
 
         } catch (Exception exception) {
+            server.getConsole().severe("Client generated unhandled exception: " + exception.getClass().getName(),
+                    "Login username: " + loginUsername,
+                    "Address: " + clientSocket.getInetAddress(),
+                    "Stack trace:"
+            );
+            System.out.print(Console.RED);
             exception.printStackTrace();
+            System.out.print(Console.RESET);
         }
     }
 
     @Override
     public void close() throws Exception {
         owner = null;
+        clientState = ClientState.DISCONNECTED;
         channel.close();
         clientSocket.close();
     }
@@ -137,7 +148,6 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
             } catch (Exception ignored) { }
         }
         try {
-            clientState = ClientState.DISCONNECTED;
             close();
         } catch (Exception ignored) { }
     }

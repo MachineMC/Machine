@@ -5,8 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Base64;
@@ -15,7 +13,7 @@ public record PlayerTextures(String value, String signature, URL skinUrl, @Nulla
 
     public static PlayerTextures buildSkin(String value, String signature) {
         try {
-            JsonElement decoded = new JsonParser().parse(new InputStreamReader(new ByteArrayInputStream(Base64.getDecoder().decode(value))));
+            JsonElement decoded = new JsonParser().parse(new String(Base64.getDecoder().decode(value)));
             if (!decoded.isJsonObject())
                 return null;
             JsonObject textures = decoded.getAsJsonObject().getAsJsonObject("textures");
@@ -35,11 +33,12 @@ public record PlayerTextures(String value, String signature, URL skinUrl, @Nulla
         if (!jsonElement.isJsonObject())
             return null;
         JsonObject texturesJson = jsonElement.getAsJsonObject();
-        if (!(texturesJson.has("value") || texturesJson.has("signature")))
+        if (!(texturesJson.has("value") && texturesJson.has("signature")))
             return null;
-        String value = texturesJson.get("value").getAsString();
-        String signature = texturesJson.get("signature").getAsString();
-        return buildSkin(value, signature);
+        return buildSkin(
+                texturesJson.get("value").getAsString(),
+                texturesJson.get("signature").getAsString()
+        );
     }
 
 }

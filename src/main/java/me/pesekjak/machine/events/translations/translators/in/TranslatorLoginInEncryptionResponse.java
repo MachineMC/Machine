@@ -55,13 +55,9 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
                 }
                 return;
             }
-            UUID authUUID = UUID.fromString(
-                    json.get("id").getAsString()
-                            .replaceFirst(
-                                    "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5"
-                            ));
+            UUID authUUID = MojangAuth.parseNoDashesUUID(json.get("id").getAsString());
             String authUsername = json.get("name").getAsString();
-            PlayerTextures playerTextures = PlayerTextures.buildSkin(json.getAsJsonArray("properties").get(0).getAsJsonObject().get("value"));
+            PlayerTextures playerTextures = PlayerTextures.buildSkin(json.getAsJsonArray("properties").get(0));
             final PlayerProfile profile = PlayerProfile.online(authUsername, authUUID, playerTextures);
             try {
                 connection.sendPacket(new PacketLoginOutSuccess(authUUID, authUsername, profile.getTextures()));

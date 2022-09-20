@@ -40,7 +40,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
         signedMessage = buf.readComponent();
         if(buf.readBoolean()) // has unsigned content
             unsignedMessage = buf.readComponent();
-        chatType = ChatType.fromId(buf.readVarInt());
+        chatType = ChatType.fromID(buf.readVarInt());
         uuid = buf.readUUID();
         displayName = buf.readComponent();
         if(buf.readBoolean()) // has team

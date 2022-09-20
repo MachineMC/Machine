@@ -24,7 +24,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
     }
 
     public PacketPlayOutChangeDifficulty(FriendlyByteBuf buf) {
-        difficulty = Difficulty.fromId(buf.readByte());
+        difficulty = Difficulty.fromID(buf.readByte());
         buf.readBoolean();
     }
 
