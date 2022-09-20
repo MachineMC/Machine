@@ -50,6 +50,13 @@ public class Entity implements Identity, ServerProperty {
         if (active)
             throw new IllegalStateException(this + " is already initiated");
         active = true;
-        getWorld().getEntityList().add(this);
+        getServer().getEntityManager().addEntity(this);
+    }
+
+    public void remove() {
+        if (!active)
+            throw new IllegalStateException(this + " is not active");
+        active = false;
+        getServer().getEntityManager().removeEntity(this);
     }
 }

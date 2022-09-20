@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Range;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-@AllArgsConstructor
 public class PacketPlayOutPlayerInfo extends PacketOut {
 
     private static final int ID = 0x37;
@@ -31,6 +30,11 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     static {
         PacketOut.register(PacketPlayOutPlayerInfo.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutPlayerInfo::new);
+    }
+
+    public PacketPlayOutPlayerInfo(Action action, PlayerInfoData... playerInfoDataArray) {
+        this.action = action;
+        this.playerInfoDataArray = playerInfoDataArray;
     }
 
     public PacketPlayOutPlayerInfo(Action action, Player... players) {
@@ -49,7 +53,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
             String name = null;
             PlayerTextures skin = null;
             Gamemode gamemode = null;
-            int ping = 0;
+            int latency = 0;
             Component displayName = null;
             PublicKeyData publicKeyData = null;
             switch (action) {
@@ -57,7 +61,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     name = buf.readString(StandardCharsets.UTF_8);
                     skin = buf.readTextures();
                     gamemode = Gamemode.fromID(buf.readVarInt());
-                    ping = buf.readVarInt();
+                    latency = buf.readVarInt();
                     if (buf.readBoolean())
                         displayName = buf.readComponent();
                     if (buf.readBoolean()) {
@@ -65,11 +69,11 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     }
                 }
                 case UPDATE_GAMEMODE -> gamemode = Gamemode.fromID(buf.readVarInt());
-                case UPDATE_LATENCY -> ping = buf.readVarInt();
+                case UPDATE_LATENCY -> latency = buf.readVarInt();
                 case UPDATE_DISPLAY_NAME -> displayName = buf.readComponent();
                 case REMOVE_PLAYER -> {}
             }
-            playerInfoDataArray[i] = new PlayerInfoData(uuid, name, skin, gamemode, ping, displayName, publicKeyData);
+            playerInfoDataArray[i] = new PlayerInfoData(uuid, name, skin, gamemode, latency, displayName, publicKeyData);
         }
     }
 
@@ -111,12 +115,12 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
 
     }
 
-    public record PlayerInfoData(UUID uuid, @Nullable String name, @Nullable PlayerTextures playerTextures, @Nullable Gamemode gamemode, int ping,
+    public record PlayerInfoData(UUID uuid, @Nullable String name, @Nullable PlayerTextures playerTextures, @Nullable Gamemode gamemode, int latency,
                                  @Nullable Component displayName, @Nullable PublicKeyData publicKeyData) {
 
         // TODO fix public key data of player
         public PlayerInfoData(Player player) {
-            this(player.getUuid(), player.getName(), player.getProfile().getTextures(), player.getGamemode(), 0,
+            this(player.getUuid(), player.getName(), player.getProfile().getTextures(), player.getGamemode(), player.getLatency(),
                     player.getDisplayName(), /*player.getServer().isOnline() ? player.getConnection().getPublicKeyData() : */null);
         }
 
@@ -129,7 +133,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     buf.writeString(name, StandardCharsets.UTF_8)
                             .writeTextures(playerTextures)
                             .writeVarInt(gamemode.getId())
-                            .writeVarInt(ping)
+                            .writeVarInt(latency)
                             .writeBoolean(displayName != null);
                     if (displayName != null)
                         buf.writeComponent(displayName);
@@ -141,7 +145,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     assert gamemode != null;
                     buf.writeVarInt(gamemode.getId());
                 }
-                case UPDATE_LATENCY -> buf.writeVarInt(ping);
+                case UPDATE_LATENCY -> buf.writeVarInt(latency);
                 case UPDATE_DISPLAY_NAME -> buf.writeComponent(displayName);
                 case REMOVE_PLAYER -> {}
             }

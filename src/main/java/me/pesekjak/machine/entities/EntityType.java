@@ -7,7 +7,7 @@ import me.pesekjak.machine.utils.NamespacedKey;
 @AllArgsConstructor
 public enum EntityType {
 
-    PLAYER(116, 0.6, 1.8, NamespacedKey.minecraft("player"));
+    PLAYER(116, 0.6, 1.8, NamespacedKey.minecraft("player"), Player.class);
 
     @Getter
     private final int ID;
@@ -17,5 +17,7 @@ public enum EntityType {
     private final double height;
     @Getter
     private final NamespacedKey identifier;
+    @Getter
+    private final Class<? extends Entity> entityClass;
 
 }

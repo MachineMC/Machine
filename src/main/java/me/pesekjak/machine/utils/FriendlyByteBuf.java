@@ -166,6 +166,15 @@ public class FriendlyByteBuf {
         return this;
     }
 
+    public double readDouble() {
+        return buf.readDouble();
+    }
+
+    public FriendlyByteBuf writeDouble(double value) {
+        buf.writeDouble(value);
+        return this;
+    }
+
     public int readVarInt() {
         int value = 0;
         int position = 0;

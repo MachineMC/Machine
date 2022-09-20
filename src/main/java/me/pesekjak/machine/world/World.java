@@ -36,9 +36,7 @@ public class World {
     @Getter
     private Difficulty difficulty;
     @Getter
-    private BlockPosition worldSpawnPosition;
-    @Getter
-    private float worldSpawnAngle;
+    private Location worldSpawn;
 
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
@@ -55,10 +53,9 @@ public class World {
         }
     }
 
-    public void setWorldSpawn(BlockPosition position, float angle) {
-        this.worldSpawnPosition = position;
-        this.worldSpawnAngle = angle;
-        PacketOut packet = new PacketPlayOutWorldSpawnPosition(position, angle);
+    public void setWorldSpawn(Location location) {
+        this.worldSpawn = location;
+        PacketOut packet = new PacketPlayOutWorldSpawnPosition(location);
         for (Entity entity : entityList) {
             if (!(entity instanceof Player player))
                 continue;

@@ -29,7 +29,7 @@ public class PacketPlayOutLogin extends PacketOut {
     @Getter @Setter @NotNull
     private Gamemode gamemode;
     @SuppressWarnings("FieldCanBeLocal")
-    private final byte previousGamemode = -1; // TODO implement later
+    private Gamemode previousGamemode;
     @Getter @Setter
     private List<String> dimensions;
     @Getter @Setter
@@ -67,7 +67,8 @@ public class PacketPlayOutLogin extends PacketOut {
         entityID = buf.readInt();
         isHardcore = buf.readBoolean();
         gamemode = Gamemode.fromID(buf.readByte());
-        buf.readByte(); // reading previous gamemode
+        byte gamemodeId = buf.readByte();
+        previousGamemode = gamemodeId == -1 ? null : Gamemode.fromID(gamemodeId); // reading previous gamemode
         dimensions = buf.readStringList(StandardCharsets.UTF_8);
         dimensionCodec = (NBTCompound) buf.readNBT();
         spawnWorldType = buf.readString(StandardCharsets.UTF_8);
@@ -94,7 +95,7 @@ public class PacketPlayOutLogin extends PacketOut {
                 .writeInt(entityID)
                 .writeBoolean(isHardcore)
                 .writeByte((byte) gamemode.getId())
-                .writeByte(previousGamemode)
+                .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getId()))
                 .writeStringList(new ArrayList<>(dimensions), StandardCharsets.UTF_8)
                 .writeNBT("", dimensionCodec)
                 .writeString(spawnWorldType, StandardCharsets.UTF_8)
