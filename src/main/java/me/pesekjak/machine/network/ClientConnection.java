@@ -118,6 +118,7 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
         clientState = ClientState.DISCONNECTED;
         channel.close();
         clientSocket.close();
+        server.getConnection().disconnect(this);
     }
 
     public SecretKey getSecretKey() {

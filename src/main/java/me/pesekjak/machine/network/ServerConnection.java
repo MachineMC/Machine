@@ -50,4 +50,10 @@ public class ServerConnection extends Thread implements ServerProperty {
             client.sendPacket(packet);
     }
 
+    public void disconnect(ClientConnection connection) {
+        if(connection.getClientState() != ClientConnection.ClientState.DISCONNECTED)
+            connection.disconnect();
+        clients.remove(connection);
+    }
+
 }

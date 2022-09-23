@@ -7,13 +7,12 @@ import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutChangeDifficulty;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutWorldSpawnPosition;
-import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Builder
 public class World {
@@ -30,7 +29,7 @@ public class World {
     @Getter
     private final DimensionType dimensionType;
     @Getter
-    private final List<Entity> entityList = new ArrayList<>();
+    private final List<Entity> entityList = new CopyOnWriteArrayList<>();
     @Getter
     private final long seed;
     @Getter

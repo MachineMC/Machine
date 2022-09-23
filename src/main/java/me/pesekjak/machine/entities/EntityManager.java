@@ -5,10 +5,10 @@ import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.world.World;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("ClassCanBeRecord")
 @RequiredArgsConstructor
 public class EntityManager {
 

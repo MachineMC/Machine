@@ -5,6 +5,7 @@ import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.EntityUtils;
+import me.pesekjak.machine.world.Location;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
@@ -26,8 +27,8 @@ public class Entity implements Identity, ServerProperty {
     private final int entityId;
     @Getter @Setter
     private Component displayName = null;
-    @Getter
-    private World world;
+    @Getter @Setter
+    private Location location;
 
     @Getter
     private boolean active;
@@ -36,14 +37,18 @@ public class Entity implements Identity, ServerProperty {
         this.server = server;
         this.entityType = entityType;
         this.uuid = uuid;
-        this.entityId = EntityUtils.getEmptyID();
-        this.world = getServer().getDefaultWorld();
+        entityId = EntityUtils.getEmptyID();
+        location = new Location(0, 0, 0, getServer().getDefaultWorld());
         active = false;
     }
 
     @Override @NotNull
     public UUID uuid() {
         return uuid;
+    }
+
+    public World getWorld() {
+        return location.getWorld();
     }
 
     protected void init() throws IOException {
