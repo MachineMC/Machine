@@ -49,7 +49,7 @@ public class PacketLoginInStart extends PacketIn {
                 .writeString(username, StandardCharsets.UTF_8)
                 .writeBoolean(publicKeyData != null);
         if (publicKeyData != null)
-            buf.write(publicKeyData);
+            publicKeyData.write(buf);
         buf.writeBoolean(uuid != null);
         if (uuid != null)
             buf.writeUUID(uuid);

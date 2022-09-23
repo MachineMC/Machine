@@ -38,7 +38,7 @@ public class PacketPlayInChatMessage extends PacketIn {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeString(message, StandardCharsets.UTF_8)
-                .write(messageSignature)
+                .writeSignature(messageSignature)
                 .bytes();
     }
 

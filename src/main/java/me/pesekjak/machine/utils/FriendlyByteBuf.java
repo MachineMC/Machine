@@ -359,6 +359,13 @@ public class FriendlyByteBuf {
         return new MessageSignature(timestamp, salt, signature);
     }
 
+    public FriendlyByteBuf writeSignature(@Nullable MessageSignature messageSignature) {
+        if (messageSignature == null)
+            return this;
+        messageSignature.write(this);
+        return this;
+    }
+
     public float readAngle() {
         return (readByte() * 360f) / 256f;
     }
