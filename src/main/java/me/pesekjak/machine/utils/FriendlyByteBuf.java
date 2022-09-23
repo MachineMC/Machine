@@ -359,10 +359,12 @@ public class FriendlyByteBuf {
         return new MessageSignature(timestamp, salt, signature);
     }
 
-    public FriendlyByteBuf writeSignature(@Nullable MessageSignature messageSignature) {
-        if (messageSignature == null)
-            return this;
-        messageSignature.write(this);
+    public float readAngle() {
+        return (readByte() * 360f) / 256f;
+    }
+
+    public FriendlyByteBuf writeAngle(float angle) {
+        writeByte((byte) (angle * 256F / 360F));
         return this;
     }
 

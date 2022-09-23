@@ -17,10 +17,6 @@ public class Location implements Cloneable {
     @Getter @Setter
     private World world;
 
-    public Location(double x, double y, double z, byte yaw, byte pitch, World world) {
-        this(x, y, z, (yaw * 360f) / 256f, (pitch * 360f) / 256f, world);
-    }
-
     public Location(double x, double y, double z, World world) {
         this(x, y, z, 0, 0, world);
     }
@@ -51,14 +47,6 @@ public class Location implements Cloneable {
         return (int) Math.floor(z);
     }
 
-    public byte getYawAsByte() {
-        return (byte) (yaw * 256f / 360f);
-    }
-
-    public byte getPitchAsByte() {
-        return (byte) (pitch * 256f / 360f);
-    }
-
     public void writePos(FriendlyByteBuf buf) {
         buf.writeDouble(x)
                 .writeDouble(y)
@@ -66,8 +54,8 @@ public class Location implements Cloneable {
     }
 
     public void writeRot(FriendlyByteBuf buf) {
-        buf.writeByte(getYawAsByte())
-                .writeByte(getPitchAsByte());
+        buf.writeAngle(yaw)
+                .writeAngle(pitch);
     }
 
     public void write(FriendlyByteBuf buf) {

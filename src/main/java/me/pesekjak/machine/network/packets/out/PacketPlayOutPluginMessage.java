@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 @AllArgsConstructor
 public class PacketPlayOutPluginMessage extends PacketOut {
 
-    public static final int ID = 0x16;
+    private static final int ID = 0x16;
 
     @Getter @Setter
     private NamespacedKey channel;

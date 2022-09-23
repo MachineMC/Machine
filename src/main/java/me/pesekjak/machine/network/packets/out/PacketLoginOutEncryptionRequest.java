@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 @AllArgsConstructor
 public class PacketLoginOutEncryptionRequest extends PacketOut {
 
-    public static int ID = 0x01;
+    private static final int ID = 0x01;
 
     @SuppressWarnings("FieldCanBeLocal")
     private final String serverID = SERVER_ID; // always same

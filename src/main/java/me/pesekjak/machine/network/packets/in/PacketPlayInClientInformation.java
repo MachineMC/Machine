@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class PacketPlayInClientInformation extends PacketIn {
 
-    public static final int ID = 0x08;
+    private static final int ID = 0x08;
 
     @Getter @Setter
     private String locale;

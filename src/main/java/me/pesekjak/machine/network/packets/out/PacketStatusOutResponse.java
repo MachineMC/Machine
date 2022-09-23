@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 @AllArgsConstructor
 public class PacketStatusOutResponse extends PacketOut {
 
-    public static final int ID = 0x00;
+    private static final int ID = 0x00;
 
     static {
         PacketOut.register(PacketStatusOutResponse.class, ID, PacketState.STATUS_OUT,

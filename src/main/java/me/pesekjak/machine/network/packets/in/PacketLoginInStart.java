@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PacketLoginInStart extends PacketIn {
 
-    public static final int ID = 0x00;
+    private static final int ID = 0x00;
 
     @Getter @Setter @NotNull
     private String username;
@@ -49,7 +49,7 @@ public class PacketLoginInStart extends PacketIn {
                 .writeString(username, StandardCharsets.UTF_8)
                 .writeBoolean(publicKeyData != null);
         if (publicKeyData != null)
-            publicKeyData.write(buf);
+            buf.write(publicKeyData);
         buf.writeBoolean(uuid != null);
         if (uuid != null)
             buf.writeUUID(uuid);

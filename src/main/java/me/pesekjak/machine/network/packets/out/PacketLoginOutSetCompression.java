@@ -9,7 +9,7 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketLoginOutSetCompression extends PacketOut {
 
-    public static final int ID = 0x03;
+    private static final int ID = 0x03;
 
     @Getter @Setter
     private int threshold;

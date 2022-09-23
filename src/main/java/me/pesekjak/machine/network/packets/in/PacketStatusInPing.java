@@ -9,7 +9,7 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketStatusInPing extends PacketIn {
 
-    public static final int ID = 0x01;
+    private static final int ID = 0x01;
 
     @Getter @Setter
     private long payload;

@@ -9,7 +9,7 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketLoginInEncryptionResponse extends PacketIn {
 
-    public static int ID = 0x01;
+    private static final int ID = 0x01;
 
     @Getter @Setter
     private byte[] secret;

@@ -16,7 +16,7 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
     @Getter @Setter
     private BlockPosition position;
     @Getter @Setter
-    private byte angle;
+    private float angle;
 
     static {
         PacketOut.register(PacketPlayOutWorldSpawnPosition.class, ID, PacketState.PLAY_OUT,
@@ -24,12 +24,12 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
     }
 
     public PacketPlayOutWorldSpawnPosition(Location location) {
-        this(new BlockPosition(location), location.getYawAsByte());
+        this(new BlockPosition(location), location.getYaw());
     }
 
     public PacketPlayOutWorldSpawnPosition(FriendlyByteBuf buf) {
         position = buf.readBlockPos();
-        angle = buf.readByte();
+        angle = buf.readAngle();
     }
 
     @Override
@@ -41,7 +41,7 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeBlockPos(position)
-                .writeByte(angle)
+                .writeAngle(angle)
                 .bytes();
     }
 

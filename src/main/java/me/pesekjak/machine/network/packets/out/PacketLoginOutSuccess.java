@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PacketLoginOutSuccess extends PacketOut {
 
-    public static int ID = 0x02;
+    private static final int ID = 0x02;
 
     @Getter @Setter @NotNull
     private UUID uuid;

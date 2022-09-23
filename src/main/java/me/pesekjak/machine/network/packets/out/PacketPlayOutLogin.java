@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PacketPlayOutLogin extends PacketOut {
 
-    public static int ID = 0x25;
+    private static final int ID = 0x25;
 
     public static final NamespacedKey DIMENSION_TYPE_CODEC_NAME = NamespacedKey.minecraft("dimension_type");
     public static final NamespacedKey WORLD_GEN_BIOME_CODEC_NAME = NamespacedKey.minecraft("worldgen/biome");

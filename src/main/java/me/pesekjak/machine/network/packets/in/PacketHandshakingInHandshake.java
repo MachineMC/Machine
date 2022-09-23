@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 @AllArgsConstructor
 public class PacketHandshakingInHandshake extends PacketIn {
 
-    public static final int ID = 0x00;
+    private static final int ID = 0x00;
 
     @Getter @Setter
     private int protocolVersion;

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 @AllArgsConstructor
 public class PacketLoginOutDisconnect extends PacketOut {
 
-    public static final int ID = 0x00;
+    private static final int ID = 0x00;
 
     static {
         PacketOut.register(PacketLoginOutDisconnect.class, ID, PacketState.LOGIN_OUT,

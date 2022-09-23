@@ -66,8 +66,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
                 .writeBoolean(teamName != null);
         if(teamName != null)
             buf.writeComponent(teamName);
-        return buf
-                .writeSignature(messageSignature)
+        return buf.write(messageSignature)
                 .bytes();
     }
 
