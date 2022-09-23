@@ -6,6 +6,8 @@ import com.google.gson.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import me.pesekjak.machine.auth.OnlineServer;
+import me.pesekjak.machine.entities.EntityManager;
 import me.pesekjak.machine.events.translations.TranslatorDispatcher;
 import me.pesekjak.machine.file.DimensionsJson;
 import me.pesekjak.machine.file.ServerProperties;
@@ -16,12 +18,13 @@ import me.pesekjak.machine.network.ServerConnection;
 import me.pesekjak.machine.network.packets.PacketFactory;
 import me.pesekjak.machine.utils.*;
 import me.pesekjak.machine.world.PersistentWorld;
-import me.pesekjak.machine.world.dimensions.DimensionType;
-import me.pesekjak.machine.world.dimensions.DimensionTypeManager;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.WorldManager;
 import me.pesekjak.machine.world.biomes.BiomeManager;
+import me.pesekjak.machine.world.dimensions.DimensionType;
+import me.pesekjak.machine.world.dimensions.DimensionTypeManager;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.jetbrains.annotations.Nullable;
 import org.json.simple.parser.ParseException;
 
 import java.io.File;
@@ -29,7 +32,9 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Machine {
@@ -49,6 +54,9 @@ public class Machine {
     @Getter @Setter
     private IConsole console;
 
+    @Getter @Nullable
+    private OnlineServer onlineServer;
+
     @Getter
     protected final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
@@ -65,6 +73,8 @@ public class Machine {
     protected WorldManager worldManager;
     @Getter
     protected BiomeManager biomeManager;
+    @Getter
+    protected EntityManager entityManager;
 
     @Getter
     protected ServerConnection connection;
@@ -105,6 +115,14 @@ public class Machine {
             console.severe("Failed to bind port '" + properties.getServerPort() + "', it's already in use.");
             console.severe("Perhaps another instance of the server is already running?");
             System.exit(2);
+        }
+
+        if(properties.isOnline()) {
+            onlineServer = new OnlineServer(this);
+        } else {
+            console.warning("The server will make no attempt to authenticate usernames and encrypt packets. Beware. " +
+                    "While this makes the game possible to play without internet access, it also opens up " +
+                    "the ability for others to connect with any username they choose.");
         }
 
         // Loading dimensions json file
@@ -180,6 +198,8 @@ public class Machine {
         // TODO Finish Biomes (+ BiomeEffects with Particles) and implement biomes json
         biomeManager = BiomeManager.createDefault(this);
 
+        entityManager = EntityManager.createDefault(this);
+
         ClassUtils.loadClass(PacketFactory.class);
         console.info("Loaded all packet mappings");
 
@@ -212,6 +232,10 @@ public class Machine {
         return gson
                 .toJson(json)
                 .replace("\"%MOTD%\"", GsonComponentSerializer.gson().serialize(properties.getMotd()));
+    }
+
+    public boolean isOnline() {
+        return onlineServer != null;
     }
 
 }

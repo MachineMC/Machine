@@ -1,4 +1,4 @@
-package me.pesekjak.machine.events.translations.translators;
+package me.pesekjak.machine.events.translations.translators.in;
 
 import me.pesekjak.machine.chat.ChatUtils;
 import me.pesekjak.machine.chat.Messenger;

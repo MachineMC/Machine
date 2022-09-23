@@ -21,11 +21,7 @@ public class Messenger {
     public static final Component CANNOT_SEND_MESSAGE = Component.translatable("chat.cannotSend", NamedTextColor.RED);
 
     private static final UUID NO_SENDER = new UUID(0, 0);
-    private static final PacketPlayOutSystemChatMessage CANNOT_SEND_PACKET = new PacketPlayOutSystemChatMessage(
-            new FriendlyByteBuf()
-            .writeComponent(CANNOT_SEND_MESSAGE)
-            .writeBoolean(false)
-    );
+    private static final PacketPlayOutSystemChatMessage CANNOT_SEND_PACKET = new PacketPlayOutSystemChatMessage(CANNOT_SEND_MESSAGE, false);
 
     public static final NBTCompound CHAT_REGISTRY;
 

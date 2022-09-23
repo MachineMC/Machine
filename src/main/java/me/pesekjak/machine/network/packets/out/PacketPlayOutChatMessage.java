@@ -1,9 +1,7 @@
 package me.pesekjak.machine.network.packets.out;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import me.pesekjak.machine.auth.MessageSignature;
 import me.pesekjak.machine.chat.ChatType;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
@@ -11,10 +9,9 @@ import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Instant;
 import java.util.UUID;
 
-@Data @EqualsAndHashCode(callSuper = false)
+@AllArgsConstructor
 public class PacketPlayOutChatMessage extends PacketOut {
 
     private static final int ID = 0x33;
@@ -32,11 +29,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
     @Getter @Setter @Nullable
     private Component teamName;
     @Getter @Setter
-    private Instant timestamp;
-    @Getter @Setter
-    private long salt;
-    @Getter @Setter
-    private byte[] signature;
+    private MessageSignature messageSignature;
 
     static {
         PacketOut.register(PacketPlayOutChatMessage.class, ID, PacketState.PLAY_OUT,
@@ -47,14 +40,12 @@ public class PacketPlayOutChatMessage extends PacketOut {
         signedMessage = buf.readComponent();
         if(buf.readBoolean()) // has unsigned content
             unsignedMessage = buf.readComponent();
-        chatType = ChatType.fromId(buf.readVarInt());
+        chatType = ChatType.fromID(buf.readVarInt());
         uuid = buf.readUUID();
         displayName = buf.readComponent();
         if(buf.readBoolean()) // has team
             teamName = buf.readComponent();
-        timestamp = buf.readInstant();
-        salt = buf.readLong();
-        signature = buf.readByteArray();
+        messageSignature = buf.readSignature();
     }
 
     @Override
@@ -75,10 +66,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
                 .writeBoolean(teamName != null);
         if(teamName != null)
             buf.writeComponent(teamName);
-        return buf
-                .writeInstant(timestamp)
-                .writeLong(salt)
-                .writeByteArray(signature)
+        return buf.writeSignature(messageSignature)
                 .bytes();
     }
 

@@ -1,5 +1,6 @@
 package me.pesekjak.machine.network.packets.in;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.chat.ChatMode;
@@ -11,9 +12,10 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
+@AllArgsConstructor
 public class PacketPlayInClientInformation extends PacketIn {
 
-    public static final int ID = 0x08;
+    private static final int ID = 0x08;
 
     @Getter @Setter
     private String locale;

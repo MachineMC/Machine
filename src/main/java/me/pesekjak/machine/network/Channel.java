@@ -1,9 +1,7 @@
 package me.pesekjak.machine.network;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import me.pesekjak.machine.auth.Crypt;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.out.PacketLoginOutSetCompression;
@@ -11,11 +9,12 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.utils.Pair;
 import me.pesekjak.machine.utils.ZLib;
-import org.jetbrains.annotations.Nullable;
 
+import javax.crypto.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -39,6 +38,10 @@ public class Channel implements AutoCloseable {
     private boolean compressed;
     @Getter @Setter(AccessLevel.PROTECTED)
     private int threshold;
+
+    @Getter
+    private SecretKey secretKey;
+    private EncryptionContext encryptionContext;
 
     /**
      * Adds new handler before the all existing ones.
@@ -73,11 +76,9 @@ public class Channel implements AutoCloseable {
      * @param threshold maximum packet size without compression
      * @return true if client accepted the compression
      */
-    public boolean setCompression(int threshold) throws IOException {
+    public synchronized boolean setCompression(int threshold) throws IOException {
         if(threshold <= 0) threshold = -1;
-        boolean success = writePacket(
-                new PacketLoginOutSetCompression(new FriendlyByteBuf()
-                        .writeVarInt(threshold)));
+        boolean success = writePacket(new PacketLoginOutSetCompression(threshold));
         if(success) {
             compressed = true;
             this.threshold = threshold;
@@ -89,43 +90,52 @@ public class Channel implements AutoCloseable {
      * Disables the packet compression for this channel.
      * @return true if client accepted cancellation of the compression
      */
-    public boolean disableCompression() throws IOException {
+    public synchronized boolean disableCompression() throws IOException {
         return setCompression(-1);
     }
 
     /**
-     * Reads the packet, handles, and returns.
-     * @return handled packet
+     * Reads not yet read packets sent by client, handles, and returns.
+     * @return handled packets
      */
-    @Nullable
-    protected PacketIn readPacket(ClientConnection.ClientState state) throws IOException {
-        if(!open) return null;
-        FriendlyByteBuf buf = new FriendlyByteBuf();
-        int length = readVarInt(input);
-        if(compressed) {
-            FriendlyByteBuf compressed = new FriendlyByteBuf();
-            compressed.writeBytes(input.readNBytes(length));
-            if(compressed.readVarInt() == 0) { // Was too small to be compressed
-                byte[] uncompressedData = compressed.finish();
-                buf.writeVarInt(uncompressedData.length);
-                buf.writeBytes(uncompressedData);
-            } else { // Actually compressed
-                buf.writeVarInt(compressed.readVarInt());
-                byte[] decompressedData = ZLib.decompress(compressed.finish());
-                buf.writeBytes(decompressedData);
+    protected synchronized PacketIn[] readPackets() throws IOException {
+        if(!open) return new PacketIn[0];
+        if(input.available() == 0) return new PacketIn[0];
+        FriendlyByteBuf input = new FriendlyByteBuf(this.input.readNBytes(this.input.available()));
+        // decryption
+        if(secretKey != null)
+            input = new FriendlyByteBuf(encryptionContext.decrypt.update(input.bytes()));
+        List<PacketIn> packets = new ArrayList<>();
+        do {
+            int length = input.readVarInt();
+            FriendlyByteBuf buf = new FriendlyByteBuf();
+            if(compressed) {
+                FriendlyByteBuf compressed = new FriendlyByteBuf();
+                compressed.writeBytes(input.readBytes(length));
+                if(compressed.readVarInt() == 0) { // Was too small to be compressed
+                    byte[] uncompressedData = compressed.finish();
+                    buf.writeVarInt(uncompressedData.length);
+                    buf.writeBytes(uncompressedData);
+                } else { // Actually compressed
+                    buf.writeVarInt(compressed.readVarInt());
+                    byte[] decompressedData = ZLib.decompress(compressed.finish());
+                    buf.writeBytes(decompressedData);
+                }
+            } else {
+                buf.writeVarInt(length);
+                buf.writeBytes(input.readBytes(length));
             }
-        } else {
-            buf.writeVarInt(length);
-            buf.writeBytes(input.readNBytes(length));
-        }
-        PacketReader read = new PacketReader(buf, state.in);
-        for(Pair<NamespacedKey, PacketHandler> pair : handlers)
-            read = pair.getSecond().read(this, read);
-        if(read.getPacket() != null) {
+            PacketReader read = new PacketReader(buf, getConnection().getClientState().in);
+            if(read.getPacket() == null) continue;
             for(Pair<NamespacedKey, PacketHandler> pair : handlers)
-                pair.getSecond().afterRead(this, read.getPacket().clone());
-        }
-        return read.getPacket();
+                read = pair.getSecond().read(this, read);
+            if(read.getPacket() != null) {
+                for(Pair<NamespacedKey, PacketHandler> pair : handlers)
+                    pair.getSecond().afterRead(this, read.getPacket().clone());
+                packets.add(read.getPacket());
+            }
+        } while(input.readableBytes() != 0);
+        return packets.toArray(new PacketIn[0]);
     }
 
     /**
@@ -133,18 +143,23 @@ public class Channel implements AutoCloseable {
      * @param packet packet to write
      * @return true if packet wasn't cancelled
      */
-    protected boolean writePacket(PacketOut packet) throws IOException {
+    protected synchronized boolean writePacket(PacketOut packet) throws IOException {
         if(!open) return false;
         PacketWriter write = new PacketWriter(packet);
         for(Pair<NamespacedKey, PacketHandler> pair : handlers)
             write = pair.getSecond().write(this, write);
         if(write.getPacket() == null) return false;
         FriendlyByteBuf buf = new FriendlyByteBuf();
+        // Compression
         if(compressed)
             buf.writeBytes(write.getPacket().rawCompressedSerialize(threshold));
         else
             buf.writeBytes(write.getPacket().rawSerialize());
-        output.write(buf.bytes());
+        // Encryption
+        if(secretKey != null)
+            output.write(encryptionContext.encrypt.update(buf.bytes()));
+        else
+            output.write(buf.bytes());
         for(Pair<NamespacedKey, PacketHandler> pair : handlers)
             pair.getSecond().afterWrite(this, write.getPacket().clone());
         return true;
@@ -157,21 +172,17 @@ public class Channel implements AutoCloseable {
         output.close();
     }
 
-    private static int readVarInt(DataInputStream in) throws IOException {
-        int numRead = 0;
-        int result = 0;
-        byte read;
-        do {
-            read = in.readByte();
-            int value = (read & 0b01111111);
-            result |= (value << (7 * numRead));
+    protected void setSecretKey(SecretKey key) {
+        if(secretKey != null)
+            throw new IllegalStateException("Encryption for the Channel is already enabled");
+        secretKey = key;
+        encryptionContext = new EncryptionContext(
+                Crypt.getCipher(Cipher.ENCRYPT_MODE, secretKey),
+                Crypt.getCipher(Cipher.DECRYPT_MODE, secretKey)
+        );
+    }
 
-            numRead++;
-            if (numRead > 5) {
-                throw new RuntimeException("VarInt is too big");
-            }
-        } while ((read & 0b10000000) != 0);
-        return result;
+    record EncryptionContext(Cipher encrypt, Cipher decrypt) {
     }
 
 }

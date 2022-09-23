@@ -125,7 +125,7 @@ public enum ChatType implements NBTSerializable {
         return ordinal();
     }
 
-    public static ChatType fromId(@Range(from = 0, to = 7) int id) {
+    public static ChatType fromID(@Range(from = 0, to = 7) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported Chat type");
         return values()[id];
 

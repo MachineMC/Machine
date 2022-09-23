@@ -22,7 +22,7 @@ public enum Difficulty {
         return ordinal();
     }
 
-    public static Difficulty getByID(@Range(from = 0, to = 3) int id) {
+    public static Difficulty fromID(@Range(from = 0, to = 3) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported difficulty type");
         return values()[id];
     }

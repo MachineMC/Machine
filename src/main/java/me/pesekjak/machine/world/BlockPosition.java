@@ -18,6 +18,10 @@ public class BlockPosition implements Cloneable {
     private int y;
     private int z;
 
+    public BlockPosition(Location location) {
+        this(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    }
+
     @Override
     public BlockPosition clone() throws CloneNotSupportedException {
         return (BlockPosition) super.clone();

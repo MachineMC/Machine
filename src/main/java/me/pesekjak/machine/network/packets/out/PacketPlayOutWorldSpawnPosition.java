@@ -1,11 +1,14 @@
 package me.pesekjak.machine.network.packets.out;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.world.BlockPosition;
+import me.pesekjak.machine.world.Location;
 
+@AllArgsConstructor
 public class PacketPlayOutWorldSpawnPosition extends PacketOut {
 
     private static final int ID = 0x4D;
@@ -20,9 +23,13 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
                 PacketPlayOutWorldSpawnPosition::new);
     }
 
+    public PacketPlayOutWorldSpawnPosition(Location location) {
+        this(new BlockPosition(location), location.getYaw());
+    }
+
     public PacketPlayOutWorldSpawnPosition(FriendlyByteBuf buf) {
         position = buf.readBlockPos();
-        angle = buf.readFloat();
+        angle = buf.readAngle();
     }
 
     @Override
@@ -34,7 +41,7 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeBlockPos(position)
-                .writeFloat(angle)
+                .writeAngle(angle)
                 .bytes();
     }
 

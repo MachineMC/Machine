@@ -2,6 +2,7 @@ package me.pesekjak.machine.network;
 
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
+import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.server.ServerProperty;
 
 import java.io.IOException;
@@ -10,7 +11,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class ServerConnection extends Thread implements ServerProperty {
 
@@ -43,6 +43,17 @@ public class ServerConnection extends Thread implements ServerProperty {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
+    }
+
+    public void broadcastPacket(PacketOut packet) throws IOException {
+        for(ClientConnection client : clients)
+            client.sendPacket(packet);
+    }
+
+    public void disconnect(ClientConnection connection) {
+        if(connection.getClientState() != ClientConnection.ClientState.DISCONNECTED)
+            connection.disconnect();
+        clients.remove(connection);
     }
 
 }

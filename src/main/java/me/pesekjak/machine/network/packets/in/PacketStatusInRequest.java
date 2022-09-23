@@ -1,11 +1,13 @@
 package me.pesekjak.machine.network.packets.in;
 
+import lombok.AllArgsConstructor;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
+@AllArgsConstructor
 public class PacketStatusInRequest extends PacketIn {
 
-    public static final int ID = 0x00;
+    private static final int ID = 0x00;
 
     static {
         PacketIn.register(PacketStatusInRequest.class, ID, PacketState.STATUS_IN,

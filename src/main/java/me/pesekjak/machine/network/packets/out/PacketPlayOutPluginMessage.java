@@ -1,5 +1,6 @@
 package me.pesekjak.machine.network.packets.out;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
@@ -8,9 +9,10 @@ import me.pesekjak.machine.utils.NamespacedKey;
 
 import java.nio.charset.StandardCharsets;
 
+@AllArgsConstructor
 public class PacketPlayOutPluginMessage extends PacketOut {
 
-    public static final int ID = 0x16;
+    private static final int ID = 0x16;
 
     @Getter @Setter
     private NamespacedKey channel;
@@ -49,14 +51,11 @@ public class PacketPlayOutPluginMessage extends PacketOut {
     public static NamespacedKey BRAND_CHANNEL = NamespacedKey.minecraft("brand");
 
     public static PacketPlayOutPluginMessage getBrandPacket(String brand) {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeString(BRAND_CHANNEL.toString(), StandardCharsets.UTF_8)
-                .writeBytes(
-                        new FriendlyByteBuf()
-                        .writeString(brand, StandardCharsets.UTF_8)
-                        .bytes()
-                );
-        return new PacketPlayOutPluginMessage(buf);
+        return new PacketPlayOutPluginMessage(
+                BRAND_CHANNEL,
+                new FriendlyByteBuf().
+                        writeString(brand, StandardCharsets.UTF_8)
+        );
     }
 
 }

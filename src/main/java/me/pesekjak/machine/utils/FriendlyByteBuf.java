@@ -4,9 +4,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import me.pesekjak.machine.auth.Crypt;
+import me.pesekjak.machine.auth.PublicKeyData;
+import me.pesekjak.machine.auth.MessageSignature;
+import me.pesekjak.machine.entities.player.PlayerTextures;
 import me.pesekjak.machine.world.BlockPosition;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.*;
 
 import java.io.ByteArrayInputStream;
@@ -98,15 +103,15 @@ public class FriendlyByteBuf {
         return this;
     }
 
-    public FriendlyByteBuf writeBytes(byte... bytes) {
-        buf.writeBytes(bytes);
-        return this;
+    public byte[] readBytes(int length) {
+        byte[] result = new byte[length];
+        for(int i = 0; i < length; i++)
+            result[i] = readByte();
+        return result;
     }
 
-    public FriendlyByteBuf writeByteArray(byte[] bytes) {
-        writeVarInt(bytes.length);
-        for (byte b : bytes)
-            writeByte(b);
+    public FriendlyByteBuf writeBytes(byte... bytes) {
+        buf.writeBytes(bytes);
         return this;
     }
 
@@ -116,6 +121,13 @@ public class FriendlyByteBuf {
         for (int i = 0; i < length; i++)
             bytes[i] = readByte();
         return bytes;
+    }
+
+    public FriendlyByteBuf writeByteArray(byte[] bytes) {
+        writeVarInt(bytes.length);
+        for (byte b : bytes)
+            writeByte(b);
+        return this;
     }
 
     public short readShort() {
@@ -151,6 +163,15 @@ public class FriendlyByteBuf {
 
     public FriendlyByteBuf writeFloat(float value) {
         buf.writeFloat(value);
+        return this;
+    }
+
+    public double readDouble() {
+        return buf.readDouble();
+    }
+
+    public FriendlyByteBuf writeDouble(double value) {
+        buf.writeDouble(value);
         return this;
     }
 
@@ -295,8 +316,66 @@ public class FriendlyByteBuf {
         return this;
     }
 
+    public PublicKeyData readPublicKey() {
+        Instant instant = Instant.ofEpochMilli(readLong());
+        return new PublicKeyData(Crypt.pubicKeyFrom(readByteArray()), readByteArray(), instant);
+    }
+
+    public FriendlyByteBuf writePublicKey(PublicKeyData publicKeyData) {
+        writeByteArray(publicKeyData.publicKey().getEncoded())
+                .writeByteArray(publicKeyData.signature())
+                .writeLong(publicKeyData.timestamp().toEpochMilli());
+        return this;
+    }
+
+    public PlayerTextures readTextures() {
+        if (readVarInt() == 0)
+            return null;
+        readString(StandardCharsets.UTF_8);
+        String value = readString(StandardCharsets.UTF_8);
+        String signature = null;
+        if (readBoolean())
+            signature = readString(StandardCharsets.UTF_8);
+        return PlayerTextures.buildSkin(value, signature);
+    }
+
+    public FriendlyByteBuf writeTextures(@Nullable PlayerTextures playerSkin) {
+        if (playerSkin == null) {
+            writeVarInt(0);
+            return this;
+        }
+        writeVarInt(1);
+        writeString("textures", StandardCharsets.UTF_8);
+        writeString(playerSkin.value(), StandardCharsets.UTF_8);
+        writeBoolean(true);
+        writeString(playerSkin.signature(), StandardCharsets.UTF_8);
+        return this;
+    }
+
+    public MessageSignature readSignature() {
+        Instant timestamp = readInstant();
+        long salt = readLong();
+        byte[] signature = readByteArray();
+        return new MessageSignature(timestamp, salt, signature);
+    }
+
+    public FriendlyByteBuf writeSignature(@Nullable MessageSignature messageSignature) {
+        if (messageSignature == null)
+            return this;
+        messageSignature.write(this);
+        return this;
+    }
+
+    public float readAngle() {
+        return (readByte() * 360f) / 256f;
+    }
+
+    public FriendlyByteBuf writeAngle(float angle) {
+        writeByte((byte) (angle * 256F / 360F));
+        return this;
+    }
+
     public int readableBytes() {
         return buf.readableBytes();
     }
-
 }

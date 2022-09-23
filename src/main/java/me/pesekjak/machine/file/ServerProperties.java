@@ -30,6 +30,8 @@ public class ServerProperties implements ServerFile, ServerProperty {
     @Getter
     private final int serverPort;
     @Getter
+    private final boolean online;
+    @Getter
     private final int maxPlayers;
     @Getter
     private final Component motd;
@@ -60,6 +62,8 @@ public class ServerProperties implements ServerFile, ServerProperty {
         serverIp = properties.getProperty("server-ip");
 
         serverPort = Integer.parseInt(properties.getProperty("server-port"));
+
+        online = Boolean.parseBoolean(properties.getProperty("online"));
 
         maxPlayers = Integer.parseInt(properties.getProperty("max-players"));
 

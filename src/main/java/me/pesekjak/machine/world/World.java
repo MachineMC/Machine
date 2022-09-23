@@ -7,13 +7,12 @@ import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutChangeDifficulty;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutWorldSpawnPosition;
-import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Builder
 public class World {
@@ -30,21 +29,17 @@ public class World {
     @Getter
     private final DimensionType dimensionType;
     @Getter
-    private final List<Entity> entityList = new ArrayList<>();
+    private final List<Entity> entityList = new CopyOnWriteArrayList<>();
     @Getter
     private final long seed;
     @Getter
     private Difficulty difficulty;
     @Getter
-    private BlockPosition worldSpawnPosition;
-    @Getter
-    private float worldSpawnAngle;
+    private Location worldSpawn;
 
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
-        FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeByte((byte) difficulty.getId());
-        PacketOut packet = new PacketPlayOutChangeDifficulty(buf);
+        PacketOut packet = new PacketPlayOutChangeDifficulty(difficulty);
         for (Entity entity : entityList) {
             if (!(entity instanceof Player player))
                 continue;
@@ -57,13 +52,9 @@ public class World {
         }
     }
 
-    public void setWorldSpawn(BlockPosition position, float angle) {
-        this.worldSpawnPosition = position;
-        this.worldSpawnAngle = angle;
-        FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeBlockPos(position)
-                .writeFloat(angle);
-        PacketOut packet = new PacketPlayOutWorldSpawnPosition(buf);
+    public void setWorldSpawn(Location location) {
+        this.worldSpawn = location;
+        PacketOut packet = new PacketPlayOutWorldSpawnPosition(location);
         for (Entity entity : entityList) {
             if (!(entity instanceof Player player))
                 continue;

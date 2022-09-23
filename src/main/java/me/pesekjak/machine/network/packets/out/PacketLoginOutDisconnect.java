@@ -1,5 +1,6 @@
 package me.pesekjak.machine.network.packets.out;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
@@ -7,9 +8,10 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
+@AllArgsConstructor
 public class PacketLoginOutDisconnect extends PacketOut {
 
-    public static final int ID = 0x00;
+    private static final int ID = 0x00;
 
     static {
         PacketOut.register(PacketLoginOutDisconnect.class, ID, PacketState.LOGIN_OUT,

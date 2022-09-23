@@ -15,8 +15,9 @@ public class PersistentWorld extends World {
             NamespacedKey name,
             DimensionType dimensionType,
             long seed,
-            Difficulty difficulty) {
-        super(name, dimensionType, seed, difficulty, new BlockPosition(0, 0, 0), 0.0F);
+            Difficulty difficulty,
+            Location worldSpawn) {
+        super(name, dimensionType, seed, difficulty, worldSpawn);
         this.folderName = folderName;
     }
 
@@ -25,7 +26,8 @@ public class PersistentWorld extends World {
                 world.getName(),
                 world.getDimensionType(),
                 world.getSeed(),
-                world.getDifficulty()
+                world.getDifficulty(),
+                world.getWorldSpawn()
         );
     }
 
