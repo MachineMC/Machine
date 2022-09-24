@@ -25,7 +25,7 @@ public class PacketLoginInStart extends PacketIn {
     private UUID uuid;
 
     static {
-        PacketIn.register(PacketLoginInStart.class, ID, PacketState.LOGIN_IN,
+        register(PacketLoginInStart.class, ID, PacketState.LOGIN_IN,
                 PacketLoginInStart::new
         );
     }

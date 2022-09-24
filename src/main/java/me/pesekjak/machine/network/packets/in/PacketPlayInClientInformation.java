@@ -35,7 +35,7 @@ public class PacketPlayInClientInformation extends PacketIn {
     private boolean allowServerListings;
 
     static {
-        PacketIn.register(PacketPlayInClientInformation.class, ID, PacketState.PLAY_IN,
+        register(PacketPlayInClientInformation.class, ID, PacketState.PLAY_IN,
                 PacketPlayInClientInformation::new);
     }
 

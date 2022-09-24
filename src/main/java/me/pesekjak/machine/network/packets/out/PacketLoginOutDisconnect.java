@@ -14,7 +14,7 @@ public class PacketLoginOutDisconnect extends PacketOut {
     private static final int ID = 0x00;
 
     static {
-        PacketOut.register(PacketLoginOutDisconnect.class, ID, PacketState.LOGIN_OUT,
+        register(PacketLoginOutDisconnect.class, ID, PacketState.LOGIN_OUT,
                 PacketLoginOutDisconnect::new
         );
     }

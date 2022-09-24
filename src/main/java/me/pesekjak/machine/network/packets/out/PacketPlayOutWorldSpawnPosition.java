@@ -19,7 +19,7 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
     private float angle;
 
     static {
-        PacketOut.register(PacketPlayOutWorldSpawnPosition.class, ID, PacketState.PLAY_OUT,
+        register(PacketPlayOutWorldSpawnPosition.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutWorldSpawnPosition::new);
     }
 

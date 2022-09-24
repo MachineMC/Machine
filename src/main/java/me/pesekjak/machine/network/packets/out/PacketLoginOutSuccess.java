@@ -25,7 +25,7 @@ public class PacketLoginOutSuccess extends PacketOut {
     private PlayerTextures textures;
 
     static {
-        PacketOut.register(PacketLoginOutSuccess.class, ID, PacketState.LOGIN_OUT,
+        register(PacketLoginOutSuccess.class, ID, PacketState.LOGIN_OUT,
                 PacketLoginOutSuccess::new
         );
     }

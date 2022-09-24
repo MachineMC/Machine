@@ -32,7 +32,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
     private MessageSignature messageSignature;
 
     static {
-        PacketOut.register(PacketPlayOutChatMessage.class, ID, PacketState.PLAY_OUT,
+        register(PacketPlayOutChatMessage.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutChatMessage::new);
     }
 

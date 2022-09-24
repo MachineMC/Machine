@@ -14,7 +14,7 @@ public class PacketStatusOutResponse extends PacketOut {
     private static final int ID = 0x00;
 
     static {
-        PacketOut.register(PacketStatusOutResponse.class, ID, PacketState.STATUS_OUT,
+        register(PacketStatusOutResponse.class, ID, PacketState.STATUS_OUT,
                 PacketStatusOutResponse::new
         );
     }

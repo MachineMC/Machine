@@ -21,7 +21,7 @@ public class PacketLoginOutEncryptionRequest extends PacketOut {
     private byte[] verifyToken;
 
     static {
-        PacketOut.register(PacketLoginOutEncryptionRequest.class, ID, PacketState.LOGIN_OUT,
+        register(PacketLoginOutEncryptionRequest.class, ID, PacketState.LOGIN_OUT,
                 PacketLoginOutEncryptionRequest::new);
     }
 

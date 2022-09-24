@@ -20,7 +20,7 @@ public class PacketPlayOutPluginMessage extends PacketOut {
     private FriendlyByteBuf data;
 
     static {
-        PacketOut.register(PacketPlayOutPluginMessage.class, ID, PacketState.PLAY_OUT,
+        register(PacketPlayOutPluginMessage.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutPluginMessage::new
         );
     }
