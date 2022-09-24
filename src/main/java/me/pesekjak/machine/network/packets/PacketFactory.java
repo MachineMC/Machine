@@ -102,4 +102,13 @@ public class PacketFactory {
         return OUT_MAPPING.get(packetClass) & ~state.getMask();
     }
 
+    /**
+     * Returns state of Packet from its class reference
+     * @param packetClass class of the packet
+     * @return state of the packet
+     */
+    public static Packet.PacketState getStateFromPacket(Class<? extends Packet> packetClass) {
+        return Packet.PacketState.fromMask(OUT_MAPPING.get(packetClass) & (0b111 << Packet.PacketState.OFFSET));
+    }
+
 }

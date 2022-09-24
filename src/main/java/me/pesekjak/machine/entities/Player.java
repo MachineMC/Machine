@@ -14,7 +14,6 @@ import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.out.*;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutGameEvent.Event;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
-import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.Difficulty;
 import me.pesekjak.machine.world.Location;
 import me.pesekjak.machine.world.World;
@@ -56,16 +55,18 @@ public class Player extends LivingEntity implements Audience {
     private Set<SkinPart> displayedSkinParts;
     @Getter @Setter
     private Hand mainHand;
-    // TODO implement latency when keep alive packet is done
-    @Getter
+    @Getter @Setter
     private int latency = 0;
 
     public Player(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUuid());
         this.profile = profile;
         if(connection.getOwner() != null)
-            throw new UnsupportedOperationException("There can't be multiple players with the same ClientConnection");
+            throw new IllegalStateException("There can't be multiple players with the same ClientConnection");
+        if(connection.getClientState() != ClientConnection.ClientState.PLAY)
+            throw new IllegalStateException("Player's connection has to be in play state");
         connection.setOwner(this);
+        connection.startKeepingAlive();
         setDisplayName(Component.text(profile.getUsername()));
         this.connection = connection;
         try {
