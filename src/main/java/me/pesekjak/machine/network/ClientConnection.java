@@ -7,7 +7,8 @@ import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.auth.PublicKeyData;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.events.translations.TranslatorHandler;
-import me.pesekjak.machine.logging.Console;
+import me.pesekjak.machine.exception.ClientException;
+import me.pesekjak.machine.exception.ExceptionHandler;
 import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
@@ -22,6 +23,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Random;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ClientConnection extends Thread implements ServerProperty, AutoCloseable {
 
@@ -33,36 +37,44 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
     private final Socket clientSocket;
     @Getter
     protected Channel channel;
-    @Getter @Setter
-    private ClientState clientState;
     @Getter
-    private long lastPacketTimestamp;
+    private ClientState clientState;
+
+    @Getter
+    private long lastSendTimestamp = System.currentTimeMillis();
+    @Getter
+    private long lastReadTimestamp = System.currentTimeMillis();
+
     @Getter @Setter
     private PublicKeyData publicKeyData;
-
     @Getter @Setter
     private String loginUsername;
 
     @Getter @Nullable
     private Player owner;
 
+    @Getter
+    private long keepAliveKey = -1;
+    private long lastKeepAlive;
+
     public ClientConnection(Machine server, Socket clientSocket) {
         this.server = server;
         this.clientSocket = clientSocket;
-        this.channel = null;
-        this.lastPacketTimestamp = -1;
     }
 
     /**
      * Sends packet to the client.
      * @param packet packet sent to the client
      */
-    public synchronized void sendPacket(PacketOut packet) throws IOException {
+    public synchronized boolean sendPacket(PacketOut packet) throws IOException {
         assert channel != null;
         if(clientState == ClientState.DISCONNECTED)
-            return;
-        if (channel.writePacket(packet))
-            lastPacketTimestamp = System.currentTimeMillis();
+            return false;
+        if (channel.writePacket(packet)) {
+            lastSendTimestamp = System.currentTimeMillis();
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -86,6 +98,7 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
         try {
             clientState = ClientState.HANDSHAKE;
             clientSocket.setKeepAlive(true);
+            clientSocket.setSoTimeout(1);
             setChannel(
                     new DataInputStream(clientSocket.getInputStream()),
                     new DataOutputStream(clientSocket.getOutputStream())
@@ -95,30 +108,39 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                     new TranslatorHandler(server.getTranslatorDispatcher())
             );
 
-            while (clientSocket.isConnected() && clientState != ClientState.DISCONNECTED)
-                readPackets();
+            AtomicReference<ScheduledFuture<?>> future = new AtomicReference<>();
+            future.set(server.getConnection().executor.scheduleAtFixedRate(() -> {
+                if(clientState == ClientState.DISCONNECTED)
+                    future.get().cancel(true);
+                try {
+                    PacketIn[] packets = readPackets();
+                    if(packets != null && packets.length != 0)
+                        lastReadTimestamp = System.currentTimeMillis();
+                } catch (Exception exception) {
+                    ExceptionHandler.handle(new ClientException(this, exception));
+                    clientState = ClientState.DISCONNECTED;
+                }
+                if(System.currentTimeMillis() - lastReadTimestamp > ServerConnection.READ_IDLE_TIMEOUT)
+                    disconnect(Component.text("Timed out"));
+            }, 0, 1000 / ServerConnection.TPS, TimeUnit.MILLISECONDS));
 
-            close();
-
-        } catch (Exception exception) {
-            server.getConsole().severe("Client generated unhandled exception: " + exception.getClass().getName(),
-                    "Login username: " + loginUsername,
-                    "Address: " + clientSocket.getInetAddress(),
-                    "Stack trace:"
-            );
-            System.out.print(Console.RED);
-            exception.printStackTrace();
-            System.out.print(Console.RESET);
-        }
+        } catch (Exception ignored) { }
     }
 
     @Override
     public void close() throws Exception {
-        owner = null;
         clientState = ClientState.DISCONNECTED;
+        if(owner != null && owner.isActive()) owner.remove();
+        owner = null;
         channel.close();
         clientSocket.close();
         server.getConnection().disconnect(this);
+    }
+
+    public void setClientState(ClientState clientState) {
+        if(clientState == ClientState.DISCONNECTED)
+            throw new UnsupportedOperationException("You can't set the connection's state to disconnected");
+        this.clientState = clientState;
     }
 
     public SecretKey getSecretKey() {
@@ -137,20 +159,50 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
         owner = player;
     }
 
+    public void startKeepingAlive() {
+        if(clientState != ClientState.PLAY)
+            throw new IllegalStateException("Client isn't in the playing state");
+        if(keepAliveKey != -1)
+            throw new IllegalStateException("Connection is already being kept alive");
+        keepAliveKey = new Random().nextLong();
+        AtomicReference<ScheduledFuture<?>> future = new AtomicReference<>();
+        future.set(server.getConnection().executor.scheduleAtFixedRate(() -> {
+            if(clientState != ClientState.PLAY) {
+                future.get().cancel(true);
+                return;
+            }
+            try {
+                if(sendPacket(new PacketPlayOutKeepAlive(keepAliveKey)))
+                    lastKeepAlive = System.currentTimeMillis();
+            } catch (IOException exception) {
+                throw new RuntimeException(exception);
+            }
+        }, 0, ServerConnection.KEEP_ALIVE_FREQ, TimeUnit.MILLISECONDS));
+    }
+
+    public void keepAlive() {
+        if(clientState != ClientState.PLAY)
+            throw new IllegalStateException("Client isn't in the playing state");
+        if(keepAliveKey == -1)
+            throw new IllegalStateException("Connection isn't being kept alive");
+        if(owner != null) owner.setLatency((int) (System.currentTimeMillis() - lastKeepAlive));
+        System.out.println(owner.getLatency());
+    }
+
     public void disconnect() {
         disconnect(Component.text("Disconnected"));
     }
 
     public void disconnect(Component reason) {
-        if(clientState == ClientState.LOGIN) {
-            try {
-                PacketLoginOutDisconnect packet = new PacketLoginOutDisconnect(reason);
-                sendPacket(packet);
-            } catch (Exception ignored) { }
-        }
+        try {
+            if(clientState == ClientState.LOGIN)
+                sendPacket(new PacketLoginOutDisconnect(reason));
+        } catch (Exception ignored) { }
         try {
             close();
-        } catch (Exception ignored) { }
+        } catch (Exception exception) {
+            ExceptionHandler.handle(new ClientException(this, exception));
+        }
     }
 
     @AllArgsConstructor
@@ -163,6 +215,14 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
 
         protected final Packet.PacketState in;
         protected final Packet.PacketState out;
+
+        public static ClientState fromState(Packet.PacketState state) {
+            for(ClientState clientState : values()) {
+                if(clientState.in == state || clientState.out == state)
+                    return clientState;
+            }
+            return null;
+        }
     }
 
 }

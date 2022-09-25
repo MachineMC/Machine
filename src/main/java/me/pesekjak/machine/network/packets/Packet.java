@@ -100,11 +100,20 @@ public abstract class Packet implements Cloneable {
         PLAY_IN        (0b110),
         PLAY_OUT       (0b111);
 
+        public static final int OFFSET = 12;
+
         @Getter
         private final int mask;
 
         PacketState(int mask) {
-            this.mask = mask << 12;
+            this.mask = mask << OFFSET;
+        }
+
+        public static PacketState fromMask(int mask) {
+            for(PacketState state : values()) {
+                if(state.mask == mask) return state;
+            }
+            return null;
         }
 
     }
