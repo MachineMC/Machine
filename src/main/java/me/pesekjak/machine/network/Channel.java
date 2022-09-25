@@ -43,6 +43,8 @@ public class Channel implements AutoCloseable {
     private SecretKey secretKey;
     private EncryptionContext encryptionContext;
 
+    private final List<Byte> preReadBytes = new ArrayList<>();
+
     /**
      * Adds new handler before the all existing ones.
      * @param key namespaced key of the handler
@@ -100,8 +102,29 @@ public class Channel implements AutoCloseable {
      */
     protected synchronized PacketIn[] readPackets() throws IOException {
         if(!open) return new PacketIn[0];
-        if(input.available() == 0) return new PacketIn[0];
-        FriendlyByteBuf input = new FriendlyByteBuf(this.input.readNBytes(this.input.available()));
+        if(input.available() == 0) {
+            /*
+            Channel tries to read bytes before they're available,
+            if read byte is -1, client disconnected, otherwise
+            the bytes need to be stored for the next packet.
+             */
+            int preReadByte;
+            try {
+                preReadByte = connection.getClientSocket().getInputStream().read();
+            } catch (Exception exception) { return new PacketIn[0]; }
+            if(preReadByte == -1) {
+                connection.disconnect();
+                return new PacketIn[0];
+            }
+            preReadBytes.add((byte) preReadByte);
+            return new PacketIn[0];
+        }
+        FriendlyByteBuf input = new FriendlyByteBuf();
+        // Writes pre-read bytes to the buffer and clears
+        for(Byte preReadByte : preReadBytes) input.writeByte(preReadByte);
+        preReadBytes.clear();
+        // Writes available bytes to the buffer
+        input.writeBytes(this.input.readNBytes(this.input.available()));
         // decryption
         if(secretKey != null)
             input = new FriendlyByteBuf(encryptionContext.decrypt.update(input.bytes()));

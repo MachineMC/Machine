@@ -19,8 +19,8 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
 
     // TODO move this somewhere else, probably Machine class?
     public final static int TPS = 20;
-    public final static int READ_IDLE_TIMEOUT = 20000;
-    public final static int KEEP_ALIVE_FREQ = 1000;
+    public final static int READ_IDLE_TIMEOUT = 30000;
+    public final static int KEEP_ALIVE_FREQ = 20000;
 
     @Getter
     private final Machine server;

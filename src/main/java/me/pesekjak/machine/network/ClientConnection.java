@@ -54,9 +54,8 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
     private Player owner;
 
     @Getter
-    private long keepAliveKey;
-    private long lastSendKeepAlive;
-    private long lastReadKeepAlive;
+    private long keepAliveKey = -1;
+    private long lastKeepAlive;
 
     public ClientConnection(Machine server, Socket clientSocket) {
         this.server = server;
@@ -99,6 +98,7 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
         try {
             clientState = ClientState.HANDSHAKE;
             clientSocket.setKeepAlive(true);
+            clientSocket.setSoTimeout(1);
             setChannel(
                     new DataInputStream(clientSocket.getInputStream()),
                     new DataOutputStream(clientSocket.getOutputStream())
@@ -162,39 +162,31 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
     public void startKeepingAlive() {
         if(clientState != ClientState.PLAY)
             throw new IllegalStateException("Client isn't in the playing state");
+        if(keepAliveKey != -1)
+            throw new IllegalStateException("Connection is already being kept alive");
         keepAliveKey = new Random().nextLong();
         AtomicReference<ScheduledFuture<?>> future = new AtomicReference<>();
         future.set(server.getConnection().executor.scheduleAtFixedRate(() -> {
-            int latency = calculateLatency();
-            if(latency < 0)
-                disconnect(Component.text("Timed out"));
             if(clientState != ClientState.PLAY) {
                 future.get().cancel(true);
                 return;
             }
-            if(owner != null) owner.setLatency(latency);
             try {
-                sendPacket(new PacketPlayOutKeepAlive(keepAliveKey));
+                if(sendPacket(new PacketPlayOutKeepAlive(keepAliveKey)))
+                    lastKeepAlive = System.currentTimeMillis();
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
         }, 0, ServerConnection.KEEP_ALIVE_FREQ, TimeUnit.MILLISECONDS));
     }
 
-    public void sendKeepAlive() {
+    public void keepAlive() {
         if(clientState != ClientState.PLAY)
             throw new IllegalStateException("Client isn't in the playing state");
-        lastSendKeepAlive = System.currentTimeMillis();
-    }
-
-    public void readKeepAlive() {
-        if(clientState != ClientState.PLAY)
-            throw new IllegalStateException("Client isn't in the playing state");
-        lastReadKeepAlive = System.currentTimeMillis();
-    }
-
-    private int calculateLatency() {
-        return (int) (lastReadKeepAlive - lastSendKeepAlive);
+        if(keepAliveKey == -1)
+            throw new IllegalStateException("Connection isn't being kept alive");
+        if(owner != null) owner.setLatency((int) (System.currentTimeMillis() - lastKeepAlive));
+        System.out.println(owner.getLatency());
     }
 
     public void disconnect() {

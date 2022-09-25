@@ -10,7 +10,7 @@ public class TranslatorPlayInKeepAlive extends PacketTranslator<PacketPlayInKeep
     @Override
     public boolean translate(ClientConnection connection, PacketPlayInKeepAlive packet) {
         if(packet.getKeepAliveId() != connection.getKeepAliveKey()) return false;
-        connection.readKeepAlive();
+        connection.keepAlive();
         return true;
     }
 
