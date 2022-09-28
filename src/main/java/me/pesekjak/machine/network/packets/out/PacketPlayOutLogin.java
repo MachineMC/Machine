@@ -58,7 +58,7 @@ public class PacketPlayOutLogin extends PacketOut {
     private final boolean hasDeathLocation = false; // TODO implement later
 
     static {
-        PacketOut.register(PacketPlayOutLogin.class, ID, PacketState.PLAY_OUT,
+        register(PacketPlayOutLogin.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutLogin::new
         );
     }

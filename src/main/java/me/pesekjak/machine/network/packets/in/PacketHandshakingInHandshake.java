@@ -25,7 +25,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
     private HandshakeType handshakeType;
 
     static {
-        PacketIn.register(PacketHandshakingInHandshake.class, ID, PacketState.HANDSHAKING_IN,
+        register(PacketHandshakingInHandshake.class, ID, PacketState.HANDSHAKING_IN,
                 PacketHandshakingInHandshake::new
         );
     }

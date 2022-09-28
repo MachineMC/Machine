@@ -19,7 +19,7 @@ public class PacketPlayOutSystemChatMessage extends PacketOut {
     private boolean overlay;
 
     static {
-        PacketOut.register(PacketPlayOutSystemChatMessage.class, ID, PacketState.PLAY_OUT,
+        register(PacketPlayOutSystemChatMessage.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutSystemChatMessage::new);
     }
 

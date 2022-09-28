@@ -21,7 +21,7 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
     private byte[] messageSignature;
 
     static {
-        PacketIn.register(PacketLoginInEncryptionResponse.class, ID, PacketState.LOGIN_IN,
+        register(PacketLoginInEncryptionResponse.class, ID, PacketState.LOGIN_IN,
                 PacketLoginInEncryptionResponse::new);
     }
 

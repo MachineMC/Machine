@@ -15,7 +15,7 @@ public class PacketLoginOutSetCompression extends PacketOut {
     private int threshold;
 
     static {
-        PacketOut.register(PacketLoginOutSetCompression.class, ID, PacketState.LOGIN_OUT,
+        register(PacketLoginOutSetCompression.class, ID, PacketState.LOGIN_OUT,
                 PacketLoginOutSetCompression::new
         );
     }

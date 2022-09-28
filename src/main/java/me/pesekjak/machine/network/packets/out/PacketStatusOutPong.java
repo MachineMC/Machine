@@ -15,7 +15,7 @@ public class PacketStatusOutPong extends PacketOut {
     private long payload;
 
     static {
-        PacketOut.register(PacketStatusOutPong.class, ID, PacketState.STATUS_OUT,
+        register(PacketStatusOutPong.class, ID, PacketState.STATUS_OUT,
                 PacketStatusOutPong::new
         );
     }

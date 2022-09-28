@@ -28,7 +28,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     private PlayerInfoData[] playerInfoDataArray;
 
     static {
-        PacketOut.register(PacketPlayOutPlayerInfo.class, ID, PacketState.PLAY_OUT,
+        register(PacketPlayOutPlayerInfo.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutPlayerInfo::new);
     }
 

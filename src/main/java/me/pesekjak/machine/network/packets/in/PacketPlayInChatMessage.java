@@ -20,7 +20,7 @@ public class PacketPlayInChatMessage extends PacketIn {
     private MessageSignature messageSignature;
 
     static {
-        PacketIn.register(PacketPlayInChatMessage.class, ID, PacketState.PLAY_IN,
+        register(PacketPlayInChatMessage.class, ID, PacketState.PLAY_IN,
                 PacketPlayInChatMessage::new);
     }
 

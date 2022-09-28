@@ -19,7 +19,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
     private final boolean isLocked = true;
 
     static {
-        PacketOut.register(PacketPlayOutChangeDifficulty.class, ID, PacketState.PLAY_OUT,
+        register(PacketPlayOutChangeDifficulty.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutChangeDifficulty::new);
     }
 

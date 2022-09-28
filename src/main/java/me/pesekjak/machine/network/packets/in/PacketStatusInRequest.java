@@ -10,7 +10,7 @@ public class PacketStatusInRequest extends PacketIn {
     private static final int ID = 0x00;
 
     static {
-        PacketIn.register(PacketStatusInRequest.class, ID, PacketState.STATUS_IN,
+        register(PacketStatusInRequest.class, ID, PacketState.STATUS_IN,
                 PacketStatusInRequest::new
         );
     }

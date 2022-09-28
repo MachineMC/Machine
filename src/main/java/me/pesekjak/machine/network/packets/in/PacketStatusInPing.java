@@ -15,7 +15,7 @@ public class PacketStatusInPing extends PacketIn {
     private long payload;
 
     static {
-        PacketIn.register(PacketStatusInPing.class, ID, PacketState.STATUS_IN,
+        register(PacketStatusInPing.class, ID, PacketState.STATUS_IN,
                 PacketStatusInPing::new
         );
     }

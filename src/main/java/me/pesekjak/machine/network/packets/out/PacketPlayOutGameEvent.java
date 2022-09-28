@@ -19,7 +19,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
     private float value;
 
     static {
-        PacketOut.register(PacketPlayOutGameEvent.class, ID, PacketState.PLAY_OUT,
+        register(PacketPlayOutGameEvent.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutGameEvent::new);
     }
 
