@@ -186,7 +186,6 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
         if(keepAliveKey == -1)
             throw new IllegalStateException("Connection isn't being kept alive");
         if(owner != null) owner.setLatency((int) (System.currentTimeMillis() - lastKeepAlive));
-        System.out.println(owner.getLatency());
     }
 
     public void disconnect() {
