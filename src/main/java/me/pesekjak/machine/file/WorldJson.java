@@ -9,7 +9,6 @@ import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.Difficulty;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.dimensions.DimensionType;
-import org.json.simple.parser.ParseException;
 
 import java.io.*;
 
@@ -28,7 +27,7 @@ public class WorldJson implements ServerFile, ServerProperty {
     @Getter
     private final Difficulty difficulty;
 
-    public WorldJson(Machine server, File file) throws IOException, ParseException {
+    public WorldJson(Machine server, File file) throws IOException {
         this.server = server;
         final JsonParser parser = new JsonParser();
         JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
@@ -39,7 +38,7 @@ public class WorldJson implements ServerFile, ServerProperty {
             name = NamespacedKey.parse(unparsedName);
         } catch (Exception ignored) {
             server.getConsole().severe("World '" + file.getParentFile().getName() + "' uses illegal name identifier and can't be registered");
-            throw new ParseException(1);
+            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal name identifier and can't be registered");
         }
 
         worldName = name;
@@ -50,7 +49,7 @@ public class WorldJson implements ServerFile, ServerProperty {
             dimensionKey = NamespacedKey.parse(unparsedDimensionType);
         } catch (Exception ignored) {
             server.getConsole().severe("World '" + file.getParentFile().getName() + "' uses illegal dimension identifier and can't be registered");
-            throw new ParseException(1);
+            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal dimension identifier and can't be registered");
         }
 
         dimension = server.getDimensionTypeManager().getDimension(dimensionKey);

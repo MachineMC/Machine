@@ -37,9 +37,6 @@ dependencies {
     implementation("io.github.jglrxavpok.hephaistos:common:2.5.1")
     implementation("io.github.jglrxavpok.hephaistos:gson:2.5.1")
 
-    // JSON Simple
-    implementation("com.googlecode.json-simple:json-simple:1.1.1")
-
     // Netty Buffers
     implementation("io.netty:netty-buffer:4.1.80.Final")
 
