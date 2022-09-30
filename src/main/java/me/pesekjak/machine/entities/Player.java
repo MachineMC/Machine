@@ -14,6 +14,7 @@ import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.out.*;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutGameEvent.Event;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.Difficulty;
 import me.pesekjak.machine.world.Location;
 import me.pesekjak.machine.world.World;
@@ -27,7 +28,6 @@ import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -83,18 +83,18 @@ public class Player extends LivingEntity implements Audience {
                 "minecraft:chat_type", Messenger.CHAT_REGISTRY,
                 "minecraft:dimension_type", getServer().getDimensionTypeManager().toNBT(),
                 "minecraft:worldgen/biome", getServer().getBiomeManager().toNBT()));
-        List<String> worlds = new ArrayList<>();
+        List<NamespacedKey> worlds = new ArrayList<>();
         for(World world : getServer().getWorldManager().getWorlds())
-            worlds.add(world.getName().toString());
+            worlds.add(world.getName());
         FriendlyByteBuf playLoginBuf = new FriendlyByteBuf()
                 .writeInt(getEntityId())
                 .writeBoolean(false)
                 .writeByte((byte) gamemode.getId())
                 .writeByte((byte) -1)
-                .writeStringList(worlds, StandardCharsets.UTF_8)
+                .writeNamespacedKeyList(worlds)
                 .writeNBT("", nbt)
-                .writeString(getWorld().getDimensionType().getName().toString(), StandardCharsets.UTF_8)
-                .writeString(getWorld().getName().toString(), StandardCharsets.UTF_8)
+                .writeNamespacedKey(getWorld().getDimensionType().getName())
+                .writeNamespacedKey(getWorld().getName())
                 .writeLong(Hashing.sha256().hashLong(getWorld().getSeed()).asLong())
                 .writeVarInt(getServer().getProperties().getMaxPlayers())
                 .writeVarInt(8) // TODO Server Properties - View Distance

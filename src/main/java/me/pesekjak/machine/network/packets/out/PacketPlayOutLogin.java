@@ -10,7 +10,6 @@ import me.pesekjak.machine.utils.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,13 +30,13 @@ public class PacketPlayOutLogin extends PacketOut {
     @SuppressWarnings("FieldCanBeLocal")
     private Gamemode previousGamemode;
     @Getter @Setter
-    private List<String> dimensions;
+    private List<NamespacedKey> dimensions;
     @Getter @Setter
     private NBTCompound dimensionCodec;
     @Getter @Setter
-    private String spawnWorldType;
+    private NamespacedKey spawnWorldType;
     @Getter @Setter
-    private String spawnWorld;
+    private NamespacedKey spawnWorld;
     @Getter @Setter
     private long hashedSeed;
     @Getter @Setter
@@ -69,10 +68,10 @@ public class PacketPlayOutLogin extends PacketOut {
         gamemode = Gamemode.fromID(buf.readByte());
         byte gamemodeId = buf.readByte();
         previousGamemode = gamemodeId == -1 ? null : Gamemode.fromID(gamemodeId); // reading previous gamemode
-        dimensions = buf.readStringList(StandardCharsets.UTF_8);
+        dimensions = buf.readNamespacedKeyList();
         dimensionCodec = (NBTCompound) buf.readNBT();
-        spawnWorldType = buf.readString(StandardCharsets.UTF_8);
-        spawnWorld = buf.readString(StandardCharsets.UTF_8);
+        spawnWorldType = buf.readNamespacedKey();
+        spawnWorld = buf.readNamespacedKey();
         hashedSeed = buf.readLong();
         maxPlayers = buf.readVarInt();
         viewDistance = buf.readVarInt();
@@ -96,10 +95,10 @@ public class PacketPlayOutLogin extends PacketOut {
                 .writeBoolean(isHardcore)
                 .writeByte((byte) gamemode.getId())
                 .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getId()))
-                .writeStringList(new ArrayList<>(dimensions), StandardCharsets.UTF_8)
+                .writeNamespacedKeyList(new ArrayList<>(dimensions))
                 .writeNBT("", dimensionCodec)
-                .writeString(spawnWorldType, StandardCharsets.UTF_8)
-                .writeString(spawnWorld, StandardCharsets.UTF_8)
+                .writeNamespacedKey(spawnWorldType)
+                .writeNamespacedKey(spawnWorld)
                 .writeLong(hashedSeed)
                 .writeVarInt(maxPlayers)
                 .writeVarInt(viewDistance)

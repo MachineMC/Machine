@@ -8,8 +8,6 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
-import java.nio.charset.StandardCharsets;
-
 @AllArgsConstructor
 public class PacketHandshakingInHandshake extends PacketIn {
 
@@ -32,7 +30,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
 
     public PacketHandshakingInHandshake(FriendlyByteBuf buf) {
         protocolVersion = buf.readVarInt();
-        serverAddress = buf.readString(StandardCharsets.UTF_8);
+        serverAddress = buf.readString();
         serverPort = buf.readShort() & 0xFFFF;
         handshakeType = HandshakeType.fromID(buf.readVarInt());
     }
@@ -46,7 +44,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(protocolVersion)
-                .writeString(serverAddress, StandardCharsets.UTF_8)
+                .writeString(serverAddress)
                 .writeShort((short) (serverPort & 0xFFFF))
                 .writeVarInt(handshakeType.ID)
                 .bytes();

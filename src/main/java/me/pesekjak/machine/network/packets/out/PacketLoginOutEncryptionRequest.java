@@ -6,8 +6,6 @@ import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
-import java.nio.charset.StandardCharsets;
-
 @AllArgsConstructor
 public class PacketLoginOutEncryptionRequest extends PacketOut {
 
@@ -26,7 +24,7 @@ public class PacketLoginOutEncryptionRequest extends PacketOut {
     }
 
     public PacketLoginOutEncryptionRequest(FriendlyByteBuf buf) {
-        buf.readString(StandardCharsets.UTF_8); // reading serverID
+        buf.readString(); // reading serverID
         publicKey = buf.readByteArray();
         verifyToken = buf.readByteArray();
     }
@@ -39,7 +37,7 @@ public class PacketLoginOutEncryptionRequest extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeString(serverID, StandardCharsets.UTF_8)
+                .writeString(serverID)
                 .writeByteArray(publicKey)
                 .writeByteArray(verifyToken)
                 .bytes();

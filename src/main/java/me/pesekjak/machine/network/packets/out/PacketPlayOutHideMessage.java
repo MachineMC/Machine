@@ -7,21 +7,20 @@ import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
-public class PacketStatusOutResponse extends PacketOut {
+public class PacketPlayOutHideMessage extends PacketOut {
 
-    private static final int ID = 0x00;
-
-    static {
-        register(PacketStatusOutResponse.class, ID, PacketState.STATUS_OUT,
-                PacketStatusOutResponse::new
-        );
-    }
+    private static final int ID = 0x18;
 
     @Getter @Setter
-    private String json;
+    private byte[] signature;
 
-    public PacketStatusOutResponse(FriendlyByteBuf buf) {
-        json = buf.readString();
+    static {
+        register(PacketPlayOutHideMessage.class, ID, PacketState.PLAY_OUT,
+                PacketPlayOutHideMessage::new);
+    }
+
+    public PacketPlayOutHideMessage(FriendlyByteBuf buf) {
+        signature = buf.readByteArray();
     }
 
     @Override
@@ -32,13 +31,13 @@ public class PacketStatusOutResponse extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeString(json)
+                .writeByteArray(signature)
                 .bytes();
     }
 
     @Override
     public PacketOut clone() {
-        return new PacketStatusOutResponse(new FriendlyByteBuf(serialize()));
+        return new PacketPlayOutHideMessage(new FriendlyByteBuf(serialize()));
     }
 
 }

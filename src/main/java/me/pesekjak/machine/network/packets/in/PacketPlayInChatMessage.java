@@ -7,8 +7,6 @@ import me.pesekjak.machine.auth.MessageSignature;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
-import java.nio.charset.StandardCharsets;
-
 @AllArgsConstructor
 public class PacketPlayInChatMessage extends PacketIn {
 
@@ -25,7 +23,7 @@ public class PacketPlayInChatMessage extends PacketIn {
     }
 
     public PacketPlayInChatMessage(FriendlyByteBuf buf) {
-        message = buf.readString(StandardCharsets.UTF_8);
+        message = buf.readString();
         messageSignature = buf.readSignature();
     }
 
@@ -37,7 +35,7 @@ public class PacketPlayInChatMessage extends PacketIn {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeString(message, StandardCharsets.UTF_8)
+                .writeString(message)
                 .writeSignature(messageSignature)
                 .bytes();
     }
