@@ -12,13 +12,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class ServerConnection extends Thread implements ServerProperty, AutoCloseable {
 
-    // TODO move this somewhere else, probably Machine class?
-    public final static int TPS = 20;
     public final static int READ_IDLE_TIMEOUT = 30000;
     public final static int KEEP_ALIVE_FREQ = 20000;
 
@@ -30,13 +26,11 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
     private final int port;
     @Getter
     private ServerSocket socket;
-    protected ScheduledExecutorService executor; // TODO move this somewhere else, preferably our own Scheduler impl
     private boolean running;
 
     public ServerConnection(Machine server) {
         this.server = server;
         port = server.getProperties().getServerPort();
-        executor = Executors.newSingleThreadScheduledExecutor();
         start();
     }
 
@@ -62,7 +56,6 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
         if(!running)
             throw new IllegalStateException("Server connection isn't running");
         running = false;
-        executor.shutdown();
         try {
             socket.close();
         } catch (IOException ignored) { }

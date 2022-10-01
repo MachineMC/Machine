@@ -14,6 +14,7 @@ import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.out.*;
 import me.pesekjak.machine.server.ServerProperty;
+import me.pesekjak.machine.server.schedule.Scheduler;
 import me.pesekjak.machine.utils.NamespacedKey;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
@@ -24,8 +25,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Random;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ClientConnection extends Thread implements ServerProperty, AutoCloseable {
 
@@ -108,21 +107,28 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                     new TranslatorHandler(server.getTranslatorDispatcher())
             );
 
-            AtomicReference<ScheduledFuture<?>> future = new AtomicReference<>();
-            future.set(server.getConnection().executor.scheduleAtFixedRate(() -> {
-                if(clientState == ClientState.DISCONNECTED)
-                    future.get().cancel(true);
-                try {
-                    PacketIn[] packets = readPackets();
-                    if(packets != null && packets.length != 0)
-                        lastReadTimestamp = System.currentTimeMillis();
-                } catch (Exception exception) {
-                    ExceptionHandler.handle(new ClientException(this, exception));
-                    clientState = ClientState.DISCONNECTED;
-                }
-                if(System.currentTimeMillis() - lastReadTimestamp > ServerConnection.READ_IDLE_TIMEOUT)
-                    disconnect(Component.text("Timed out"));
-            }, 0, 1000 / ServerConnection.TPS, TimeUnit.MILLISECONDS));
+            Scheduler.task(((input, session) -> {
+                        if(clientState == ClientState.DISCONNECTED) {
+                            session.stop();
+                            return null;
+                        }
+                        try {
+                            PacketIn[] packets = readPackets();
+                            if(packets != null && packets.length != 0)
+                                lastReadTimestamp = System.currentTimeMillis();
+                        } catch (Exception exception) {
+                            ExceptionHandler.handle(new ClientException(this, exception));
+                            clientState = ClientState.DISCONNECTED;
+                            return null;
+                        }
+                        if(System.currentTimeMillis() - lastReadTimestamp > ServerConnection.READ_IDLE_TIMEOUT)
+                            disconnect(Component.text("Timed out"));
+                        return null;
+                    }))
+                    .async()
+                    .repeat(true)
+                    .period(1000 / server.getTPS())
+                    .run(server.getScheduler());
 
         } catch (Exception ignored) { }
     }
@@ -165,19 +171,23 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
         if(keepAliveKey != -1)
             throw new IllegalStateException("Connection is already being kept alive");
         keepAliveKey = new Random().nextLong();
-        AtomicReference<ScheduledFuture<?>> future = new AtomicReference<>();
-        future.set(server.getConnection().executor.scheduleAtFixedRate(() -> {
-            if(clientState != ClientState.PLAY) {
-                future.get().cancel(true);
-                return;
-            }
-            try {
-                if(sendPacket(new PacketPlayOutKeepAlive(keepAliveKey)))
-                    lastKeepAlive = System.currentTimeMillis();
-            } catch (IOException exception) {
-                throw new RuntimeException(exception);
-            }
-        }, 0, ServerConnection.KEEP_ALIVE_FREQ, TimeUnit.MILLISECONDS));
+        Scheduler.task(((input, session) -> {
+                    if(clientState != ClientState.PLAY) {
+                        session.stop();
+                        return null;
+                    }
+                    try {
+                        if(sendPacket(new PacketPlayOutKeepAlive(keepAliveKey)))
+                            lastKeepAlive = System.currentTimeMillis();
+                    } catch (IOException exception) {
+                        throw new RuntimeException(exception);
+                    }
+                    return null;
+                }))
+                .async()
+                .repeat(true)
+                .period(ServerConnection.KEEP_ALIVE_FREQ)
+                .run(server.getScheduler());
     }
 
     public void keepAlive() {
