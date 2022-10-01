@@ -16,6 +16,7 @@ import me.pesekjak.machine.logging.Console;
 import me.pesekjak.machine.logging.IConsole;
 import me.pesekjak.machine.network.ServerConnection;
 import me.pesekjak.machine.network.packets.PacketFactory;
+import me.pesekjak.machine.server.schedule.Scheduler;
 import me.pesekjak.machine.utils.*;
 import me.pesekjak.machine.world.PersistentWorld;
 import me.pesekjak.machine.world.World;
@@ -25,7 +26,6 @@ import me.pesekjak.machine.world.dimensions.DimensionType;
 import me.pesekjak.machine.world.dimensions.DimensionTypeManager;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.Nullable;
-import org.json.simple.parser.ParseException;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +48,9 @@ public class Machine {
 
     public static final Path DIRECTORY = FileUtils.getMachineJar().getParentFile().toPath();
 
+    @Getter
+    public final int TPS = 20;
+
     @Getter(AccessLevel.PROTECTED)
     private final Unsafe UNSAFE;
 
@@ -66,6 +69,9 @@ public class Machine {
 
     @Getter
     protected TranslatorDispatcher translatorDispatcher;
+
+    @Getter
+    protected Scheduler scheduler;
 
     @Getter
     protected DimensionTypeManager dimensionTypeManager;
@@ -167,7 +173,7 @@ public class Machine {
                 worlds.add(world);
             } catch (IllegalStateException ignored) {
                 // Non-existing dimension type, handled in the WorldJson class
-            } catch (IOException | ParseException exception) {
+            } catch (IOException exception) {
                 console.severe("World file '" + path + "' failed to load");
             }
         }
@@ -200,6 +206,8 @@ public class Machine {
 
         entityManager = EntityManager.createDefault(this);
 
+        scheduler = new Scheduler(4); // TODO add this to properties
+
         ClassUtils.loadClass(PacketFactory.class);
         console.info("Loaded all packet mappings");
 
@@ -209,6 +217,7 @@ public class Machine {
         connection = new ServerConnection(this);
 
         console.info("Server loaded in " + (System.currentTimeMillis() - start) + "ms");
+        scheduler.run(); // blocks the thread
     }
 
     public String statusJson() {
