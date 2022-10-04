@@ -12,11 +12,15 @@ repositories {
     mavenCentral()
     maven {
         url = uri("https://jitpack.io")
-        url = uri("https://repo.kenzie.mx/releases")
     }
 }
 
 dependencies {
+
+    // Local generated libraries by code generators
+    val libsFolder = "libs/"
+    val libsPrefix = "Machine"
+    implementation(files(libsFolder+libsPrefix+ "Materials.jar"))
 
     // JetBrains Annotations
     implementation("org.jetbrains:annotations:20.1.0")
@@ -45,9 +49,6 @@ dependencies {
 
     // Guava
     implementation("com.google.guava:guava:11.0.2")
-
-    // Kenzie's Mirror <3
-    implementation("mx.kenzie:mirror:5.0.4")
 }
 
 application {
