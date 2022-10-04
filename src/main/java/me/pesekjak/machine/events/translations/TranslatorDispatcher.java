@@ -12,7 +12,6 @@ import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.ClassUtils;
-import mx.kenzie.mirror.Mirror;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,9 +34,7 @@ public class TranslatorDispatcher implements ServerProperty {
             if(!translatorClass.getSuperclass().equals(PacketTranslator.class)) continue;
             PacketTranslator<?> translator = null;
             try {
-                translator = (PacketTranslator<?>) Mirror.of(translatorClass)
-                        .constructor()
-                        .invoke();
+                translator = (PacketTranslator<?>) translatorClass.getConstructor().newInstance();
             } catch (Exception ignored) { }
             if(translator == null) {
                 server.getConsole().severe("Failed to construct " + translatorClass.getSimpleName() + " packet translator, " +
