@@ -1,5 +1,6 @@
 package me.pesekjak.machine.codegen;
 
+import me.pesekjak.machine.codegen.blockdata.BlockDataLibGenerator;
 import me.pesekjak.machine.codegen.materials.MaterialsLibGenerator;
 
 import java.io.BufferedReader;
@@ -29,13 +30,15 @@ public class Generators {
         System.out.println("Machine Library Generator");
         System.out.println("0 - CANCEL");
         System.out.println("1 - Materials Library");
-        System.out.println("2 - ALL");
+        System.out.println("2 - BlockData Library");
+        System.out.println("3 - ALL");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         int next = Integer.parseInt(reader.readLine());
         switch (next) {
             case 0 -> System.exit(0);
             case 1 -> materials();
-            case 2 -> {
+            case 2 -> blockdata();
+            case 3 -> {
                 materials();
                 blockdata();
             }
@@ -46,8 +49,8 @@ public class Generators {
         new MaterialsLibGenerator().generate();
     }
 
-    public void blockdata() {
-
+    public void blockdata() throws IOException {
+        new BlockDataLibGenerator().generate();
     }
 
 }

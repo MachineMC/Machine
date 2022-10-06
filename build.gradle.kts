@@ -21,6 +21,7 @@ dependencies {
     val libsFolder = "libs/"
     val libsPrefix = "Machine"
     implementation(files(libsFolder+libsPrefix+ "Materials.jar"))
+    implementation(files(libsFolder+libsPrefix+ "BlockData.jar"))
 
     // JetBrains Annotations
     implementation("org.jetbrains:annotations:20.1.0")
