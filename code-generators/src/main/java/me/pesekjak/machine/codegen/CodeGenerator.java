@@ -45,6 +45,7 @@ public class CodeGenerator {
     }
 
     public void generate() throws IOException {
+        System.out.println("Successfully generated the " + libraryName + " library");
         zip.close();
     }
 

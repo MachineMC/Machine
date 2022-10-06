@@ -6,12 +6,12 @@ import me.pesekjak.machine.codegen.CodeGenerator;
 import org.objectweb.asm.*;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MaterialsLibGenerator extends CodeGenerator {
 
-    private final Map<String, Integer> itemsMap = new HashMap<>();
+    private final Map<String, Integer> itemsMap = new LinkedHashMap<>();
     @Getter
     private final String path = "me.pesekjak.machine.world.Material";
 
@@ -21,6 +21,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
 
     @Override
     public void generate() throws IOException {
+        System.out.println("Generating the " + super.getLibraryName() + " library");
         setSource(getSource().get("minecraft:item").getAsJsonObject()
                 .get("entries").getAsJsonObject());
         for(Map.Entry<String, JsonElement> entry : getSource().entrySet())
@@ -48,7 +49,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
         }
         FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL,
                 "name",
-                Type.getType(String.class).getDescriptor(),
+                type("me.pesekjak.machine.utils.NamespacedKey").getDescriptor(),
                 null,
                 null);
         fv.visitEnd();
@@ -78,10 +79,15 @@ public class MaterialsLibGenerator extends CodeGenerator {
                 false);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitVarInsn(Opcodes.ALOAD, 3);
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                type("me.pesekjak.machine.utils.NamespacedKey").getInternalName(),
+                "minecraft",
+                "(Ljava/lang/String;)Lme/pesekjak/machine/utils/NamespacedKey;",
+                false);
         mv.visitFieldInsn(Opcodes.PUTFIELD,
                 type(path).getInternalName(),
                 "name",
-                "Ljava/lang/String;");
+                type("me.pesekjak.machine.utils.NamespacedKey").getDescriptor());
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitVarInsn(Opcodes.ILOAD, 4);
         mv.visitFieldInsn(Opcodes.PUTFIELD,
@@ -96,7 +102,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
         // Name getter
         mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
                 "getName",
-                "()Ljava/lang/String;",
+                "()Lme/pesekjak/machine/utils/NamespacedKey;",
                 null,
                 new String[0]);
         mv.visitCode();
@@ -104,7 +110,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
         mv.visitFieldInsn(Opcodes.GETFIELD,
                 type(path).getInternalName(),
                 "name",
-                Type.getType(String.class).getDescriptor());
+                type("me.pesekjak.machine.utils.NamespacedKey").getDescriptor());
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -245,7 +251,6 @@ public class MaterialsLibGenerator extends CodeGenerator {
         cw.visitEnd();
         addClass(path, cw.toByteArray());
         super.generate();
-        System.out.println("Successfully generated the library");
     }
 
     private void handleEntry(Map.Entry<String, JsonElement> entry) {

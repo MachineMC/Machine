@@ -13,10 +13,11 @@ public class Generators {
 
     public static void main(String[] args) {
         try {
-            if(!new File(OUTPUT_PATH).exists()) {
+            if(!new File("../../../../Machine/").exists()) {
                 System.out.println("Machine Library Generator has to run as jar inside of libs folder and Machine project");
                 System.exit(0);
             }
+            boolean s = new File(OUTPUT_PATH).mkdirs();
             new Generators();
         } catch (Exception exception) {
             System.out.println("Machine Library Generator unexpectedly ended.");
@@ -28,16 +29,25 @@ public class Generators {
         System.out.println("Machine Library Generator");
         System.out.println("0 - CANCEL");
         System.out.println("1 - Materials Library");
+        System.out.println("2 - ALL");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         int next = Integer.parseInt(reader.readLine());
         switch (next) {
             case 0 -> System.exit(0);
             case 1 -> materials();
+            case 2 -> {
+                materials();
+                blockdata();
+            }
         }
     }
 
     public void materials() throws IOException {
         new MaterialsLibGenerator().generate();
+    }
+
+    public void blockdata() {
+
     }
 
 }
