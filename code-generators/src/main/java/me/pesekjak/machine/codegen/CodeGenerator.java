@@ -88,6 +88,8 @@ public class CodeGenerator {
             mv.visitIntInsn(Opcodes.BIPUSH, value);
         else if(Short.MIN_VALUE <= value && value <= Short.MAX_VALUE)
             mv.visitIntInsn(Opcodes.SIPUSH, value);
+        else
+            mv.visitLdcInsn(value);
     }
 
 }

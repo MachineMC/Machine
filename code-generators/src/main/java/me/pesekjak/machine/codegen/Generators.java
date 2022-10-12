@@ -13,6 +13,7 @@ public class Generators {
     public static final String OUTPUT_PATH = "../../../libs/";
 
     public static void main(String[] args) {
+        if(System.console() == null) return;
         try {
             if(!new File("../../../../Machine/").exists()) {
                 System.out.println("Machine Library Generator has to run as jar inside of libs folder and Machine project");

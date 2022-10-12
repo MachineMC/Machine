@@ -6,18 +6,21 @@ import org.objectweb.asm.*;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static me.pesekjak.machine.codegen.blockdata.BlockDataLibGenerator.toCamelCase;
+
 public class Property {
 
     @Getter
     private final String name;
     @Getter
     private final String path;
+    @Getter
     private final Set<String> values = new LinkedHashSet<>();
     private Type type;
 
     public Property(String name) {
         this.name = name;
-        path = "me.pesekjak.machine.world.blockdata." + name;
+        path = "me.pesekjak.machine.world.blockdata." + name + "Property";
     }
 
     public void addValue(String value) {
@@ -187,6 +190,40 @@ public class Property {
         return cw.toByteArray();
     }
 
+    public byte[] generateInterface() {
+        String interfacePath = "me.pesekjak.machine.world.blockdata.interfaces.Has" + name;
+        String descriptor = switch (getType()) {
+            case BOOLEAN -> org.objectweb.asm.Type.BOOLEAN_TYPE.getDescriptor();
+            case NUMBER -> org.objectweb.asm.Type.INT_TYPE.getDescriptor();
+            case OTHER -> type(path).getDescriptor();
+        };
+        ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        cw.visit(Opcodes.V17,
+                Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE,
+                type(interfacePath).getInternalName(),
+                null,
+                org.objectweb.asm.Type.getInternalName(Object.class),
+                new String[0]);
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
+                "get" + toCamelCase(name, true),
+                "()" + descriptor,
+                null,
+                new String[0]);
+        mv.visitEnd();
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
+                "set" + toCamelCase(name, true),
+                "(" + descriptor + ")V",
+                null,
+                new String[0]);
+        mv.visitEnd();
+        cw.visitEnd();
+        return cw.toByteArray();
+    }
+
+    public String getInterfacePath() {
+        return "me.pesekjak.machine.world.blockdata.interfaces.Has" + name;
+    }
+
     public Type getType() {
         if(type != null)
             return type;
@@ -241,6 +278,8 @@ public class Property {
             mv.visitIntInsn(Opcodes.BIPUSH, value);
         else if(Short.MIN_VALUE <= value && value <= Short.MAX_VALUE)
             mv.visitIntInsn(Opcodes.SIPUSH, value);
+        else
+            mv.visitLdcInsn(value);
     }
 
     public enum Type {
