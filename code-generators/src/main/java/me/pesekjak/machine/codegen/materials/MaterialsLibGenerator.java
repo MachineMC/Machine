@@ -1,11 +1,17 @@
 package me.pesekjak.machine.codegen.materials;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import lombok.Getter;
 import me.pesekjak.machine.codegen.CodeGenerator;
+import me.pesekjak.machine.codegen.blockdata.BlockDataLibGenerator;
 import org.objectweb.asm.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -28,6 +34,15 @@ public class MaterialsLibGenerator extends CodeGenerator {
             handleEntry(entry);
         System.out.println("Loaded " + itemsMap.keySet().size() + " materials");
         System.out.println("Generating the class...");
+
+        String blockDataPath = "me.pesekjak.machine.world.BlockData";
+
+        // Getting the BlockData information
+        JsonParser parser = new JsonParser();
+        final InputStream stream = getClass().getClassLoader().getResourceAsStream("blocks.json");
+        if(stream == null)
+            throw new FileNotFoundException();
+        JsonObject blocksJson = parser.parse(new InputStreamReader(stream)).getAsJsonObject();
 
         ClassWriter cw = createWriter();
         cw.visit(Opcodes.V17,
@@ -61,11 +76,18 @@ public class MaterialsLibGenerator extends CodeGenerator {
                 null);
         fv.visitEnd();
         cw.visitEnd();
+        fv = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL,
+                "blockData",
+                type(blockDataPath).getDescriptor(),
+                null,
+                null);
+        fv.visitEnd();
+        cw.visitEnd();
 
         // Constructor
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PRIVATE,
                 CONSTRUCTOR_NAME,
-                "(Ljava/lang/String;ILjava/lang/String;I)V",
+                "(Ljava/lang/String;ILjava/lang/String;I" + type(blockDataPath).getDescriptor() + ")V",
                 null,
                 new String[0]);
         mv.visitCode();
@@ -94,6 +116,30 @@ public class MaterialsLibGenerator extends CodeGenerator {
                 type(path).getInternalName(),
                 "id",
                 "I");
+
+        // Setting the data if missing
+        Label end = new Label();
+
+        mv.visitVarInsn(Opcodes.ALOAD, 5);
+        mv.visitJumpInsn(Opcodes.IFNULL, end);
+
+        mv.visitVarInsn(Opcodes.ALOAD, 5);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                type(blockDataPath).getInternalName(),
+                "setMaterial",
+                "(" + type(path) + ")V",
+                false);
+        mv.visitJumpInsn(Opcodes.GOTO, end);
+
+        mv.visitLabel(end);
+        // Setting the blockdata
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitVarInsn(Opcodes.ALOAD, 5);
+        mv.visitFieldInsn(Opcodes.PUTFIELD,
+                type(path).getInternalName(),
+                "blockData",
+                type(blockDataPath).getDescriptor());
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -147,10 +193,38 @@ public class MaterialsLibGenerator extends CodeGenerator {
             pushValue(mv, i);
             pushValue(mv, value);
             pushValue(mv, itemsMap.get(value));
+
+            if(blocksJson.get("minecraft:" + value) != null) {
+                JsonObject blockJson = blocksJson.get("minecraft:" + value).getAsJsonObject();
+                if(blockJson.get("properties") != null) {
+                    String path = "me.pesekjak.machine.world." + BlockDataLibGenerator.toCamelCase(value, true) + "Data";
+                    mv.visitTypeInsn(Opcodes.NEW, type(path).getInternalName());
+                    mv.visitInsn(Opcodes.DUP);
+                    mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                            type(path).getInternalName(),
+                            "<init>",
+                            "()V",
+                            false);
+                } else {
+                    int id = blockJson.get("states").getAsJsonArray().get(0)
+                            .getAsJsonObject().get("id").getAsInt();
+                    mv.visitTypeInsn(Opcodes.NEW, type(blockDataPath).getInternalName());
+                    mv.visitInsn(Opcodes.DUP);
+                    mv.visitLdcInsn(id);
+                    mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                            type(blockDataPath).getInternalName(),
+                            "<init>",
+                            "(I)V",
+                            false);
+                }
+            } else {
+                mv.visitInsn(Opcodes.ACONST_NULL);
+            }
+
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
                     type(path).getInternalName(),
                     CONSTRUCTOR_NAME,
-                    "(Ljava/lang/String;ILjava/lang/String;I)V",
+                    "(Ljava/lang/String;ILjava/lang/String;I" + type(blockDataPath).getDescriptor() + ")V",
                     false);
             mv.visitFieldInsn(Opcodes.PUTSTATIC,
                     type(path).getInternalName(),
@@ -168,6 +242,47 @@ public class MaterialsLibGenerator extends CodeGenerator {
                 "$VALUES",
                 array(type(path)).getDescriptor());
         mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        cw.visitEnd();
+
+        // BlockData cloner
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
+                "createBlockData",
+                "()" + type(blockDataPath).getDescriptor(),
+                null,
+                new String[0]);
+        mv.visitCode();
+
+        Label nullLabel = new Label();
+        Label notNullLabel = new Label();
+
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD,
+                type(path).getInternalName(),
+                "blockData",
+                type(blockDataPath).getDescriptor());
+        mv.visitJumpInsn(Opcodes.IFNULL, nullLabel);
+
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD,
+                type(path).getInternalName(),
+                "blockData",
+                type(blockDataPath).getDescriptor());
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                type(blockDataPath).getInternalName(),
+                "clone",
+                "()Lme/pesekjak/machine/world/BlockData;",
+                false);
+        mv.visitInsn(Opcodes.ARETURN);
+        mv.visitJumpInsn(Opcodes.GOTO, notNullLabel);
+
+        mv.visitLabel(nullLabel);
+        mv.visitInsn(Opcodes.ACONST_NULL);
+        mv.visitInsn(Opcodes.ARETURN);
+
+        mv.visitLabel(notNullLabel);
+
         mv.visitMaxs(0, 0);
         mv.visitEnd();
         cw.visitEnd();
