@@ -8,7 +8,9 @@ import me.pesekjak.machine.auth.Crypt;
 import me.pesekjak.machine.auth.PublicKeyData;
 import me.pesekjak.machine.auth.MessageSignature;
 import me.pesekjak.machine.entities.player.PlayerTextures;
+import me.pesekjak.machine.inventory.ItemStack;
 import me.pesekjak.machine.world.BlockPosition;
+import me.pesekjak.machine.world.Material;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.Nullable;
@@ -328,6 +330,19 @@ public class FriendlyByteBuf {
 
     public FriendlyByteBuf writeInstant(Instant instant) {
         buf.writeLong(instant.toEpochMilli());
+        return this;
+    }
+
+    public ItemStack readSlot() {
+        if(!readBoolean())
+            return new ItemStack(Material.AIR);
+        ItemStack itemStack = new ItemStack(ItemStack.getMaterial(readVarInt()), readByte());
+        itemStack.setNbtCompound((NBTCompound) readNBT());
+        return itemStack;
+    }
+
+    public FriendlyByteBuf writeSlot(ItemStack itemStack) {
+        writeBytes(itemStack.serialize());
         return this;
     }
 
