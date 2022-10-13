@@ -48,6 +48,14 @@ public class ItemStack implements Cloneable {
         this.amount = amount;
     }
 
+    public Material getType() {
+        return material;
+    }
+
+    public void setType(Material material) {
+        this.material = material;
+    }
+
     public void writeNBT(String nbtCompound) throws NBTException {
         this.nbtCompound = (NBTCompound) new SNBTParser(new StringReader(nbtCompound)).parse();
     }
