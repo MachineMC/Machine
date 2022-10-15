@@ -28,16 +28,16 @@ public class PacketPlayOutLogin extends PacketOut {
     private boolean isHardcore;
     @Getter @Setter @NotNull
     private Gamemode gamemode;
-    @SuppressWarnings("FieldCanBeLocal")
+    @SuppressWarnings("FieldMayBeFinal")
     private Gamemode previousGamemode;
     @Getter @Setter
     private List<String> dimensions;
     @Getter @Setter
     private NBTCompound dimensionCodec;
     @Getter @Setter
-    private String spawnWorldType;
+    private NamespacedKey spawnWorldType;
     @Getter @Setter
-    private String spawnWorld;
+    private NamespacedKey spawnWorld;
     @Getter @Setter
     private long hashedSeed;
     @Getter @Setter
@@ -71,8 +71,8 @@ public class PacketPlayOutLogin extends PacketOut {
         previousGamemode = gamemodeId == -1 ? null : Gamemode.fromID(gamemodeId); // reading previous gamemode
         dimensions = buf.readStringList(StandardCharsets.UTF_8);
         dimensionCodec = (NBTCompound) buf.readNBT();
-        spawnWorldType = buf.readString(StandardCharsets.UTF_8);
-        spawnWorld = buf.readString(StandardCharsets.UTF_8);
+        spawnWorldType = buf.readNamespacedKey();
+        spawnWorld = buf.readNamespacedKey();
         hashedSeed = buf.readLong();
         maxPlayers = buf.readVarInt();
         viewDistance = buf.readVarInt();
@@ -98,8 +98,8 @@ public class PacketPlayOutLogin extends PacketOut {
                 .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getId()))
                 .writeStringList(new ArrayList<>(dimensions), StandardCharsets.UTF_8)
                 .writeNBT("", dimensionCodec)
-                .writeString(spawnWorldType, StandardCharsets.UTF_8)
-                .writeString(spawnWorld, StandardCharsets.UTF_8)
+                .writeNamespacedKey(spawnWorldType)
+                .writeNamespacedKey(spawnWorld)
                 .writeLong(hashedSeed)
                 .writeVarInt(maxPlayers)
                 .writeVarInt(viewDistance)

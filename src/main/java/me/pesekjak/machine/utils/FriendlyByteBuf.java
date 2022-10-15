@@ -309,6 +309,15 @@ public class FriendlyByteBuf {
         return this;
     }
 
+    public NamespacedKey readNamespacedKey() {
+        return NamespacedKey.parse(readString(StandardCharsets.UTF_8));
+    }
+
+    public FriendlyByteBuf writeNamespacedKey(NamespacedKey namespacedKey) {
+        writeString(namespacedKey.toString(), StandardCharsets.UTF_8);
+        return this;
+    }
+
     public Instant readInstant() {
         return Instant.ofEpochMilli(readLong());
     }

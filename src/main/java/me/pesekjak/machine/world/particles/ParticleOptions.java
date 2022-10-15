@@ -1,6 +1,6 @@
 package me.pesekjak.machine.world.particles;
 
-import me.pesekjak.machine.nbt.NBTSerializable;
+import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
 public interface ParticleOptions extends NBTSerializable {

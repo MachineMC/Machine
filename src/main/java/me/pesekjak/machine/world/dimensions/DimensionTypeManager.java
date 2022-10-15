@@ -3,19 +3,20 @@ package me.pesekjak.machine.world.dimensions;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.Machine;
-import me.pesekjak.machine.nbt.NBTSerializable;
 import me.pesekjak.machine.server.ServerProperty;
+import me.pesekjak.machine.server.codec.CodecPart;
 import me.pesekjak.machine.utils.NamespacedKey;
 import org.jglrxavpok.hephaistos.nbt.NBT;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
-import org.jglrxavpok.hephaistos.nbt.NBTType;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @RequiredArgsConstructor
-public class DimensionTypeManager implements NBTSerializable, ServerProperty {
+public class DimensionTypeManager implements CodecPart, ServerProperty {
+
+    private final static String CODEC_TYPE = "minecraft:dimension_type";
 
     private final List<DimensionType> dimensionTypes = new CopyOnWriteArrayList<>();
     @Getter
@@ -58,16 +59,15 @@ public class DimensionTypeManager implements NBTSerializable, ServerProperty {
     }
 
     @Override
-    public NBTCompound toNBT() {
-        return NBT.Compound(dimensions -> {
-            dimensions.setString("type", "minecraft:dimension_type");
-            dimensions.set("value", NBT.List(
-                    NBTType.TAG_Compound,
-                    dimensionTypes.stream()
-                            .map(DimensionType::toIndexedNBT)
-                            .toList()
-            ));
-        });
+    public String getCodecType() {
+        return CODEC_TYPE;
+    }
+
+    @Override
+    public List<NBT> getCodecElements() {
+        return new ArrayList<>(dimensionTypes.stream()
+                .map(DimensionType::toNBT)
+                .toList());
     }
 
 }

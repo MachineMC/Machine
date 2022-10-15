@@ -2,7 +2,7 @@ package me.pesekjak.machine.world.particles;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.pesekjak.machine.nbt.NBTSerializable;
+import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
@@ -49,7 +49,7 @@ public class Particle implements NBTSerializable {
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound particle = NBT.Compound(Map.of("type", NBT.String(type.toString())));
+        NBTCompound particle = NBT.Compound(Map.of("type", NBT.String(type.getName().getKey())));
         if(options == null) return particle;
         return particle.plus(options.toNBT());
     }
