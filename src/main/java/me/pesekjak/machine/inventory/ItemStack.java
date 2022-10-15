@@ -31,6 +31,7 @@ public class ItemStack implements Cloneable {
     }
 
     public static Material getMaterial(int id) {
+        if(id == -1) return null;
         if(SORTED_MATERIALS.length <= id) return null;
         return SORTED_MATERIALS[id];
     }
@@ -40,11 +41,13 @@ public class ItemStack implements Cloneable {
     }
 
     public ItemStack(Material material) {
+        if(material.getId() == -1)
+            throw new IllegalStateException("Material " + material + " can't have item form");
         this.material = material;
     }
 
     public ItemStack(Material material, int amount) {
-        this.material = material;
+        this(material);
         this.amount = amount;
     }
 
