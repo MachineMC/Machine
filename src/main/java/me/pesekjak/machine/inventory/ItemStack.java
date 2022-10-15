@@ -14,7 +14,7 @@ import java.io.StringReader;
 
 public class ItemStack implements Cloneable {
 
-    private final static Material[] SORTED_MATERIALS;
+    private final static Material[] REGISTRY;
 
     @Getter @Setter
     private Material material;
@@ -25,15 +25,16 @@ public class ItemStack implements Cloneable {
 
     static {
         Material[] materials = Material.values();
-        SORTED_MATERIALS = new Material[materials.length];
-        for (Material value : materials)
-            SORTED_MATERIALS[value.getId()] = value;
+        REGISTRY = new Material[materials.length];
+        for (Material value : materials) {
+            if(value.getId() >= 0) REGISTRY[value.getId()] = value;
+        }
     }
 
     public static Material getMaterial(int id) {
         if(id == -1) return null;
-        if(SORTED_MATERIALS.length <= id) return null;
-        return SORTED_MATERIALS[id];
+        if(REGISTRY.length <= id) return null;
+        return REGISTRY[id];
     }
 
     public static int getId(Material material) {
@@ -117,7 +118,9 @@ public class ItemStack implements Cloneable {
     @Override
     public ItemStack clone() {
         try {
-            return (ItemStack) super.clone();
+            ItemStack itemStack = (ItemStack) super.clone();
+            itemStack.nbtCompound = nbtCompound.toMutableCompound().toCompound();
+            return itemStack;
         } catch (CloneNotSupportedException e) {
             return null;
         }
