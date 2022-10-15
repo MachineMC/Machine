@@ -3,20 +3,20 @@ package me.pesekjak.machine.world.biomes;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.Machine;
-import me.pesekjak.machine.nbt.NBTSerializable;
 import me.pesekjak.machine.server.ServerProperty;
+import me.pesekjak.machine.server.codec.CodecPart;
 import me.pesekjak.machine.utils.NamespacedKey;
 import org.jglrxavpok.hephaistos.nbt.NBT;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
-import org.jglrxavpok.hephaistos.nbt.NBTType;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @RequiredArgsConstructor
-public class BiomeManager implements NBTSerializable, ServerProperty {
+public class BiomeManager implements CodecPart, ServerProperty {
+
+    private static final String CODEC_TYPE = "minecraft:worldgen/biome";
 
     private final List<Biome> biomes = new CopyOnWriteArrayList<>();
     @Getter
@@ -59,10 +59,15 @@ public class BiomeManager implements NBTSerializable, ServerProperty {
     }
 
     @Override
-    public NBTCompound toNBT() {
-        return NBT.Compound(Map.of(
-                "type", NBT.String("minecraft:worldgen/biome"),
-                "value", NBT.List(NBTType.TAG_Compound, biomes.stream().map(Biome::toNBT).toList())));
+    public String getCodecType() {
+        return CODEC_TYPE;
+    }
+
+    @Override
+    public List<NBT> getCodecElements() {
+        return new ArrayList<>(biomes.stream()
+                .map(Biome::toNBT)
+                .toList());
     }
 
 }

@@ -10,7 +10,6 @@ import me.pesekjak.machine.network.packets.out.PacketPlayOutWorldSpawnPosition;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -43,12 +42,7 @@ public class World {
         for (Entity entity : entityList) {
             if (!(entity instanceof Player player))
                 continue;
-            try {
-                player.getConnection().sendPacket(packet);
-            }
-            catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            player.sendPacket(packet);
         }
     }
 
@@ -58,12 +52,7 @@ public class World {
         for (Entity entity : entityList) {
             if (!(entity instanceof Player player))
                 continue;
-            try {
-                player.getConnection().sendPacket(packet);
-            }
-            catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            player.sendPacket(packet);
         }
     }
 }

@@ -3,34 +3,32 @@ package me.pesekjak.machine.world.particles.options;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
-import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.world.BlockData;
 import me.pesekjak.machine.world.particles.ParticleOptions;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
-// TODO Later on Block has implementation,
-//  it should allow mapping of block state ids to names
 public class BlockOptions implements ParticleOptions {
 
     @Getter @Setter
-    private NamespacedKey blockName = NamespacedKey.minecraft("stone"); // default for now, until Block implementation
-    @Getter @Setter
-    private int blockStateId;
+    private BlockData blockData;
 
     public BlockOptions(FriendlyByteBuf buf) {
-        blockStateId = buf.readVarInt();
+        blockData = BlockData.getBlockData(buf.readVarInt());
     }
 
     @Override
     public NBTCompound toNBT() {
+        if(blockData == null) return null;
         return NBT.Compound(nbtCompound ->
-                nbtCompound.setString("Name", blockName.toString())
+                nbtCompound.setString("Name", blockData.getMaterial().getName().toString())
+                // TODO Full block data support (properties)
         );
     }
 
     @Override
     public FriendlyByteBuf write(FriendlyByteBuf buf) {
-        return buf.writeVarInt(blockStateId);
+        return buf.writeVarInt(blockData.getId());
     }
 
 }

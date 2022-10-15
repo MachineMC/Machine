@@ -6,6 +6,7 @@ import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.events.translations.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.in.PacketPlayInChatMessage;
+import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,6 +14,13 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
 
     @Override
     public boolean translate(ClientConnection connection, PacketPlayInChatMessage packet) {
+        Player player = connection.getOwner();
+        if (player == null)
+            return false;
+        if(!Messenger.canReceiveMessage(player)) {
+            connection.getServer().getMessenger().sendRejectionMessage(player);
+            return false;
+        }
         return true;
     }
 
@@ -24,7 +32,9 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
         String message = ChatUtils.DEFAULT_CHAT_FORMAT
                 .replace("%name%", player.getName())
                 .replace("%message%", packet.getMessage());
-        Messenger.sendChatMessage(player, Component.text(message));
+        // TODO rework this once player management is done to send the message to everyone
+        player.sendMessage(player, Component.text(message), MessageType.SYSTEM);
+        connection.getServer().getConsole().info(message);
     }
 
     @Override

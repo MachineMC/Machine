@@ -2,7 +2,7 @@ package me.pesekjak.machine.world.dimensions;
 
 import lombok.Builder;
 import lombok.Getter;
-import me.pesekjak.machine.nbt.NBTSerializable;
+import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.utils.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -81,36 +81,33 @@ public class DimensionType implements NBTSerializable {
     @Getter
     private final int monsterSpawnLightLevel;
 
-    public NBTCompound toIndexedNBT() {
+    @Override
+    public NBTCompound toNBT() {
         return NBT.Compound(Map.of(
                 "name", NBT.String(name.toString()),
                 "id", NBT.Int(id),
-                "element", toNBT()));
-    }
-
-    @Override
-    public NBTCompound toNBT() {
-        return NBT.Compound(nbt -> {
-            nbt.setFloat("ambient_light", ambientLight);
-            nbt.setInt("monster_spawn_block_light_limit", monsterSpawnBlockLightLimit);
-            nbt.setInt("monster_spawn_light_level", monsterSpawnLightLevel);
-            nbt.setString("infiniburn", "#" + infiniburn.toString());
-            nbt.setByte("natural", (byte) (natural ? 0x01 : 0x00));
-            nbt.setByte("has_ceiling", (byte) (ceilingEnabled ? 0x01 : 0x00));
-            nbt.setByte("has_skylight", (byte) (skylightEnabled ? 0x01 : 0x00));
-            nbt.setByte("ultrawarm", (byte) (ultrawarm ? 0x01 : 0x00));
-            nbt.setByte("has_raids", (byte) (raidCapable ? 0x01 : 0x00));
-            nbt.setByte("respawn_anchor_works", (byte) (respawnAnchorSafe ? 0x01 : 0x00));
-            nbt.setByte("bed_works", (byte) (bedSafe ? 0x01 : 0x00));
-            nbt.setString("effects", effects);
-            nbt.setByte("piglin_safe", (byte) (piglinSafe ? 0x01 : 0x00));
-            nbt.setInt("min_y", minY);
-            nbt.setInt("height", height);
-            nbt.setInt("logical_height", logicalHeight);
-            nbt.setInt("coordinate_scale", coordinateScale);
-            nbt.setString("name", name.toString());
-            if (fixedTime != null) nbt.setLong("fixed_time", fixedTime);
-        });
+                "element", NBT.Compound(element -> {
+                    element.setFloat("ambient_light", ambientLight);
+                    element.setInt("monster_spawn_block_light_limit", monsterSpawnBlockLightLimit);
+                    element.setInt("monster_spawn_light_level", monsterSpawnLightLevel);
+                    element.setString("infiniburn", "#" + infiniburn.toString());
+                    element.setByte("natural", (byte) (natural ? 0x01 : 0x00));
+                    element.setByte("has_ceiling", (byte) (ceilingEnabled ? 0x01 : 0x00));
+                    element.setByte("has_skylight", (byte) (skylightEnabled ? 0x01 : 0x00));
+                    element.setByte("ultrawarm", (byte) (ultrawarm ? 0x01 : 0x00));
+                    element.setByte("has_raids", (byte) (raidCapable ? 0x01 : 0x00));
+                    element.setByte("respawn_anchor_works", (byte) (respawnAnchorSafe ? 0x01 : 0x00));
+                    element.setByte("bed_works", (byte) (bedSafe ? 0x01 : 0x00));
+                    element.setString("effects", effects);
+                    element.setByte("piglin_safe", (byte) (piglinSafe ? 0x01 : 0x00));
+                    element.setInt("min_y", minY);
+                    element.setInt("height", height);
+                    element.setInt("logical_height", logicalHeight);
+                    element.setInt("coordinate_scale", coordinateScale);
+                    element.setString("name", name.toString());
+                    if (fixedTime != null) element.setLong("fixed_time", fixedTime);
+                })
+        ));
     }
 
 }
