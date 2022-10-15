@@ -12,12 +12,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class MaterialsLibGenerator extends CodeGenerator {
 
-    private final Map<String, Integer> itemsMap = new LinkedHashMap<>();
+    private final Map<String, Integer> itemsMap = new TreeMap<>();
     @Getter
     private final String path = "me.pesekjak.machine.world.Material";
 
@@ -31,18 +31,21 @@ public class MaterialsLibGenerator extends CodeGenerator {
         setSource(getSource().get("minecraft:item").getAsJsonObject()
                 .get("entries").getAsJsonObject());
         for(Map.Entry<String, JsonElement> entry : getSource().entrySet())
-            handleEntry(entry);
-        System.out.println("Loaded " + itemsMap.keySet().size() + " materials");
-        System.out.println("Generating the class...");
-
-        String blockDataPath = "me.pesekjak.machine.world.BlockData";
+            handleEntry(entry, true);
 
         // Getting the BlockData information
+        String blockDataPath = "me.pesekjak.machine.world.BlockData";
         JsonParser parser = new JsonParser();
         final InputStream stream = getClass().getClassLoader().getResourceAsStream("blocks.json");
         if(stream == null)
             throw new FileNotFoundException();
         JsonObject blocksJson = parser.parse(new InputStreamReader(stream)).getAsJsonObject();
+
+        for(Map.Entry<String, JsonElement> entry : blocksJson.entrySet())
+            handleEntry(entry, false);
+
+        System.out.println("Loaded " + itemsMap.keySet().size() + " materials");
+        System.out.println("Generating the class...");
 
         ClassWriter cw = createWriter();
         cw.visit(Opcodes.V17,
@@ -368,9 +371,9 @@ public class MaterialsLibGenerator extends CodeGenerator {
         super.generate();
     }
 
-    private void handleEntry(Map.Entry<String, JsonElement> entry) {
-        itemsMap.put(entry.getKey().replaceFirst("minecraft:", ""),
-                entry.getValue().getAsJsonObject().get("protocol_id").getAsInt());
+    private void handleEntry(Map.Entry<String, JsonElement> entry, boolean hasId) {
+        itemsMap.putIfAbsent(entry.getKey().replaceFirst("minecraft:", ""),
+                hasId ? entry.getValue().getAsJsonObject().get("protocol_id").getAsInt() : -1);
     }
 
 }
