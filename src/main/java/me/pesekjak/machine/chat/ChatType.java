@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import me.pesekjak.machine.nbt.NBTSerializable;
+import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.utils.NamespacedKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -128,7 +128,6 @@ public enum ChatType implements NBTSerializable {
     public static ChatType fromID(@Range(from = 0, to = 7) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported Chat type");
         return values()[id];
-
     }
 
     @Override

@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.auth.OnlineServer;
+import me.pesekjak.machine.chat.Messenger;
 import me.pesekjak.machine.entities.EntityManager;
 import me.pesekjak.machine.events.translations.TranslatorDispatcher;
 import me.pesekjak.machine.file.DimensionsJson;
@@ -18,9 +19,7 @@ import me.pesekjak.machine.network.ServerConnection;
 import me.pesekjak.machine.network.packets.PacketFactory;
 import me.pesekjak.machine.server.schedule.Scheduler;
 import me.pesekjak.machine.utils.*;
-import me.pesekjak.machine.world.PersistentWorld;
-import me.pesekjak.machine.world.World;
-import me.pesekjak.machine.world.WorldManager;
+import me.pesekjak.machine.world.*;
 import me.pesekjak.machine.world.biomes.BiomeManager;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 import me.pesekjak.machine.world.dimensions.DimensionTypeManager;
@@ -32,6 +31,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -75,6 +75,8 @@ public class Machine {
 
     @Getter
     protected DimensionTypeManager dimensionTypeManager;
+    @Getter
+    protected Messenger messenger;
     @Getter
     protected WorldManager worldManager;
     @Getter
@@ -132,6 +134,9 @@ public class Machine {
                     "the ability for others to connect with any username they choose.");
         }
 
+        Arrays.stream(Material.values()).forEach(Material::createBlockData);
+        console.info("Loaded materials and block data");
+
         // Loading dimensions json file
         File dimensionsFile = new File(DimensionsJson.DIMENSIONS_FILE_NAME);
         if(!dimensionsFile.exists())
@@ -154,6 +159,8 @@ public class Machine {
                 dimensionTypeManager.addDimension(dimension);
         }
         console.info("Registered " + dimensionTypeManager.getDimensions().size() + " dimension types");
+
+        messenger = new Messenger(this);
 
         // Loading all worlds from folders (maybe needs cleanup?)
         final Set<World> worlds = new LinkedHashSet<>();

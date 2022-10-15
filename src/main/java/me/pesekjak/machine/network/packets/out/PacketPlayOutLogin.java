@@ -27,7 +27,7 @@ public class PacketPlayOutLogin extends PacketOut {
     private boolean isHardcore;
     @Getter @Setter @NotNull
     private Gamemode gamemode;
-    @SuppressWarnings("FieldCanBeLocal")
+    @SuppressWarnings("FieldMayBeFinal")
     private Gamemode previousGamemode;
     @Getter @Setter
     private List<NamespacedKey> dimensions;

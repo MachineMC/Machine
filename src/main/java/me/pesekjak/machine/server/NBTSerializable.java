@@ -1,4 +1,4 @@
-package me.pesekjak.machine.nbt;
+package me.pesekjak.machine.server;
 
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 

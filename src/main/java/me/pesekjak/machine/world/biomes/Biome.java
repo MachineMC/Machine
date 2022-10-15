@@ -2,13 +2,14 @@ package me.pesekjak.machine.world.biomes;
 
 import lombok.Builder;
 import lombok.Getter;
-import me.pesekjak.machine.nbt.NBTSerializable;
+import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.utils.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static me.pesekjak.machine.world.biomes.BiomeEffects.DEFAULT_EFFECTS;
@@ -54,22 +55,21 @@ public class Biome implements NBTSerializable {
 
     @Override
     public NBTCompound toNBT() {
-        return NBT.Compound(nbt -> {
-            nbt.setString("name", name.toString());
-            nbt.setInt("id", id);
-
-            nbt.set("element", NBT.Compound(element -> {
-                element.setFloat("depth", depth);
-                element.setFloat("temperature", temperature);
-                element.setFloat("scale", scale);
-                element.setFloat("downfall", downfall);
-                element.setString("category", category.name().toLowerCase(Locale.ROOT));
-                element.setString("precipitation", precipitation.name().toLowerCase(Locale.ROOT));
-                if (temperatureModifier != TemperatureModifier.NONE)
-                    element.setString("temperature_modifier", temperatureModifier.name().toLowerCase(Locale.ROOT));
-                element.set("effects", effects.toNBT());
-            }));
-        });
+        return NBT.Compound(Map.of(
+                "name", NBT.String(name.toString()),
+                "id", NBT.Int(id),
+                "element", NBT.Compound(element -> {
+                    element.setFloat("depth", depth);
+                    element.setFloat("temperature", temperature);
+                    element.setFloat("scale", scale);
+                    element.setFloat("downfall", downfall);
+                    element.setString("category", category.name().toLowerCase(Locale.ROOT));
+                    element.setString("precipitation", precipitation.name().toLowerCase(Locale.ROOT));
+                    if (temperatureModifier != TemperatureModifier.NONE)
+                        element.setString("temperature_modifier", temperatureModifier.name().toLowerCase(Locale.ROOT));
+                    element.set("effects", effects.toNBT());
+                })
+        ));
     }
 
     public enum Precipitation {

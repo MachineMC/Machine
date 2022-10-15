@@ -2,7 +2,7 @@ package me.pesekjak.machine.world.biomes;
 
 import lombok.Builder;
 import lombok.Getter;
-import me.pesekjak.machine.nbt.NBTSerializable;
+import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.particles.Particle;
 import org.jetbrains.annotations.Nullable;
@@ -32,9 +32,9 @@ public class BiomeEffects implements NBTSerializable {
     @Getter
     private final int waterFogColor;
     @Getter
-    private final int foliageColor;
+    private final Integer foliageColor;
     @Getter
-    private final int grassColor;
+    private final Integer grassColor;
     @Getter @Nullable
     private final GrassColorModifier grassColorModifier;
     @Getter @Nullable
@@ -46,7 +46,7 @@ public class BiomeEffects implements NBTSerializable {
     @Getter @Nullable
     private final Music music;
     @Getter
-    private final int biomeParticleProbability;
+    private final Integer biomeParticleProbability;
     @Getter @Nullable
     private final Particle biomeParticle;
 
@@ -57,9 +57,9 @@ public class BiomeEffects implements NBTSerializable {
             nbt.setInt("sky_color", skyColor);
             nbt.setInt("water_color", waterColor);
             nbt.setInt("water_fog_color", waterFogColor);
-            if (foliageColor != -1)
+            if (foliageColor != null)
                 nbt.setInt("foliage_color", foliageColor);
-            if (grassColor != -1)
+            if (grassColor != null)
                 nbt.setInt("grass_color", grassColor);
             if (grassColorModifier != null)
                 nbt.setString("grass_color_modifier", grassColorModifier.name().toLowerCase(Locale.ROOT));
@@ -71,7 +71,7 @@ public class BiomeEffects implements NBTSerializable {
                 nbt.set("additions_sound", additionsSound.toNBT());
             if (music != null)
                 nbt.set("music", music.toNBT());
-            if(biomeParticle != null && biomeParticleProbability != -1)
+            if(biomeParticle != null && biomeParticleProbability != null)
                 nbt.set("particle", NBT.Compound(Map.of(
                         "probability", NBT.Float(biomeParticleProbability),
                         "options", biomeParticle.toNBT()))
