@@ -84,6 +84,12 @@ public class ItemStack implements Cloneable {
         subtract(1);
     }
 
+    public ItemStack single() {
+        ItemStack single = clone();
+        single.amount = 1;
+        return single;
+    }
+
     public byte[] serialize() {
         return serialize(this);
     }

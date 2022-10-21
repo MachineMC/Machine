@@ -21,6 +21,7 @@ import me.pesekjak.machine.server.schedule.Scheduler;
 import me.pesekjak.machine.utils.*;
 import me.pesekjak.machine.world.*;
 import me.pesekjak.machine.world.biomes.BiomeManager;
+import me.pesekjak.machine.world.blocks.BlockManager;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 import me.pesekjak.machine.world.dimensions.DimensionTypeManager;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -83,6 +84,8 @@ public class Machine {
     protected BiomeManager biomeManager;
     @Getter
     protected EntityManager entityManager;
+    @Getter
+    protected BlockManager blockManager;
 
     @Getter
     protected ServerConnection connection;
@@ -135,9 +138,11 @@ public class Machine {
         }
 
         Arrays.stream(Material.values()).forEach(Material::createBlockData);
+        blockManager = BlockManager.createDefault(this);
         console.info("Loaded materials and block data");
 
         // Loading dimensions json file
+        dimensionTypeManager = new DimensionTypeManager(this);
         File dimensionsFile = new File(DimensionsJson.DIMENSIONS_FILE_NAME);
         if(!dimensionsFile.exists())
             FileUtils.createFromDefault(dimensionsFile);
@@ -150,10 +155,9 @@ public class Machine {
         }
 
         // Registering all dimensions from the file into the manager
-        dimensionTypeManager = new DimensionTypeManager(this);
         if(dimensions.size() == 0) {
             console.warning("There are no defined dimensions in the dimensions file, loading default dimension instead");
-            dimensionTypeManager.addDimension(DimensionType.OVERWORLD);
+            dimensionTypeManager.addDimension(DimensionType.createDefault(dimensionTypeManager));
         } else {
             for(DimensionType dimension : dimensions)
                 dimensionTypeManager.addDimension(dimension);
@@ -162,7 +166,8 @@ public class Machine {
 
         messenger = new Messenger(this);
 
-        // Loading all worlds from folders (maybe needs cleanup?)
+        // Loading all worlds from folders (TODO maybe needs cleanup?)
+        worldManager = new WorldManager(this);
         final Set<World> worlds = new LinkedHashSet<>();
         final Set<NamespacedKey> registeredWorlds = new HashSet<>();
         for(Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
@@ -176,7 +181,7 @@ public class Machine {
                     continue;
                 }
                 String levelFolder = path.getParent().toString();
-                PersistentWorld world = new PersistentWorld(levelFolder.substring(levelFolder.lastIndexOf("\\") + 1), worldJson.world());
+                PersistentWorld world = new PersistentWorld(worldManager, levelFolder.substring(levelFolder.lastIndexOf("\\") + 1), worldJson.world());
                 registeredWorlds.add(world.getName());
                 worlds.add(world);
             } catch (IllegalStateException ignored) {
@@ -191,9 +196,8 @@ public class Machine {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             File worldJson = new File(WorldJson.WORLD_FILE_NAME);
             FileUtils.createFromDefaultAndLocate(worldJson, PersistentWorld.DEFAULT_WORLD_FOLDER + "/");
-            worlds.add(new PersistentWorld(PersistentWorld.DEFAULT_WORLD_FOLDER, World.MAIN));
+            worlds.add(new PersistentWorld(worldManager, PersistentWorld.DEFAULT_WORLD_FOLDER, World.createDefault(worldManager)));
         }
-        worldManager = new WorldManager(this);
         for(World world : worlds) {
             if(worldManager.isRegistered(world.getName())) {
                 console.severe("World '" + world.getName() + "' can't be registered, because another world with a same" +
@@ -205,7 +209,7 @@ public class Machine {
         }
         defaultWorld = (PersistentWorld) worldManager.getWorld(properties.getDefaultWorld());
         if(defaultWorld == null) {
-            defaultWorld = (PersistentWorld) worldManager.getWorlds().get(0);
+            defaultWorld = (PersistentWorld) worldManager.getWorlds().stream().iterator().next();
             console.warning("Default world in the server properties doesn't exist, using '" + defaultWorld.getName() + "' instead");
         }
 

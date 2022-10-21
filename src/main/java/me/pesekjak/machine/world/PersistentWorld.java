@@ -11,18 +11,21 @@ public class PersistentWorld extends World {
     @Getter
     private final String folderName;
 
-    private PersistentWorld(String folderName,
+    private PersistentWorld(WorldManager manager,
+            String folderName,
             NamespacedKey name,
             DimensionType dimensionType,
             long seed,
             Difficulty difficulty,
             Location worldSpawn) {
-        super(name, dimensionType, seed, difficulty, worldSpawn);
+        super(manager, name, dimensionType, seed, difficulty);
+        super.setWorldSpawn(worldSpawn);
         this.folderName = folderName;
     }
 
-    public PersistentWorld(String folderName, World world) {
-        this(folderName,
+    public PersistentWorld(WorldManager manager, String folderName, World world) {
+        this(manager,
+                folderName,
                 world.getName(),
                 world.getDimensionType(),
                 world.getSeed(),
