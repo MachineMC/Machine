@@ -11,26 +11,28 @@ import org.jglrxavpok.hephaistos.nbt.NBT;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RequiredArgsConstructor
 public class BiomeManager implements CodecPart, ServerProperty {
 
+    protected final AtomicInteger ID_COUNTER = new AtomicInteger(0);
     private static final String CODEC_TYPE = "minecraft:worldgen/biome";
 
-    private final List<Biome> biomes = new CopyOnWriteArrayList<>();
+    private final Set<Biome> biomes = new CopyOnWriteArraySet<>();
     @Getter
     private final Machine server;
 
     public static BiomeManager createDefault(Machine server) {
         BiomeManager manager = new BiomeManager(server);
-        manager.addBiome(Biome.PLAINS);
+        manager.addBiome(Biome.createDefault(manager));
         return manager;
     }
 
     public void addBiome(Biome biome) {
-        if(!biomes.contains(biome))
-            biomes.add(biome);
+        biomes.add(biome);
     }
 
     public boolean removeBiome(Biome biome) {
@@ -54,8 +56,8 @@ public class BiomeManager implements CodecPart, ServerProperty {
         return null;
     }
 
-    public List<Biome> getBiomes() {
-        return Collections.unmodifiableList(biomes);
+    public Set<Biome> getBiomes() {
+        return Collections.unmodifiableSet(biomes);
     }
 
     @Override

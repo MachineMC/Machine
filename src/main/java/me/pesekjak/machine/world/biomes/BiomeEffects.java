@@ -16,12 +16,14 @@ import java.util.Map;
 @Builder
 public class BiomeEffects implements NBTSerializable {
 
-    public static final BiomeEffects DEFAULT_EFFECTS = BiomeEffects.builder()
-            .fogColor(0xC0D8FF)
-            .skyColor(0x78A7FF)
-            .waterColor(0x3F76E4)
-            .waterFogColor(0x50533)
-            .build();
+    public static BiomeEffects createDefault() {
+        return BiomeEffects.builder()
+                .fogColor(0xC0D8FF)
+                .skyColor(0x78A7FF)
+                .waterColor(0x3F76E4)
+                .waterFogColor(0x50533)
+                .build();
+    }
 
     @Getter
     private final int fogColor;

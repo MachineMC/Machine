@@ -88,7 +88,7 @@ public class WorldJson implements ServerFile, ServerProperty {
     }
 
     public World world() {
-        return World.builder()
+        return World.builder(server.getWorldManager())
                 .name(worldName)
                 .dimensionType(dimension)
                 .seed(seed)
