@@ -6,25 +6,18 @@ import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.utils.NamespacedKey;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @RequiredArgsConstructor
 public class WorldManager {
 
-    private final List<World> worlds = new CopyOnWriteArrayList<>();
+    private final Set<World> worlds = new CopyOnWriteArraySet<>();
     @Getter
     private final Machine server;
 
-    public static WorldManager createDefault(Machine server) {
-        WorldManager manager = new WorldManager(server);
-        manager.addWorld(World.MAIN);
-        return manager;
-    }
-
     public void addWorld(World world) {
-        if(!worlds.contains(world))
-            worlds.add(world);
+        worlds.add(world);
     }
 
     public boolean removeWorld(World world) {
@@ -48,8 +41,8 @@ public class WorldManager {
         return null;
     }
 
-    public List<World> getWorlds() {
-        return Collections.unmodifiableList(worlds);
+    public Set<World> getWorlds() {
+        return Collections.unmodifiableSet(worlds);
     }
 
 }

@@ -1,7 +1,8 @@
 package me.pesekjak.machine.world.biomes;
 
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.utils.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
@@ -10,30 +11,13 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static me.pesekjak.machine.world.biomes.BiomeEffects.DEFAULT_EFFECTS;
-
-@Builder
+@SuppressWarnings("ClassCanBeRecord")
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class Biome implements NBTSerializable {
 
-    public static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
-
-    public static final Biome PLAINS = Biome.builder()
-            .category(Category.NONE)
-            .name(new NamespacedKey(NamespacedKey.MINECRAFT_NAMESPACE, "plains"))
-            .depth(0.125F)
-            .temperature(0.8F)
-            .scale(0.05F)
-            .downfall(0.4F)
-            .effects(DEFAULT_EFFECTS)
-            .precipitation(Precipitation.RAIN)
-            .temperatureModifier(TemperatureModifier.NONE)
-            .build();
-
     @Getter
-    private final int id = ID_COUNTER.getAndIncrement();
-
+    private final int id;
     @Getter @NotNull
     private final NamespacedKey name;
     @Getter
@@ -52,6 +36,24 @@ public class Biome implements NBTSerializable {
     private final Precipitation precipitation;
     @Getter @NotNull
     private final TemperatureModifier temperatureModifier;
+
+    public static Biome createDefault(BiomeManager manager) {
+        return Biome.builder(manager)
+                .category(Category.NONE)
+                .name(new NamespacedKey(NamespacedKey.MINECRAFT_NAMESPACE, "plains"))
+                .depth(0.125F)
+                .temperature(0.8F)
+                .scale(0.05F)
+                .downfall(0.4F)
+                .effects(BiomeEffects.createDefault())
+                .precipitation(Precipitation.RAIN)
+                .temperatureModifier(TemperatureModifier.NONE)
+                .build();
+    }
+
+    public static BiomeBuilder builder(BiomeManager manager) {
+        return new BiomeBuilder(manager);
+    }
 
     @Override
     public NBTCompound toNBT() {
@@ -85,6 +87,71 @@ public class Biome implements NBTSerializable {
 
     public enum TemperatureModifier {
         NONE, FROZEN;
+    }
+
+
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    public static final class BiomeBuilder {
+        private final BiomeManager manager;
+        private NamespacedKey name;
+        private float depth;
+        private float temperature;
+        private float scale;
+        private float downfall;
+        private Category category;
+        private BiomeEffects effects;
+        private Precipitation precipitation;
+        private TemperatureModifier temperatureModifier;
+        public BiomeBuilder name(NamespacedKey name) {
+            this.name = name;
+            return this;
+        }
+        public BiomeBuilder depth(float depth) {
+            this.depth = depth;
+            return this;
+        }
+        public BiomeBuilder temperature(float temperature) {
+            this.temperature = temperature;
+            return this;
+        }
+        public BiomeBuilder scale(float scale) {
+            this.scale = scale;
+            return this;
+        }
+        public BiomeBuilder downfall(float downfall) {
+            this.downfall = downfall;
+            return this;
+        }
+        public BiomeBuilder category(Category category) {
+            this.category = category;
+            return this;
+        }
+        public BiomeBuilder effects(BiomeEffects effects) {
+            this.effects = effects;
+            return this;
+        }
+        public BiomeBuilder precipitation(Precipitation precipitation) {
+            this.precipitation = precipitation;
+            return this;
+        }
+        public BiomeBuilder temperatureModifier(TemperatureModifier temperatureModifier) {
+            this.temperatureModifier = temperatureModifier;
+            return this;
+        }
+        public Biome build() {
+            return new Biome(
+                    manager.ID_COUNTER.getAndIncrement(),
+                    name,
+                    depth,
+                    temperature,
+                    scale,
+                    downfall,
+                    category,
+                    effects,
+                    precipitation,
+                    temperatureModifier
+            );
+        }
     }
 
 }

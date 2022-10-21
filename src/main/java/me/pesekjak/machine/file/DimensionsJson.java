@@ -48,7 +48,10 @@ public class DimensionsJson implements ServerFile, ServerProperty {
             Boolean respawnAnchorSafe = dimension.get("respawn_anchor_works") != null ? dimension.get("respawn_anchor_works").getAsBoolean() : null;
             Boolean ultrawarm = dimension.get("ultrawarm") != null ? dimension.get("ultrawarm").getAsBoolean() : null;
             Boolean bedSafe = dimension.get("bed_works") != null ? dimension.get("bed_works").getAsBoolean() : null;
-            String effects = dimension.get("effects").getAsString();
+            NamespacedKey effects = null;
+            try {
+                effects = NamespacedKey.parse(dimension.get("effects").getAsString());
+            } catch (Exception ignored) { }
             Boolean piglinSafe = dimension.get("piglin_safe") != null ? dimension.get("piglin_safe").getAsBoolean() : null;
             Number minY = dimension.get("min_y").getAsNumber();
             Number height = dimension.get("height").getAsNumber();
@@ -69,26 +72,28 @@ public class DimensionsJson implements ServerFile, ServerProperty {
                 server.getConsole().warning("Dimension '" + key + "' has missing properties, default values will be used instead");
             }
 
-            this.dimensions.add(DimensionType.builder()
+            final DimensionType defaultType = DimensionType.createDefault(server.getDimensionTypeManager());
+
+            this.dimensions.add(DimensionType.builder(server.getDimensionTypeManager())
                     .name(key)
-                    .natural(natural != null ? natural : DimensionType.OVERWORLD.isNatural())
-                    .ambientLight(ambientLight != null ? ambientLight.floatValue() : DimensionType.OVERWORLD.getAmbientLight())
-                    .ceilingEnabled(ceilingEnabled != null ? ceilingEnabled : DimensionType.OVERWORLD.isCeilingEnabled())
-                    .skylightEnabled(skylightEnabled != null ? skylightEnabled : DimensionType.OVERWORLD.isSkylightEnabled())
+                    .natural(natural != null ? natural : defaultType.isNatural())
+                    .ambientLight(ambientLight != null ? ambientLight.floatValue() : defaultType.getAmbientLight())
+                    .ceilingEnabled(ceilingEnabled != null ? ceilingEnabled : defaultType.isCeilingEnabled())
+                    .skylightEnabled(skylightEnabled != null ? skylightEnabled : defaultType.isSkylightEnabled())
                     .fixedTime(fixedTime != null ? fixedTime.longValue() : null) // nullable option
-                    .raidCapable(raidCapable != null ? raidCapable : DimensionType.OVERWORLD.isRaidCapable())
-                    .respawnAnchorSafe(respawnAnchorSafe != null ? respawnAnchorSafe : DimensionType.OVERWORLD.isRespawnAnchorSafe())
-                    .ultrawarm(ultrawarm != null ? ultrawarm : DimensionType.OVERWORLD.isUltrawarm())
-                    .bedSafe(bedSafe != null ? natural : DimensionType.OVERWORLD.isNatural())
-                    .effects(effects != null ? effects : DimensionType.OVERWORLD.getEffects())
-                    .piglinSafe(piglinSafe != null ? piglinSafe : DimensionType.OVERWORLD.isPiglinSafe())
-                    .minY(minY != null ? minY.intValue() : DimensionType.OVERWORLD.getMinY())
-                    .height(height != null ? height.intValue() : DimensionType.OVERWORLD.getHeight())
-                    .logicalHeight(logicalHeight != null ? logicalHeight.intValue() : DimensionType.OVERWORLD.getLogicalHeight())
-                    .coordinateScale(coordinateScale != null ? coordinateScale.intValue() : DimensionType.OVERWORLD.getCoordinateScale())
-                    .infiniburn(infiniburn != null ? infiniburn : DimensionType.OVERWORLD.getInfiniburn())
-                    .monsterSpawnBlockLightLimit(monsterSpawnBlockLightLimit != null ? monsterSpawnBlockLightLimit.intValue() : DimensionType.OVERWORLD.getMonsterSpawnBlockLightLimit())
-                    .monsterSpawnLightLevel(monsterSpawnLightLevel != null ? monsterSpawnLightLevel.intValue() : DimensionType.OVERWORLD.getMonsterSpawnLightLevel())
+                    .raidCapable(raidCapable != null ? raidCapable : defaultType.isRaidCapable())
+                    .respawnAnchorSafe(respawnAnchorSafe != null ? respawnAnchorSafe : defaultType.isRespawnAnchorSafe())
+                    .ultrawarm(ultrawarm != null ? ultrawarm : defaultType.isUltrawarm())
+                    .bedSafe(bedSafe != null ? natural : defaultType.isNatural())
+                    .effects(effects != null ? effects : defaultType.getEffects())
+                    .piglinSafe(piglinSafe != null ? piglinSafe : defaultType.isPiglinSafe())
+                    .minY(minY != null ? minY.intValue() : defaultType.getMinY())
+                    .height(height != null ? height.intValue() : defaultType.getHeight())
+                    .logicalHeight(logicalHeight != null ? logicalHeight.intValue() : defaultType.getLogicalHeight())
+                    .coordinateScale(coordinateScale != null ? coordinateScale.intValue() : defaultType.getCoordinateScale())
+                    .infiniburn(infiniburn != null ? infiniburn : defaultType.getInfiniburn())
+                    .monsterSpawnBlockLightLimit(monsterSpawnBlockLightLimit != null ? monsterSpawnBlockLightLimit.intValue() : defaultType.getMonsterSpawnBlockLightLimit())
+                    .monsterSpawnLightLevel(monsterSpawnLightLevel != null ? monsterSpawnLightLevel.intValue() : defaultType.getMonsterSpawnLightLevel())
                     .build()
             );
         }
