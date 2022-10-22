@@ -117,10 +117,9 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     public record PlayerInfoData(UUID uuid, @Nullable String name, @Nullable PlayerTextures playerTextures, @Nullable Gamemode gamemode, int latency,
                                  @Nullable Component listName, @Nullable PublicKeyData publicKeyData) {
 
-        // TODO fix public key data of player
         public PlayerInfoData(Player player) {
             this(player.getUuid(), player.getName(), player.getProfile().getTextures(), player.getGamemode(), player.getLatency(),
-                    player.getDisplayName(), /*player.getServer().isOnline() ? player.getConnection().getPublicKeyData() : */null);
+                    player.getDisplayName(), player.getServer().isOnline() ? player.getConnection().getPublicKeyData() : null);
         }
 
         public void write(Action action, FriendlyByteBuf buf) {

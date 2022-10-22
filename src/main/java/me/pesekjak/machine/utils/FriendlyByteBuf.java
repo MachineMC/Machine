@@ -346,9 +346,9 @@ public class FriendlyByteBuf {
     }
 
     public FriendlyByteBuf writePublicKey(PublicKeyData publicKeyData) {
-        writeByteArray(publicKeyData.publicKey().getEncoded())
-                .writeByteArray(publicKeyData.signature())
-                .writeLong(publicKeyData.timestamp().toEpochMilli());
+        writeLong(publicKeyData.timestamp().toEpochMilli())
+                .writeByteArray(publicKeyData.publicKey().getEncoded())
+                .writeByteArray(publicKeyData.signature());
         return this;
     }
 
