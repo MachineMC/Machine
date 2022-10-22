@@ -19,7 +19,10 @@ import me.pesekjak.machine.network.ServerConnection;
 import me.pesekjak.machine.network.packets.PacketFactory;
 import me.pesekjak.machine.server.schedule.Scheduler;
 import me.pesekjak.machine.utils.*;
-import me.pesekjak.machine.world.*;
+import me.pesekjak.machine.world.Material;
+import me.pesekjak.machine.world.PersistentWorld;
+import me.pesekjak.machine.world.World;
+import me.pesekjak.machine.world.WorldManager;
 import me.pesekjak.machine.world.biomes.BiomeManager;
 import me.pesekjak.machine.world.blocks.BlockManager;
 import me.pesekjak.machine.world.dimensions.DimensionType;
@@ -180,8 +183,8 @@ public class Machine {
                     console.severe("World with name '" + worldJson.getWorldName() + "' is already registered");
                     continue;
                 }
-                String levelFolder = path.getParent().toString();
-                PersistentWorld world = new PersistentWorld(worldManager, levelFolder.substring(levelFolder.lastIndexOf("\\") + 1), worldJson.world());
+                File levelFolder = path.getParent().toFile();
+                PersistentWorld world = new PersistentWorld(worldManager, levelFolder.getName(), worldJson.world(FileUtils.getOrCreateUUID(levelFolder)));
                 registeredWorlds.add(world.getName());
                 worlds.add(world);
             } catch (IllegalStateException ignored) {
@@ -196,7 +199,8 @@ public class Machine {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             File worldJson = new File(WorldJson.WORLD_FILE_NAME);
             FileUtils.createFromDefaultAndLocate(worldJson, PersistentWorld.DEFAULT_WORLD_FOLDER + "/");
-            worlds.add(new PersistentWorld(worldManager, PersistentWorld.DEFAULT_WORLD_FOLDER, World.createDefault(worldManager)));
+            File worldFolder = new File(PersistentWorld.DEFAULT_WORLD_FOLDER);
+            worlds.add(new PersistentWorld(worldManager, PersistentWorld.DEFAULT_WORLD_FOLDER, World.createDefault(worldManager, FileUtils.getOrCreateUUID(worldFolder))));
         }
         for(World world : worlds) {
             if(worldManager.isRegistered(world.getName())) {

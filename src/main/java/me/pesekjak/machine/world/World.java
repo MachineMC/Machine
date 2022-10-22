@@ -10,6 +10,7 @@ import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class World {
@@ -19,6 +20,8 @@ public class World {
 
     @Getter
     private final NamespacedKey name;
+    @Getter
+    private final UUID uuid;
     @Getter
     private final DimensionType dimensionType;
     @Getter
@@ -30,9 +33,10 @@ public class World {
     @Getter
     private Location worldSpawn;
 
-    public static World createDefault(WorldManager manager) {
+    public static World createDefault(WorldManager manager, UUID uuid) {
         return World.builder(manager)
                 .name(NamespacedKey.machine("main"))
+                .uuid(uuid)
                 .dimensionType(DimensionType.createDefault(manager.getServer().getDimensionTypeManager()))
                 .seed(1)
                 .difficulty(Difficulty.DEFAULT_DIFFICULTY)
@@ -43,9 +47,10 @@ public class World {
         return new WorldBuilder(manager);
     }
 
-    protected World(WorldManager manager, NamespacedKey name, DimensionType dimensionType, long seed, Difficulty difficulty) {
+    protected World(WorldManager manager, NamespacedKey name, UUID uuid, DimensionType dimensionType, long seed, Difficulty difficulty) {
         this.manager = manager;
         this.name = name;
+        this.uuid = uuid;
         this.dimensionType = dimensionType;
         this.seed = seed;
         this.difficulty = difficulty;
@@ -77,11 +82,16 @@ public class World {
     public static final class WorldBuilder {
         private final WorldManager manager;
         private NamespacedKey name;
+        private UUID uuid;
         private DimensionType dimensionType;
         private long seed;
         private Difficulty difficulty;
         public WorldBuilder name(NamespacedKey name) {
             this.name = name;
+            return this;
+        }
+        public WorldBuilder uuid(UUID uuid) {
+            this.uuid = uuid;
             return this;
         }
         public WorldBuilder dimensionType(DimensionType dimensionType) {
@@ -97,7 +107,7 @@ public class World {
             return this;
         }
         public World build() {
-            return new World(manager, name, dimensionType, seed, difficulty);
+            return new World(manager, name, uuid, dimensionType, seed, difficulty);
         }
     }
 

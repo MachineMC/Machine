@@ -11,6 +11,7 @@ import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 
 import java.io.*;
+import java.util.UUID;
 
 public class WorldJson implements ServerFile, ServerProperty {
 
@@ -87,9 +88,10 @@ public class WorldJson implements ServerFile, ServerProperty {
         return Machine.CLASS_LOADER.getResourceAsStream(WORLD_FILE_NAME);
     }
 
-    public World world() {
+    public World world(UUID uuid) {
         return World.builder(server.getWorldManager())
                 .name(worldName)
+                .uuid(uuid)
                 .dimensionType(dimension)
                 .seed(seed)
                 .difficulty(difficulty)

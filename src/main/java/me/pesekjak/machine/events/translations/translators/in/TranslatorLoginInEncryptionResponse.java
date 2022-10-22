@@ -66,7 +66,7 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
                 return;
             }
             connection.setClientState(ClientConnection.ClientState.PLAY);
-            new Player(connection.getServer(), profile, connection);
+            Player.spawn(connection.getServer(), profile, connection);
         });
     }
 
