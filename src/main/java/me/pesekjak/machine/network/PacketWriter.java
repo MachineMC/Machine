@@ -6,6 +6,10 @@ import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Holder of a packet that will be written to
+ * a client connection later.
+ */
 @AllArgsConstructor
 public class PacketWriter implements PacketHolder {
 

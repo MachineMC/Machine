@@ -9,10 +9,12 @@ import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
-import java.util.Locale;
 import java.util.Map;
 
-@SuppressWarnings("ClassCanBeRecord")
+/**
+ * Effects of a biome.
+ */
+@Getter
 @Builder
 public class BiomeEffects implements NBTSerializable {
 
@@ -25,31 +27,24 @@ public class BiomeEffects implements NBTSerializable {
                 .build();
     }
 
-    @Getter
-    private final int fogColor;
-    @Getter
-    private final int skyColor;
-    @Getter
-    private final int waterColor;
-    @Getter
-    private final int waterFogColor;
-    @Getter
+    @Builder.Default private final int fogColor = 0xC0D8FF;
+    @Builder.Default private final int skyColor = 0x78A7FF;
+    @Builder.Default private final int waterColor = 0x3F76E4;
+    @Builder.Default private final int waterFogColor = 0x50533;
     private final Integer foliageColor;
-    @Getter
     private final Integer grassColor;
-    @Getter @Nullable
+    @Nullable
     private final GrassColorModifier grassColorModifier;
-    @Getter @Nullable
+    @Nullable
     private final NamespacedKey ambientSound;
-    @Getter @Nullable
+    @Nullable
     private final MoodSound moodSound;
-    @Getter @Nullable
+    @Nullable
     private final AdditionsSound additionsSound;
-    @Getter @Nullable
+    @Nullable
     private final Music music;
-    @Getter
     private final Integer biomeParticleProbability;
-    @Getter @Nullable
+    @Nullable
     private final Particle biomeParticle;
 
     @Override
@@ -64,7 +59,7 @@ public class BiomeEffects implements NBTSerializable {
             if (grassColor != null)
                 nbt.setInt("grass_color", grassColor);
             if (grassColorModifier != null)
-                nbt.setString("grass_color_modifier", grassColorModifier.name().toLowerCase(Locale.ROOT));
+                nbt.setString("grass_color_modifier", grassColorModifier.name().toLowerCase());
             if (ambientSound != null)
                 nbt.setString("ambient_sound", ambientSound.toString());
             if (moodSound != null)
@@ -81,10 +76,16 @@ public class BiomeEffects implements NBTSerializable {
         });
     }
 
+    /**
+     * Grass color modifier of a biome.
+     */
     public enum GrassColorModifier {
         NONE, DARK_FOREST, SWAMP;
     }
 
+    /**
+     * Sound playing in a biome
+     */
     public record MoodSound(NamespacedKey sound, int tickDelay, int blockSearchExtent, double offset) implements NBTSerializable {
         @Override
         public NBTCompound toNBT() {
@@ -96,6 +97,9 @@ public class BiomeEffects implements NBTSerializable {
         }
     }
 
+    /**
+     * Additional sound playing in a biome
+     */
     public record AdditionsSound(NamespacedKey sound, double tickChance) implements NBTSerializable {
         @Override
         public NBTCompound toNBT() {
@@ -105,6 +109,9 @@ public class BiomeEffects implements NBTSerializable {
         }
     }
 
+    /**
+     * Music playing in a biome
+     */
     public record Music(NamespacedKey sound, int minDelay, int maxDelay, boolean replaceCurrentMusic) implements NBTSerializable {
         @Override
         public NBTCompound toNBT() {

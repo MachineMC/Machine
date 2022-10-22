@@ -10,7 +10,8 @@ import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 
 import java.io.*;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,7 +21,26 @@ public class DimensionsJson implements ServerFile, ServerProperty {
 
     @Getter
     private final Machine server;
-    private final Set<DimensionType> dimensions = new HashSet<>();
+    private final Set<DimensionType> dimensions = new LinkedHashSet<>();
+
+    private static final boolean defaultNatural = true;
+    private static final float defaultAmbientLight = 0;
+    private static final boolean defaultCeilingEnabled = false;
+    private static final boolean defaultSkylightEnabled = true;
+    private static final Long defaultFixedTime = null;
+    private static final boolean defaultRaidCapable = true;
+    private static final boolean defaultRespawnAnchorSafe = false;
+    private static final boolean defaultUltrawarm = false;
+    private static final boolean defaultBedSafe = true;
+    private static final NamespacedKey defaultEffects = NamespacedKey.minecraft("overworld");
+    private static final boolean defaultPiglinSafe = false;
+    private static final int defaultMinY = -64;
+    private static final int defaultHeight = 384;
+    private static final int defaultLogicalHeight = 384;
+    private static final int defaultCoordinateScale = 1;
+    private static final NamespacedKey defaultInfiniburn = NamespacedKey.minecraft("infiniburn_overworld");
+    private static final int defaultMonsterSpawnBlockLightLimit = 5;
+    private static final int defaultMonsterSpawnLightLevel = 1;
 
     public DimensionsJson(Machine server, File file) throws IOException {
         this.server = server;
@@ -37,70 +57,68 @@ public class DimensionsJson implements ServerFile, ServerProperty {
                 continue;
             }
             JsonObject dimension = dimensionKey.getValue().getAsJsonObject();
-
-            Boolean natural = dimension.get("natural") != null ? dimension.get("natural").getAsBoolean() : null;
-            Number ambientLight = dimension.get("ambient_light").getAsNumber();
-            Boolean ceilingEnabled = dimension.get("has_ceiling") != null ? dimension.get("has_ceiling").getAsBoolean() : null;
-            Boolean skylightEnabled = dimension.get("has_skylight") != null ? dimension.get("has_skylight").getAsBoolean() : null;
-            Number fixedTime = dimension.get("fixed_time").getAsNumber();
-            if(fixedTime != null && fixedTime.intValue() == -1) fixedTime = null; // nullable option
-            Boolean raidCapable = dimension.get("has_raids") != null ? dimension.get("has_raids").getAsBoolean() : null;
-            Boolean respawnAnchorSafe = dimension.get("respawn_anchor_works") != null ? dimension.get("respawn_anchor_works").getAsBoolean() : null;
-            Boolean ultrawarm = dimension.get("ultrawarm") != null ? dimension.get("ultrawarm").getAsBoolean() : null;
-            Boolean bedSafe = dimension.get("bed_works") != null ? dimension.get("bed_works").getAsBoolean() : null;
-            NamespacedKey effects = null;
             try {
-                effects = NamespacedKey.parse(dimension.get("effects").getAsString());
-            } catch (Exception ignored) { }
-            Boolean piglinSafe = dimension.get("piglin_safe") != null ? dimension.get("piglin_safe").getAsBoolean() : null;
-            Number minY = dimension.get("min_y").getAsNumber();
-            Number height = dimension.get("height").getAsNumber();
-            Number logicalHeight = dimension.get("logical_height").getAsNumber();
-            Number coordinateScale = dimension.get("coordinate_scale").getAsNumber();
-            NamespacedKey infiniburn = null;
-            try {
-                infiniburn = NamespacedKey.minecraft(dimension.get("infiniburn").getAsString());
-            } catch (Exception ignored) { }
-            Number monsterSpawnBlockLightLimit = dimension.get("monster_spawn_block_light_limit").getAsNumber();
-            Number monsterSpawnLightLevel = dimension.get("monster_spawn_light_level").getAsNumber();
+                boolean natural = dimension.get("natural") != null ? dimension.get("natural").getAsBoolean() : defaultNatural;
+                float ambientLight = dimension.get("ambient_light") != null ? dimension.get("ambient_light").getAsNumber().floatValue() : defaultAmbientLight;
+                boolean ceilingEnabled = dimension.get("has_ceiling") != null ? dimension.get("has_ceiling").getAsBoolean() : defaultCeilingEnabled;
+                boolean skylightEnabled = dimension.get("has_skylight") != null ? dimension.get("has_skylight").getAsBoolean() : defaultSkylightEnabled;
+                Number fixedTime = dimension.get("fixed_time") != null ? dimension.get("fixed_time").getAsNumber() : defaultFixedTime;
+                if (fixedTime != null && fixedTime.intValue() == -1) fixedTime = null; // nullable option
+                boolean raidCapable = dimension.get("has_raids") != null ? dimension.get("has_raids").getAsBoolean() : defaultRaidCapable;
+                boolean respawnAnchorSafe = dimension.get("respawn_anchor_works") != null ? dimension.get("respawn_anchor_works").getAsBoolean() : defaultRespawnAnchorSafe;
+                boolean ultrawarm = dimension.get("ultrawarm") != null ? dimension.get("ultrawarm").getAsBoolean() : defaultUltrawarm;
+                boolean bedSafe = dimension.get("bed_works") != null ? dimension.get("bed_works").getAsBoolean() : defaultBedSafe;
+                NamespacedKey effects;
+                try {
+                    effects = NamespacedKey.parse(dimension.get("effects").getAsString());
+                } catch (Exception ignored) {
+                    effects = defaultEffects;
+                }
+                boolean piglinSafe = dimension.get("piglin_safe") != null ? dimension.get("piglin_safe").getAsBoolean() : defaultPiglinSafe;
+                int minY = dimension.get("min_y") != null ? dimension.get("min_y").getAsNumber().intValue() : defaultMinY;
+                int height = dimension.get("height") != null ? dimension.get("height").getAsNumber().intValue() : defaultHeight;
+                int logicalHeight = dimension.get("logical_height") != null ? dimension.get("logical_height").getAsNumber().intValue() : defaultLogicalHeight;
+                int coordinateScale = dimension.get("coordinate_scale") != null ? dimension.get("coordinate_scale").getAsNumber().intValue() : defaultCoordinateScale;
+                NamespacedKey infiniburn;
+                try {
+                    infiniburn = NamespacedKey.minecraft(dimension.get("infiniburn").getAsString());
+                } catch (Exception ignored) {
+                    infiniburn = defaultInfiniburn;
+                }
+                int monsterSpawnBlockLightLimit = dimension.get("monster_spawn_block_light_limit") != null ? dimension.get("monster_spawn_block_light_limit").getAsNumber().intValue() : defaultMonsterSpawnBlockLightLimit;
+                int monsterSpawnLightLevel = dimension.get("monster_spawn_light_level") != null ? dimension.get("monster_spawn_light_level").getAsNumber().intValue() : defaultMonsterSpawnLightLevel;
 
-            if(natural == null | ambientLight == null | ceilingEnabled == null |
-            skylightEnabled == null | raidCapable == null | respawnAnchorSafe == null |
-            ultrawarm == null | bedSafe == null | effects == null | piglinSafe == null |
-            minY == null | height == null | logicalHeight == null | coordinateScale == null |
-            infiniburn == null | monsterSpawnBlockLightLimit == null | monsterSpawnLightLevel == null) {
-                server.getConsole().warning("Dimension '" + key + "' has missing properties, default values will be used instead");
+                this.dimensions.add(DimensionType.builder()
+                        .name(key)
+                        .natural(natural)
+                        .ambientLight(ambientLight)
+                        .ceilingEnabled(ceilingEnabled)
+                        .skylightEnabled(skylightEnabled)
+                        .fixedTime(fixedTime != null ? fixedTime.longValue() : null) // nullable option
+                        .raidCapable(raidCapable)
+                        .respawnAnchorSafe(respawnAnchorSafe)
+                        .ultrawarm(ultrawarm)
+                        .bedSafe(bedSafe)
+                        .effects(effects)
+                        .piglinSafe(piglinSafe)
+                        .minY(minY)
+                        .height(height)
+                        .logicalHeight(logicalHeight)
+                        .coordinateScale(coordinateScale)
+                        .infiniburn(infiniburn)
+                        .monsterSpawnBlockLightLimit(monsterSpawnBlockLightLimit)
+                        .monsterSpawnLightLevel(monsterSpawnLightLevel)
+                        .build()
+                );
+            } catch (Exception exception) {
+                exception.printStackTrace();
+                server.getConsole().severe("Failed to register '" + key + "' dimension");
             }
-
-            final DimensionType defaultType = DimensionType.createDefault(server.getDimensionTypeManager());
-
-            this.dimensions.add(DimensionType.builder(server.getDimensionTypeManager())
-                    .name(key)
-                    .natural(natural != null ? natural : defaultType.isNatural())
-                    .ambientLight(ambientLight != null ? ambientLight.floatValue() : defaultType.getAmbientLight())
-                    .ceilingEnabled(ceilingEnabled != null ? ceilingEnabled : defaultType.isCeilingEnabled())
-                    .skylightEnabled(skylightEnabled != null ? skylightEnabled : defaultType.isSkylightEnabled())
-                    .fixedTime(fixedTime != null ? fixedTime.longValue() : null) // nullable option
-                    .raidCapable(raidCapable != null ? raidCapable : defaultType.isRaidCapable())
-                    .respawnAnchorSafe(respawnAnchorSafe != null ? respawnAnchorSafe : defaultType.isRespawnAnchorSafe())
-                    .ultrawarm(ultrawarm != null ? ultrawarm : defaultType.isUltrawarm())
-                    .bedSafe(bedSafe != null ? natural : defaultType.isNatural())
-                    .effects(effects != null ? effects : defaultType.getEffects())
-                    .piglinSafe(piglinSafe != null ? piglinSafe : defaultType.isPiglinSafe())
-                    .minY(minY != null ? minY.intValue() : defaultType.getMinY())
-                    .height(height != null ? height.intValue() : defaultType.getHeight())
-                    .logicalHeight(logicalHeight != null ? logicalHeight.intValue() : defaultType.getLogicalHeight())
-                    .coordinateScale(coordinateScale != null ? coordinateScale.intValue() : defaultType.getCoordinateScale())
-                    .infiniburn(infiniburn != null ? infiniburn : defaultType.getInfiniburn())
-                    .monsterSpawnBlockLightLimit(monsterSpawnBlockLightLimit != null ? monsterSpawnBlockLightLimit.intValue() : defaultType.getMonsterSpawnBlockLightLimit())
-                    .monsterSpawnLightLevel(monsterSpawnLightLevel != null ? monsterSpawnLightLevel.intValue() : defaultType.getMonsterSpawnLightLevel())
-                    .build()
-            );
         }
     }
 
     public Set<DimensionType> dimensions() {
-        return dimensions;
+        return Collections.unmodifiableSet(dimensions);
     }
 
     @Override

@@ -24,12 +24,24 @@ public class MojangAuth {
     public static final String USER_PROFILE_URL = "https://api.mojang.com/users/profiles/minecraft/%s";
     public static final String MINECRAFT_PROFILE_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=false";
 
+    /**
+     * Converts uuid string with no dashes to classic uuid.
+     * @param uuid uuid string with no dashes
+     * @return converted uuid
+     */
     public static UUID parseNoDashesUUID(String uuid) {
         return UUID.fromString(uuid.replaceFirst(
                 String.valueOf(NO_DASHES_UUID_PATTERN), DASHES_UUID_REPLACE
         ));
     }
 
+    /**
+     * Checks for auth data created by client if the game is
+     * licensed for the given server id.
+     * @param serverId encrypted id of the server
+     * @param username player's username
+     * @return
+     */
     public static CompletableFuture<JsonObject> getAuthData(String serverId, String username) {
         final String url = String.format(MojangAuth.AUTH_URL, username, serverId);
         return CompletableFuture.supplyAsync(() -> {
@@ -45,10 +57,20 @@ public class MojangAuth {
         });
     }
 
+    /**
+     * Creates offline mode uuid from a player's nickname.
+     * @param username player's nickname
+     * @return offline mode uuid
+     */
     public static UUID getOfflineUUID(String username) {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + username).getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Returns online UUID of registered account.
+     * @param username username of the account
+     * @return online UUID of account, null if the account doesn't exist
+     */
     public static CompletableFuture<UUID> getUUID(String username) {
         final String url = String.format(USER_PROFILE_URL, username);
         return CompletableFuture.supplyAsync(() -> {
@@ -66,6 +88,11 @@ public class MojangAuth {
         });
     }
 
+    /**
+     * Returns skin of registered account.
+     * @param uuid online uuid of the account
+     * @return skin of the registered account, null if the account doesn't exist
+     */
     public static CompletableFuture<PlayerTextures> getSkin(UUID uuid) {
         final String url = String.format(MINECRAFT_PROFILE_URL, uuid);
         return CompletableFuture.supplyAsync(() -> {
@@ -84,6 +111,11 @@ public class MojangAuth {
         });
     }
 
+    /**
+     * Returns skin of registered account.
+     * @param username username of the account
+     * @return skin of the registered account, null if the account doesn't exist
+     */
     public static CompletableFuture<PlayerTextures> getSkin(String username) {
         return CompletableFuture.supplyAsync(() -> getSkin(getUUID(username).join()).join());
     }

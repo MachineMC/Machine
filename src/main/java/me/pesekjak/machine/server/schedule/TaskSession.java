@@ -6,6 +6,10 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Chained task that can be run on a
+ * scheduler.
+ */
 @RequiredArgsConstructor
 public class TaskSession {
 
@@ -29,6 +33,10 @@ public class TaskSession {
 
     private ScheduledFuture<?> asyncScheduledFuture;
 
+    /**
+     * Runs the task.
+     * @param scheduler scheduler to run the task on
+     */
     protected void run(Scheduler scheduler) {
         if(running)
             throw new IllegalStateException("You can't run the same task twice");
@@ -80,6 +88,9 @@ public class TaskSession {
         }
     }
 
+    /**
+     * Runs the next task in the order.
+     */
     private void runFuture() {
         scheduler.sessions.remove(this);
         if(future == null) return;
@@ -109,6 +120,9 @@ public class TaskSession {
         }
     }
 
+    /**
+     * Terminates the task
+     */
     protected void terminate() {
         if(asyncScheduledFuture != null)
             asyncScheduledFuture.cancel(true);

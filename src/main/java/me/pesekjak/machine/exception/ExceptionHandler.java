@@ -1,15 +1,22 @@
 package me.pesekjak.machine.exception;
 
-import lombok.experimental.UtilityClass;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.logging.Console;
 import me.pesekjak.machine.network.ClientConnection;
+import me.pesekjak.machine.server.ServerProperty;
 
-@UtilityClass
-public class ExceptionHandler {
+@SuppressWarnings("ClassCanBeRecord")
+@RequiredArgsConstructor
+public class ExceptionHandler implements ServerProperty {
 
-    public static void handle(ClientException exception) {
+    @Getter
+    private final Machine server;
+
+    public void handle(ClientException exception) {
         final ClientConnection connection = exception.getConnection();
-        connection.getServer().getConsole().severe("Client generated unhandled exception: " + exception.getClass().getName(),
+        server.getConsole().severe("Client generated unhandled exception: " + exception.getClass().getName(),
                 "Login username: " + connection.getLoginUsername(),
                 "Address: " + connection.getClientSocket().getInetAddress(),
                 "Stack trace:"

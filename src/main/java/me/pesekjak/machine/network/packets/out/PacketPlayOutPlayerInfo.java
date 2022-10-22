@@ -1,9 +1,9 @@
 package me.pesekjak.machine.network.packets.out;
 
 import com.google.common.base.Preconditions;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.auth.PublicKeyData;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.entities.player.Gamemode;
@@ -18,13 +18,15 @@ import org.jetbrains.annotations.Range;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+@ToString
+@Getter @Setter
 public class PacketPlayOutPlayerInfo extends PacketOut {
 
     private static final int ID = 0x37;
 
-    @Getter @Setter
+    @NotNull
     private Action action;
-    @Getter @Setter
+    @NotNull
     private PlayerInfoData[] playerInfoDataArray;
 
     static {

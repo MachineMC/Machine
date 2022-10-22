@@ -3,10 +3,12 @@ package me.pesekjak.machine.network.packets.in;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
+@ToString
 public class PacketStatusInPing extends PacketIn {
 
     private static final int ID = 0x01;

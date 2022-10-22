@@ -2,20 +2,28 @@ package me.pesekjak.machine.world;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.With;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+/**
+ * Represents the location in the world
+ */
+@AllArgsConstructor(staticName = "of")
 @Data
+@With
 public class Location implements Cloneable {
 
-    @Getter @Setter
     private double x, y, z;
-    @Getter @Setter
     private float yaw, pitch;
-    @Getter @Setter
     private World world;
+
+    public static Location of(double x, double y, double z, World world) {
+        return new Location(x, y, z, world);
+    }
+
+    public static Location of(BlockPosition blockPosition, World world) {
+        return new Location(blockPosition, world);
+    }
 
     public Location(double x, double y, double z, World world) {
         this(x, y, z, 0, 0, world);
@@ -35,29 +43,50 @@ public class Location implements Cloneable {
         }
     }
 
+    /**
+     * @return x-coordinate of the location as whole number
+     */
     public int getBlockX() {
         return (int) Math.floor(x);
     }
 
+    /**
+     * @return y-coordinate of the location as whole number
+     */
     public int getBlockY() {
         return (int) Math.floor(y);
     }
 
+    /**
+     * @return z-coordinate of the location as whole number
+     */
     public int getBlockZ() {
         return (int) Math.floor(z);
     }
 
+    /**
+     * Writes the coordinates of the location to the {@link FriendlyByteBuf}.
+     * @param buf buffer to write into
+     */
     public void writePos(FriendlyByteBuf buf) {
         buf.writeDouble(x)
                 .writeDouble(y)
                 .writeDouble(z);
     }
 
+    /**
+     * Writes the rotation of the location to the {@link FriendlyByteBuf}.
+     * @param buf buffer to write into
+     */
     public void writeRot(FriendlyByteBuf buf) {
         buf.writeAngle(yaw)
                 .writeAngle(pitch);
     }
 
+    /**
+     * Writes the location to the {@link FriendlyByteBuf}.
+     * @param buf buffer to write into
+     */
     public void write(FriendlyByteBuf buf) {
         writePos(buf);
         writeRot(buf);

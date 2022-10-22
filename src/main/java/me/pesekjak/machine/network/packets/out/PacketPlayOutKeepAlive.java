@@ -3,10 +3,12 @@ package me.pesekjak.machine.network.packets.out;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
+@ToString
 public class PacketPlayOutKeepAlive extends PacketOut {
 
     private final static int ID = 0x20;

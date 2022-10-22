@@ -8,6 +8,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.*;
 
+/**
+ * Scheduler, can schedule tasks on a thread.
+ *
+ * To block the current thread {@link Scheduler#run()} is used,
+ * to run code on that thread, sync tasks have to be run on that
+ * scheduler instance from different threads. To unblock the
+ * thread {@link Scheduler#shutdown()} should be used, scheduler can
+ * be then run again on the same or a different thread.
+ *
+ * To run a task, {@link Scheduler#task(TaskRunnable)} and
+ * {@link TaskBuilder#run(Scheduler)} is used.
+ */
 public class Scheduler {
 
     @Getter(AccessLevel.PROTECTED)
@@ -56,55 +68,78 @@ public class Scheduler {
             session.terminate();
     }
 
-    public static Builder task(TaskRunnable<?> task) {
-        return new Builder(new TaskSession(task));
+    public static TaskBuilder task(TaskRunnable<?> task) {
+        return new TaskBuilder(new TaskSession(task));
     }
 
-    public static class Builder {
+    public static class TaskBuilder {
 
         private final TaskSession startPoint;
         private TaskSession current;
         private final List<TaskSession> tasks = new ArrayList<>();
 
-        public Builder(TaskSession startPoint) {
+        protected TaskBuilder(TaskSession startPoint) {
             this.startPoint = startPoint;
             current = startPoint;
         }
 
-        public Builder sync() {
+        /**
+         * Makes the task run synchronized on the scheduler's main thread.
+         */
+        public TaskBuilder sync() {
             return execution(TaskSession.Execution.SYNC);
         }
 
-        public Builder async() {
+        /**
+         * Makes the task run asynchronously.
+         */
+        public TaskBuilder async() {
             return execution(TaskSession.Execution.ASYNC);
         }
 
-        private Builder execution(TaskSession.Execution execution) {
+        private TaskBuilder execution(TaskSession.Execution execution) {
             current.execution = execution;
             return this;
         }
 
-        public Builder repeat(boolean repeat) {
+        /**
+         * @param repeat true if the task should repeat itself until it's cancel from inside
+         */
+        public TaskBuilder repeat(boolean repeat) {
             current.repeating = repeat;
             return this;
         }
 
-        public Builder delay(long delay) {
+        /**
+         * @param delay delay the task should have before the first execution
+         */
+        public TaskBuilder delay(long delay) {
             current.delay = delay;
             return this;
         }
 
-        public Builder period(long period) {
+        /**
+         *
+         * @param period how big should be the delay between next task repetition
+         */
+        public TaskBuilder period(long period) {
             current.period = period;
             return this;
         }
 
-        public Builder unit(TimeUnit unit) {
+        /**
+         * @param unit time unit of the delays
+         */
+        public TaskBuilder unit(TimeUnit unit) {
             current.unit = unit;
             return this;
         }
 
-        public Builder then(TaskRunnable<?> next) {
+        /**
+         * Adds next task to the chain.
+         * @param next next task
+         */
+        public TaskBuilder then(TaskRunnable<?> next) {
             TaskSession nextSession = new TaskSession(next);
             nextSession.previous = current;
             current.future = nextSession;

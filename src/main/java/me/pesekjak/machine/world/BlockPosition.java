@@ -10,9 +10,9 @@ import lombok.Data;
 @Data
 public class BlockPosition implements Cloneable {
 
-    private static final long PACKED_X_MASK = 0x3FFFFFF;
-    private static final long PACKED_Y_MASK = 0xFFF;
-    private static final long PACKED_Z_MASK = 0x3FFFFFF;
+    private static final long PACKED_X_MASK = 0x3FFFFFF; // max x-coordinate value
+    private static final long PACKED_Y_MASK = 0xFFF; // max y-coordinate value
+    private static final long PACKED_Z_MASK = 0x3FFFFFF; // max z-coordinate value
 
     private int x;
     private int y;

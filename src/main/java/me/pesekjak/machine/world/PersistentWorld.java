@@ -4,6 +4,9 @@ import lombok.Getter;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 
+/**
+ * Represents a world stored in a folder.
+ */
 public class PersistentWorld extends World {
 
     public final static String DEFAULT_WORLD_FOLDER = "level";
@@ -11,21 +14,19 @@ public class PersistentWorld extends World {
     @Getter
     private final String folderName;
 
-    private PersistentWorld(WorldManager manager,
-            String folderName,
+    private PersistentWorld(String folderName,
             NamespacedKey name,
             DimensionType dimensionType,
             long seed,
             Difficulty difficulty,
             Location worldSpawn) {
-        super(manager, name, dimensionType, seed, difficulty);
+        super(name, dimensionType, seed, difficulty, worldSpawn);
         super.setWorldSpawn(worldSpawn);
         this.folderName = folderName;
     }
 
-    public PersistentWorld(WorldManager manager, String folderName, World world) {
-        this(manager,
-                folderName,
+    public PersistentWorld(String folderName, World world) {
+        this(folderName,
                 world.getName(),
                 world.getDimensionType(),
                 world.getSeed(),

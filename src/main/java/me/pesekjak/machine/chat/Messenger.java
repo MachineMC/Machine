@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Sends a messages to a players, respecting their chat settings, handles
+ * 'cannot send' messages and chat codec.
+ */
 @RequiredArgsConstructor
 public class Messenger implements CodecPart, ServerProperty {
 
