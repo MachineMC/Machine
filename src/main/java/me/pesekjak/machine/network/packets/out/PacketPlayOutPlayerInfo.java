@@ -1,7 +1,6 @@
 package me.pesekjak.machine.network.packets.out;
 
 import com.google.common.base.Preconditions;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.auth.PublicKeyData;
@@ -116,7 +115,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     }
 
     public record PlayerInfoData(UUID uuid, @Nullable String name, @Nullable PlayerTextures playerTextures, @Nullable Gamemode gamemode, int latency,
-                                 @Nullable Component displayName, @Nullable PublicKeyData publicKeyData) {
+                                 @Nullable Component listName, @Nullable PublicKeyData publicKeyData) {
 
         // TODO fix public key data of player
         public PlayerInfoData(Player player) {
@@ -134,9 +133,9 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                             .writeTextures(playerTextures)
                             .writeVarInt(gamemode.getId())
                             .writeVarInt(latency)
-                            .writeBoolean(displayName != null);
-                    if (displayName != null)
-                        buf.writeComponent(displayName);
+                            .writeBoolean(listName != null);
+                    if (listName != null)
+                        buf.writeComponent(listName);
                     buf.writeBoolean(publicKeyData != null);
                     if (publicKeyData != null)
                         buf.writePublicKey(publicKeyData);
@@ -146,7 +145,11 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     buf.writeVarInt(gamemode.getId());
                 }
                 case UPDATE_LATENCY -> buf.writeVarInt(latency);
-                case UPDATE_DISPLAY_NAME -> buf.writeComponent(displayName);
+                case UPDATE_DISPLAY_NAME -> {
+                    buf.writeBoolean(listName != null);
+                    if (listName != null)
+                        buf.writeComponent(listName);
+                }
                 case REMOVE_PLAYER -> {}
             }
         }
