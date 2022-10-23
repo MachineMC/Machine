@@ -3,20 +3,24 @@ package me.pesekjak.machine.network.packets.in;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.auth.MessageSignature;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayInChatMessage extends PacketIn {
 
     private static final int ID = 0x05;
 
-    @Getter @Setter
+    @NotNull
     private String message;
-    @Getter @Setter
+    @NotNull
     private MessageSignature messageSignature;
 
     static {

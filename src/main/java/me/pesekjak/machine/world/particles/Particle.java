@@ -10,6 +10,10 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Represents playable particle, use {@link Particle#of(ParticleType)} or
+ * {@link Particle#of(ParticleType, ParticleOptions)} to create new one.
+ */
 public class Particle implements NBTSerializable {
 
     @Getter @Setter
@@ -21,25 +25,49 @@ public class Particle implements NBTSerializable {
         this.type = type;
     }
 
+    /**
+     * Creates new particle from the given type.
+     * @param type type of the particle
+     * @return particle created from the given type
+     */
     public static Particle of(ParticleType type) {
         return new Particle(type);
     }
 
+    /**
+     * Creates new particle from the given type and options.
+     * @param type type of the particle
+     * @param options options of the particle
+     * @return particle created from the given type and options
+     */
     public static Particle of(ParticleType type, ParticleOptions options) {
         Particle particle = new Particle(type);
         particle.options = options;
         return particle;
     }
 
+    /**
+     * Creates new particle from the buffer
+     * @param buf buffer with particle id and options
+     * @return particle created from the buffer
+     */
     public static Particle fromBuffer(FriendlyByteBuf buf) {
         ParticleType type = ParticleType.byId(buf.readVarInt());
         return type.getCreator().create(type, buf);
     }
 
+    /**
+     * @return options of the particle
+     */
     public Optional<ParticleOptions> getOptions() {
         return Optional.of(options);
     }
 
+    /**
+     * Writes the particle to the buffer.
+     * @param buf buffer to write to
+     * @return updated buffer
+     */
     public FriendlyByteBuf write(FriendlyByteBuf buf) {
         buf.writeVarInt(type.getID());
         if(options != null)

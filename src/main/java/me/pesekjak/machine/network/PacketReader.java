@@ -8,6 +8,10 @@ import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Holder of a packet that was read from a client connection
+ * and will be read by a server.
+ */
 public class PacketReader implements PacketHolder {
 
     @Getter @Setter @Nullable

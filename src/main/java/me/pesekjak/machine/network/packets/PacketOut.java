@@ -1,5 +1,8 @@
 package me.pesekjak.machine.network.packets;
 
+/**
+ * Packet sent from server to client.
+ */
 public abstract class PacketOut extends Packet {
 
     /**

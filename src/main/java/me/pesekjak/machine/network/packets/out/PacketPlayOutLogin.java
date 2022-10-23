@@ -3,11 +3,13 @@ package me.pesekjak.machine.network.packets.out;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.utils.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.nio.charset.StandardCharsets;
@@ -15,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutLogin extends PacketOut {
 
     private static final int ID = 0x25;
@@ -22,39 +26,28 @@ public class PacketPlayOutLogin extends PacketOut {
     public static final NamespacedKey DIMENSION_TYPE_CODEC_NAME = NamespacedKey.minecraft("dimension_type");
     public static final NamespacedKey WORLD_GEN_BIOME_CODEC_NAME = NamespacedKey.minecraft("worldgen/biome");
 
-    @Getter @Setter
     private int entityID;
-    @Getter @Setter
     private boolean isHardcore;
-    @Getter @Setter @NotNull
+    @NotNull
     private Gamemode gamemode;
-    @SuppressWarnings("FieldMayBeFinal")
+    @Nullable
     private Gamemode previousGamemode;
-    @Getter @Setter
+    @NotNull
     private List<String> dimensions;
-    @Getter @Setter
+    @NotNull
     private NBTCompound dimensionCodec;
-    @Getter @Setter
+    @NotNull
     private NamespacedKey spawnWorldType;
-    @Getter @Setter
+    @NotNull
     private NamespacedKey spawnWorld;
-    @Getter @Setter
     private long hashedSeed;
-    @Getter @Setter
     private int maxPlayers;
-    @Getter @Setter
     private int viewDistance;
-    @Getter @Setter
     private int simulationDistance;
-    @Getter @Setter
     private boolean reducedDebugInfo;
-    @Getter @Setter
     private boolean enableRespawnScreen;
-    @Getter @Setter
     private boolean isDebug;
-    @Getter @Setter
     private boolean isFlat;
-    @SuppressWarnings("FieldCanBeLocal")
     private final boolean hasDeathLocation = false; // TODO implement later
 
     static {

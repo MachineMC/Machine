@@ -5,11 +5,10 @@ import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.network.ClientConnection;
 
 @RequiredArgsConstructor
+@Getter
 public class ClientException extends RuntimeException {
 
-    @Getter
     private final ClientConnection connection;
-    @Getter
     private final Exception exception;
 
 }

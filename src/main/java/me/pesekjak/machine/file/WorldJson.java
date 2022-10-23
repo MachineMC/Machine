@@ -12,19 +12,16 @@ import me.pesekjak.machine.world.dimensions.DimensionType;
 
 import java.io.*;
 
+@Getter
 public class WorldJson implements ServerFile, ServerProperty {
 
     public final static String WORLD_FILE_NAME = "world.json";
 
-    @Getter
     private final Machine server;
-    @Getter
+
     private final NamespacedKey worldName;
-    @Getter
     private final DimensionType dimension;
-    @Getter
     private final long seed;
-    @Getter
     private final Difficulty difficulty;
 
     public WorldJson(Machine server, File file) throws IOException {
@@ -87,8 +84,12 @@ public class WorldJson implements ServerFile, ServerProperty {
         return Machine.CLASS_LOADER.getResourceAsStream(WORLD_FILE_NAME);
     }
 
-    public World world() {
-        return World.builder(server.getWorldManager())
+    /**
+     * Creates and registers the world to the server's WorldManager.
+     * @return newly created and registered world
+     */
+    public World buildWorld() {
+        return World.builder()
                 .name(worldName)
                 .dimensionType(dimension)
                 .seed(seed)

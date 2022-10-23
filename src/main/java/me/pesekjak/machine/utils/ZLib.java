@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterOutputStream;
 
-public class ZLib {
+public final class ZLib {
+
+    private ZLib() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Compresses an array of bytes using Zlib.

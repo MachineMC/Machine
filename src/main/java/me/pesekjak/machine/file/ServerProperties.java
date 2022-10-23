@@ -17,31 +17,24 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Properties;
 
+@Getter
 public class ServerProperties implements ServerFile, ServerProperty {
 
     public static final String PROPERTIES_FILE_NAME = "server.properties";
     public static final String ICON_FILE_NAME = "icon.png";
 
-    @Getter
     private final Machine server;
 
-    @Getter
     private final String serverIp;
-    @Getter
     private final int serverPort;
-    @Getter
     private final boolean online;
-    @Getter
     private final int maxPlayers;
-    @Getter
     private final Component motd;
-    @Getter
     private final NamespacedKey defaultWorld;
-    @Getter
     private final Difficulty defaultDifficulty;
-    @Getter @Nullable
+    @Nullable
     private final BufferedImage icon;
-    @Getter @Nullable
+    @Nullable
     private final String encodedIcon;
 
     public ServerProperties(Machine server, File file) throws IOException {
