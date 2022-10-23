@@ -146,6 +146,7 @@ public class Machine {
         }
 
         Arrays.stream(Material.values()).forEach(Material::createBlockData);
+        BlockData.finishRegistration();
         blockManager = BlockManager.createDefault(this);
         console.info("Loaded materials and block data");
 
