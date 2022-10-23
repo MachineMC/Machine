@@ -9,6 +9,9 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
+/**
+ * Adds functionality to Machine server in online mode
+ */
 public class OnlineServer implements ServerProperty {
 
     @Getter
@@ -24,10 +27,19 @@ public class OnlineServer implements ServerProperty {
             throw new IllegalStateException("Key for the online server wasn't initialized");
     }
 
+    /**
+     * @return sequence of random 4 bytes used for verification
+     */
     public byte[] nextVerifyToken() {
         return Crypt.nextVerifyToken();
     }
 
+    /**
+     * Creates secret key from server's private key and secret from client.
+     * @param privateKey server's private key
+     * @param keyBytes client's secret
+     * @return secret key
+     */
     public SecretKey getSecretKey(PrivateKey privateKey, byte[] keyBytes) {
         return Crypt.decryptByteToSecretKey(privateKey, keyBytes);
     }

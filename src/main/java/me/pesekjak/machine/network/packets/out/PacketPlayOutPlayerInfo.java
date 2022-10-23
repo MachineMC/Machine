@@ -3,6 +3,7 @@ package me.pesekjak.machine.network.packets.out;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.auth.PublicKeyData;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.entities.player.Gamemode;
@@ -17,13 +18,15 @@ import org.jetbrains.annotations.Range;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+@ToString
+@Getter @Setter
 public class PacketPlayOutPlayerInfo extends PacketOut {
 
     private static final int ID = 0x37;
 
-    @Getter @Setter
+    @NotNull
     private Action action;
-    @Getter @Setter
+    @NotNull
     private PlayerInfoData[] playerInfoDataArray;
 
     static {
@@ -117,10 +120,9 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     public record PlayerInfoData(UUID uuid, @Nullable String name, @Nullable PlayerTextures playerTextures, @Nullable Gamemode gamemode, int latency,
                                  @Nullable Component listName, @Nullable PublicKeyData publicKeyData) {
 
-        // TODO fix public key data of player
         public PlayerInfoData(Player player) {
             this(player.getUuid(), player.getName(), player.getProfile().getTextures(), player.getGamemode(), player.getLatency(),
-                    player.getPlayerListName(), /*player.getServer().isOnline() ? player.getConnection().getPublicKeyData() : */null);
+                    player.getPlayerListName(), player.getServer().isOnline() ? player.getConnection().getPublicKeyData() : null);
         }
 
         public void write(Action action, FriendlyByteBuf buf) {

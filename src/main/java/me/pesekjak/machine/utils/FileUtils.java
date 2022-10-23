@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
-public class FileUtils {
+public final class FileUtils {
 
     private static final File MACHINE_JAR = new File(Machine.class
             .getProtectionDomain()
@@ -37,7 +37,7 @@ public class FileUtils {
      */
     public static boolean createFromDefaultAndLocate(final File file, String path) {
         if(path.endsWith("/")) {
-            boolean s = new File(path).mkdirs();
+            new File(path).mkdirs();
             path = path + file.getName();
         }
         InputStream in = Machine.CLASS_LOADER.getResourceAsStream(file.getPath());

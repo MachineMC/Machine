@@ -9,6 +9,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Codec containing NBTCompound representing certain registries
+ * that are sent from the server and are applied on the client.
+ */
 @NoArgsConstructor
 public class Codec implements NBTSerializable {
 

@@ -4,8 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-import java.util.regex.Pattern;
-
 public class ChatUtils {
 
     private static final LegacyComponentSerializer legacyComponentSerializer = LegacyComponentSerializer.builder()
@@ -15,6 +13,10 @@ public class ChatUtils {
 
     private ChatUtils() {
         throw new UnsupportedOperationException();
+    }
+
+    public static String colored(String string) {
+        return string.replaceAll("&([\\daAbBcCdDeEfFkKlLmMnNoOrR])", COLOR_CHAR + "$1");
     }
 
     public static TextComponent stringToComponent(String string) {

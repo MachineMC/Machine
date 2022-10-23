@@ -3,21 +3,20 @@ package me.pesekjak.machine.network.packets.in;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketLoginInEncryptionResponse extends PacketIn {
 
     private static final int ID = 0x01;
 
-    @Getter @Setter
     private byte[] secret;
-    @Getter @Setter
     private byte[] verifyToken;
-    @Getter @Setter
     private long salt;
-    @Getter @Setter
     private byte[] messageSignature;
 
     static {

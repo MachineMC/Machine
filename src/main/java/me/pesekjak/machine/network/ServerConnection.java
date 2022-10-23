@@ -11,8 +11,12 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+/**
+ * Connection of the Machine server
+ */
 public class ServerConnection extends Thread implements ServerProperty, AutoCloseable {
 
     public final static int READ_IDLE_TIMEOUT = 30000;
@@ -20,7 +24,6 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
 
     @Getter
     private final Machine server;
-    @Getter
     private final List<ClientConnection> clients = new ArrayList<>();
     @Getter
     private final int port;
@@ -34,6 +37,9 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
         start();
     }
 
+    /**
+     * Starts listening to the clients.
+     */
     @Override
     public void run() {
         try {
@@ -51,6 +57,9 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
         }
     }
 
+    /**
+     * Closes the server connection.
+     */
     @Override
     public void close() {
         if(!running)
@@ -61,6 +70,17 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
         } catch (IOException ignored) { }
     }
 
+    /**
+     * @return list of all connected clients
+     */
+    public List<ClientConnection> getClients() {
+        return Collections.unmodifiableList(clients);
+    }
+
+    /**
+     * Sends a packet to all clients with state matching the packet's state.
+     * @param packet packet that will be sent
+     */
     public void broadcastPacket(PacketOut packet) throws IOException {
         ClientConnection.ClientState state = ClientConnection.ClientState.fromState(PacketFactory.getStateFromPacket(packet.getClass()));
         for(ClientConnection client : clients) {
@@ -68,6 +88,10 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
         }
     }
 
+    /**
+     * Disconnects the client connection.
+     * @param connection client connection to disconnect
+     */
     public void disconnect(ClientConnection connection) {
         if(connection.getClientState() != ClientConnection.ClientState.DISCONNECTED)
             connection.disconnect();

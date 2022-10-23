@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.Range;
 
+/**
+ * Difficulty of the world.
+ */
 @AllArgsConstructor
 public enum Difficulty {
 

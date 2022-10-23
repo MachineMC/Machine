@@ -5,6 +5,9 @@ import me.pesekjak.machine.world.Material;
 
 import static me.pesekjak.machine.world.Material.*;
 
+/**
+ * Represents mining speeds of different materials.
+ */
 public enum ToolLevel {
 
     NOTHING(1),
@@ -40,6 +43,11 @@ public enum ToolLevel {
         return materials.clone();
     }
 
+    /**
+     * Returns the tool level of given material
+     * @param material material to check for
+     * @return tool level of given material
+     */
     public static ToolLevel fromMaterial(Material material) {
         for(ToolLevel level : values()) {
             for(Material tool : level.materials) {
@@ -49,6 +57,11 @@ public enum ToolLevel {
         return null;
     }
 
+    /**
+     * Returns the tool level from the speed.
+     * @param speed general mining speed of the tool level
+     * @return tool level matching the given speed
+     */
     public static ToolLevel fromSpeed(double speed) {
         for(ToolLevel level : values()) {
             if(level.speed == speed) return level;
@@ -56,6 +69,11 @@ public enum ToolLevel {
         return null;
     }
 
+    /**
+     * Calculates speed of material as shears
+     * @param material material to check for
+     * @return mining speed of the material as shears
+     */
     public static double shearsSpeed(Material material) {
         return switch (material) {
             case VINE, GLOW_LICHEN -> 1;
@@ -74,6 +92,11 @@ public enum ToolLevel {
         };
     }
 
+    /**
+     * Calculates speed of material as sword
+     * @param material material to check for
+     * @return mining speed of the material as sword
+     */
     public static double swordSpeed(Material material) {
         return material == Material.COBWEB ? 15 : 1.5;
     }

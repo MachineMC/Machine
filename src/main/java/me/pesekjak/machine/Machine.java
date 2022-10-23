@@ -10,6 +10,7 @@ import me.pesekjak.machine.auth.OnlineServer;
 import me.pesekjak.machine.chat.Messenger;
 import me.pesekjak.machine.entities.EntityManager;
 import me.pesekjak.machine.events.translations.TranslatorDispatcher;
+import me.pesekjak.machine.exception.ExceptionHandler;
 import me.pesekjak.machine.file.DimensionsJson;
 import me.pesekjak.machine.file.ServerProperties;
 import me.pesekjak.machine.file.WorldJson;
@@ -19,10 +20,7 @@ import me.pesekjak.machine.network.ServerConnection;
 import me.pesekjak.machine.network.packets.PacketFactory;
 import me.pesekjak.machine.server.schedule.Scheduler;
 import me.pesekjak.machine.utils.*;
-import me.pesekjak.machine.world.Material;
-import me.pesekjak.machine.world.PersistentWorld;
-import me.pesekjak.machine.world.World;
-import me.pesekjak.machine.world.WorldManager;
+import me.pesekjak.machine.world.*;
 import me.pesekjak.machine.world.biomes.BiomeManager;
 import me.pesekjak.machine.world.blocks.BlockManager;
 import me.pesekjak.machine.world.dimensions.DimensionType;
@@ -36,7 +34,6 @@ import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,6 +57,9 @@ public class Machine {
 
     @Getter @Setter
     private IConsole console;
+
+    @Getter
+    protected ExceptionHandler exceptionHandler;
 
     @Getter @Nullable
     private OnlineServer onlineServer;
@@ -101,6 +101,9 @@ public class Machine {
         new Machine();
     }
 
+    /**
+     * Start of new server.
+     */
     public Machine() throws Exception {
 
         final long start = System.currentTimeMillis();
@@ -115,6 +118,8 @@ public class Machine {
         // Setting up console
         console = new Console(this);
         console.info("Loading Machine Server on Minecraft " + SERVER_IMPLEMENTATION_VERSION);
+
+        exceptionHandler = new ExceptionHandler(this);
 
         // Setting up server properties
         File propertiesFile = new File(ServerProperties.PROPERTIES_FILE_NAME);
@@ -149,18 +154,17 @@ public class Machine {
         File dimensionsFile = new File(DimensionsJson.DIMENSIONS_FILE_NAME);
         if(!dimensionsFile.exists())
             FileUtils.createFromDefault(dimensionsFile);
-        Set<DimensionType> dimensions;
+        Set<DimensionType> dimensions = new LinkedHashSet<>();
         try {
             dimensions = new DimensionsJson(this, dimensionsFile).dimensions();
         } catch (Exception exception) {
             console.severe("Failed to load the dimensions file");
-            return;
         }
 
         // Registering all dimensions from the file into the manager
         if(dimensions.size() == 0) {
             console.warning("There are no defined dimensions in the dimensions file, loading default dimension instead");
-            dimensionTypeManager.addDimension(DimensionType.createDefault(dimensionTypeManager));
+            dimensionTypeManager.addDimension(DimensionType.createDefault());
         } else {
             for(DimensionType dimension : dimensions)
                 dimensionTypeManager.addDimension(dimension);
@@ -169,47 +173,32 @@ public class Machine {
 
         messenger = new Messenger(this);
 
-        // Loading all worlds from folders (TODO maybe needs cleanup?)
         worldManager = new WorldManager(this);
-        final Set<World> worlds = new LinkedHashSet<>();
-        final Set<NamespacedKey> registeredWorlds = new HashSet<>();
         for(Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
             if(!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;
             if(path.getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
             if(!path.getParent().getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
             try {
                 WorldJson worldJson = new WorldJson(this, path.toFile());
-                if (registeredWorlds.contains(worldJson.getWorldName())) {
+                if(worldManager.isRegistered(worldJson.getWorldName())) {
                     console.severe("World with name '" + worldJson.getWorldName() + "' is already registered");
                     continue;
                 }
-                File levelFolder = path.getParent().toFile();
-                PersistentWorld world = new PersistentWorld(worldManager, levelFolder.getName(), worldJson.world(FileUtils.getOrCreateUUID(levelFolder)));
-                registeredWorlds.add(world.getName());
-                worlds.add(world);
-            } catch (IllegalStateException ignored) {
-                // Non-existing dimension type, handled in the WorldJson class
+                String levelFolder = path.getParent().toString();
+                World world = worldJson.buildWorld();
+                worldManager.addWorld(new PersistentWorld(levelFolder.substring(levelFolder.lastIndexOf("\\") + 1), world));
+                console.info("Loaded world '" + world.getName() + "'");
             } catch (IOException exception) {
                 console.severe("World file '" + path + "' failed to load");
             }
         }
 
-        // Registering all worlds from folders into the manager
-        if(worlds.size() == 0) {
+        if(worldManager.getWorlds().size() == 0) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             File worldJson = new File(WorldJson.WORLD_FILE_NAME);
             FileUtils.createFromDefaultAndLocate(worldJson, PersistentWorld.DEFAULT_WORLD_FOLDER + "/");
-            File worldFolder = new File(PersistentWorld.DEFAULT_WORLD_FOLDER);
-            worlds.add(new PersistentWorld(worldManager, PersistentWorld.DEFAULT_WORLD_FOLDER, World.createDefault(worldManager, FileUtils.getOrCreateUUID(worldFolder))));
-        }
-        for(World world : worlds) {
-            if(worldManager.isRegistered(world.getName())) {
-                console.severe("World '" + world.getName() + "' can't be registered, because another world with a same" +
-                        "name already exists");
-                continue;
-            }
-            console.info("Loaded world '" + world.getName() + "'");
-            worldManager.addWorld(world);
+            World world = World.createDefault(this);
+            worldManager.addWorld(new PersistentWorld(PersistentWorld.DEFAULT_WORLD_FOLDER, world));
         }
         defaultWorld = (PersistentWorld) worldManager.getWorld(properties.getDefaultWorld());
         if(defaultWorld == null) {
@@ -217,12 +206,10 @@ public class Machine {
             console.warning("Default world in the server properties doesn't exist, using '" + defaultWorld.getName() + "' instead");
         }
 
-        // TODO Finish Biomes (+ BiomeEffects with Particles) and implement biomes json
+        // TODO Implement biomes json
         biomeManager = BiomeManager.createDefault(this);
 
         entityManager = EntityManager.createDefault(this);
-
-        scheduler = new Scheduler(4); // TODO add this to properties
 
         ClassUtils.loadClass(PacketFactory.class);
         console.info("Loaded all packet mappings");
@@ -232,33 +219,38 @@ public class Machine {
 
         connection = new ServerConnection(this);
 
+        scheduler = new Scheduler(4); // TODO add this to properties
+
         console.info("Server loaded in " + (System.currentTimeMillis() - start) + "ms");
         scheduler.run(); // blocks the thread
     }
 
+    /**
+     * Builds the MOTD json of the server in the multiplayer server list.
+     * @return MOTD json of the server
+     */
     public String statusJson() {
         JsonObject json = new JsonObject();
-
         JsonObject versionJson = new JsonObject();
         versionJson.addProperty("name", SERVER_IMPLEMENTATION_VERSION);
         versionJson.addProperty("protocol", SERVER_IMPLEMENTATION_PROTOCOL);
         json.add("version", versionJson);
-
         JsonObject playersJson = new JsonObject();
         playersJson.addProperty("max", properties.getMaxPlayers());
         playersJson.addProperty("online", 0);
         json.add("players", playersJson);
-
         json.addProperty("description", "%MOTD%");
-
         if (properties.getIcon() != null)
             json.addProperty("favicon", "data:image/png;base64," + properties.getEncodedIcon());
-
         return gson
                 .toJson(json)
                 .replace("\"%MOTD%\"", GsonComponentSerializer.gson().serialize(properties.getMotd()));
     }
 
+    /**
+     * Checks if server is in online mode.
+     * @return true if server is in online mode
+     */
     public boolean isOnline() {
         return onlineServer != null;
     }

@@ -10,6 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * Represents a world stored in a folder.
+ */
 public class PersistentWorld extends World {
 
     public final static String DEFAULT_WORLD_FOLDER = "level";
@@ -20,23 +23,21 @@ public class PersistentWorld extends World {
     @Getter
     private final File playerDataFolder;
 
-    private PersistentWorld(WorldManager manager,
-            String folderName,
+    private PersistentWorld(String folderName,
             NamespacedKey name,
             UUID uuid,
             DimensionType dimensionType,
             long seed,
             Difficulty difficulty,
             Location worldSpawn) {
-        super(manager, name, uuid, dimensionType, seed, difficulty);
-        super.setWorldSpawn(worldSpawn);
+        super(name, uuid, dimensionType, seed, difficulty, worldSpawn);
+        setWorldSpawn(worldSpawn);
         this.folderName = folderName;
         playerDataFolder = new File(folderName, DEFAULT_PLAYER_DATA_FOLDER);
     }
 
-    public PersistentWorld(WorldManager manager, String folderName, World world) {
-        this(manager,
-                folderName,
+    public PersistentWorld(String folderName, World world) {
+        this(folderName,
                 world.getName(),
                 world.getUuid(),
                 world.getDimensionType(),

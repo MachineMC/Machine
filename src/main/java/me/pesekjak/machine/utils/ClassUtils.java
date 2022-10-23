@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-public class ClassUtils {
+public final class ClassUtils {
 
     private ClassUtils() {
         throw new UnsupportedOperationException();

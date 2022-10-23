@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.logging.Level;
 
 @RequiredArgsConstructor
-@SuppressWarnings("unused")
 public class Console implements IConsole {
 
     @Getter
