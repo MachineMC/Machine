@@ -3,6 +3,7 @@ package me.pesekjak.machine.auth;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.pesekjak.machine.entities.player.PlayerTextures;
+import me.pesekjak.machine.utils.UUIDUtils;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -13,27 +14,13 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Pattern;
 
 public class MojangAuth {
 
-    public static final Pattern NO_DASHES_UUID_PATTERN = Pattern.compile("(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)");
-    private static final String DASHES_UUID_REPLACE = "$1-$2-$3-$4-$5";
 
     public static final String AUTH_URL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=%s&serverId=%s";
     public static final String USER_PROFILE_URL = "https://api.mojang.com/users/profiles/minecraft/%s";
     public static final String MINECRAFT_PROFILE_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=false";
-
-    /**
-     * Converts uuid string with no dashes to classic uuid.
-     * @param uuid uuid string with no dashes
-     * @return converted uuid
-     */
-    public static UUID parseNoDashesUUID(String uuid) {
-        return UUID.fromString(uuid.replaceFirst(
-                String.valueOf(NO_DASHES_UUID_PATTERN), DASHES_UUID_REPLACE
-        ));
-    }
 
     /**
      * Checks for auth data created by client if the game is
@@ -82,7 +69,7 @@ public class MojangAuth {
                 if (!(response.statusCode() == HttpURLConnection.HTTP_OK))
                     return null;
                 JsonObject json = (JsonObject) new JsonParser().parse(response.body());
-                return parseNoDashesUUID(json.get("id").getAsString());
+                return UUIDUtils.parseUUID(json.get("id").getAsString());
             } catch (Exception ignored) { }
             return null;
         });
