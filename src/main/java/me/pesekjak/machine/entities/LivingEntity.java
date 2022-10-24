@@ -43,7 +43,7 @@ public abstract class LivingEntity extends Entity {
 
     @Override
     @SuppressWarnings("ConstantConditions")
-    public void load(NBTCompound nbtCompound) {
+    protected void load(NBTCompound nbtCompound) {
         super.load(nbtCompound);
         health = nbtCompound.contains("Health") ? nbtCompound.getAsFloat("Health") : 0;
         hurtTime = nbtCompound.contains("HurtTime") ? nbtCompound.getAsShort("HurtTime") : 0;

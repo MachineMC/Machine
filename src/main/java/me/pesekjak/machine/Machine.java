@@ -36,6 +36,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class Machine {
@@ -184,9 +185,9 @@ public class Machine {
                     console.severe("World with name '" + worldJson.getWorldName() + "' is already registered");
                     continue;
                 }
-                String levelFolder = path.getParent().toString();
-                World world = worldJson.buildWorld();
-                worldManager.addWorld(new PersistentWorld(levelFolder.substring(levelFolder.lastIndexOf("\\") + 1), world));
+                File levelFolder = path.getParent().toFile();
+                World world = worldJson.buildWorld(FileUtils.getOrCreateUUID(levelFolder));
+                worldManager.addWorld(new PersistentWorld(levelFolder.getName(), world));
                 console.info("Loaded world '" + world.getName() + "'");
             } catch (IOException exception) {
                 console.severe("World file '" + path + "' failed to load");
@@ -197,7 +198,8 @@ public class Machine {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             File worldJson = new File(WorldJson.WORLD_FILE_NAME);
             FileUtils.createFromDefaultAndLocate(worldJson, PersistentWorld.DEFAULT_WORLD_FOLDER + "/");
-            World world = World.createDefault(this);
+            File levelFolder = new File(PersistentWorld.DEFAULT_WORLD_FOLDER);
+            World world = World.createDefault(this, FileUtils.getOrCreateUUID(levelFolder));
             worldManager.addWorld(new PersistentWorld(PersistentWorld.DEFAULT_WORLD_FOLDER, world));
         }
         defaultWorld = (PersistentWorld) worldManager.getWorld(properties.getDefaultWorld());
@@ -205,6 +207,7 @@ public class Machine {
             defaultWorld = (PersistentWorld) worldManager.getWorlds().stream().iterator().next();
             console.warning("Default world in the server properties doesn't exist, using '" + defaultWorld.getName() + "' instead");
         }
+        defaultWorld.getPlayerDataContainer().updateContainer();
 
         // TODO Implement biomes json
         biomeManager = BiomeManager.createDefault(this);

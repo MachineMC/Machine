@@ -7,7 +7,7 @@ import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.EntityUtils;
 import me.pesekjak.machine.utils.NBTUtils;
-import me.pesekjak.machine.utils.Utils;
+import me.pesekjak.machine.utils.UUIDUtils;
 import me.pesekjak.machine.world.Location;
 import me.pesekjak.machine.world.World;
 import net.kyori.adventure.identity.Identity;
@@ -141,7 +141,7 @@ public abstract class Entity implements Identity, ServerProperty, NBTSerializabl
             nbt.setByte("OnGround", (byte) (onGround ? 1 : 0));
             nbt.setByte("Invulnerable", (byte) (invulnerable ? 1 : 0));
             nbt.setInt("PortalCooldown", portalCooldown);
-            nbt.setIntArray("UUID", Utils.uuidToIntArray(uuid));
+            nbt.setIntArray("UUID", UUIDUtils.uuidToIntArray(uuid));
             nbt.setLong("WorldUUIDLeast", getWorld().getUuid().getLeastSignificantBits());
             nbt.setLong("WorldUUIDMost", getWorld().getUuid().getMostSignificantBits());
 
@@ -174,7 +174,7 @@ public abstract class Entity implements Identity, ServerProperty, NBTSerializabl
     }
 
     @SuppressWarnings("ConstantConditions")
-    public void load(NBTCompound nbtCompound) {
+    protected void load(NBTCompound nbtCompound) {
         NBTList<NBTDouble> pos = nbtCompound.getList("Pos");
         NBTList<NBTDouble> motion = nbtCompound.getList("Motion");
         NBTList<NBTFloat> rotation = nbtCompound.getList("Rotation");
@@ -198,7 +198,7 @@ public abstract class Entity implements Identity, ServerProperty, NBTSerializabl
         invulnerable = nbtCompound.contains("Invulnerable") ? nbtCompound.getBoolean("Invulnerable") : false;
         portalCooldown = nbtCompound.contains("PortalCooldown") ? nbtCompound.getAsInt("PortalCooldown") : 0;
         if (nbtCompound.contains("UUID"))
-            uuid = Utils.uuidFromIntArray(nbtCompound.getIntArray("UUID").copyArray());
+            uuid = UUIDUtils.uuidFromIntArray(nbtCompound.getIntArray("UUID").copyArray());
         if (nbtCompound.contains("CustomName")) {
             String string = nbtCompound.getString("CustomName");
             setCustomName(GsonComponentSerializer.gson().deserialize(string));

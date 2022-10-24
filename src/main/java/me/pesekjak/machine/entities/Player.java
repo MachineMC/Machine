@@ -27,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,19 +76,17 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
     }
 
     public static Player spawn(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
+        Player player = new Player(server, profile, connection);
+        NBTCompound nbtCompound = server.getDefaultWorld().getPlayerDataContainer().getPlayerData(player);
+        if (nbtCompound != null)
+            player.load(nbtCompound);
         try {
-            NBTCompound nbtCompound = server.getDefaultWorld().getPlayerData(profile.getUuid());
-            Player player = new Player(server, profile, connection);
-            if (nbtCompound != null)
-                player.load(nbtCompound);
-            try {
-                player.init();
-                return player;
-            } catch (Exception e) {
-                e.printStackTrace();
-                connection.disconnect(Component.text("Failed initialization."));
-            }
-        } catch (Exception ignore) {}
+            player.init();
+            return player;
+        } catch (Exception e) {
+            e.printStackTrace();
+            connection.disconnect(Component.text("Failed initialization."));
+        }
         return null;
     }
 
@@ -107,11 +104,12 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
         for(World world : getServer().getWorldManager().getWorlds())
             worlds.add(world.getName().toString());
 
+        //noinspection UnstableApiUsage
         sendPacket(new PacketPlayOutLogin(
                 getEntityId(),
                 false,
                 gamemode,
-                null,
+                previousGamemode,
                 worlds,
                 codec,
                 getWorld().getDimensionType().getName(),
@@ -153,7 +151,6 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
         // Player Position (Required, tells the client they're ready to spawn)
         // Inventory, entities, etc
         sendGamemodeChange(gamemode);
-        save();
     }
 
     @Override
@@ -235,13 +232,13 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
 
     @Override
     @SuppressWarnings("ConstantConditions")
-    public void load(NBTCompound nbtCompound) {
+    protected void load(NBTCompound nbtCompound) {
         super.load(nbtCompound);
         gamemode = Gamemode.fromID(nbtCompound.contains("playerGameType") ? nbtCompound.getInt("playerGameType") : Gamemode.SURVIVAL.getId()); // TODO replace with default gamemode from server.properties
         previousGamemode = nbtCompound.contains("previousPlayerGameType") ? Gamemode.fromID(nbtCompound.getInt("previousPlayerGameType")) : null;
     }
 
     protected void save() {
-        serializeNBT(new File(getServer().getDefaultWorld().getOrCreatePlayerDataFolder(), getUuid() + ".dat"));
+        getServer().getDefaultWorld().getPlayerDataContainer().savePlayerData(this);
     }
 }

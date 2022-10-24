@@ -16,12 +16,11 @@ import java.util.UUID;
 public class PersistentWorld extends World {
 
     public final static String DEFAULT_WORLD_FOLDER = "level";
-    public final static String DEFAULT_PLAYER_DATA_FOLDER = "playerdata";
 
     @Getter
     private final String folderName;
     @Getter
-    private final File playerDataFolder;
+    private final PlayerDataContainer playerDataContainer;
 
     private PersistentWorld(String folderName,
             NamespacedKey name,
@@ -33,7 +32,7 @@ public class PersistentWorld extends World {
         super(name, uuid, dimensionType, seed, difficulty, worldSpawn);
         setWorldSpawn(worldSpawn);
         this.folderName = folderName;
-        playerDataFolder = new File(folderName, DEFAULT_PLAYER_DATA_FOLDER);
+        playerDataContainer = new PlayerDataContainer(this);
     }
 
     public PersistentWorld(String folderName, World world) {
@@ -47,27 +46,5 @@ public class PersistentWorld extends World {
         );
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public File getOrCreatePlayerDataFolder() {
-        File folder = getPlayerDataFolder();
-        if (!folder.exists())
-            folder.mkdirs();
-        return folder;
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public NBTCompound getPlayerData(UUID uuid) {
-        try {
-            File playerDataFile = new File(getOrCreatePlayerDataFolder(), uuid + ".dat");
-            if (!playerDataFile.exists()) {
-                playerDataFile.createNewFile();
-                return null;
-            }
-            return NBTUtils.deserializeNBTFile(playerDataFile) instanceof NBTCompound nbtCompound ? nbtCompound : null;
-        }
-        catch (IOException e) {
-            return null;
-        }
-    }
 
 }

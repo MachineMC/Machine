@@ -9,8 +9,10 @@ public interface NBTSerializable {
 
     NBTCompound toNBT();
 
-    default void serializeNBT(File file) {
-        NBTUtils.serializeNBT(file, toNBT());
+    default NBTCompound serializeNBT(File file) {
+        NBTCompound nbtCompound = toNBT();
+        NBTUtils.serializeNBT(file, nbtCompound);
+        return nbtCompound;
     }
 
 }
