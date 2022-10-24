@@ -16,10 +16,7 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -43,6 +40,10 @@ public class FriendlyByteBuf {
 
     public FriendlyByteBuf(byte[] bytes) {
         buf.writeBytes(bytes);
+    }
+
+    public FriendlyByteBuf(DataInputStream dataInputStream) throws IOException {
+        buf.writeBytes(dataInputStream.readAllBytes());
     }
 
     /**
@@ -286,7 +287,6 @@ public class FriendlyByteBuf {
         buf.writeBytes(buffer.toByteArray());
         return this;
     }
-
 
     public NBT readNBT() {
         byte[] bytes = buf.array();

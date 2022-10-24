@@ -61,7 +61,7 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
     @Getter
     private Component playerListName;
 
-    public Player(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
+    private Player(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUuid());
         this.profile = profile;
         if(connection.getOwner() != null)
@@ -77,7 +77,7 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
 
     public static Player spawn(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
         Player player = new Player(server, profile, connection);
-        NBTCompound nbtCompound = server.getDefaultWorld().getPlayerDataContainer().getPlayerData(player);
+        NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player);
         if (nbtCompound != null)
             player.load(nbtCompound);
         try {
@@ -239,6 +239,6 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
     }
 
     protected void save() {
-        getServer().getDefaultWorld().getPlayerDataContainer().savePlayerData(this);
+        getServer().getPlayerDataContainer().savePlayerData(this);
     }
 }

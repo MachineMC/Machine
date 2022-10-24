@@ -1,6 +1,7 @@
-package me.pesekjak.machine.world;
+package me.pesekjak.machine.file;
 
 import lombok.Getter;
+import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.utils.NBTUtils;
 import me.pesekjak.machine.utils.UUIDUtils;
@@ -17,25 +18,11 @@ public class PlayerDataContainer {
 
     private final HashMap<UUID, NBTCompound> container = new HashMap<>();
     @Getter
-    private final PersistentWorld world;
-    @Getter
     private final File playerDataFolder;
 
-    public PlayerDataContainer(PersistentWorld world) {
-        this.world = world;
-        playerDataFolder = new File(world.getFolderName(), DEFAULT_PLAYER_DATA_FOLDER);
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private File createPlayerDataFolderIfAbsent() {
-        if (!playerDataFolder.exists())
-            playerDataFolder.mkdirs();
-        return playerDataFolder;
-    }
-
-    public void updateContainer() {
-        container.clear();
-        createPlayerDataFolderIfAbsent();
+    public PlayerDataContainer(Machine server) {
+        playerDataFolder = new File(DEFAULT_PLAYER_DATA_FOLDER);
+        createFolderIfAbsent();
         String[] files = playerDataFolder.list();
         if (files == null)
             return;
@@ -47,6 +34,13 @@ public class PlayerDataContainer {
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public File createFolderIfAbsent() {
+        if (!playerDataFolder.exists())
+            playerDataFolder.mkdirs();
+        return playerDataFolder;
+    }
+
     private NBTCompound getPlayerData(UUID uuid) {
         File playerDataFile = getPlayerDataFile(uuid);
         return NBTUtils.deserializeNBTFile(playerDataFile) instanceof NBTCompound nbtCompound ? nbtCompound : null;
@@ -54,7 +48,7 @@ public class PlayerDataContainer {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private File getPlayerDataFile(UUID uuid) {
-        File playerDataFile = new File(createPlayerDataFolderIfAbsent(), uuid + ".dat");
+        File playerDataFile = new File(createFolderIfAbsent(), uuid + ".dat");
         try {
             if (!playerDataFile.exists())
                 playerDataFile.createNewFile();

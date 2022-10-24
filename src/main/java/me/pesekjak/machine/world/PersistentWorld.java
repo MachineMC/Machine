@@ -1,13 +1,10 @@
 package me.pesekjak.machine.world;
 
 import lombok.Getter;
-import me.pesekjak.machine.utils.NBTUtils;
+import me.pesekjak.machine.file.PlayerDataContainer;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.dimensions.DimensionType;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -19,8 +16,6 @@ public class PersistentWorld extends World {
 
     @Getter
     private final String folderName;
-    @Getter
-    private final PlayerDataContainer playerDataContainer;
 
     private PersistentWorld(String folderName,
             NamespacedKey name,
@@ -32,7 +27,6 @@ public class PersistentWorld extends World {
         super(name, uuid, dimensionType, seed, difficulty, worldSpawn);
         setWorldSpawn(worldSpawn);
         this.folderName = folderName;
-        playerDataContainer = new PlayerDataContainer(this);
     }
 
     public PersistentWorld(String folderName, World world) {

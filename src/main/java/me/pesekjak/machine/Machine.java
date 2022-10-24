@@ -12,6 +12,7 @@ import me.pesekjak.machine.entities.EntityManager;
 import me.pesekjak.machine.events.translations.TranslatorDispatcher;
 import me.pesekjak.machine.exception.ExceptionHandler;
 import me.pesekjak.machine.file.DimensionsJson;
+import me.pesekjak.machine.file.PlayerDataContainer;
 import me.pesekjak.machine.file.ServerProperties;
 import me.pesekjak.machine.file.WorldJson;
 import me.pesekjak.machine.logging.Console;
@@ -36,7 +37,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class Machine {
@@ -90,6 +90,9 @@ public class Machine {
     protected EntityManager entityManager;
     @Getter
     protected BlockManager blockManager;
+    @Getter
+    private final PlayerDataContainer playerDataContainer;
+
 
     @Getter
     protected ServerConnection connection;
@@ -174,6 +177,8 @@ public class Machine {
 
         messenger = new Messenger(this);
 
+        playerDataContainer = new PlayerDataContainer(this);
+
         worldManager = new WorldManager(this);
         for(Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
             if(!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;
@@ -207,7 +212,6 @@ public class Machine {
             defaultWorld = (PersistentWorld) worldManager.getWorlds().stream().iterator().next();
             console.warning("Default world in the server properties doesn't exist, using '" + defaultWorld.getName() + "' instead");
         }
-        defaultWorld.getPlayerDataContainer().updateContainer();
 
         // TODO Implement biomes json
         biomeManager = BiomeManager.createDefault(this);
