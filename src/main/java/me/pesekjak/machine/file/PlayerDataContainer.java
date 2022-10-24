@@ -29,7 +29,7 @@ public class PlayerDataContainer {
         for (String fileName : files) {
             if (!fileName.endsWith(".dat"))
                 continue;
-            UUID uuid = UUIDUtils.uuidFromString(fileName.replace(".dat", ""));
+            UUID uuid = UUIDUtils.parseUUID(fileName.replace(".dat", ""));
             container.put(uuid, getPlayerData(uuid));
         }
     }
