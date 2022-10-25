@@ -25,11 +25,11 @@ public class Console implements IConsole {
     @Getter @Setter @NotNull
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
     @Getter @Setter @Nullable
-    private String infoPrefix = "INFO";
+    private String infoPrefix = "\033[46;1m" + " INFO " + RESET;
     @Getter @Setter @Nullable
-    private String warningPrefix = YELLOW + "WARNING";
+    private String warningPrefix = "\033[48;2;255;165;0;1m" + " WARN " + RESET;
     @Getter @Setter @Nullable
-    private String severePrefix = RED + "SEVERE";
+    private String severePrefix = "\033[101;1m" + " SEVERE " + RESET;
 
     // Reset
     public static final String RESET = "\033[0m";  // Text Reset
@@ -107,9 +107,9 @@ public class Console implements IConsole {
     @Override
     public void log(@NotNull Level level, String... messages) {
         final String prefix = switch (level.intValue()) {
-            case 800 -> infoPrefix + ": "; // Info value
-            case 900 -> warningPrefix + ": "; // Warning value
-            case 1000 -> severePrefix + ": "; // Severe value
+            case 800 -> infoPrefix + " "; // Info value
+            case 900 -> warningPrefix + " "; // Warning value
+            case 1000 -> severePrefix + " "; // Severe value
             default -> "";
         };
         final String date = now();
