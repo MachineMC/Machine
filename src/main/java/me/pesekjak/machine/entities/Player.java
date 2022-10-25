@@ -38,7 +38,7 @@ public class Player extends LivingEntity implements Audience {
     private PlayerProfile profile;
 
     @Getter
-    private Gamemode gamemode = Gamemode.CREATIVE; // for now
+    private Gamemode gamemode = Gamemode.SURVIVAL; // for now
     @Getter @Nullable
     private Gamemode previousGamemode = null;
 
@@ -68,7 +68,8 @@ public class Player extends LivingEntity implements Audience {
         this.connection = connection;
         try {
             init();
-        } catch (IOException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             connection.disconnect(Component.text("Failed initialization."));
         }
     }
@@ -129,7 +130,7 @@ public class Player extends LivingEntity implements Audience {
         // Light Update (One sent for each chunk in a square centered on the player's position)
         // Level Chunk With Light (One sent for each chunk in a square centered on the player's position)
         // World Border (Once the world is finished loading)
-//        sendWorldSpawnChange(getWorld().getWorldSpawn()); // TODO fix world spawn change packet
+        sendWorldSpawnChange(getWorld().getWorldSpawn());
         // Player Position (Required, tells the client they're ready to spawn)
         // Inventory, entities, etc
         sendGamemodeChange(gamemode);
