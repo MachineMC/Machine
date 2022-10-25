@@ -37,12 +37,14 @@ public class World {
      * @return newly created and registered world
      */
     public static World createDefault(Machine server) {
-        return World.builder()
+        World world = World.builder()
                 .name(NamespacedKey.machine("main"))
                 .dimensionType(server.getDimensionTypeManager().getDimensions().iterator().next())
                 .seed(1)
                 .difficulty(server.getProperties().getDefaultDifficulty())
                 .build();
+        world.setWorldSpawn(new Location(0, 0, 0, world));
+        return world;
     }
 
     /**

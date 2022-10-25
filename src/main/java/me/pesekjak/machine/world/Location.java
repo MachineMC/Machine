@@ -79,8 +79,8 @@ public class Location implements Cloneable {
      * @param buf buffer to write into
      */
     public void writeRot(FriendlyByteBuf buf) {
-        buf.writeAngle(yaw)
-                .writeAngle(pitch);
+        buf.writeFloat(yaw)
+                .writeFloat(pitch);
     }
 
     /**
