@@ -33,6 +33,7 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
             }
             connection.setClientState(ClientConnection.ClientState.PLAY);
             new Player(connection.getServer(), profile, connection);
+
             return;
         }
         OnlineServer onlineServer = connection.getServer().getOnlineServer();

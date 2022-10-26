@@ -57,6 +57,8 @@ public class Player extends LivingEntity implements Audience {
 
     public Player(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUuid());
+        server.getConsole().info(String.format("User %s (%s) connected!", profile.getUsername(), profile.getUuid()));
+        server.getConsole().info(String.format("IP: %s", connection.getClientSocket().getInetAddress().getHostAddress()));
         this.profile = profile;
         if(connection.getOwner() != null)
             throw new IllegalStateException("There can't be multiple players with the same ClientConnection");
