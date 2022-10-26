@@ -7,6 +7,7 @@ import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.Difficulty;
+import me.pesekjak.machine.world.Location;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 
@@ -89,12 +90,14 @@ public class WorldJson implements ServerFile, ServerProperty {
      * @return newly created and registered world
      */
     public World buildWorld() {
-        return World.builder()
+        World world =  World.builder()
                 .name(worldName)
                 .dimensionType(dimension)
                 .seed(seed)
                 .difficulty(difficulty)
                 .build();
+        world.setWorldSpawn(new Location(0, 0, 0, world));
+        return world;
     }
 
 }
