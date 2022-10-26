@@ -1,13 +1,11 @@
 package me.pesekjak.machine.world;
 
 import com.google.common.base.Objects;
-import org.jetbrains.annotations.Nullable;
+import com.google.common.collect.Iterables;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * BlockData created from {@link Material}, to create a new instance
@@ -17,18 +15,30 @@ import java.util.Map;
 // This class is used by the code generators, edit with caution.
 public class BlockData implements Cloneable {
 
-    private static final Map<Integer, BlockData> REGISTRY = new HashMap<>();
+    private static final Map<Integer, BlockData> REGISTRY = new TreeMap<>();
+    private static BlockData[] REGISTRY_ARRAY = new BlockData[0];
 
     private Material material;
     private int id;
 
+    public static void finishRegistration() {
+        Integer size = Iterables.getLast(REGISTRY.keySet());
+        REGISTRY_ARRAY = new BlockData[++size];
+        for(Integer stateId : REGISTRY.keySet())
+            REGISTRY_ARRAY[stateId] = REGISTRY.get(stateId);
+    }
+
     /**
-     * Returns new instance of BlockData from id (mapped by vanilla server reports)
+     * Returns new instance of BlockData from id (mapped by vanilla server reports).
      * @param id id of the BlockData
      * @return new instance of the BlockData with the id
      */
     public static BlockData getBlockData(int id) {
-        return REGISTRY.getOrDefault(id, new BlockData(id)).clone();
+        if(id == -1) return null;
+        if(REGISTRY_ARRAY.length <= id) return null;
+        BlockData data = REGISTRY_ARRAY[id];
+        if(data == null) return null;
+        return data.clone();
     }
 
     /**
@@ -38,55 +48,6 @@ public class BlockData implements Cloneable {
      */
     public static int getId(BlockData blockData) {
         return blockData.getId();
-    }
-
-    /**
-     * Loads all the different states of a BlockData to the registry.
-     * @param blockDataClass generated BlockData class reference
-     * @param material material of the BlockData
-     */
-    // TODO Needs rework, it's bad and slow, the states and ids should be mapped in the class itself,
-    //  will require to change code generators.
-    @SuppressWarnings("unchecked")
-    private static void loadStates(Class<?> blockDataClass, @Nullable Material material) {
-        try {
-            BlockData defaultBlockData;
-            Constructor<?> constructor = blockDataClass.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            defaultBlockData = (BlockData) constructor.newInstance();
-            defaultBlockData.setMaterial(material);
-            constructor.setAccessible(false);
-
-            Field[] fields = blockDataClass.getDeclaredFields();
-            for(Field field : fields)
-                field.setAccessible(true);
-
-            HashMap<String, Integer> idMap = (HashMap<String, Integer>) fields[0].get(null);
-
-            for(String key : idMap.keySet()) {
-                BlockData blockData = defaultBlockData.clone();
-                String[] data = key.split(";");
-                for(int i = 0; i < data.length; i++) {
-                    String value = data[i];
-                    Field field = fields[i+1];
-                    if(field.getType() == int.class) {
-                        field.set(blockData, Integer.parseInt(value));
-                    } else if(field.getType() == boolean.class) {
-                        field.set(blockData, Boolean.parseBoolean(value));
-                    } else {
-                        Object custom = field.getType()
-                                .getDeclaredField(value.toUpperCase()).get(null);
-                        field.set(blockData, custom);
-                    }
-                }
-                REGISTRY.put(idMap.get(key), blockData);
-            }
-
-            for(Field field : fields)
-                field.setAccessible(false);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
     }
 
     protected BlockData(int id) {
@@ -105,12 +66,19 @@ public class BlockData implements Cloneable {
 
     /**
      * Changes Material associated with this BlockData,
-     * should be used only internally.
+     * should be used only internally, it also re-adds all states of the
+     * current BlockData to registry.
      * @param material new material
      */
-    protected void setMaterial(Material material) {
+    protected BlockData setMaterial(Material material) {
         this.material = material;
-        register();
+        Map<Integer, BlockData> stateMap = getIdMap();
+        for (Integer stateId : stateMap.keySet()) {
+            BlockData data = stateMap.get(stateId).clone();
+            data.material = material;
+            REGISTRY.put(stateId, data);
+        }
+        return this;
     }
 
     /**
@@ -121,15 +89,6 @@ public class BlockData implements Cloneable {
     }
 
     /**
-     * Sets new if of the BlockData,
-     * should be used only internally.
-     * @param id new id
-     */
-    protected void setId(int id) {
-        this.id = id;
-    }
-
-    /**
      * @return all data used by this BlockData (used for hashing)
      */
     protected Object[] getData() {
@@ -137,14 +96,10 @@ public class BlockData implements Cloneable {
     }
 
     /**
-     * Registers the BlockData in the registry.
+     * @return blockdata for material of this blockdata mapped to ids
      */
-    private void register() {
-        if(getMaterial() == null) return;
-        if(REGISTRY.containsKey(getId())) return;
-        REGISTRY.put(getId(), this);
-        if(getClass() != BlockData.class)
-            loadStates(getClass(), getMaterial());
+    protected Map<Integer, BlockData> getIdMap() {
+        return Map.of(id, this);
     }
 
     @Override
