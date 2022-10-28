@@ -97,7 +97,7 @@ public class Machine {
     protected PersistentWorld defaultWorld;
 
     public static void main(String[] args) throws Exception {
-        // if(System.console() == null) return;
+        if(System.console() == null) return;
         new Machine();
     }
 

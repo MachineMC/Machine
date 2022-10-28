@@ -107,9 +107,9 @@ public class Console implements IConsole {
     @Override
     public void log(@NotNull Level level, String... messages) {
         final String prefix = switch (level.intValue()) {
-            case 800 -> infoPrefix + " "; // Info value
-            case 900 -> warningPrefix + " "; // Warning value
-            case 1000 -> severePrefix + " "; // Severe value
+            case 800 -> infoPrefix + ": " + CYAN_BRIGHT; // Info value
+            case 900 -> warningPrefix + ": " + "\033[48:5:208m"; // Warning value
+            case 1000 -> severePrefix + ": " + RED_BRIGHT; // Severe value
             default -> "";
         };
         final String date = now();
