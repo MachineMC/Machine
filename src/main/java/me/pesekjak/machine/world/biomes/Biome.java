@@ -56,6 +56,13 @@ public class Biome implements NBTSerializable {
                 .build();
     }
 
+    /**
+     * @return manager of the world
+     */
+    public BiomeManager manager() {
+        return manager.get();
+    }
+
     public int getId() {
         if(manager.get() == null) return -1;
         return id.get();

@@ -38,7 +38,7 @@ public class Player extends LivingEntity implements Audience {
     private PlayerProfile profile;
 
     @Getter
-    private Gamemode gamemode = Gamemode.SURVIVAL; // for now
+    private Gamemode gamemode = Gamemode.CREATIVE; // for now
     @Getter @Nullable
     private Gamemode previousGamemode = null;
 

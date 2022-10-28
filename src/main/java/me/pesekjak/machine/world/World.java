@@ -48,6 +48,13 @@ public class World {
     }
 
     /**
+     * @return manager of the world
+     */
+    public WorldManager manager() {
+        return manager.get();
+    }
+
+    /**
      * Changes difficulty of the world
      * @param difficulty new difficulty
      */

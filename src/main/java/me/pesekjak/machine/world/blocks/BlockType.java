@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
-@SuppressWarnings("ClassCanBeRecord")
 @RequiredArgsConstructor
 public class BlockType {
 

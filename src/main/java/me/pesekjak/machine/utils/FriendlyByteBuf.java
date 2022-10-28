@@ -159,6 +159,21 @@ public class FriendlyByteBuf {
         return this;
     }
 
+    public long[] readLongArray() {
+        int length = readVarInt();
+        long[] longs = new long[length];
+        for(int i = 0; i < length; i++)
+            longs[i] = readLong();
+        return longs;
+    }
+
+    public FriendlyByteBuf writeLongArray(long[] longs) {
+        writeVarInt(longs.length);
+        for(long l : longs)
+            writeLong(l);
+        return this;
+    }
+
     public float readFloat() {
         return buf.readFloat();
     }
