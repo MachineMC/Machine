@@ -8,7 +8,7 @@ import me.pesekjak.machine.network.packets.out.PacketPlayOutChunkData;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutUnloadChunk;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutUpdateLight;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
-import me.pesekjak.machine.utils.MathUtils;
+import me.pesekjak.machine.utils.math.MathUtils;
 import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.biomes.Biome;
 import me.pesekjak.machine.world.blocks.BlockType;

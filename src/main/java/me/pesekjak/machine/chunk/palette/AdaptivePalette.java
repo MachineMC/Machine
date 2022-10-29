@@ -1,7 +1,7 @@
 package me.pesekjak.machine.chunk.palette;
 
 import me.pesekjak.machine.utils.FriendlyByteBuf;
-import me.pesekjak.machine.utils.MathUtils;
+import me.pesekjak.machine.utils.math.MathUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashSet;

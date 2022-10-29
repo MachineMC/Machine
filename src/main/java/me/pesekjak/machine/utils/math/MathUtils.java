@@ -1,4 +1,4 @@
-package me.pesekjak.machine.utils;
+package me.pesekjak.machine.utils.math;
 
 public class MathUtils {
 

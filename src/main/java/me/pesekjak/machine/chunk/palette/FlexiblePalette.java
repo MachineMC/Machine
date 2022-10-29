@@ -2,7 +2,7 @@ package me.pesekjak.machine.chunk.palette;
 
 import io.netty.util.collection.IntObjectHashMap;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
-import me.pesekjak.machine.utils.MathUtils;
+import me.pesekjak.machine.utils.math.MathUtils;
 import org.antlr.v4.runtime.misc.IntegerList;
 import org.jetbrains.annotations.NotNull;
 
