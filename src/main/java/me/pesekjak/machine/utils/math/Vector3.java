@@ -1,4 +1,4 @@
-package me.pesekjak.machine.math;
+package me.pesekjak.machine.utils.math;
 
 import com.google.common.base.Preconditions;
 import lombok.*;

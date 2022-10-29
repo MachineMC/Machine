@@ -3,7 +3,7 @@ package me.pesekjak.machine.world;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
-import me.pesekjak.machine.math.Vector3;
+import me.pesekjak.machine.utils.math.Vector3;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,10 +1,7 @@
-package me.pesekjak.machine.math;
+package me.pesekjak.machine.utils.math;
 
-import com.google.common.base.Preconditions;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import me.pesekjak.machine.world.Location;
-import me.pesekjak.machine.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ThreadLocalRandom;
