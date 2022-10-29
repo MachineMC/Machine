@@ -5,6 +5,8 @@ import me.pesekjak.machine.chunk.data.ChunkData;
 import me.pesekjak.machine.chunk.data.LightData;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutChunkData;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutUnloadChunk;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutUpdateLight;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.MathUtils;
 import me.pesekjak.machine.world.BlockPosition;
@@ -89,7 +91,7 @@ public class ChunkImpl extends Chunk {
 
     @Override
     public void unloadChunk(@NotNull Player player) {
-
+        player.sendPacket(new PacketPlayOutUnloadChunk(chunkX, chunkZ));
     }
 
     @Override
@@ -164,6 +166,10 @@ public class ChunkImpl extends Chunk {
         return new PacketPlayOutChunkData(chunkX, chunkZ,
                 new ChunkData(heightmaps, data),
                 createLightData());
+    }
+
+    private PacketPlayOutUpdateLight createLightPacket() {
+        return new PacketPlayOutUpdateLight(chunkX, chunkZ, createLightData());
     }
 
 }

@@ -1,17 +1,15 @@
 package me.pesekjak.machine.world.blocks;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import me.pesekjak.machine.world.BlockData;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode
+@ToString
+@Getter @Setter
 public class BlockVisual {
 
-    @Getter @Setter
     private BlockData blockData;
-    @Getter @Setter
     private int lightLevel;
 
 }
