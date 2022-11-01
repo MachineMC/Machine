@@ -24,6 +24,8 @@ public class BlockData {
     private Map<Property, List<String>> availableValues = new LinkedHashMap<>();
     private Map<String, Integer> idMap                  = new LinkedHashMap<>();
 
+    private Map<Integer, List<Map.Entry<Property, String>>> blockDataMap = new LinkedHashMap<>();
+
     private Map<Property, String> defaultState = new HashMap<>();
 
     @Getter
@@ -43,6 +45,8 @@ public class BlockData {
         final Map<Property, List<String>> availableValues = new LinkedHashMap<>();
         final Map<String, Integer> idMap                  = new LinkedHashMap<>();
 
+        final Map<Integer, List<Map.Entry<Property, String>>> blockDataMap = new LinkedHashMap<>();
+
         final Map<Property, String> defaultState = new HashMap<>();
 
         JsonObject jsonProperties = json.get("properties").getAsJsonObject();
@@ -58,16 +62,17 @@ public class BlockData {
         JsonArray jsonStates = json.get("states").getAsJsonArray();
         for(JsonElement stateElement : jsonStates) {
             int stateId = stateElement.getAsJsonObject().get("id").getAsInt();
+            blockDataMap.put(stateId, new ArrayList<>());
             boolean isDefault = stateElement.getAsJsonObject().get("default") != null;
             JsonObject stateProperties = stateElement.getAsJsonObject().get("properties").getAsJsonObject();
             StringBuilder key = new StringBuilder();
             for(Map.Entry<String, JsonElement> entry : stateProperties.entrySet()) {
                 key.append(entry.getValue().getAsString());
                 key.append(";");
-                if(isDefault) {
-                    Property property = generator.getProperties().get(toCamelCase(entry.getKey(), true));
+                Property property = generator.getProperties().get(toCamelCase(entry.getKey(), true));
+                blockDataMap.get(stateId).add(new AbstractMap.SimpleEntry<>(property, entry.getValue().getAsString()));
+                if(isDefault)
                     defaultState.put(property, entry.getValue().getAsString());
-                }
             }
             idMap.put(key.toString().toLowerCase(), stateId);
         }
@@ -77,6 +82,8 @@ public class BlockData {
         blockData.properties      = properties;
         blockData.availableValues = availableValues;
         blockData.idMap           = idMap;
+
+        blockData.blockDataMap = blockDataMap;
 
         blockData.defaultState = defaultState;
         return blockData;
@@ -100,6 +107,12 @@ public class BlockData {
                 "ID_MAP",
                 Type.getType(HashMap.class).getDescriptor(),
                 "Ljava/util/HashMap<Ljava/lang/String;Ljava/lang/Integer;>;",
+                null);
+        fv.visitEnd();
+        fv = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL,
+                "BLOCKDATA_MAP",
+                Type.getType(HashMap.class).getDescriptor(),
+                "Ljava/util/HashMap<Ljava/lang/Integer;" + type(path).getDescriptor() + ">;",
                 null);
         fv.visitEnd();
         for(Property property : properties) {
@@ -146,7 +159,7 @@ public class BlockData {
             // Setter
             mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
                     "set" + toCamelCase(property.getName(), true),
-                    "(" + descriptor + ")V",
+                    "(" + descriptor + ")" + type(path).getDescriptor(),
                     null,
                     new String[0]);
             mv.visitAnnotation(Type.getType(Override.class).getDescriptor(), true).visitEnd();
@@ -161,7 +174,8 @@ public class BlockData {
                     type(path).getInternalName(),
                     toCamelCase(property.getName(), false),
                     descriptor);
-            mv.visitInsn(Opcodes.RETURN);
+            mv.visitVarInsn(Opcodes.ALOAD, 0);
+            mv.visitInsn(Opcodes.ARETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();
             cw.visitEnd();
@@ -205,6 +219,49 @@ public class BlockData {
         mv.visitEnd();
         cw.visitEnd();
 
+        // all args constructor
+        StringBuilder descriptorBuilder = new StringBuilder().append("(");
+        for(Property property : properties)
+            descriptorBuilder.append(switch (property.getType()) {
+                case BOOLEAN -> Type.BOOLEAN_TYPE.getDescriptor();
+                case NUMBER -> Type.INT_TYPE.getDescriptor();
+                case OTHER -> type(property.getPath()).getDescriptor();
+            });
+        descriptorBuilder.append(")V");
+        mv = cw.visitMethod(Opcodes.ACC_PROTECTED,
+                "<init>",
+                descriptorBuilder.toString(),
+                null,
+                new String[0]);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                type(superClass).getInternalName(),
+                "<init>",
+                "()V",
+                false);
+        int i = 1;
+        for(Property property : properties) {
+            mv.visitVarInsn(Opcodes.ALOAD, 0);
+            mv.visitVarInsn(switch (property.getType()) {
+                case BOOLEAN, NUMBER -> Opcodes.ILOAD;
+                case OTHER -> Opcodes.ALOAD;
+            }, i);
+            mv.visitFieldInsn(Opcodes.PUTFIELD,
+                    type(path).getInternalName(),
+                    toCamelCase(property.getName(), false),
+                    switch (property.getType()) {
+                        case BOOLEAN -> Type.BOOLEAN_TYPE.getDescriptor();
+                        case NUMBER -> Type.INT_TYPE.getDescriptor();
+                        case OTHER -> type(property.getPath()).getDescriptor();
+                    });
+            i++;
+        }
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        cw.visitEnd();
+
         // Static block
         mv = cw.visitMethod(Opcodes.ACC_STATIC,
                 "<clinit>",
@@ -212,19 +269,23 @@ public class BlockData {
                 null,
                 new String[0]);
         mv.visitCode();
-        mv.visitTypeInsn(Opcodes.NEW, Type.getType(HashMap.class).getInternalName());
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
-                Type.getType(HashMap.class).getInternalName(),
-                "<init>",
-                "()V",
-                false);
-        mv.visitVarInsn(Opcodes.ASTORE, 0);
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC,
-                type(path).getInternalName(),
-                "ID_MAP",
-                Type.getType(HashMap.class).getDescriptor());
+        i = 0;
+        for(String fieldName : List.of("ID_MAP", "BLOCKDATA_MAP")) {
+            mv.visitTypeInsn(Opcodes.NEW, Type.getType(HashMap.class).getInternalName());
+            mv.visitInsn(Opcodes.DUP);
+            mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                    Type.getType(HashMap.class).getInternalName(),
+                    "<init>",
+                    "()V",
+                    false);
+            mv.visitVarInsn(Opcodes.ASTORE, i);
+            mv.visitVarInsn(Opcodes.ALOAD, i);
+            mv.visitFieldInsn(Opcodes.PUTSTATIC,
+                    type(path).getInternalName(),
+                    fieldName,
+                    Type.getType(HashMap.class).getDescriptor());
+            i++;
+        }
         for(String key : idMap.keySet()) {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             pushValue(mv, key);
@@ -233,6 +294,61 @@ public class BlockData {
                     Type.getType(Integer.class).getInternalName(),
                     "valueOf",
                     "(I)Ljava/lang/Integer;",
+                    false);
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                    Type.getType(HashMap.class).getInternalName(),
+                    "put",
+                    "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                    false);
+            mv.visitInsn(Opcodes.POP);
+        }
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                type(path).getInternalName(),
+                "initBlockDataMap",
+                "()V",
+                false);
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        cw.visitEnd();
+
+        // Init block data map method
+        mv = cw.visitMethod(Opcodes.ACC_PROTECTED | Opcodes.ACC_STATIC,
+                "initBlockDataMap",
+                "()V",
+                null,
+                new String[0]);
+        mv.visitCode();
+        for(Integer id : blockDataMap.keySet()) {
+            mv.visitFieldInsn(Opcodes.GETSTATIC,
+                    type(path).getInternalName(),
+                    "BLOCKDATA_MAP",
+                    Type.getType(HashMap.class).getDescriptor());
+            StringBuilder stateKeyBuilder = new StringBuilder();
+            for(Map.Entry<Property, String> property : blockDataMap.get(id))
+                stateKeyBuilder.append(property.getValue().toLowerCase()).append(";");
+            pushValue(mv, idMap.get(stateKeyBuilder.toString()));
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                    Type.getType(Integer.class).getInternalName(),
+                    "valueOf",
+                    "(I)Ljava/lang/Integer;",
+                    false);
+            mv.visitTypeInsn(Opcodes.NEW, type(path).getInternalName());
+            mv.visitInsn(Opcodes.DUP);
+            for(Map.Entry<Property, String> property : blockDataMap.get(id)) {
+                switch (property.getKey().getType()) {
+                    case BOOLEAN -> pushValue(mv, Boolean.parseBoolean(property.getValue()));
+                    case NUMBER -> pushValue(mv, Integer.parseInt(property.getValue()));
+                    case OTHER -> mv.visitFieldInsn(Opcodes.GETSTATIC,
+                            type(property.getKey().getPath()).getInternalName(),
+                            property.getValue().toUpperCase(),
+                            type(property.getKey().getPath()).getDescriptor());
+                }
+            }
+            mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                    type(path).getInternalName(),
+                    "<init>",
+                    descriptorBuilder.toString(),
                     false);
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                     Type.getType(HashMap.class).getInternalName(),
@@ -257,7 +373,7 @@ public class BlockData {
         mv.visitCode();
         pushValue(mv, properties.size());
         mv.visitTypeInsn(Opcodes.ANEWARRAY, Type.getType(Object.class).getInternalName());
-        int i = 0;
+        i = 0;
         for(Property property : properties) {
             mv.visitInsn(Opcodes.DUP);
             pushValue(mv, i);
@@ -285,6 +401,23 @@ public class BlockData {
             mv.visitInsn(Opcodes.AASTORE);
             i++;
         }
+        mv.visitInsn(Opcodes.ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        cw.visitEnd();
+
+        mv = cw.visitMethod(Opcodes.ACC_PROTECTED,
+                "getIdMap",
+                "()" + Type.getType(Map.class).getDescriptor(),
+                null,
+                new String[0]);
+        mv.visitAnnotation(Type.getType(Override.class).getDescriptor(), true).visitEnd();
+        mv.visitEnd();
+        mv.visitCode();
+        mv.visitFieldInsn(Opcodes.GETSTATIC,
+                type(path).getInternalName(),
+                "BLOCKDATA_MAP",
+                Type.getType(HashMap.class).getDescriptor());
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
