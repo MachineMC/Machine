@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
+import me.pesekjak.machine.chat.ChatUtils;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
@@ -114,7 +115,7 @@ public class Console implements IConsole {
         };
         final String date = now();
         for(String message : messages)
-            System.out.println("[" + date + "] " + prefix + message + RESET);
+            System.out.println("[" + date + "] " + prefix + ChatUtils.consoleFormatted(message));
     }
 
     @Override
