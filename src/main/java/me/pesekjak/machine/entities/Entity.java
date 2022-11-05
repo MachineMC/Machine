@@ -6,10 +6,10 @@ import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.EntityUtils;
 import me.pesekjak.machine.world.Location;
+import me.pesekjak.machine.world.World;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
-import me.pesekjak.machine.world.World;
 
 import java.io.IOException;
 import java.util.UUID;

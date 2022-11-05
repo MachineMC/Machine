@@ -94,7 +94,7 @@ public class Machine {
     protected ServerConnection connection;
 
     @Getter
-    protected PersistentWorld defaultWorld;
+    protected World defaultWorld;
 
     public static void main(String[] args) throws Exception {
         if(System.console() == null) return;
@@ -182,13 +182,12 @@ public class Machine {
             try {
                 WorldJson worldJson = new WorldJson(this, path.toFile());
                 if(worldManager.isRegistered(worldJson.getWorldName())) {
-                    console.severe("World with name '" + worldJson.getWorldName() + "' is already registered");
+                    console.severe("World with name '" + worldJson.getName() + "' is already registered");
                     continue;
                 }
-                String levelFolder = path.getParent().toString();
                 World world = worldJson.buildWorld();
-                worldManager.addWorld(new PersistentWorld(levelFolder.substring(levelFolder.lastIndexOf("\\") + 1), world));
-                console.info("Loaded world '" + world.getName() + "'");
+                worldManager.addWorld(world);
+                console.info("Registered world '" + world.getName() + "'");
             } catch (IOException exception) {
                 console.severe("World file '" + path + "' failed to load");
             }
@@ -197,15 +196,19 @@ public class Machine {
         if(worldManager.getWorlds().size() == 0) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             File worldJson = new File(WorldJson.WORLD_FILE_NAME);
-            FileUtils.createFromDefaultAndLocate(worldJson, PersistentWorld.DEFAULT_WORLD_FOLDER + "/");
-            World world = World.createDefault(this);
-            worldManager.addWorld(new PersistentWorld(PersistentWorld.DEFAULT_WORLD_FOLDER, world));
+            FileUtils.createFromDefaultAndLocate(worldJson, ServerWorld.DEFAULT_WORLD_FOLDER + "/");
+            World world = ServerWorld.createDefault(this);
+            worldManager.addWorld(world);
         }
-        defaultWorld = (PersistentWorld) worldManager.getWorld(properties.getDefaultWorld());
+        defaultWorld = worldManager.getWorld(properties.getDefaultWorld());
         if(defaultWorld == null) {
-            defaultWorld = (PersistentWorld) worldManager.getWorlds().stream().iterator().next();
+            defaultWorld = worldManager.getWorlds().stream().iterator().next();
             console.warning("Default world in the server properties doesn't exist, using '" + defaultWorld.getName() + "' instead");
         }
+
+        for(World world : worldManager.getWorlds())
+            world.load();
+        console.info("Loaded all server worlds");
 
         // TODO Implement biomes json
         biomeManager = BiomeManager.createDefault(this);
@@ -224,6 +227,14 @@ public class Machine {
 
         console.info("Server loaded in " + (System.currentTimeMillis() - start) + "ms");
         scheduler.run(); // blocks the thread
+    }
+
+    public void shutdown() {
+        console.info("Shutting down...");
+        for(World world : worldManager.getWorlds())
+            world.save();
+        console.info("Server has been stopped");
+        System.exit(0);
     }
 
     /**

@@ -1,57 +1,113 @@
 package me.pesekjak.machine.world;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.Machine;
+import me.pesekjak.machine.chunk.Chunk;
+import me.pesekjak.machine.chunk.ChunkUtils;
 import me.pesekjak.machine.entities.Entity;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutChangeDifficulty;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutWorldSpawnPosition;
+import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.world.blocks.BlockType;
+import me.pesekjak.machine.world.blocks.WorldBlock;
 import me.pesekjak.machine.world.dimensions.DimensionType;
+import me.pesekjak.machine.world.generation.Generator;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * Represents a playable world.
- */
-@Builder
-@Getter
-public class World {
+@RequiredArgsConstructor
+public abstract class World implements ServerProperty {
+
+    @Getter
+    private final Machine server;
 
     @Getter(AccessLevel.PROTECTED)
     protected final AtomicReference<WorldManager> manager = new AtomicReference<>();
 
+    @Getter
     private final NamespacedKey name;
+    @Getter
     private final DimensionType dimensionType;
-    private final Set<Entity> entityList = new CopyOnWriteArraySet<>();
+    @Getter
     private final long seed;
-    private Difficulty difficulty;
+    @Getter
+    private Difficulty difficulty = Difficulty.DEFAULT_DIFFICULTY;
+    @Getter
     private Location worldSpawn;
+    @Getter
+    protected boolean loaded = false;
 
-    /**
-     * Creates the default world.
-     * @param server server to take default properties from
-     * @return newly created and registered world
-     */
-    public static World createDefault(Machine server) {
-        World world = World.builder()
-                .name(NamespacedKey.machine("main"))
-                .dimensionType(server.getDimensionTypeManager().getDimensions().iterator().next())
-                .seed(1)
-                .difficulty(server.getProperties().getDefaultDifficulty())
-                .build();
-        world.setWorldSpawn(new Location(0, 0, 0, world));
-        return world;
-    }
-
-    /**
-     * @return manager of the world
-     */
     public WorldManager manager() {
         return manager.get();
+    }
+
+    public abstract Set<Entity> getEntities();
+
+    public abstract Generator getGenerator();
+
+    public abstract void load();
+
+    public abstract void unload();
+
+    public abstract void save();
+
+    public abstract void loadPlayer(Player player);
+
+    public abstract void unloadPlayer(Player player);
+
+    public abstract void spawn(Entity entity, Location location);
+
+    public abstract void remove(Entity entity);
+
+    public abstract Chunk getChunk(int chunkX, int chunkZ);
+
+    public Chunk getChunk(BlockPosition position) {
+        return getChunk(
+                ChunkUtils.getChunkCoordinate(position.getX()),
+                ChunkUtils.getChunkCoordinate(position.getZ())
+        );
+    }
+
+    public Chunk getChunk(Location location) {
+        return getChunk(location.toBlockPosition());
+    }
+
+    public void setBlock(BlockType blockType, BlockPosition position, @Nullable BlockType.CreateReason reason, @Nullable Entity source) {
+        getChunk(position).setBlock(
+                ChunkUtils.getSectionRelativeCoordinate(position.getX()),
+                ChunkUtils.getSectionRelativeCoordinate(position.getY() - dimensionType.getMinY()),
+                ChunkUtils.getSectionRelativeCoordinate(position.getZ()),
+                blockType, reason, source);
+    }
+
+    public void setBlock(BlockType blockType, Location location, @Nullable BlockType.CreateReason reason, @Nullable Entity source) {
+        setBlock(blockType, location.toBlockPosition(), reason, source);
+    }
+
+    public void setBlock(BlockType blockType, BlockPosition position) {
+        setBlock(blockType, position, BlockType.CreateReason.SET, null);
+    }
+
+    public void setBlock(BlockType blockType, Location location) {
+        setBlock(blockType, location, BlockType.CreateReason.SET, null);
+    }
+
+    public WorldBlock getBlock(BlockPosition position) {
+        return getChunk(position).getBlock(
+                ChunkUtils.getSectionRelativeCoordinate(position.getX()),
+                ChunkUtils.getSectionRelativeCoordinate(position.getY() - dimensionType.getMinY()),
+                ChunkUtils.getSectionRelativeCoordinate(position.getZ()));
+    }
+
+    public WorldBlock getBlock(Location location) {
+        return getBlock(location.toBlockPosition());
     }
 
     /**
@@ -62,9 +118,8 @@ public class World {
         if(difficulty == null) return;
         this.difficulty = difficulty;
         PacketOut packet = new PacketPlayOutChangeDifficulty(difficulty);
-        for (Entity entity : entityList) {
-            if (!(entity instanceof Player player))
-                continue;
+        for(Entity entity : getEntities()) {
+            if(!(entity instanceof Player player)) continue;
             player.sendPacket(packet);
         }
     }
@@ -77,9 +132,8 @@ public class World {
         if(location == null) return;
         this.worldSpawn = location;
         PacketOut packet = new PacketPlayOutWorldSpawnPosition(location);
-        for (Entity entity : entityList) {
-            if (!(entity instanceof Player player))
-                continue;
+        for(Entity entity : getEntities()) {
+            if(!(entity instanceof Player player)) continue;
             player.sendPacket(packet);
         }
     }

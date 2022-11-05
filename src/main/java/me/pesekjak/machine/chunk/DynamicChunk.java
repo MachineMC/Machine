@@ -3,6 +3,7 @@ package me.pesekjak.machine.chunk;
 import io.netty.util.collection.IntObjectHashMap;
 import me.pesekjak.machine.chunk.data.ChunkData;
 import me.pesekjak.machine.chunk.data.LightData;
+import me.pesekjak.machine.entities.Entity;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutChunkData;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutUnloadChunk;
@@ -10,16 +11,18 @@ import me.pesekjak.machine.network.packets.out.PacketPlayOutUpdateLight;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.math.MathUtils;
 import me.pesekjak.machine.world.BlockPosition;
+import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.biomes.Biome;
 import me.pesekjak.machine.world.blocks.BlockType;
 import me.pesekjak.machine.world.blocks.WorldBlock;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.*;
 
-public class ChunkImpl extends Chunk {
+public class DynamicChunk extends Chunk {
 
     private final IntObjectHashMap<WorldBlock> blocks = new IntObjectHashMap<>();
     private final List<Section> sections = new ArrayList<>();
@@ -27,10 +30,11 @@ public class ChunkImpl extends Chunk {
     private final int bottom;
     private final int height;
 
-    public ChunkImpl(Instance instance, int chunkX, int chunkZ) {
-        super(instance, chunkX, chunkZ);
-        bottom = instance.getWorld().getDimensionType().getMinY();
-        height = instance.getWorld().getDimensionType().getHeight();
+    public DynamicChunk(World world, int chunkX, int chunkZ) {
+        super(world, chunkX, chunkZ);
+        if(world.manager() == null) throw new IllegalStateException("The world has to have a manager");
+        bottom = world.getDimensionType().getMinY();
+        height = world.getDimensionType().getHeight();
         for(int i = 0; i < height / 16; i++)
             sections.add(new Section());
     }
@@ -41,21 +45,21 @@ public class ChunkImpl extends Chunk {
     }
 
     @Override
-    public void setBlock(int x, int y, int z, @NotNull BlockType blockType) {
+    public WorldBlock setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable Entity source) {
         final Section section = getSectionAt(y);
         final int index = ChunkUtils.getBlockIndex(x, y, z);
 
         BlockPosition position = ChunkUtils.getBlockPosition(index, chunkX, chunkZ);
         position.setY(position.getY() + bottom); // offset from bottom
-        WorldBlock block = new WorldBlock(blockType, position, instance.getWorld());
-        blockType.create(block, BlockType.CreateReason.SET, null);
-
+        WorldBlock block = new WorldBlock(blockType, position, world);
+        block.getBlockType().create(block, reason != null ? reason : BlockType.CreateReason.OTHER, source);
         section.getBlockPalette().set(
                 ChunkUtils.getSectionRelativeCoordinate(x),
                 ChunkUtils.getSectionRelativeCoordinate(y),
                 ChunkUtils.getSectionRelativeCoordinate(z),
                 block.getVisual().getBlockData().getId());
         blocks.put(index, block);
+        return block;
     }
 
     @Override
@@ -95,8 +99,8 @@ public class ChunkImpl extends Chunk {
     }
 
     @Override
-    public @NotNull Chunk copy(@NotNull Instance instance, int chunkX, int chunkZ) {
-        ChunkImpl copy = new ChunkImpl(instance, chunkX, chunkZ);
+    public @NotNull Chunk copy(@NotNull World world, int chunkX, int chunkZ) {
+        DynamicChunk copy = new DynamicChunk(world, chunkX, chunkZ);
         for(int i : blocks.keySet())
             copy.blocks.put(i, blocks.get(i));
         for(int i = 0; i < sections.size(); i++)

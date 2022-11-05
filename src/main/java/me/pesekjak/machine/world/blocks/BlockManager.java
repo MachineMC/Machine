@@ -9,9 +9,7 @@ import me.pesekjak.machine.world.Material;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BlockManager implements ServerProperty {
@@ -37,7 +35,7 @@ public class BlockManager implements ServerProperty {
                     }
                 }
         );
-        return new BlockManager(server);
+        return manager;
     }
 
     public void addBlock(BlockType blockType) {

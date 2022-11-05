@@ -134,6 +134,7 @@ public class Player extends LivingEntity implements Audience {
         // Player Position (Required, tells the client they're ready to spawn)
         // Inventory, entities, etc
         sendGamemodeChange(gamemode);
+        getWorld().loadPlayer(this);
     }
 
     @Override

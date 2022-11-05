@@ -2,12 +2,14 @@ package me.pesekjak.machine.chunk;
 
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
+import me.pesekjak.machine.entities.Entity;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.biomes.Biome;
 import me.pesekjak.machine.world.blocks.BlockType;
 import me.pesekjak.machine.world.blocks.WorldBlock;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +22,6 @@ public abstract class Chunk {
                             CHUNK_SECTION_SIZE = 16;
 
     protected final Machine server;
-    protected final Instance instance;
     protected final World world;
 
     protected final UUID uuid;
@@ -30,10 +31,9 @@ public abstract class Chunk {
 
     protected volatile boolean loaded = true;
 
-    public Chunk(Instance instance, int chunkX, int chunkZ) {
-        this.server = instance.getServer();
-        this.instance = instance;
-        this.world = instance.getWorld();
+    public Chunk(World world, int chunkX, int chunkZ) {
+        this.server = world.getServer();
+        this.world = world;
         this.uuid = UUID.randomUUID();
         this.chunkX = chunkX;
         this.chunkZ = chunkZ;
@@ -43,7 +43,7 @@ public abstract class Chunk {
 
     public abstract WorldBlock getBlock(int x, int y, int z);
 
-    public abstract void setBlock(int x, int y, int z, @NotNull BlockType blockType);
+    public abstract WorldBlock setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable Entity source);
 
     public abstract Biome getBiome(int x, int y, int z);
 
@@ -61,8 +61,22 @@ public abstract class Chunk {
 
     public abstract void unloadChunk(@NotNull Player player);
 
-    public abstract @NotNull Chunk copy(@NotNull Instance instance, int chunkX, int chunkZ);
+    public abstract @NotNull Chunk copy(@NotNull World instance, int chunkX, int chunkZ);
 
     public abstract void reset();
+
+    /**
+     * @return x-coordinate of region the chunk is in
+     */
+    public int getRegionX() {
+        return chunkX >> 5;
+    }
+
+    /**
+     * @return z-coordinate of region the chunk is in
+     */
+    public int getRegionZ() {
+        return chunkZ >> 5;
+    }
 
 }
