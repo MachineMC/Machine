@@ -2,11 +2,9 @@ package me.pesekjak.machine.world.blocks;
 
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
-import me.pesekjak.machine.entities.Entity;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.Material;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.*;
@@ -26,14 +24,11 @@ public class BlockManager implements ServerProperty {
         BlockManager manager = new BlockManager(server);
         manager.addBlocks(
                 new BlockType(NamespacedKey.minecraft("air"), BlockType.BlockProperties.builder()
-                        .color(new Color(255, 255, 255, 0)).isAir(true).transparent(true).build()),
+                        .color(new Color(255, 255, 255, 0)).isAir(true).transparent(true).build(),
+                        ((source) -> new FinalVisual(Material.AIR.createBlockData()))),
                 new BlockType(NamespacedKey.minecraft("stone"), BlockType.BlockProperties.builder()
-                        .color(Color.GRAY).resistance(6).blockHardness(1.5F).build()) {
-                    @Override
-                    public void create(WorldBlock block, CreateReason reason, @Nullable Entity source) {
-                        block.getVisual().setBlockData(Material.STONE.createBlockData());
-                    }
-                }
+                        .color(Color.GRAY).resistance(6).blockHardness(1.5F).build(),
+                        ((source) -> new DynamicBlockVisual(source, Material.STONE.createBlockData())))
         );
         return manager;
     }

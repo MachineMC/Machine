@@ -5,7 +5,6 @@ import me.pesekjak.machine.chunk.DynamicChunk;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.blocks.BlockType;
-import me.pesekjak.machine.world.blocks.WorldBlock;
 import org.jetbrains.annotations.Range;
 import org.jglrxavpok.hephaistos.data.RandomAccessFileSource;
 import org.jglrxavpok.hephaistos.mca.AnvilException;
@@ -33,10 +32,8 @@ public class AnvilRegion extends Region {
     @Override
     public void save() {
         try {
-            for (int i = 0; i < grid.length; i++) {
-                Chunk[] chunks = grid[i];
-                for (int j = 0; j < chunks.length; j++) {
-                    Chunk chunk = chunks[j];
+            for(Chunk[] chunks : grid) {
+                for(Chunk chunk : chunks) {
                     if(chunk == null) continue;
                     ChunkColumn column = regionFile.getChunk(chunk.getChunkX(), chunk.getChunkZ());
                     if(column == null) continue;

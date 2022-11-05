@@ -17,6 +17,7 @@ import me.pesekjak.machine.world.blocks.BlockType;
 import me.pesekjak.machine.world.blocks.WorldBlock;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 import me.pesekjak.machine.world.generation.Generator;
+import me.pesekjak.machine.world.region.Region;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
@@ -66,6 +67,15 @@ public abstract class World implements ServerProperty {
 
     public abstract void remove(Entity entity);
 
+    public abstract Region getRegion(int regionX, int regionZ);
+
+    public abstract void saveRegion(int regionX, int regionZ);
+
+    public void saveRegion(Region region) {
+        if(region.getWorld() != this) throw new IllegalStateException();
+        saveRegion(region.getX(), region.getZ());
+    }
+
     public abstract Chunk getChunk(int chunkX, int chunkZ);
 
     public Chunk getChunk(BlockPosition position) {
@@ -82,7 +92,7 @@ public abstract class World implements ServerProperty {
     public void setBlock(BlockType blockType, BlockPosition position, @Nullable BlockType.CreateReason reason, @Nullable Entity source) {
         getChunk(position).setBlock(
                 ChunkUtils.getSectionRelativeCoordinate(position.getX()),
-                ChunkUtils.getSectionRelativeCoordinate(position.getY() - dimensionType.getMinY()),
+                position.getY() - dimensionType.getMinY(),
                 ChunkUtils.getSectionRelativeCoordinate(position.getZ()),
                 blockType, reason, source);
     }
@@ -102,7 +112,7 @@ public abstract class World implements ServerProperty {
     public WorldBlock getBlock(BlockPosition position) {
         return getChunk(position).getBlock(
                 ChunkUtils.getSectionRelativeCoordinate(position.getX()),
-                ChunkUtils.getSectionRelativeCoordinate(position.getY() - dimensionType.getMinY()),
+                position.getY() - dimensionType.getMinY(),
                 ChunkUtils.getSectionRelativeCoordinate(position.getZ()));
     }
 

@@ -1,6 +1,5 @@
 package me.pesekjak.machine.chunk;
 
-import io.netty.util.collection.IntObjectHashMap;
 import me.pesekjak.machine.chunk.data.ChunkData;
 import me.pesekjak.machine.chunk.data.LightData;
 import me.pesekjak.machine.entities.Entity;
@@ -14,6 +13,7 @@ import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.biomes.Biome;
 import me.pesekjak.machine.world.blocks.BlockType;
+import me.pesekjak.machine.world.blocks.BlockVisual;
 import me.pesekjak.machine.world.blocks.WorldBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,10 +21,11 @@ import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DynamicChunk extends Chunk {
 
-    private final IntObjectHashMap<WorldBlock> blocks = new IntObjectHashMap<>();
+    private final Map<Integer, WorldBlock> blocks = new ConcurrentHashMap<>();
     private final List<Section> sections = new ArrayList<>();
 
     private final int bottom;
@@ -46,20 +47,26 @@ public class DynamicChunk extends Chunk {
 
     @Override
     public WorldBlock setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable Entity source) {
-        final Section section = getSectionAt(y);
+        final WorldBlock previous = getBlock(x, y, z);
+        if(previous != null)
+            previous.getBlockType().destroy(previous, BlockType.DestroyReason.REMOVED, null);
         final int index = ChunkUtils.getBlockIndex(x, y, z);
-
         BlockPosition position = ChunkUtils.getBlockPosition(index, chunkX, chunkZ);
         position.setY(position.getY() + bottom); // offset from bottom
         WorldBlock block = new WorldBlock(blockType, position, world);
         block.getBlockType().create(block, reason != null ? reason : BlockType.CreateReason.OTHER, source);
-        section.getBlockPalette().set(
+        setVisual(x, y, z, block.getVisual());
+        blocks.put(index, block);
+        return block;
+    }
+
+    @Override
+    public void setVisual(int x, int y, int z, @NotNull BlockVisual visual) {
+        getSectionAt(y).getBlockPalette().set(
                 ChunkUtils.getSectionRelativeCoordinate(x),
                 ChunkUtils.getSectionRelativeCoordinate(y),
                 ChunkUtils.getSectionRelativeCoordinate(z),
-                block.getVisual().getBlockData().getId());
-        blocks.put(index, block);
-        return block;
+                visual.getBlockData().getId());
     }
 
     @Override

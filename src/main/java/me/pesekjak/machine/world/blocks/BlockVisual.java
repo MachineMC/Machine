@@ -1,15 +1,21 @@
 package me.pesekjak.machine.world.blocks;
 
-import lombok.*;
 import me.pesekjak.machine.world.BlockData;
 
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode
-@ToString
-@Getter @Setter
-public class BlockVisual {
+// TODO Lighting
+/**
+ * Represents visual of a WorldBlock
+ */
+public interface BlockVisual {
 
-    private BlockData blockData;
-    private int lightLevel;
+    /**
+     * @return blockdata currently used by the world block
+     */
+    BlockData getBlockData();
+
+    /**
+     * @param blockData new blockdata for the world block
+     */
+    void setBlockData(BlockData blockData);
 
 }

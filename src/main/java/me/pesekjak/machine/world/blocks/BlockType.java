@@ -1,22 +1,20 @@
 package me.pesekjak.machine.world.blocks;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import me.pesekjak.machine.entities.Entity;
 import me.pesekjak.machine.utils.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class BlockType {
 
     @Getter
     protected final NamespacedKey name;
     @Getter
     protected final BlockProperties properties;
+    protected BlockVisualizer visualizer;
 
     public void create(WorldBlock block, CreateReason reason, @Nullable Entity source) {
 

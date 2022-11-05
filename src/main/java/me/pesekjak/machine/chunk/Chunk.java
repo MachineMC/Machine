@@ -7,6 +7,7 @@ import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.biomes.Biome;
 import me.pesekjak.machine.world.blocks.BlockType;
+import me.pesekjak.machine.world.blocks.BlockVisual;
 import me.pesekjak.machine.world.blocks.WorldBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +46,8 @@ public abstract class Chunk {
 
     public abstract WorldBlock setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable Entity source);
 
+    public abstract void setVisual(int x, int y, int z, @NotNull BlockVisual visual);
+
     public abstract Biome getBiome(int x, int y, int z);
 
     public abstract void setBiome(int x, int y, int z, @NotNull Biome biome);
@@ -69,14 +72,14 @@ public abstract class Chunk {
      * @return x-coordinate of region the chunk is in
      */
     public int getRegionX() {
-        return chunkX >> 5;
+        return ChunkUtils.getRegionCoordinate(chunkX);
     }
 
     /**
      * @return z-coordinate of region the chunk is in
      */
     public int getRegionZ() {
-        return chunkZ >> 5;
+        return ChunkUtils.getRegionCoordinate(chunkZ);
     }
 
 }

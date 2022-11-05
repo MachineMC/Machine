@@ -59,6 +59,13 @@ public final class ChunkUtils {
     }
 
     /**
+     * @return coordinate of region the chunk is in
+     */
+    public static int getRegionCoordinate(int chunkXZ) {
+        return chunkXZ >> 5;
+    }
+
+    /**
      * Gets the block index of a position.
      * @param x x
      * @param y y
@@ -68,8 +75,8 @@ public final class ChunkUtils {
     public static int getBlockIndex(int x, int y, int z) {
         if(x > 15 || x < 0 || z > 15 || z < 0 || y > 4064 || y < 0) throw new UnsupportedOperationException();
         int index = 0;
-        index |= y << 8;
-        index |= z << 4;
+        index |= (y << 8);
+        index |= (z << 4);
         index |= x;
         return index;
     }
@@ -82,7 +89,7 @@ public final class ChunkUtils {
      */
     public static @NotNull BlockPosition getBlockPosition(int index, int chunkX, int chunkZ) {
         final int x = (index & 0xF) + Chunk.CHUNK_SIZE_X * chunkX;
-        final int y = index & 0xFFF00;
+        final int y = index >> 8;
         final int z = (index & 0xF0) + Chunk.CHUNK_SIZE_Z * chunkZ;
         return new BlockPosition(x, y, z);
     }

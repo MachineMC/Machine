@@ -4,6 +4,7 @@ import io.netty.util.collection.IntObjectHashMap;
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.chunk.Chunk;
+import me.pesekjak.machine.chunk.ChunkUtils;
 import me.pesekjak.machine.entities.Entity;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.utils.NamespacedKey;
@@ -72,17 +73,6 @@ public class ServerWorld extends World {
             return;
         }
 
-        // Loading chunks world center
-        final int chunks = 2;
-        double percentage = 0;
-        for(int x = -chunks; x < chunks; x++) {
-            for(int z = -chunks; z < chunks; z++) {
-                getChunk(x, z);
-                percentage += 100 / (double)(4*chunks*chunks);
-                getServer().getConsole().info("Loading world '" + getName() + "' (" + Math.floor(percentage) + "%) (" + x + ";" + z + ")");
-            }
-        }
-
         loaded = true;
         getServer().getConsole().info("Loaded world '" + getName() + "'");
     }
@@ -133,9 +123,19 @@ public class ServerWorld extends World {
     }
 
     @Override
+    public Region getRegion(int regionX, int regionZ) {
+        return regionMap.get(createRegionIndex(regionX, regionZ));
+    }
+
+    @Override
+    public void saveRegion(int regionX, int regionZ) {
+        getRegion(regionX, regionZ).save();
+    }
+
+    @Override
     public Chunk getChunk(int chunkX, int chunkZ) {
-        final int regionX = chunkX >> 5;
-        final int regionZ = chunkZ >> 5;
+        final int regionX = ChunkUtils.getRegionCoordinate(chunkX);
+        final int regionZ = ChunkUtils.getRegionCoordinate(chunkZ);
         Region region = regionMap.get(createRegionIndex(regionX, regionZ));
         if(region == null) {
             try {
