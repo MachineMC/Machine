@@ -28,7 +28,7 @@ public class BlockManager implements ServerProperty {
                         ((source) -> new FinalVisual(Material.AIR.createBlockData()))),
                 new BlockType(NamespacedKey.minecraft("stone"), BlockType.BlockProperties.builder()
                         .color(Color.GRAY).resistance(6).blockHardness(1.5F).build(),
-                        ((source) -> new DynamicBlockVisual(source, Material.STONE.createBlockData())))
+                        ((source) -> new DynamicVisual(source, Material.STONE.createBlockData())))
         );
         return manager;
     }

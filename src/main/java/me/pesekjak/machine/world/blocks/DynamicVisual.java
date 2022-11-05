@@ -7,7 +7,7 @@ import me.pesekjak.machine.world.BlockPosition;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
-public class DynamicBlockVisual implements BlockVisual {
+public class DynamicVisual implements BlockVisual {
 
     private final WorldBlock source;
     private BlockData blockData;
