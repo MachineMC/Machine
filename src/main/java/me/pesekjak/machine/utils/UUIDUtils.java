@@ -1,5 +1,6 @@
 package me.pesekjak.machine.utils;
 
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -7,21 +8,42 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class UUIDUtils {
+public final class UUIDUtils {
 
     private static final Pattern UUID_PATTERN = Pattern.compile("^(\\p{XDigit}{8})-?(\\p{XDigit}{4})-?(\\p{XDigit}{4})-?(\\p{XDigit}{4})-?(\\p{XDigit}{12})$");
     private static final String DASHES_UUID_REPLACE = "$1-$2-$3-$4-$5";
 
+    private UUIDUtils() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Converts an int array into a UUID
+     * @param ints The ints (must be an array of 4 integers)
+     * @return The UUID
+     */
     public static UUID uuidFromIntArray(int[] ints) {
+        Preconditions.checkArgument(ints.length == 4, "The length of ints must be 4");
         return new UUID((long) ints[0] << 32 | (long) ints[1] & 4294967295L, (long) ints[2] << 32 | (long) ints[3] & 4294967295L);
     }
 
+    /**
+     * Converts a UUID into an int array of 4 integers
+     * @param uuid The UUID
+     * @return The int array
+     */
     public static int[] uuidToIntArray(UUID uuid) {
         long most = uuid.getMostSignificantBits();
         long least = uuid.getLeastSignificantBits();
         return leastMostToIntArray(most, least);
     }
 
+    /**
+     * Converts the most and least bits of a UUID into an int array
+     * @param most The most bits of a UUID
+     * @param least The least bits of a UUID
+     * @return The int array
+     */
     private static int[] leastMostToIntArray(long most, long least) {
         return new int[]{(int) (most >> 32), (int) most, (int) (least >> 32), (int) least};
     }

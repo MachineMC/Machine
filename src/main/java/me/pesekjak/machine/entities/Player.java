@@ -85,7 +85,7 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
             return player;
         } catch (Exception e) {
             e.printStackTrace();
-            connection.disconnect(Component.text("Failed initialization."));
+            connection.disconnect(Component.text("Failed initialization"));
         }
         return null;
     }

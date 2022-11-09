@@ -3,6 +3,7 @@ package me.pesekjak.machine.file;
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.entities.Player;
+import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NBTUtils;
 import me.pesekjak.machine.utils.UUIDUtils;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
@@ -12,15 +13,18 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class PlayerDataContainer {
+@SuppressWarnings("ResultOfMethodCallIgnored")
+public class PlayerDataContainer implements ServerProperty {
 
     public final static String DEFAULT_PLAYER_DATA_FOLDER = "playerdata";
 
     private final HashMap<UUID, NBTCompound> container = new HashMap<>();
     @Getter
     private final File playerDataFolder;
+    private final Machine server;
 
     public PlayerDataContainer(Machine server) {
+        this.server = server;
         playerDataFolder = new File(DEFAULT_PLAYER_DATA_FOLDER);
         createFolderIfAbsent();
         String[] files = playerDataFolder.list();
@@ -34,7 +38,6 @@ public class PlayerDataContainer {
         }
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public File createFolderIfAbsent() {
         if (!playerDataFolder.exists())
             playerDataFolder.mkdirs();
@@ -46,7 +49,6 @@ public class PlayerDataContainer {
         return NBTUtils.deserializeNBTFile(playerDataFile) instanceof NBTCompound nbtCompound ? nbtCompound : null;
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     private File getPlayerDataFile(UUID uuid) {
         File playerDataFile = new File(createFolderIfAbsent(), uuid + ".dat");
         try {
@@ -68,4 +70,8 @@ public class PlayerDataContainer {
         container.put(player.getUuid(), nbtCompound);
     }
 
+    @Override
+    public Machine getServer() {
+        return server;
+    }
 }
