@@ -7,6 +7,8 @@ import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
+import java.nio.charset.StandardCharsets;
+
 @AllArgsConstructor
 @ToString
 public class PacketStatusOutResponse extends PacketOut {
@@ -23,7 +25,7 @@ public class PacketStatusOutResponse extends PacketOut {
     private String json;
 
     public PacketStatusOutResponse(FriendlyByteBuf buf) {
-        json = buf.readString();
+        json = buf.readString(StandardCharsets.UTF_8);
     }
 
     @Override
@@ -34,7 +36,7 @@ public class PacketStatusOutResponse extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeString(json)
+                .writeString(json, StandardCharsets.UTF_8)
                 .bytes();
     }
 

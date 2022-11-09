@@ -6,6 +6,8 @@ import lombok.Setter;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
+import java.nio.charset.StandardCharsets;
+
 @AllArgsConstructor
 public class PacketPlayOutDisplayObjective extends PacketOut {
 
@@ -24,7 +26,7 @@ public class PacketPlayOutDisplayObjective extends PacketOut {
 
     public PacketPlayOutDisplayObjective(FriendlyByteBuf buf) {
         position = buf.readByte();
-        objectiveName = buf.readString();
+        objectiveName = buf.readString(StandardCharsets.UTF_8);
     }
 
     @Override
@@ -36,7 +38,7 @@ public class PacketPlayOutDisplayObjective extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeByte(position)
-                .writeString(objectiveName)
+                .writeString(objectiveName, StandardCharsets.UTF_8)
                 .bytes();
     }
 

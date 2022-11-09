@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
+import java.nio.charset.StandardCharsets;
+
 @AllArgsConstructor
 public class PacketPlayOutUpdateScore extends PacketOut {
 
@@ -30,9 +32,9 @@ public class PacketPlayOutUpdateScore extends PacketOut {
     }
 
     public PacketPlayOutUpdateScore(FriendlyByteBuf buf) {
-        entityName = buf.readString();
+        entityName = buf.readString(StandardCharsets.UTF_8);
         action = Action.fromID(buf.readByte());
-        objectiveName = buf.readString();
+        objectiveName = buf.readString(StandardCharsets.UTF_8);
         if (action != Action.REMOVE)
             value = buf.readVarInt();
     }
@@ -45,9 +47,9 @@ public class PacketPlayOutUpdateScore extends PacketOut {
     @Override
     public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeString(entityName)
+                .writeString(entityName, StandardCharsets.UTF_8)
                 .writeVarInt(action.getId())
-                .writeString(objectiveName);
+                .writeString(objectiveName, StandardCharsets.UTF_8);
         if (action != Action.REMOVE) {
             assert value != null;
             buf.writeVarInt(value);

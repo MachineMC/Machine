@@ -8,6 +8,8 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
+
 @AllArgsConstructor
 public class PacketPlayOutResourcePack extends PacketOut {
 
@@ -39,8 +41,8 @@ public class PacketPlayOutResourcePack extends PacketOut {
     @Override
     public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeString(url)
-                .writeString(hash)
+                .writeString(url, StandardCharsets.UTF_8)
+                .writeString(hash, StandardCharsets.UTF_8)
                 .writeBoolean(forced)
                 .writeBoolean(promptMessage != null);
         if (promptMessage != null)

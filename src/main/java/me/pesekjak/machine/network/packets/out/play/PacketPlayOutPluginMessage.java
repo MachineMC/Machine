@@ -9,6 +9,8 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.charset.StandardCharsets;
+
 @AllArgsConstructor
 @ToString
 @Getter @Setter
@@ -28,7 +30,7 @@ public class PacketPlayOutPluginMessage extends PacketOut {
     }
 
     public PacketPlayOutPluginMessage(FriendlyByteBuf buf) {
-        channel = NamespacedKey.parse(buf.readString());
+        channel = NamespacedKey.parse(buf.readString(StandardCharsets.UTF_8));
         data = new FriendlyByteBuf(buf.finish());
     }
 
@@ -40,7 +42,7 @@ public class PacketPlayOutPluginMessage extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeString(channel.toString())
+                .writeString(channel.toString(), StandardCharsets.UTF_8)
                 .writeBytes(data.bytes())
                 .bytes();
     }
@@ -56,7 +58,7 @@ public class PacketPlayOutPluginMessage extends PacketOut {
         return new PacketPlayOutPluginMessage(
                 BRAND_CHANNEL,
                 new FriendlyByteBuf().
-                        writeString(brand)
+                        writeString(brand, StandardCharsets.UTF_8)
         );
     }
 

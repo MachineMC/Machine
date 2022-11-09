@@ -10,6 +10,7 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -34,7 +35,7 @@ public class PacketLoginOutSuccess extends PacketOut {
 
     public PacketLoginOutSuccess(FriendlyByteBuf buf) {
         uuid = buf.readUUID();
-        userName = buf.readString();
+        userName = buf.readString(StandardCharsets.UTF_8);
         textures = buf.readTextures();
     }
 
@@ -47,7 +48,7 @@ public class PacketLoginOutSuccess extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeUUID(uuid)
-                .writeString(userName)
+                .writeString(userName, StandardCharsets.UTF_8)
                 .writeTextures(textures)
                 .bytes();
     }

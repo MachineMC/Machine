@@ -9,6 +9,8 @@ import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.charset.StandardCharsets;
+
 @AllArgsConstructor
 @ToString
 @Getter @Setter
@@ -27,7 +29,7 @@ public class PacketPlayInChatMessage extends PacketIn {
     }
 
     public PacketPlayInChatMessage(FriendlyByteBuf buf) {
-        message = buf.readString();
+        message = buf.readString(StandardCharsets.UTF_8);
         messageSignature = buf.readSignature();
     }
 
@@ -39,7 +41,7 @@ public class PacketPlayInChatMessage extends PacketIn {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeString(message)
+                .writeString(message, StandardCharsets.UTF_8)
                 .writeSignature(messageSignature)
                 .bytes();
     }

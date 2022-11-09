@@ -7,6 +7,8 @@ import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 
+import java.nio.charset.StandardCharsets;
+
 @AllArgsConstructor
 public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
 
@@ -24,7 +26,7 @@ public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
 
     public PacketPlayOutPlaceGhostRecipe(FriendlyByteBuf buf) {
         windowId = buf.readByte();
-        recipe = NamespacedKey.parse(buf.readString());
+        recipe = NamespacedKey.parse(buf.readString(StandardCharsets.UTF_8));
     }
 
     @Override
@@ -36,7 +38,7 @@ public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeByte(windowId)
-                .writeString(recipe.toString())
+                .writeString(recipe.toString(), StandardCharsets.UTF_8)
                 .bytes();
     }
 

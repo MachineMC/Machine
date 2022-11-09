@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @ToString
@@ -59,7 +60,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
             PublicKeyData publicKeyData = null;
             switch (action) {
                 case ADD_PLAYER -> {
-                    name = buf.readString();
+                    name = buf.readString(StandardCharsets.UTF_8);
                     skin = buf.readTextures();
                     gamemode = Gamemode.fromID(buf.readVarInt());
                     latency = buf.readVarInt();
@@ -130,7 +131,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                 case ADD_PLAYER -> {
                     assert name != null;
                     assert gamemode != null;
-                    buf.writeString(name)
+                    buf.writeString(name, StandardCharsets.UTF_8)
                             .writeTextures(playerTextures)
                             .writeVarInt(gamemode.getId())
                             .writeVarInt(latency)

@@ -9,8 +9,8 @@ import me.pesekjak.machine.chunk.ChunkUtils;
 import me.pesekjak.machine.entities.Entity;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.network.packets.PacketOut;
-import me.pesekjak.machine.network.packets.out.PacketPlayOutChangeDifficulty;
-import me.pesekjak.machine.network.packets.out.PacketPlayOutWorldSpawnPosition;
+import me.pesekjak.machine.network.packets.out.play.PacketPlayOutChangeDifficulty;
+import me.pesekjak.machine.network.packets.out.play.PacketPlayOutWorldSpawnPosition;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.blocks.BlockType;
@@ -22,7 +22,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**

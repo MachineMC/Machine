@@ -10,6 +10,7 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -33,7 +34,7 @@ public class PacketLoginInStart extends PacketIn {
     }
 
     public PacketLoginInStart(FriendlyByteBuf buf) {
-        username = buf.readString();
+        username = buf.readString(StandardCharsets.UTF_8);
         if (buf.readBoolean())
             publicKeyData = buf.readPublicKey();
         if (buf.readBoolean())
@@ -48,7 +49,7 @@ public class PacketLoginInStart extends PacketIn {
     @Override
     public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeString(username)
+                .writeString(username, StandardCharsets.UTF_8)
                 .writeBoolean(publicKeyData != null);
         if (publicKeyData != null)
             publicKeyData.write(buf);

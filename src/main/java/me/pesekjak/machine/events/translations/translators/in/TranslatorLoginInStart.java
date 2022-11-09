@@ -5,9 +5,9 @@ import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.entities.player.PlayerProfile;
 import me.pesekjak.machine.events.translations.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.in.PacketLoginInStart;
-import me.pesekjak.machine.network.packets.out.PacketLoginOutEncryptionRequest;
-import me.pesekjak.machine.network.packets.out.PacketLoginOutSuccess;
+import me.pesekjak.machine.network.packets.in.login.PacketLoginInStart;
+import me.pesekjak.machine.network.packets.out.login.PacketLoginOutEncryptionRequest;
+import me.pesekjak.machine.network.packets.out.login.PacketLoginOutSuccess;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

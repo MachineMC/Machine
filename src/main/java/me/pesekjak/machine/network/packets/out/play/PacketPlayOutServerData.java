@@ -8,6 +8,8 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
+
 @AllArgsConstructor
 public class PacketPlayOutServerData extends PacketOut {
 
@@ -30,7 +32,7 @@ public class PacketPlayOutServerData extends PacketOut {
         if (buf.readBoolean())
             motd = buf.readComponent();
         if (buf.readBoolean())
-            icon = buf.readString();
+            icon = buf.readString(StandardCharsets.UTF_8);
         previewsChat = buf.readBoolean();
         enforcedSecureChat = buf.readBoolean();
     }
@@ -48,7 +50,7 @@ public class PacketPlayOutServerData extends PacketOut {
             buf.writeComponent(motd);
         buf.writeBoolean(icon != null);
         if (icon != null)
-            buf.writeString(icon);
+            buf.writeString(icon, StandardCharsets.UTF_8);
         return buf.writeBoolean(previewsChat)
                 .writeBoolean(enforcedSecureChat)
                 .bytes();

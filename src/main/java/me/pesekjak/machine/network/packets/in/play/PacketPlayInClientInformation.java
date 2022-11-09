@@ -11,6 +11,7 @@ import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -39,7 +40,7 @@ public class PacketPlayInClientInformation extends PacketIn {
     }
 
     public PacketPlayInClientInformation(FriendlyByteBuf buf) {
-        locale = buf.readString();
+        locale = buf.readString(StandardCharsets.UTF_8);
         viewDistance = buf.readByte();
         chatMode = ChatMode.fromID(buf.readVarInt());
         chatColor = buf.readBoolean();
@@ -57,7 +58,7 @@ public class PacketPlayInClientInformation extends PacketIn {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeString(locale)
+                .writeString(locale, StandardCharsets.UTF_8)
                 .writeByte(viewDistance)
                 .writeVarInt(chatMode.getId())
                 .writeBoolean(chatColor)

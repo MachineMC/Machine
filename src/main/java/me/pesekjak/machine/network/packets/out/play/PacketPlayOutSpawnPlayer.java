@@ -30,7 +30,7 @@ public class PacketPlayOutSpawnPlayer extends PacketOut {
     public PacketPlayOutSpawnPlayer(FriendlyByteBuf buf) {
         entityId = buf.readVarInt();
         uuid = buf.readUUID();
-        location = new Location(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readAngle(), buf.readAngle(), null);
+        location = Location.of(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readFloat(), buf.readFloat(), null);
     }
 
     @Override

@@ -7,8 +7,8 @@ import me.pesekjak.machine.entities.player.PlayerProfile;
 import me.pesekjak.machine.entities.player.PlayerTextures;
 import me.pesekjak.machine.events.translations.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.in.PacketLoginInEncryptionResponse;
-import me.pesekjak.machine.network.packets.out.PacketLoginOutSuccess;
+import me.pesekjak.machine.network.packets.in.login.PacketLoginInEncryptionResponse;
+import me.pesekjak.machine.network.packets.out.login.PacketLoginOutSuccess;
 import me.pesekjak.machine.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +20,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-import static me.pesekjak.machine.network.packets.out.PacketLoginOutEncryptionRequest.SERVER_ID;
+import static me.pesekjak.machine.network.packets.out.login.PacketLoginOutEncryptionRequest.SERVER_ID;
 
 public class TranslatorLoginInEncryptionResponse extends PacketTranslator<PacketLoginInEncryptionResponse> {
 

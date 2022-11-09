@@ -26,7 +26,7 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
 
     public PacketPlayOutTeleportEntity(FriendlyByteBuf buf) {
         entityId = buf.readVarInt();
-        location = new Location(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readAngle(), buf.readAngle(), null);
+        location = Location.of(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readFloat(), buf.readFloat(), null);
         onGround = buf.readBoolean();
     }
 
