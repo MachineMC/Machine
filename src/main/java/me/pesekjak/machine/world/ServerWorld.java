@@ -7,7 +7,9 @@ import me.pesekjak.machine.chunk.Chunk;
 import me.pesekjak.machine.chunk.ChunkUtils;
 import me.pesekjak.machine.entities.Entity;
 import me.pesekjak.machine.entities.Player;
+import me.pesekjak.machine.utils.FileUtils;
 import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.utils.UUIDUtils;
 import me.pesekjak.machine.world.blocks.BlockType;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 import me.pesekjak.machine.world.generation.FlatStoneGenerator;
@@ -20,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -51,7 +54,7 @@ public class ServerWorld extends World {
     }
 
     public ServerWorld(File folder, Machine server, NamespacedKey name, DimensionType dimensionType, long seed) {
-        super(server, name, dimensionType, seed);
+        super(server, name, FileUtils.getOrCreateUUID(folder), dimensionType, seed);
         this.folder = folder;
     }
 

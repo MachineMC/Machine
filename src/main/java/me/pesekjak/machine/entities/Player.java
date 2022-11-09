@@ -4,6 +4,7 @@ import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
+import me.pesekjak.machine.chat.ChatColor;
 import me.pesekjak.machine.chat.ChatMode;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.entities.player.Hand;
