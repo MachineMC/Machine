@@ -89,24 +89,24 @@ public abstract class World implements ServerProperty {
         return getChunk(location.toBlockPosition());
     }
 
-    public void setBlock(BlockType blockType, BlockPosition position, @Nullable BlockType.CreateReason reason, @Nullable Entity source) {
+    public void setBlock(BlockType blockType, BlockPosition position, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
         getChunk(position).setBlock(
                 ChunkUtils.getSectionRelativeCoordinate(position.getX()),
                 position.getY() - dimensionType.getMinY(),
                 ChunkUtils.getSectionRelativeCoordinate(position.getZ()),
-                blockType, reason, source);
+                blockType, reason, replaceReason, source);
     }
 
-    public void setBlock(BlockType blockType, Location location, @Nullable BlockType.CreateReason reason, @Nullable Entity source) {
-        setBlock(blockType, location.toBlockPosition(), reason, source);
+    public void setBlock(BlockType blockType, Location location, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
+        setBlock(blockType, location.toBlockPosition(), reason, replaceReason, source);
     }
 
     public void setBlock(BlockType blockType, BlockPosition position) {
-        setBlock(blockType, position, BlockType.CreateReason.SET, null);
+        setBlock(blockType, position, BlockType.CreateReason.SET, BlockType.DestroyReason.REMOVED, null);
     }
 
     public void setBlock(BlockType blockType, Location location) {
-        setBlock(blockType, location, BlockType.CreateReason.SET, null);
+        setBlock(blockType, location, BlockType.CreateReason.SET, BlockType.DestroyReason.REMOVED, null);
     }
 
     public WorldBlock getBlock(BlockPosition position) {

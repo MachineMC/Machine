@@ -159,7 +159,7 @@ public class ServerWorld extends World {
             for (int z = 0; z < 16; z++) {
                 for (int y = 0; y < getDimensionType().getHeight(); y++) {
                     final BlockType type = getGenerator().generate(new BlockPosition(Chunk.CHUNK_SIZE_X * chunkX + x, y + 1 + minY, Chunk.CHUNK_SIZE_Z * chunkZ + z));
-                    chunk.setBlock(x, y, z, type, BlockType.CreateReason.GENERATED, null);
+                    chunk.setBlock(x, y, z, type, BlockType.CreateReason.GENERATED, null, null);
                 }
             }
         }

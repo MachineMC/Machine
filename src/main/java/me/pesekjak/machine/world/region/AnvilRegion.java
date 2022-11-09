@@ -123,7 +123,7 @@ public class AnvilRegion extends Region {
                     final String name = column.getBlockState(x, y, z).getName();
                     if(blockMap.get(name) == null)
                         blockMap.put(name, world.getServer().getBlockManager().getBlockType(NamespacedKey.parse(name)));
-                    chunk.setBlock(x, y, z, blockMap.get(name), BlockType.CreateReason.SET, null);
+                    chunk.setBlock(x, y, z, blockMap.get(name), BlockType.CreateReason.SET, BlockType.DestroyReason.REMOVED, null);
                 }
             }
         }

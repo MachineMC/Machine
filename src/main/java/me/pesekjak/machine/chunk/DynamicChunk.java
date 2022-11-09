@@ -46,10 +46,10 @@ public class DynamicChunk extends Chunk {
     }
 
     @Override
-    public WorldBlock setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable Entity source) {
+    public WorldBlock setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
         final WorldBlock previous = getBlock(x, y, z);
         if(previous != null)
-            previous.getBlockType().destroy(previous, BlockType.DestroyReason.REMOVED, null);
+            previous.getBlockType().destroy(previous, replaceReason != null ? replaceReason : BlockType.DestroyReason.OTHER, null);
         final int index = ChunkUtils.getBlockIndex(x, y, z);
         BlockPosition position = ChunkUtils.getBlockPosition(index, chunkX, chunkZ);
         position.setY(position.getY() + bottom); // offset from bottom

@@ -44,7 +44,7 @@ public abstract class Chunk {
 
     public abstract WorldBlock getBlock(int x, int y, int z);
 
-    public abstract WorldBlock setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable Entity source);
+    public abstract WorldBlock setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source);
 
     public abstract void setVisual(int x, int y, int z, @NotNull BlockVisual visual);
 
