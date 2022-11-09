@@ -6,9 +6,7 @@ import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NamespacedKey;
-import me.pesekjak.machine.world.Difficulty;
-import me.pesekjak.machine.world.Location;
-import me.pesekjak.machine.world.World;
+import me.pesekjak.machine.world.*;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 
 import java.io.*;
@@ -20,13 +18,16 @@ public class WorldJson implements ServerFile, ServerProperty {
 
     private final Machine server;
 
-    private final NamespacedKey worldName;
-    private final DimensionType dimension;
+    private final NamespacedKey name;
+    private final DimensionType dimensionType;
     private final long seed;
     private final Difficulty difficulty;
 
+    private final File folder;
+
     public WorldJson(Machine server, File file) throws IOException {
         this.server = server;
+        folder = file.getParentFile();
         final JsonParser parser = new JsonParser();
         JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
 
@@ -39,7 +40,7 @@ public class WorldJson implements ServerFile, ServerProperty {
             throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal name identifier and can't be registered");
         }
 
-        worldName = name;
+        this.name = name;
 
         final String unparsedDimensionType = json.get("dimension").getAsString();
         NamespacedKey dimensionKey;
@@ -50,17 +51,17 @@ public class WorldJson implements ServerFile, ServerProperty {
             throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal dimension identifier and can't be registered");
         }
 
-        dimension = server.getDimensionTypeManager().getDimension(dimensionKey);
-        if(dimension == null) {
-            getServer().getConsole().severe("World '" + worldName + "' uses non existing dimension");
-            throw new IllegalStateException("World '" + worldName + "' uses non existing dimension");
+        dimensionType = server.getDimensionTypeManager().getDimension(dimensionKey);
+        if(dimensionType == null) {
+            getServer().getConsole().severe("World '" + this.name + "' uses non existing dimension");
+            throw new IllegalStateException("World '" + this.name + "' uses non existing dimension");
         }
 
         long seedValue = 1;
         try {
             seedValue = json.get("seed").getAsNumber().longValue();
         } catch (Exception exception) {
-            getServer().getConsole().severe("World '" + worldName + "' has not valid defined seed, defaulting to '1' instead");
+            getServer().getConsole().severe("World '" + this.name + "' has not valid defined seed, defaulting to '1' instead");
         }
         seed = seedValue;
 
@@ -85,18 +86,18 @@ public class WorldJson implements ServerFile, ServerProperty {
         return Machine.CLASS_LOADER.getResourceAsStream(WORLD_FILE_NAME);
     }
 
+    public NamespacedKey getWorldName() {
+        return name;
+    }
+
     /**
      * Creates and registers the world to the server's WorldManager.
      * @return newly created and registered world
      */
     public World buildWorld() {
-        World world =  World.builder()
-                .name(worldName)
-                .dimensionType(dimension)
-                .seed(seed)
-                .difficulty(difficulty)
-                .build();
-        world.setWorldSpawn(new Location(0, 0, 0, world));
+        World world = new ServerWorld(folder, server, name, dimensionType, seed);
+        world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
+        world.setDifficulty(server.getProperties().getDefaultDifficulty());
         return world;
     }
 

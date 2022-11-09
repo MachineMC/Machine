@@ -3,6 +3,7 @@ package me.pesekjak.machine.world;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
+import me.pesekjak.machine.chunk.Chunk;
 import me.pesekjak.machine.utils.math.Vector3;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
@@ -137,6 +138,10 @@ public class Location implements Cloneable {
      */
     public int getBlockZ() {
         return (int) Math.floor(z);
+    }
+
+    public BlockPosition toBlockPosition() {
+        return new BlockPosition(getBlockX(), getBlockY(), getBlockZ());
     }
 
     /**

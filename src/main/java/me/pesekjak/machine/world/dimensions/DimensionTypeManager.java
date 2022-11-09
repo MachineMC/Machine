@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static me.pesekjak.machine.chunk.Chunk.CHUNK_SECTION_SIZE;
+
 /**
  * Manages multiple dimension types of the server, each dimension type
  * has to reference manager it was created for.
@@ -48,6 +50,15 @@ public class DimensionTypeManager implements CodecPart, ServerProperty {
     public void addDimension(DimensionType dimensionType) {
         if(dimensionType.getManager().get() != null && dimensionType.getManager().get() != this)
             throw new IllegalStateException("Dimension type '" + dimensionType.getName() + "' is already registered in a different DimensionManager");
+        if(dimensionType.getMinY() % CHUNK_SECTION_SIZE != 0 || dimensionType.getHeight() % CHUNK_SECTION_SIZE != 0 || dimensionType.getLogicalHeight() % CHUNK_SECTION_SIZE != 0)
+            throw new IllegalStateException("Dimension type height levels has to be multiple of 16");
+        if(dimensionType.getHeight() < 0 || dimensionType.getHeight() > 4064)
+            throw new IllegalStateException("Dimension type height has to be between -2032 and 2016");
+        if(dimensionType.getHeight() < dimensionType.getLogicalHeight())
+            throw new IllegalStateException("Logical height of dimension type can't be higher than its height");
+        if(dimensionType.getMinY() < -2032 || dimensionType.getMinY() > 2016)
+            throw new IllegalStateException("Dimension type minimal Y level has to be between -2032 and 2016");
+
         dimensionType.getManager().set(this);
         dimensionType.id.set(ID_COUNTER.getAndIncrement());
         dimensionTypes.add(dimensionType);
@@ -94,6 +105,19 @@ public class DimensionTypeManager implements CodecPart, ServerProperty {
     public DimensionType getDimension(NamespacedKey name) {
         for(DimensionType dimensionType : getDimensions()) {
             if(!(dimensionType.getName().equals(name))) continue;
+            return dimensionType;
+        }
+        return null;
+    }
+
+    /**
+     * Searches for registered dimension type with the given id in this manager.
+     * @param id id of the dimension type to search for
+     * @return dimension type with the given id
+     */
+    public DimensionType getById(int id) {
+        for(DimensionType dimensionType : getDimensions()) {
+            if (dimensionType.id.get() != id) continue;
             return dimensionType;
         }
         return null;

@@ -100,6 +100,19 @@ public class BiomeManager implements CodecPart, ServerProperty {
     }
 
     /**
+     * Searches for registered biome with the given id in this manager.
+     * @param id id of the biome to search for
+     * @return biome with the given id
+     */
+    public Biome getById(int id) {
+        for(Biome biome : getBiomes()) {
+            if (biome.id.get() != id) continue;
+            return biome;
+        }
+        return null;
+    }
+
+    /**
      * Collection of all registered biomes in this manager
      * @return collection of all registered biomes
      */
