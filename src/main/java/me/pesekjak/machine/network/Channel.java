@@ -70,7 +70,7 @@ public class Channel implements AutoCloseable {
      * @param key key of the handler to remove
      */
     public void removeHandler(NamespacedKey key) {
-        handlers.removeIf(pair -> pair.getFirst().equals(key));
+        handlers.removeIf(pair -> pair.first().equals(key));
     }
 
     /**
@@ -151,10 +151,10 @@ public class Channel implements AutoCloseable {
             PacketReader read = new PacketReader(buf, getConnection().getClientState().in);
             if(read.getPacket() == null) continue;
             for(Pair<NamespacedKey, PacketHandler> pair : handlers)
-                read = pair.getSecond().read(this, read);
+                read = pair.second().read(this, read);
             if(read.getPacket() != null) {
                 for(Pair<NamespacedKey, PacketHandler> pair : handlers)
-                    pair.getSecond().afterRead(this, read.getPacket().clone());
+                    pair.second().afterRead(this, read.getPacket().clone());
                 packets.add(read.getPacket());
             }
         } while(input.readableBytes() != 0);
@@ -170,7 +170,7 @@ public class Channel implements AutoCloseable {
         if(!open) return false;
         PacketWriter write = new PacketWriter(packet);
         for(Pair<NamespacedKey, PacketHandler> pair : handlers)
-            write = pair.getSecond().write(this, write);
+            write = pair.second().write(this, write);
         if(write.getPacket() == null) return false;
         FriendlyByteBuf buf = new FriendlyByteBuf();
         // Compression
@@ -184,10 +184,13 @@ public class Channel implements AutoCloseable {
         else
             output.write(buf.bytes());
         for(Pair<NamespacedKey, PacketHandler> pair : handlers)
-            pair.getSecond().afterWrite(this, write.getPacket().clone());
+            pair.second().afterWrite(this, write.getPacket().clone());
         return true;
     }
 
+    /**
+     * Closes the channel and disconnects the client.
+     */
     @Override
     public void close() throws Exception {
         open = false;
@@ -195,6 +198,10 @@ public class Channel implements AutoCloseable {
         output.close();
     }
 
+    /**
+     * Sets the secret key used for encryption.
+     * @param key new secret key
+     */
     protected void setSecretKey(SecretKey key) {
         if(secretKey != null)
             throw new IllegalStateException("Encryption for the Channel is already enabled");
@@ -205,6 +212,10 @@ public class Channel implements AutoCloseable {
         );
     }
 
+    /**
+     * Encryption context containing ciphers to encrypt and decrypt
+     * the packets.
+     */
     record EncryptionContext(Cipher encrypt, Cipher decrypt) {
     }
 

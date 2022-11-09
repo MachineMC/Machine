@@ -6,6 +6,9 @@ import java.util.List;
 
 import static me.pesekjak.machine.world.Material.*;
 
+/**
+ * Represents mining category of block.
+ */
 public enum ToolCategory {
 
     AXE,
@@ -26,30 +29,59 @@ public enum ToolCategory {
             swords = new Material[]{WOODEN_SWORD, STONE_SWORD, IRON_SWORD, DIAMOND_SWORD, NETHERITE_SWORD, GOLDEN_SWORD},
             hoes = new Material[]{WOODEN_HOE, STONE_HOE, IRON_HOE, DIAMOND_HOE, NETHERITE_HOE, GOLDEN_HOE};
 
+    /**
+     * @return all materials that are efficient against blocks
+     * with {@link ToolCategory#AXE} category.
+     */
     public static Material[] getAxes() {
         return axes.clone();
     }
 
+    /**
+     * @return all materials that are efficient against blocks
+     * with {@link ToolCategory#PICKAXE} category.
+     */
     public static Material[] getPickaxes() {
         return pickaxes.clone();
     }
 
+    /**
+     * @return all materials that are efficient against blocks
+     * with {@link ToolCategory#SHEARS} category.
+     */
     public static Material[] getShears() {
         return shears.clone();
     }
 
+    /**
+     * @return all materials that are efficient against blocks
+     * with {@link ToolCategory#SHOVEL} category.
+     */
     public static Material[] getShovels() {
         return shovels.clone();
     }
 
+    /**
+     * @return all materials that are efficient against blocks
+     * with {@link ToolCategory#SWORD} category.
+     */
     public static Material[] getSwords() {
         return swords.clone();
     }
 
+    /**
+     * @return all materials that are efficient against blocks
+     * with {@link ToolCategory#HOE} category.
+     */
     public static Material[] getHoes() {
         return hoes.clone();
     }
 
+    /**
+     * Returns category the given material is effective against if any.
+     * @param toolMaterial material to check for
+     * @return category the given material is effective against
+     */
     public static ToolCategory fromTool(Material toolMaterial) {
         if(List.of(axes).contains(toolMaterial)) return AXE;
         if(List.of(pickaxes).contains(toolMaterial)) return PICKAXE;

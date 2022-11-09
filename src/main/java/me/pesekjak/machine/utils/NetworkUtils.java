@@ -1,10 +1,16 @@
 package me.pesekjak.machine.utils;
 
+import lombok.Cleanup;
+
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 
-public class NetworkUtils {
+public final class NetworkUtils {
+
+    private NetworkUtils() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Checks if provided port is available for use or not.
@@ -12,23 +18,14 @@ public class NetworkUtils {
      * @return true if available
      */
     public static boolean available(int port) {
-        ServerSocket ss = null;
-        DatagramSocket ds = null;
         try {
-            ss = new ServerSocket(port);
-            ss.setReuseAddress(true);
-            ds = new DatagramSocket(port);
-            ds.setReuseAddress(true);
+            @Cleanup ServerSocket serverSocket = new ServerSocket(port);
+            serverSocket.setReuseAddress(true);
+            @Cleanup DatagramSocket datagramSocket = new DatagramSocket(port);
+            datagramSocket.setReuseAddress(true);
             return true;
         } catch (IOException e) {
             return false;
-        } finally {
-            if (ds != null) ds.close();
-            if (ss != null) {
-                try {
-                    ss.close();
-                } catch (IOException ignored) { }
-            }
         }
     }
 

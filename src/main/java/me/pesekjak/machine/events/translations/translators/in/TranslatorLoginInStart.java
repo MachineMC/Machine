@@ -5,9 +5,9 @@ import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.entities.player.PlayerProfile;
 import me.pesekjak.machine.events.translations.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.in.login.PacketLoginInStart;
-import me.pesekjak.machine.network.packets.out.login.PacketLoginOutEncryptionRequest;
-import me.pesekjak.machine.network.packets.out.login.PacketLoginOutSuccess;
+import me.pesekjak.machine.network.packets.in.PacketLoginInStart;
+import me.pesekjak.machine.network.packets.out.PacketLoginOutEncryptionRequest;
+import me.pesekjak.machine.network.packets.out.PacketLoginOutSuccess;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
                 return;
             }
             connection.setClientState(ClientConnection.ClientState.PLAY);
-            new Player(connection.getServer(), profile, connection);
+            Player.spawn(connection.getServer(), profile, connection);
             return;
         }
         OnlineServer onlineServer = connection.getServer().getOnlineServer();

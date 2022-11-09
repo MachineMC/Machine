@@ -12,23 +12,25 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutChatMessage extends PacketOut {
 
     private static final int ID = 0x33;
 
-    @Getter @Setter @NotNull
+    @NotNull
     private Component signedMessage;
-    @Getter @Setter @Nullable
+    @Nullable
     private Component unsignedMessage;
-    @Getter @Setter
+    @NotNull
     private ChatType chatType;
-    @Getter @Setter
+    @NotNull
     private UUID uuid;
-    @Getter @Setter
+    @NotNull
     private Component displayName;
-    @Getter @Setter @Nullable
+    @Nullable
     private Component teamName;
-    @Getter @Setter
+    @NotNull
     private MessageSignature messageSignature;
 
     static {

@@ -7,8 +7,9 @@ import me.pesekjak.machine.entities.player.PlayerProfile;
 import me.pesekjak.machine.entities.player.PlayerTextures;
 import me.pesekjak.machine.events.translations.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.in.login.PacketLoginInEncryptionResponse;
-import me.pesekjak.machine.network.packets.out.login.PacketLoginOutSuccess;
+import me.pesekjak.machine.network.packets.in.PacketLoginInEncryptionResponse;
+import me.pesekjak.machine.network.packets.out.PacketLoginOutSuccess;
+import me.pesekjak.machine.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +20,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-import static me.pesekjak.machine.network.packets.out.login.PacketLoginOutEncryptionRequest.SERVER_ID;
+import static me.pesekjak.machine.network.packets.out.PacketLoginOutEncryptionRequest.SERVER_ID;
 
 public class TranslatorLoginInEncryptionResponse extends PacketTranslator<PacketLoginInEncryptionResponse> {
 
@@ -55,7 +56,11 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
                 }
                 return;
             }
-            UUID authUUID = MojangAuth.parseNoDashesUUID(json.get("id").getAsString());
+            UUID authUUID = UUIDUtils.parseUUID(json.get("id").getAsString());
+            if (authUUID == null) {
+                connection.disconnect(Component.text("UUID is null"));
+                return;
+            }
             String authUsername = json.get("name").getAsString();
             PlayerTextures playerTextures = PlayerTextures.buildSkin(json.getAsJsonArray("properties").get(0));
             final PlayerProfile profile = PlayerProfile.online(authUsername, authUUID, playerTextures);
@@ -66,7 +71,7 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
                 return;
             }
             connection.setClientState(ClientConnection.ClientState.PLAY);
-            new Player(connection.getServer(), profile, connection);
+            Player.spawn(connection.getServer(), profile, connection);
         });
     }
 

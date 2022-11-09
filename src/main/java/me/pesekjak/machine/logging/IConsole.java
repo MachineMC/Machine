@@ -5,6 +5,9 @@ import net.kyori.adventure.audience.Audience;
 
 import java.util.logging.Level;
 
+/**
+ * Server console.
+ */
 public interface IConsole extends Audience, ServerProperty {
 
     void log(Level level, String... messages);
@@ -14,5 +17,7 @@ public interface IConsole extends Audience, ServerProperty {
     void warning(String... messages);
 
     void severe(String... messages);
+
+    void config(String... messages);
 
 }

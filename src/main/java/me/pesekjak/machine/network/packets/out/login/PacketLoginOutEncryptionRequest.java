@@ -3,19 +3,19 @@ package me.pesekjak.machine.network.packets.out.login;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketLoginOutEncryptionRequest extends PacketOut {
 
     private static final int ID = 0x01;
 
-    @SuppressWarnings("FieldCanBeLocal")
     private final String serverID = SERVER_ID; // always same
-    @Getter @Setter
     private byte[] publicKey;
-    @Getter @Setter
     private byte[] verifyToken;
 
     static {

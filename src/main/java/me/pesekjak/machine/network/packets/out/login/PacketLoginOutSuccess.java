@@ -3,6 +3,7 @@ package me.pesekjak.machine.network.packets.out.login;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.entities.player.PlayerTextures;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
@@ -12,15 +13,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketLoginOutSuccess extends PacketOut {
 
     private static final int ID = 0x02;
 
-    @Getter @Setter @NotNull
+    @NotNull
     private UUID uuid;
-    @Getter @Setter @NotNull
+    @NotNull
     private String userName;
-    @Getter @Setter @Nullable
+    @Nullable
     private PlayerTextures textures;
 
     static {

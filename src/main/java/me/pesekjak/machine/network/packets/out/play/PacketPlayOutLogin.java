@@ -1,19 +1,24 @@
-package me.pesekjak.machine.network.packets.out.play;
+package me.pesekjak.machine.network.packets.out;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.utils.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutLogin extends PacketOut {
 
     private static final int ID = 0x25;
@@ -21,39 +26,28 @@ public class PacketPlayOutLogin extends PacketOut {
     public static final NamespacedKey DIMENSION_TYPE_CODEC_NAME = NamespacedKey.minecraft("dimension_type");
     public static final NamespacedKey WORLD_GEN_BIOME_CODEC_NAME = NamespacedKey.minecraft("worldgen/biome");
 
-    @Getter @Setter
     private int entityID;
-    @Getter @Setter
     private boolean isHardcore;
-    @Getter @Setter @NotNull
+    @NotNull
     private Gamemode gamemode;
-    @SuppressWarnings("FieldMayBeFinal")
+    @Nullable
     private Gamemode previousGamemode;
-    @Getter @Setter
-    private List<NamespacedKey> dimensions;
-    @Getter @Setter
+    @NotNull
+    private List<String> dimensions;
+    @NotNull
     private NBTCompound dimensionCodec;
-    @Getter @Setter
+    @NotNull
     private NamespacedKey spawnWorldType;
-    @Getter @Setter
+    @NotNull
     private NamespacedKey spawnWorld;
-    @Getter @Setter
     private long hashedSeed;
-    @Getter @Setter
     private int maxPlayers;
-    @Getter @Setter
     private int viewDistance;
-    @Getter @Setter
     private int simulationDistance;
-    @Getter @Setter
     private boolean reducedDebugInfo;
-    @Getter @Setter
     private boolean enableRespawnScreen;
-    @Getter @Setter
     private boolean isDebug;
-    @Getter @Setter
     private boolean isFlat;
-    @SuppressWarnings("FieldCanBeLocal")
     private final boolean hasDeathLocation = false; // TODO implement later
 
     static {
@@ -67,8 +61,8 @@ public class PacketPlayOutLogin extends PacketOut {
         isHardcore = buf.readBoolean();
         gamemode = Gamemode.fromID(buf.readByte());
         byte gamemodeId = buf.readByte();
-        previousGamemode = gamemodeId == -1 ? null : Gamemode.fromID(gamemodeId); // reading previous gamemode
-        dimensions = buf.readNamespacedKeyList();
+        previousGamemode = gamemodeId == -1 ? null : Gamemode.fromID(gamemodeId);
+        dimensions = buf.readStringList(StandardCharsets.UTF_8);
         dimensionCodec = (NBTCompound) buf.readNBT();
         spawnWorldType = buf.readNamespacedKey();
         spawnWorld = buf.readNamespacedKey();
@@ -95,7 +89,7 @@ public class PacketPlayOutLogin extends PacketOut {
                 .writeBoolean(isHardcore)
                 .writeByte((byte) gamemode.getId())
                 .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getId()))
-                .writeNamespacedKeyList(new ArrayList<>(dimensions))
+                .writeStringList(new ArrayList<>(dimensions), StandardCharsets.UTF_8)
                 .writeNBT("", dimensionCodec)
                 .writeNamespacedKey(spawnWorldType)
                 .writeNamespacedKey(spawnWorld)

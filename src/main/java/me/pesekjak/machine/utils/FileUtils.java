@@ -2,13 +2,12 @@ package me.pesekjak.machine.utils;
 
 import me.pesekjak.machine.Machine;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
 
-public class FileUtils {
+public final class FileUtils {
 
     private static final File MACHINE_JAR = new File(Machine.class
             .getProtectionDomain()
@@ -38,7 +37,7 @@ public class FileUtils {
      */
     public static boolean createFromDefaultAndLocate(final File file, String path) {
         if(path.endsWith("/")) {
-            boolean s = new File(path).mkdirs();
+            new File(path).mkdirs();
             path = path + file.getName();
         }
         InputStream in = Machine.CLASS_LOADER.getResourceAsStream(file.getPath());
@@ -56,6 +55,27 @@ public class FileUtils {
      */
     public static File getMachineJar() {
         return MACHINE_JAR;
+    }
+
+    public static UUID getOrCreateUUID(File folder) {
+        File uidFile = new File(folder, "uid.dat");
+        if (uidFile.exists()) {
+            try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(uidFile))) {
+                return new UUID(dataInputStream.readLong(), dataInputStream.readLong());
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        UUID uuid = UUID.randomUUID();
+        try (DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(uidFile))) {
+            dataOutputStream.writeLong(uuid.getMostSignificantBits());
+            dataOutputStream.writeLong(uuid.getLeastSignificantBits());
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return uuid;
     }
 
 }

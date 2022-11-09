@@ -131,8 +131,9 @@ public class MaterialsLibGenerator extends CodeGenerator {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 type(blockDataPath).getInternalName(),
                 "setMaterial",
-                "(" + type(path) + ")V",
+                "(" + type(path).getDescriptor() + ")" + type(blockDataPath).getDescriptor(),
                 false);
+        mv.visitInsn(Opcodes.POP);
         mv.visitJumpInsn(Opcodes.GOTO, end);
 
         mv.visitLabel(end);

@@ -3,23 +3,24 @@ package me.pesekjak.machine.network.packets.in.handshaking;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketHandshakingInHandshake extends PacketIn {
 
     private static final int ID = 0x00;
 
-    @Getter @Setter
     private int protocolVersion;
-    @Getter @Setter @NotNull
+    @NotNull
     private String serverAddress;
-    @Getter @Setter
     private int serverPort;
-    @Getter @Setter @NotNull
+    @NotNull
     private HandshakeType handshakeType;
 
     static {

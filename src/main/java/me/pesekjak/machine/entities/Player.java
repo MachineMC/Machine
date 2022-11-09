@@ -4,17 +4,18 @@ import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
+import me.pesekjak.machine.chat.ChatColor;
 import me.pesekjak.machine.chat.ChatMode;
-import me.pesekjak.machine.chat.Messenger;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.entities.player.Hand;
 import me.pesekjak.machine.entities.player.PlayerProfile;
 import me.pesekjak.machine.entities.player.SkinPart;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.out.play.*;
-import me.pesekjak.machine.network.packets.out.play.PacketPlayOutGameEvent.Event;
-import me.pesekjak.machine.utils.FriendlyByteBuf;
-import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.network.packets.PacketOut;
+import me.pesekjak.machine.network.packets.out.*;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutGameEvent.Event;
+import me.pesekjak.machine.server.NBTSerializable;
+import me.pesekjak.machine.server.codec.Codec;
 import me.pesekjak.machine.world.Difficulty;
 import me.pesekjak.machine.world.Location;
 import me.pesekjak.machine.world.World;
@@ -24,16 +25,15 @@ import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-public class Player extends LivingEntity implements Audience {
+public class Player extends LivingEntity implements Audience, NBTSerializable {
 
     @Getter
     private final ClientConnection connection;
@@ -57,8 +57,12 @@ public class Player extends LivingEntity implements Audience {
     private Hand mainHand;
     @Getter @Setter
     private int latency = 0;
+    @Getter
+    private Component displayName;
+    @Getter
+    private Component playerListName;
 
-    public Player(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
+    private Player(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUuid());
         this.profile = profile;
         if(connection.getOwner() != null)
@@ -67,47 +71,62 @@ public class Player extends LivingEntity implements Audience {
             throw new IllegalStateException("Player's connection has to be in play state");
         connection.setOwner(this);
         connection.startKeepingAlive();
-        setDisplayName(Component.text(profile.getUsername()));
         this.connection = connection;
+        this.displayName = Component.text(getName());
+        playerListName = displayName;
+    }
+
+    public static Player spawn(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
+        Player player = new Player(server, profile, connection);
+        NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player);
+        if (nbtCompound != null)
+            player.load(nbtCompound);
         try {
-            init();
-        } catch (IOException e) {
-            connection.disconnect(Component.text("Failed initialization."));
+            player.init();
+            return player;
+        } catch (Exception e) {
+            e.printStackTrace();
+            connection.disconnect(Component.text("Failed initialization"));
         }
+        return null;
     }
 
     @Override
     protected void init() throws IOException {
         super.init();
-        NBTCompound nbt = NBT.Compound(Map.of(
-                "minecraft:chat_type", Messenger.CHAT_REGISTRY,
-                "minecraft:dimension_type", getServer().getDimensionTypeManager().toNBT(),
-                "minecraft:worldgen/biome", getServer().getBiomeManager().toNBT()));
-        List<NamespacedKey> worlds = new ArrayList<>();
+
+        NBTCompound codec = new Codec(
+                getServer().getDimensionTypeManager(),
+                getServer().getBiomeManager(),
+                getServer().getMessenger()
+        ).toNBT();
+
+        List<String> worlds = new ArrayList<>();
         for(World world : getServer().getWorldManager().getWorlds())
-            worlds.add(world.getName());
-        FriendlyByteBuf playLoginBuf = new FriendlyByteBuf()
-                .writeInt(getEntityId())
-                .writeBoolean(false)
-                .writeByte((byte) gamemode.getId())
-                .writeByte((byte) -1)
-                .writeNamespacedKeyList(worlds)
-                .writeNBT("", nbt)
-                .writeNamespacedKey(getWorld().getDimensionType().getName())
-                .writeNamespacedKey(getWorld().getName())
-                .writeLong(Hashing.sha256().hashLong(getWorld().getSeed()).asLong())
-                .writeVarInt(getServer().getProperties().getMaxPlayers())
-                .writeVarInt(8) // TODO Server Properties - View Distance
-                .writeVarInt(8) // TODO Server Properties - Simulation Distance
-                .writeBoolean(false) // TODO Server Properties - Reduced Debug Screen
-                .writeBoolean(true)
-                .writeBoolean(false)
-                .writeBoolean(false) // TODO World - Is Spawn World Flat
-                .writeBoolean(false);
-        connection.sendPacket(new PacketPlayOutLogin(playLoginBuf)); // TODO Rework to the second constructor
+            worlds.add(world.getName().toString());
+
+        //noinspection UnstableApiUsage
+        sendPacket(new PacketPlayOutLogin(
+                getEntityId(),
+                false,
+                gamemode,
+                previousGamemode,
+                worlds,
+                codec,
+                getWorld().getDimensionType().getName(),
+                getWorld().getName(),
+                Hashing.sha256().hashLong(getWorld().getSeed()).asLong(),
+                getServer().getProperties().getMaxPlayers(),
+                8, // TODO Server Properties - View Distance
+                8, // TODO Server Properties - Simulation Distance
+                false, // TODO Server Properties - Reduced Debug Screen
+                true,
+                false,
+                false // TODO World - Is Spawn World Flat
+        ));
 
         // TODO Add this as option in server properties
-        connection.sendPacket(PacketPlayOutPluginMessage.getBrandPacket("Machine server"));
+        sendPacket(PacketPlayOutPluginMessage.getBrandPacket("Machine server"));
 
         // Spawn Sequence: https://wiki.vg/Protocol_FAQ#What.27s_the_normal_login_sequence_for_a_client.3F
         sendDifficultyChange(getWorld().getDifficulty());
@@ -123,7 +142,7 @@ public class Player extends LivingEntity implements Audience {
         for (Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
             if (player == this)
                 continue;
-            getConnection().sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, player));
+            sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, player));
         }
         // Set Chunk Cache Center
         // Light Update (One sent for each chunk in a square centered on the player's position)
@@ -133,8 +152,30 @@ public class Player extends LivingEntity implements Audience {
         // Player Position (Required, tells the client they're ready to spawn)
         // Inventory, entities, etc
         sendGamemodeChange(gamemode);
+        getWorld().loadPlayer(this);
     }
 
+    @Override
+    public void remove() {
+        try {
+            super.remove();
+            getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this));
+            save();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void sendPacket(PacketOut packet) {
+        try {
+            connection.sendPacket(packet);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    @Override
     public String getName() {
         return profile.getUsername();
     }
@@ -143,53 +184,63 @@ public class Player extends LivingEntity implements Audience {
         return profile.getUsername();
     }
 
+    public void setDisplayName(Component displayName) {
+        this.displayName = displayName == null ? Component.text(getName()) : displayName;
+    }
+
+    public void setPlayerListName(Component playerListName) {
+        if (playerListName == null)
+            playerListName = Component.text(getName());
+        this.playerListName = playerListName;
+        try {
+            getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME, this));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setGamemode(Gamemode gamemode) {
-        try {
-            previousGamemode = this.gamemode;
-            this.gamemode = gamemode;
-            sendGamemodeChange(gamemode);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void remove() {
-        try {
-            super.remove();
-            getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this));
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void sendDifficultyChange(Difficulty difficulty) throws IOException {
-        connection.sendPacket(new PacketPlayOutChangeDifficulty(difficulty));
+        previousGamemode = this.gamemode;
+        this.gamemode = gamemode;
+        sendGamemodeChange(gamemode);
     }
 
     @Override
     public void sendMessage(final @NotNull Identity source, final @NotNull Component message, final @NotNull MessageType type) {
-        sendSystem(message);
+        getServer().getMessenger().sendMessage(this, message, type);
     }
 
-    // TODO Move this to Messenger class + handle if player can display the message (chat settings),
-    //  that means implementing Client Information packet
-    private void sendSystem(Component message) {
-        try {
-            connection.sendPacket(new PacketPlayOutSystemChatMessage(message, false));
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
+    private void sendDifficultyChange(Difficulty difficulty) {
+        sendPacket(new PacketPlayOutChangeDifficulty(difficulty));
     }
 
-    private void sendWorldSpawnChange(Location location) throws IOException {
-        connection.sendPacket(new PacketPlayOutWorldSpawnPosition(location));
+    private void sendWorldSpawnChange(Location location) {
+        sendPacket(new PacketPlayOutWorldSpawnPosition(location));
     }
 
-    private void sendGamemodeChange(Gamemode gamemode) throws IOException {
-        connection.sendPacket(new PacketPlayOutGameEvent(Event.CHANGE_GAMEMODE, gamemode.getId()));
+    private void sendGamemodeChange(Gamemode gamemode) {
+        sendPacket(new PacketPlayOutGameEvent(Event.CHANGE_GAMEMODE, gamemode.getId()));
     }
 
+    @Override
+    public NBTCompound toNBT() {
+        MutableNBTCompound nbtCompound = super.toNBT().toMutableCompound();
+        nbtCompound.setInt("playerGameType", gamemode.getId());
+        if (previousGamemode != null)
+            nbtCompound.setInt("previousPlayerGameType", previousGamemode.getId());
+        return nbtCompound.toCompound();
+    }
+
+    @Override
+    @SuppressWarnings("ConstantConditions")
+    protected void load(NBTCompound nbtCompound) {
+        super.load(nbtCompound);
+        gamemode = Gamemode.fromID(nbtCompound.contains("playerGameType") ? nbtCompound.getInt("playerGameType") : Gamemode.SURVIVAL.getId()); // TODO replace with default gamemode from server.properties
+        previousGamemode = nbtCompound.contains("previousPlayerGameType") ? Gamemode.fromID(nbtCompound.getInt("previousPlayerGameType")) : null;
+    }
+
+    protected void save() {
+        getServer().getPlayerDataContainer().savePlayerData(this);
+    }
 }

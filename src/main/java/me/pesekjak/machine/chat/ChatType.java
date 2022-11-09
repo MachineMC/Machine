@@ -23,6 +23,9 @@ import java.util.*;
 
 import static me.pesekjak.machine.chat.ChatType.Element.DEFAULT_NARRATION_ELEMENT;
 
+/**
+ * Different chat message types, used by Minecraft's chat system.
+ */
 @AllArgsConstructor
 public enum ChatType implements NBTSerializable {
 
@@ -144,6 +147,10 @@ public enum ChatType implements NBTSerializable {
         });
     }
 
+    /**
+     * Chat and Narration types of chat types, contain information
+     * about their parameters, translation key and chat style.
+     */
     protected record Element(ElementType type,
                              Set<Parameter> parameters,
                              String translationKey,
@@ -154,9 +161,23 @@ public enum ChatType implements NBTSerializable {
                 "chat.type.text.narrate",
                 null);
 
+        /**
+         * Creates new element of type chat.
+         * @param parameters parameters of the element
+         * @param translationKey translation key of the element
+         * @param style chat style of the element
+         * @return created chat type element
+         */
         public static Element chat(Set<Parameter> parameters, String translationKey, @Nullable Style style) {
             return new Element(ElementType.CHAT, parameters, translationKey, style);
         }
+        /**
+         * Creates new element of type narration.
+         * @param parameters parameters of the element
+         * @param translationKey translation key of the element
+         * @param style chat style of the element
+         * @return created chat type element
+         */
         public static Element narration(Set<Parameter> parameters, String translationKey, @Nullable Style style) {
             return new Element(ElementType.NARRATION, parameters, translationKey, style);
         }
@@ -200,6 +221,9 @@ public enum ChatType implements NBTSerializable {
 
     }
 
+    /**
+     * Type of chat type element.
+     */
     @AllArgsConstructor
     protected enum ElementType {
         CHAT("chat"),
@@ -208,6 +232,9 @@ public enum ChatType implements NBTSerializable {
         private final String name;
     }
 
+    /**
+     * Parameters used by chat type elements.
+     */
     @AllArgsConstructor
     protected enum Parameter {
         SENDER("sender"),

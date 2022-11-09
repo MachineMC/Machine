@@ -12,6 +12,9 @@ import org.jglrxavpok.hephaistos.parser.SNBTParser;
 
 import java.io.StringReader;
 
+/**
+ * Represents an item in inventory.
+ */
 public class ItemStack implements Cloneable {
 
     private final static Material[] REGISTRY;
@@ -31,12 +34,22 @@ public class ItemStack implements Cloneable {
         }
     }
 
+    /**
+     * Returns a material from id (mapped by vanilla server reports)
+     * @param id id of the material
+     * @return material with the id
+     */
     public static Material getMaterial(int id) {
         if(id == -1) return null;
         if(REGISTRY.length <= id) return null;
         return REGISTRY[id];
     }
 
+    /**
+     * Returns id of the material
+     * @param material material to get id from
+     * @return id of the material
+     */
     public static int getId(Material material) {
         return material.getId();
     }
@@ -60,30 +73,54 @@ public class ItemStack implements Cloneable {
         this.material = material;
     }
 
+    /**
+     * Changes the NBT of the item to NBT of given string.
+     * @param nbtCompound new nbt of the ItemStack
+     */
     public void writeNBT(String nbtCompound) throws NBTException {
         this.nbtCompound = (NBTCompound) new SNBTParser(new StringReader(nbtCompound)).parse();
     }
 
+    /**
+     * Resets the NBT of the ItemStack
+     */
     public void removeNBT() {
         nbtCompound = new NBTCompound();
     }
 
+    /**
+     * Adds given amount to the ItemStack.
+     * @param amount amount to add
+     */
     public void add(int amount) {
         this.amount += amount;
     }
 
+    /**
+     * Adds 1 to the amount of the ItemStack.
+     */
     public void add() {
         add(1);
     }
 
+    /**
+     * Removes given amount from the ItemStack
+     * @param amount amount to remove
+     */
     public void subtract(int amount) {
         this.amount -= amount;
     }
 
+    /**
+     * Removes 1 from the amount of the ItemStack
+     */
     public void subtract() {
         subtract(1);
     }
 
+    /**
+     * @return the copy of the ItemStack with amount of 1
+     */
     public ItemStack single() {
         ItemStack single = clone();
         single.amount = 1;

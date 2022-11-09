@@ -4,18 +4,21 @@ import com.google.common.base.Preconditions;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutGameEvent extends PacketOut {
 
     private static final int ID = 0x1D;
 
-    @Getter @Setter
+    @NotNull
     private Event event;
-    @Getter @Setter
     private float value;
 
     static {

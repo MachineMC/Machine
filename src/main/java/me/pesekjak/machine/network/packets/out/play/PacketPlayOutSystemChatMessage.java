@@ -3,19 +3,21 @@ package me.pesekjak.machine.network.packets.out.play;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutSystemChatMessage extends PacketOut {
 
     private static final int ID = 0x62;
 
-    @Getter @Setter @NotNull
+    @NotNull
     private Component message;
-    @Getter @Setter
     private boolean overlay;
 
     static {

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.entities.Player;
-import me.pesekjak.machine.network.packets.out.play.PacketPlayOutSystemChatMessage;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutSystemChatMessage;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.server.codec.CodecPart;
 import net.kyori.adventure.audience.MessageType;
@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Sends a messages to a players, respecting their chat settings, handles
+ * 'cannot send' messages and chat codec.
+ */
 @RequiredArgsConstructor
 public class Messenger implements CodecPart, ServerProperty {
 

@@ -3,34 +3,34 @@ package me.pesekjak.machine.network.packets.in.play;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.chat.ChatMode;
 import me.pesekjak.machine.entities.player.Hand;
 import me.pesekjak.machine.entities.player.SkinPart;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayInClientInformation extends PacketIn {
 
     private static final int ID = 0x08;
 
-    @Getter @Setter
+    @NotNull
     private String locale;
-    @Getter @Setter
     private byte viewDistance;
-    @Getter @Setter
+    @NotNull
     private ChatMode chatMode;
-    @Getter @Setter
     private boolean chatColor;
-    @Getter @Setter
+    @NotNull
     private Set<SkinPart> displayedSkinParts;
-    @Getter @Setter
+    @NotNull
     private Hand mainHand;
-    @Getter @Setter
     private boolean enableTextFiltering;
-    @Getter @Setter
     private boolean allowServerListings;
 
     static {

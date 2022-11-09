@@ -3,19 +3,22 @@ package me.pesekjak.machine.network.packets.out.play;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.Location;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutWorldSpawnPosition extends PacketOut {
 
     private static final int ID = 0x4D;
 
-    @Getter @Setter
+    @NotNull
     private BlockPosition position;
-    @Getter @Setter
     private float angle;
 
     static {
@@ -29,7 +32,7 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
 
     public PacketPlayOutWorldSpawnPosition(FriendlyByteBuf buf) {
         position = buf.readBlockPos();
-        angle = buf.readAngle();
+        angle = buf.readFloat();
     }
 
     @Override
@@ -41,7 +44,7 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeBlockPos(position)
-                .writeAngle(angle)
+                .writeFloat(angle)
                 .bytes();
     }
 

@@ -1,10 +1,12 @@
 package me.pesekjak.machine.network.packets.in.status;
 
 import lombok.AllArgsConstructor;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
+@ToString
 public class PacketStatusInRequest extends PacketIn {
 
     private static final int ID = 0x00;

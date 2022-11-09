@@ -3,6 +3,7 @@ package me.pesekjak.machine.network.packets.in.login;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.auth.PublicKeyData;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
@@ -12,15 +13,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketLoginInStart extends PacketIn {
 
     private static final int ID = 0x00;
 
-    @Getter @Setter @NotNull
+    @NotNull
     private String username;
-    @Getter @Setter @Nullable
+    @Nullable
     private PublicKeyData publicKeyData;
-    @Getter @Setter @Nullable
+    @Nullable
     private UUID uuid;
 
     static {

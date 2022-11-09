@@ -5,7 +5,7 @@ import me.pesekjak.machine.chat.Messenger;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.events.translations.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.in.play.PacketPlayInChatMessage;
+import me.pesekjak.machine.network.packets.in.PacketPlayInChatMessage;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;

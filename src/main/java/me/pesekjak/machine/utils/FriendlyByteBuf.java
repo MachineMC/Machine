@@ -16,16 +16,13 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Special ByteBuffer for implementing Minecraft Protocol.
@@ -43,6 +40,10 @@ public class FriendlyByteBuf {
 
     public FriendlyByteBuf(byte[] bytes) {
         buf.writeBytes(bytes);
+    }
+
+    public FriendlyByteBuf(DataInputStream dataInputStream) throws IOException {
+        buf.writeBytes(dataInputStream.readAllBytes());
     }
 
     /**
@@ -159,6 +160,21 @@ public class FriendlyByteBuf {
         return this;
     }
 
+    public long[] readLongArray() {
+        int length = readVarInt();
+        long[] longs = new long[length];
+        for(int i = 0; i < length; i++)
+            longs[i] = readLong();
+        return longs;
+    }
+
+    public FriendlyByteBuf writeLongArray(long[] longs) {
+        writeVarInt(longs.length);
+        for(long l : longs)
+            writeLong(l);
+        return this;
+    }
+
     public float readFloat() {
         return buf.readFloat();
     }
@@ -202,21 +218,6 @@ public class FriendlyByteBuf {
         }
     }
 
-    public int[] readVarIntArray() {
-        int length = readVarInt();
-        int[] varInts = new int[length];
-        for (int i = 0; i < length; i++)
-            varInts[i] = readVarInt();
-        return varInts;
-    }
-
-    public FriendlyByteBuf writeVarIntArray(int[] varInt) {
-        writeVarInt(varInt.length);
-        for (int i : varInt)
-            writeVarInt(i);
-        return this;
-    }
-
     public long readVarLong() {
         long value = 0;
         int position = 0;
@@ -242,34 +243,34 @@ public class FriendlyByteBuf {
         }
     }
 
-    public String readString() {
+    public String readString(Charset charset) {
         int length = readVarInt();
         if (length == -1) return null;
         byte[] bytes = new byte[length];
         for (int i = 0; i < length; i++)
             bytes[i] = buf.readByte();
-        return new String(bytes, StandardCharsets.UTF_8);
+        return new String(bytes, charset);
     }
 
-    public FriendlyByteBuf writeString(String value) {
-        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+    public FriendlyByteBuf writeString(String value, Charset charset) {
+        byte[] bytes = value.getBytes(charset);
         writeVarInt(bytes.length);
         buf.writeBytes(bytes);
         return this;
     }
 
-    public List<String> readStringList() {
+    public List<String> readStringList(Charset charset) {
         final List<String> strings = new ArrayList<>();
         int length = readVarInt();
         for (int i = 0; i < length; i++)
-            strings.add(readString());
+            strings.add(readString(charset));
         return strings;
     }
 
-    public FriendlyByteBuf writeStringList(List<String> strings) {
+    public FriendlyByteBuf writeStringList(List<String> strings, Charset charset) {
         writeVarInt(strings.size());
         for(String string : strings)
-            writeString(string);
+            writeString(string, charset);
         return this;
     }
 
@@ -302,7 +303,6 @@ public class FriendlyByteBuf {
         return this;
     }
 
-
     public NBT readNBT() {
         byte[] bytes = buf.array();
         ByteArrayInputStream buffer = new ByteArrayInputStream(bytes, buf.readerIndex(), bytes.length);
@@ -316,11 +316,11 @@ public class FriendlyByteBuf {
     }
 
     public Component readComponent() {
-        return GsonComponentSerializer.gson().deserialize(readString());
+        return GsonComponentSerializer.gson().deserialize(readString(StandardCharsets.UTF_8));
     }
 
     public FriendlyByteBuf writeComponent(Component component) {
-        writeString(GsonComponentSerializer.gson().serialize(component));
+        writeString(GsonComponentSerializer.gson().serialize(component), StandardCharsets.UTF_8);
         return this;
     }
 
@@ -361,20 +361,20 @@ public class FriendlyByteBuf {
     }
 
     public FriendlyByteBuf writePublicKey(PublicKeyData publicKeyData) {
-        writeByteArray(publicKeyData.publicKey().getEncoded())
-                .writeByteArray(publicKeyData.signature())
-                .writeLong(publicKeyData.timestamp().toEpochMilli());
+        writeLong(publicKeyData.timestamp().toEpochMilli())
+                .writeByteArray(publicKeyData.publicKey().getEncoded())
+                .writeByteArray(publicKeyData.signature());
         return this;
     }
 
     public PlayerTextures readTextures() {
         if (readVarInt() == 0)
             return null;
-        readString();
-        String value = readString();
+        readString(StandardCharsets.UTF_8);
+        String value = readString(StandardCharsets.UTF_8);
         String signature = null;
         if (readBoolean())
-            signature = readString();
+            signature = readString(StandardCharsets.UTF_8);
         return PlayerTextures.buildSkin(value, signature);
     }
 
@@ -384,10 +384,10 @@ public class FriendlyByteBuf {
             return this;
         }
         writeVarInt(1);
-        writeString("textures");
-        writeString(playerSkin.value());
+        writeString("textures", StandardCharsets.UTF_8);
+        writeString(playerSkin.value(), StandardCharsets.UTF_8);
         writeBoolean(true);
-        writeString(playerSkin.signature());
+        writeString(playerSkin.signature(), StandardCharsets.UTF_8);
         return this;
     }
 
@@ -402,39 +402,6 @@ public class FriendlyByteBuf {
         if (messageSignature == null)
             return this;
         messageSignature.write(this);
-        return this;
-    }
-
-    public float readAngle() {
-        return (readByte() * 360f) / 256f;
-    }
-
-    public FriendlyByteBuf writeAngle(float angle) {
-        writeByte((byte) (angle * 256F / 360F));
-        return this;
-    }
-
-    public NamespacedKey readNamespacedKey() {
-        return NamespacedKey.parse(readString());
-    }
-
-    public FriendlyByteBuf writeNamespacedKey(NamespacedKey namespacedKey) {
-        writeString(namespacedKey.toString());
-        return this;
-    }
-
-    public List<NamespacedKey> readNamespacedKeyList() {
-        final List<NamespacedKey> namespacedKeys = new ArrayList<>();
-        int length = readVarInt();
-        for (int i = 0; i < length; i++)
-            namespacedKeys.add(readNamespacedKey());
-        return namespacedKeys;
-    }
-
-    public FriendlyByteBuf writeNamespacedKeyList(List<NamespacedKey> namespacedKeyList) {
-        writeVarInt(namespacedKeyList.size());
-        for (NamespacedKey namespacedKey : namespacedKeyList)
-            writeNamespacedKey(namespacedKey);
         return this;
     }
 

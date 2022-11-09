@@ -1,6 +1,7 @@
 package me.pesekjak.machine.events.translations;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import me.pesekjak.machine.network.Channel;
 import me.pesekjak.machine.network.PacketHandler;
 import me.pesekjak.machine.network.PacketReader;
@@ -8,9 +9,13 @@ import me.pesekjak.machine.network.PacketWriter;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
 
+/**
+ * PacketHandler for translators, bridge between translator dispatcher and channel.
+ */
 @AllArgsConstructor
 public class TranslatorHandler extends PacketHandler {
 
+    @Getter
     private final TranslatorDispatcher dispatcher;
 
     @Override
