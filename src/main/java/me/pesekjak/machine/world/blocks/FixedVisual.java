@@ -4,6 +4,9 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.world.BlockData;
 
+/**
+ * Visual of a block that can't be changed.
+ */
 @SuppressWarnings("ClassCanBeRecord")
 @RequiredArgsConstructor
 @EqualsAndHashCode

@@ -18,6 +18,9 @@ import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Region implementing Minecraft's Anvil file region format.
+ */
 public class AnvilRegion extends Region {
 
     private static final String MODE = "rw";
@@ -59,6 +62,11 @@ public class AnvilRegion extends Region {
         return grid[x][z];
     }
 
+    /**
+     * Loads chunk from the region file to the memory
+     * @param x x coordinate of the chunk in the region
+     * @param z z coordinate of the chunk in the region
+     */
     public void loadChunk(int x, int z) throws AnvilException, IOException {
         final int worldX = this.x * 32 + x;
         final int worldZ = this.z * 32 + z;
@@ -86,6 +94,11 @@ public class AnvilRegion extends Region {
         }
     }
 
+    /**
+     * Fills the chunk column with single block state
+     * @param chunkColumn chunk column to fill
+     * @param state new state
+     */
     private void fillColumn(ChunkColumn chunkColumn, BlockState state) {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
@@ -96,6 +109,11 @@ public class AnvilRegion extends Region {
         }
     }
 
+    /**
+     * Fills the chunk column with a block states from a chunk.
+     * @param column column to fill
+     * @param chunk chunk with the data
+     */
     private void fillColumn(ChunkColumn column, Chunk chunk) {
         if(column.getMaxY() != chunk.getWorld().getDimensionType().getHeight())
             throw new IllegalStateException();
@@ -113,6 +131,11 @@ public class AnvilRegion extends Region {
         }
     }
 
+    /**
+     * Fills the chunk with a block states from a chunk column.
+     * @param chunk chunk to fill
+     * @param column column with the data
+     */
     private void fillChunk(Chunk chunk, ChunkColumn column) {
         if(column.getMaxY() != chunk.getWorld().getDimensionType().getHeight())
             throw new IllegalStateException();
@@ -129,6 +152,11 @@ public class AnvilRegion extends Region {
         }
     }
 
+    /**
+     * Converts the BlockType to a BlockState
+     * @param blockType block type to convert
+     * @return converted block state
+     */
     private static BlockState createBlockState(BlockType blockType) {
         return new BlockState(blockType.getName().toString());
     }

@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+/**
+ * Server with a folder in the main server directory
+ */
 public class ServerWorld extends World {
 
     public final static String DEFAULT_WORLD_FOLDER = "level";
@@ -166,6 +169,11 @@ public class ServerWorld extends World {
         return chunk;
     }
 
+    /**
+     * @param regionX x coordinate of the region
+     * @param regionZ z coordinate of the region
+     * @return unique index for a region at given coordinates
+     */
     private int createRegionIndex(int regionX, int regionZ) {
         if(regionX > 0x7FFF || regionZ > 0x7FFF) throw new UnsupportedOperationException();
         int index = 0;

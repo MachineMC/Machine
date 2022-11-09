@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
+/**
+ * Data about chunk's lighting.
+ */
 @AllArgsConstructor
 public class LightData {
 
@@ -36,6 +39,10 @@ public class LightData {
             blockLight.add(buf.readByteArray());
     }
 
+    /**
+     * Writes the data to a given buffer.
+     * @param buf buffer to write into
+     */
     public void write(FriendlyByteBuf buf) {
         buf.writeBoolean(trustEdges);
 

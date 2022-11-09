@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class ChunkUtils {
 
+    // Magic number for MOTION_BLOCKING encoding (https://wiki.vg/Chunk_Format#MOTION_BLOCKING_encoding)
     private static final int[] MAGIC = {
             -1, -1, 0, Integer.MIN_VALUE, 0, 0, 1431655765, 1431655765, 0, Integer.MIN_VALUE,
             0, 1, 858993459, 858993459, 0, 715827882, 715827882, 0, 613566756, 613566756,

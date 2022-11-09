@@ -5,6 +5,9 @@ import lombok.Getter;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
+/**
+ * Data about chunk's blocks and biomes.
+ */
 @AllArgsConstructor
 @Getter
 public class ChunkData {
@@ -17,13 +20,14 @@ public class ChunkData {
         buf.readVarInt();
     }
 
+    /**
+     * Writes the data to a given buffer.
+     * @param buf buffer to write into
+     */
     public void write(FriendlyByteBuf buf) {
-        // Heightmaps
         buf.writeNBT("", this.heightmaps);
-        // Data
         buf.writeByteArray(data);
-        // Block entities
-        buf.writeVarInt(0);
+        buf.writeVarInt(0); // TODO Block entities
     }
 
 

@@ -23,6 +23,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Playable world
+ */
 @RequiredArgsConstructor
 public abstract class World implements ServerProperty {
 
@@ -49,35 +52,90 @@ public abstract class World implements ServerProperty {
         return manager.get();
     }
 
+    /**
+     * @return set of all active entities in the world
+     */
     public abstract Set<Entity> getEntities();
 
+    /**
+     * @return generator of the world
+     */
     public abstract Generator getGenerator();
 
+    /**
+     * Loads the world.
+     */
     public abstract void load();
 
+    /**
+     * Unloads the world.
+     */
     public abstract void unload();
 
+    /**
+     * Saves the world and its regions.
+     */
     public abstract void save();
 
+    /**
+     * Loads the player in to the world.
+     * @param player player to load
+     */
     public abstract void loadPlayer(Player player);
 
+    /**
+     * Removes the player from the world.
+     * @param player player to remove
+     */
     public abstract void unloadPlayer(Player player);
 
+    /**
+     * Spawns an entity to the world.
+     * @param entity entity to spawn
+     * @param location location where the entity should spawn
+     */
     public abstract void spawn(Entity entity, Location location);
 
+    /**
+     * Removes the entity from the world.
+     * @param entity entity to remove
+     */
     public abstract void remove(Entity entity);
 
+    /**
+     * @param regionX x coordinate of the region
+     * @param regionZ z coordinate of the region
+     * @return region at given coordinates
+     */
     public abstract Region getRegion(int regionX, int regionZ);
 
+    /**
+     * Saves region at given coordinates.
+     * @param regionX x coordinate of the region
+     * @param regionZ z coordinate of the region
+     */
     public abstract void saveRegion(int regionX, int regionZ);
 
+    /**
+     * Saves the given region.
+     * @param region region to save
+     */
     public void saveRegion(Region region) {
         if(region.getWorld() != this) throw new IllegalStateException();
         saveRegion(region.getX(), region.getZ());
     }
 
+    /**
+     * @param chunkX x coordinate of the chunk
+     * @param chunkZ z coordinate of the chunk
+     * @return chunk at given coordinates
+     */
     public abstract Chunk getChunk(int chunkX, int chunkZ);
 
+    /**
+     * @param position position
+     * @return chunk at given position
+     */
     public Chunk getChunk(BlockPosition position) {
         return getChunk(
                 ChunkUtils.getChunkCoordinate(position.getX()),
@@ -85,10 +143,22 @@ public abstract class World implements ServerProperty {
         );
     }
 
+    /**
+     * @param location location
+     * @return chunk at given location
+     */
     public Chunk getChunk(Location location) {
         return getChunk(location.toBlockPosition());
     }
 
+    /**
+     * Sets a world block at given location to a different block type.
+     * @param blockType new block type
+     * @param position position of the block
+     * @param reason reason why the block type was set
+     * @param replaceReason reason why the previous block type was removed
+     * @param source source of the change
+     */
     public void setBlock(BlockType blockType, BlockPosition position, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
         getChunk(position).setBlock(
                 ChunkUtils.getSectionRelativeCoordinate(position.getX()),
@@ -109,6 +179,10 @@ public abstract class World implements ServerProperty {
         setBlock(blockType, location, BlockType.CreateReason.SET, BlockType.DestroyReason.REMOVED, null);
     }
 
+    /**
+     * @param position position
+     * @return world block at given position
+     */
     public WorldBlock getBlock(BlockPosition position) {
         return getChunk(position).getBlock(
                 ChunkUtils.getSectionRelativeCoordinate(position.getX()),
@@ -116,6 +190,10 @@ public abstract class World implements ServerProperty {
                 ChunkUtils.getSectionRelativeCoordinate(position.getZ()));
     }
 
+    /**
+     * @param location location
+     * @return world block at given location
+     */
     public WorldBlock getBlock(Location location) {
         return getBlock(location.toBlockPosition());
     }

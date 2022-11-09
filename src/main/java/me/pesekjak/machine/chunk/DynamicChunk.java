@@ -23,6 +23,9 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Chunk that can change individual blocks and biomes at any time.
+ */
 public class DynamicChunk extends Chunk {
 
     private final Map<Integer, WorldBlock> blocks = new ConcurrentHashMap<>();
@@ -123,6 +126,35 @@ public class DynamicChunk extends Chunk {
             sections.add(new Section());
     }
 
+    /**
+     * @return chunk data of this chunk
+     */
+    private ChunkData createChunkData() {
+        int[] motionBlocking = new int[16 * 16];
+        int[] worldSurface = new int[16 * 16];
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                motionBlocking[x + z * 16] = 0;
+                worldSurface[x + z * 16] = height - 1;
+            }
+        }
+
+        final int bitsForHeight = MathUtils.bitsToRepresent(height);
+        final NBTCompound heightmaps = NBT.Compound(Map.of(
+                "MOTION_BLOCKING", NBT.LongArray(ChunkUtils.encodeBlocks(motionBlocking, bitsForHeight)),
+                "WORLD_SURFACE", NBT.LongArray(ChunkUtils.encodeBlocks(worldSurface, bitsForHeight))));
+
+        // Data
+        FriendlyByteBuf buf = new FriendlyByteBuf();
+        for(Section section : sections) section.write(buf);
+        final byte[] data = buf.bytes();
+
+        return new ChunkData(heightmaps, data);
+    }
+
+    /**
+     * @return light data of this chunk
+     */
     private LightData createLightData() {
         BitSet skyMask = new BitSet();
         BitSet blockMask = new BitSet();
@@ -154,31 +186,18 @@ public class DynamicChunk extends Chunk {
                 skyLights, blockLights);
     }
 
+    /**
+     * @return chunk packet of this chunk
+     */
     private PacketPlayOutChunkData createChunkPacket() {
-        int[] motionBlocking = new int[16 * 16];
-        int[] worldSurface = new int[16 * 16];
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                motionBlocking[x + z * 16] = 0;
-                worldSurface[x + z * 16] = height - 1;
-            }
-        }
-
-        final int bitsForHeight = MathUtils.bitsToRepresent(height);
-        final NBTCompound heightmaps = NBT.Compound(Map.of(
-                "MOTION_BLOCKING", NBT.LongArray(ChunkUtils.encodeBlocks(motionBlocking, bitsForHeight)),
-                "WORLD_SURFACE", NBT.LongArray(ChunkUtils.encodeBlocks(worldSurface, bitsForHeight))));
-
-        // Data
-        FriendlyByteBuf buf = new FriendlyByteBuf();
-        for(Section section : sections) section.write(buf);
-        final byte[] data = buf.bytes();
-
         return new PacketPlayOutChunkData(chunkX, chunkZ,
-                new ChunkData(heightmaps, data),
+                createChunkData(),
                 createLightData());
     }
 
+    /**
+     * @return light packet of this chunk
+     */
     private PacketPlayOutUpdateLight createLightPacket() {
         return new PacketPlayOutUpdateLight(chunkX, chunkZ, createLightData());
     }

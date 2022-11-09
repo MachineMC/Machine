@@ -6,6 +6,9 @@ import lombok.ToString;
 import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.World;
 
+/**
+ * Block located in a world with given type, location and visual.
+ */
 @EqualsAndHashCode
 @ToString
 @Getter

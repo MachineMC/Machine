@@ -5,6 +5,9 @@ import me.pesekjak.machine.chunk.ChunkUtils;
 import me.pesekjak.machine.world.BlockData;
 import me.pesekjak.machine.world.BlockPosition;
 
+/**
+ * Changeable visual of a block.
+ */
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
 public class DynamicVisual implements BlockVisual {
