@@ -3,7 +3,7 @@ package me.pesekjak.machine.events.translations.translators.in;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.events.translations.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.in.PacketPlayInClientInformation;
+import me.pesekjak.machine.network.packets.in.play.PacketPlayInClientInformation;
 import org.jetbrains.annotations.NotNull;
 
 public class TranslatorPlayInClientInformation extends PacketTranslator<PacketPlayInClientInformation> {

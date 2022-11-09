@@ -4,8 +4,8 @@ import lombok.*;
 import me.pesekjak.machine.entities.Entity;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.network.packets.PacketOut;
-import me.pesekjak.machine.network.packets.out.PacketPlayOutChangeDifficulty;
-import me.pesekjak.machine.network.packets.out.PacketPlayOutWorldSpawnPosition;
+import me.pesekjak.machine.network.packets.out.play.PacketPlayOutChangeDifficulty;
+import me.pesekjak.machine.network.packets.out.play.PacketPlayOutWorldSpawnPosition;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 

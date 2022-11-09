@@ -4,7 +4,7 @@ import lombok.*;
 import me.pesekjak.machine.auth.Crypt;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
-import me.pesekjak.machine.network.packets.out.PacketLoginOutSetCompression;
+import me.pesekjak.machine.network.packets.out.login.PacketLoginOutSetCompression;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.utils.Pair;

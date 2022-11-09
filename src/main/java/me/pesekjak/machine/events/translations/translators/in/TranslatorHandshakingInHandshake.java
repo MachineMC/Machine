@@ -2,7 +2,7 @@ package me.pesekjak.machine.events.translations.translators.in;
 
 import me.pesekjak.machine.events.translations.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.in.PacketHandshakingInHandshake;
+import me.pesekjak.machine.network.packets.in.handshaking.PacketHandshakingInHandshake;
 import org.jetbrains.annotations.NotNull;
 
 public class TranslatorHandshakingInHandshake extends PacketTranslator<PacketHandshakingInHandshake> {
