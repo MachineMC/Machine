@@ -18,4 +18,6 @@ public interface IConsole extends Audience, ServerProperty {
 
     void severe(String... messages);
 
+    void config(String... messages);
+
 }

@@ -147,10 +147,11 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
         // Light Update (One sent for each chunk in a square centered on the player's position)
         // Level Chunk With Light (One sent for each chunk in a square centered on the player's position)
         // World Border (Once the world is finished loading)
-//        sendWorldSpawnChange(getWorld().getWorldSpawn());
+        sendWorldSpawnChange(getWorld().getWorldSpawn());
         // Player Position (Required, tells the client they're ready to spawn)
         // Inventory, entities, etc
         sendGamemodeChange(gamemode);
+        getWorld().loadPlayer(this);
     }
 
     @Override

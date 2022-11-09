@@ -32,7 +32,7 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
 
     public PacketPlayOutWorldSpawnPosition(FriendlyByteBuf buf) {
         position = buf.readBlockPos();
-        angle = buf.readAngle();
+        angle = buf.readFloat();
     }
 
     @Override
@@ -44,7 +44,7 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeBlockPos(position)
-                .writeAngle(angle)
+                .writeFloat(angle)
                 .bytes();
     }
 

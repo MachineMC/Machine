@@ -5,6 +5,7 @@ import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.utils.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
@@ -38,7 +39,9 @@ public class DimensionType implements NBTSerializable {
     @NotNull
     private final NamespacedKey effects;
     private final boolean piglinSafe;
+    @Range(from = -2032, to = 2016)
     private final int minY;
+    @Range(from = 0, to = 4064)
     private final int height;
     private final int logicalHeight;
     private final int coordinateScale;
@@ -72,6 +75,14 @@ public class DimensionType implements NBTSerializable {
                 .monsterSpawnBlockLightLimit(5)
                 .monsterSpawnLightLevel(1)
                 .build();
+    }
+
+
+    /**
+     * @return manager of the world
+     */
+    public DimensionTypeManager manager() {
+        return manager.get();
     }
 
     public int getId() {

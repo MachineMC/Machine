@@ -4,12 +4,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
+import me.pesekjak.machine.chat.ChatUtils;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,18 +16,16 @@ import java.util.Arrays;
 import java.util.logging.Level;
 
 @RequiredArgsConstructor
+@Getter @Setter
 public class Console implements IConsole {
 
     @Getter
     private final Machine server;
 
-    @Getter @Setter @NotNull
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-    @Getter @Setter @Nullable
+    private String configPrefix = "CONFIG";
     private String infoPrefix = "INFO";
-    @Getter @Setter @Nullable
     private String warningPrefix = YELLOW + "WARNING";
-    @Getter @Setter @Nullable
     private String severePrefix = RED + "SEVERE";
 
     // Reset
@@ -107,6 +104,7 @@ public class Console implements IConsole {
     @Override
     public void log(@NotNull Level level, String... messages) {
         final String prefix = switch (level.intValue()) {
+            case 700 -> configPrefix + ": "; // Config value
             case 800 -> infoPrefix + ": "; // Info value
             case 900 -> warningPrefix + ": "; // Warning value
             case 1000 -> severePrefix + ": "; // Severe value
@@ -114,7 +112,7 @@ public class Console implements IConsole {
         };
         final String date = now();
         for(String message : messages)
-            System.out.println("[" + date + "] " + prefix + message + RESET);
+            System.out.println("[" + date + "] " + prefix + ChatUtils.consoleFormatted(message) + RESET);
     }
 
     @Override
@@ -133,12 +131,17 @@ public class Console implements IConsole {
     }
 
     @Override
+    public void config(String... messages) {
+        Arrays.stream(messages).forEach(message -> log(Level.CONFIG, message));
+    }
+
+    @Override
     public void sendMessage(final @NotNull Identity source, final @NotNull Component message, final @NotNull MessageType type) {
-        info(PlainTextComponentSerializer.plainText().serialize(message));
+        info(ChatUtils.consoleFormatted(message));
     }
 
     private String now() {
-        return dateFormatter.format(LocalDateTime.now());
+        return dateFormatter != null ? dateFormatter.format(LocalDateTime.now()) : "";
     }
 
 }
