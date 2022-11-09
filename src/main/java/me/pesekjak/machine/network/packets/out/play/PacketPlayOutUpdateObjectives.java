@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import net.kyori.adventure.text.Component;
@@ -14,17 +15,19 @@ import org.jetbrains.annotations.Range;
 import java.nio.charset.StandardCharsets;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutUpdateObjectives extends PacketOut {
 
     private static final int ID = 0x56;
 
-    @Getter @Setter
+    @NotNull
     private String objectiveName;
-    @Getter @Setter
+    @NotNull
     private Action action;
-    @Getter @Setter @Nullable
+    @Nullable
     private Component objectiveValue;
-    @Getter @Setter @Nullable
+    @Nullable
     private DisplayType type;
 
     static {

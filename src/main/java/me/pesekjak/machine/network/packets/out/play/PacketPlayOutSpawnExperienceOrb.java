@@ -3,20 +3,22 @@ package me.pesekjak.machine.network.packets.out.play;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.world.Location;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutSpawnExperienceOrb extends PacketOut {
 
     private static final int ID = 0x01;
 
-    @Getter @Setter
     private int entityId;
-    @Getter @Setter
+    @NotNull
     private Location location;
-    @Getter @Setter
     private short count;
 
     static {

@@ -3,17 +3,18 @@ package me.pesekjak.machine.network.packets.out.play;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutSetExperience extends PacketOut {
 
     private static final int ID = 0x54;
 
-    @Getter @Setter
     private float experienceBar; // Between 0 and 1
-    @Getter @Setter
     private int level, totalExperience;
 
     static {

@@ -3,21 +3,20 @@ package me.pesekjak.machine.network.packets.out.play;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutInitializeWorldBorder extends PacketOut {
 
     private static final int ID = 0x1F;
 
-    @Getter @Setter
     private double x, z, oldDiameter, newDiameter;
-    @Getter @Setter
     private long speed;
-    @Getter @Setter
     private int portalTeleportBoundary; // Usually 29999984
-    @Getter @Setter
     private int warningBlocks, warningTime;
 
     static {

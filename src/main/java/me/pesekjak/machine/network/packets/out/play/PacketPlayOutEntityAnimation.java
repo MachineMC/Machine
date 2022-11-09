@@ -4,19 +4,21 @@ import com.google.common.base.Preconditions;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutEntityAnimation extends PacketOut {
 
     private static final int ID = 0x03;
 
-    @Getter
     private int entityId;
-    @Getter @Setter
+    @NotNull
     private Animation animation;
 
     static {
@@ -54,7 +56,6 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
         SWING_OFFHAND,
         CRITICAL_EFFECT,
         MAGIC_CRITICAL_EFFECT;
-
 
         public int getId() {
             return ordinal();

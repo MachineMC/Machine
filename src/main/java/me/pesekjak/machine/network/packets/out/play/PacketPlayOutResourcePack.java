@@ -3,25 +3,28 @@ package me.pesekjak.machine.network.packets.out.play;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutResourcePack extends PacketOut {
 
     private static final int ID = 0x3D;
 
-    @Getter @Setter
+    @NotNull
     private String url;
-    @Getter @Setter
+    @NotNull
     private String hash;
-    @Getter @Setter
     private boolean forced;
-    @Getter @Setter @Nullable
+    @Nullable
     private Component promptMessage;
 
     static {
@@ -30,7 +33,11 @@ public class PacketPlayOutResourcePack extends PacketOut {
     }
 
     public PacketPlayOutResourcePack(FriendlyByteBuf buf) {
-
+        url = buf.readString(StandardCharsets.UTF_8);
+        hash = buf.readString(StandardCharsets.UTF_8);
+        forced = buf.readBoolean();
+        if (buf.readBoolean())
+            promptMessage = buf.readComponent();
     }
 
     @Override

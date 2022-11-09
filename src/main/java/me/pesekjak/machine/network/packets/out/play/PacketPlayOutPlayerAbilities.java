@@ -3,17 +3,18 @@ package me.pesekjak.machine.network.packets.out.play;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutPlayerAbilities extends PacketOut {
 
     private static final int ID = 0x31;
 
-    @Getter @Setter
     private byte flags;
-    @Getter @Setter
     private float flyingSpeed, fovModifier;
 
     static {

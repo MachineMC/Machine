@@ -3,31 +3,33 @@ package me.pesekjak.machine.network.packets.out.play;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.BlockPosition;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutRespawn extends PacketOut {
 
     private static final int ID = 0x3E;
 
-    @Getter @Setter
+    @NotNull
     private NamespacedKey worldType, worldName;
-    @Getter @Setter
     private long hashedSeed;
-    @Getter @Setter
+    @NotNull
     private Gamemode gamemode;
-    @Getter @Setter @Nullable
+    @Nullable
     private Gamemode previousGamemode;
-    @Getter @Setter
     private boolean isDebug, isFlat, copyMetadata, hasDeathLocation;
-    @Getter @Setter @Nullable
+    @Nullable
     private NamespacedKey deathWorldName;
-    @Getter @Setter @Nullable
+    @Nullable
     private BlockPosition deathLocation;
 
     static {

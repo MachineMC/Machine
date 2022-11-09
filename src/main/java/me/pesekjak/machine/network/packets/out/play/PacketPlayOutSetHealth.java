@@ -3,19 +3,19 @@ package me.pesekjak.machine.network.packets.out.play;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
+@ToString
+@Getter @Setter
 public class PacketPlayOutSetHealth extends PacketOut {
 
     private static final int ID = 0x55;
 
-    @Getter @Setter
     private float health;
-    @Getter @Setter
     private int food;
-    @Getter @Setter
     private float saturation;
 
     static {
