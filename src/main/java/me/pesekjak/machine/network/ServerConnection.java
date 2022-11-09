@@ -32,6 +32,8 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
     private boolean running;
 
     public ServerConnection(Machine server) {
+        if(server.getConnection() != null)
+            throw new IllegalStateException();
         this.server = server;
         port = server.getProperties().getServerPort();
         start();
