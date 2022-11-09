@@ -4,6 +4,7 @@ import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
+import me.pesekjak.machine.chat.ChatColor;
 import me.pesekjak.machine.chat.ChatMode;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.entities.player.Hand;
@@ -13,6 +14,7 @@ import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.out.*;
 import me.pesekjak.machine.network.packets.out.PacketPlayOutGameEvent.Event;
+import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.server.codec.Codec;
 import me.pesekjak.machine.world.Difficulty;
 import me.pesekjak.machine.world.Location;
@@ -24,13 +26,14 @@ import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class Player extends LivingEntity implements Audience {
+public class Player extends LivingEntity implements Audience, NBTSerializable {
 
     @Getter
     private final ClientConnection connection;
@@ -54,8 +57,12 @@ public class Player extends LivingEntity implements Audience {
     private Hand mainHand;
     @Getter @Setter
     private int latency = 0;
+    @Getter
+    private Component displayName;
+    @Getter
+    private Component playerListName;
 
-    public Player(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
+    private Player(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUuid());
         this.profile = profile;
         if(connection.getOwner() != null)
@@ -64,14 +71,24 @@ public class Player extends LivingEntity implements Audience {
             throw new IllegalStateException("Player's connection has to be in play state");
         connection.setOwner(this);
         connection.startKeepingAlive();
-        setDisplayName(Component.text(profile.getUsername()));
         this.connection = connection;
+        this.displayName = Component.text(getName());
+        playerListName = displayName;
+    }
+
+    public static Player spawn(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
+        Player player = new Player(server, profile, connection);
+        NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player);
+        if (nbtCompound != null)
+            player.load(nbtCompound);
         try {
-            init();
+            player.init();
+            return player;
         } catch (Exception e) {
             e.printStackTrace();
-            connection.disconnect(Component.text("Failed initialization."));
+            connection.disconnect(Component.text("Failed initialization"));
         }
+        return null;
     }
 
     @Override
@@ -88,11 +105,12 @@ public class Player extends LivingEntity implements Audience {
         for(World world : getServer().getWorldManager().getWorlds())
             worlds.add(world.getName().toString());
 
+        //noinspection UnstableApiUsage
         sendPacket(new PacketPlayOutLogin(
                 getEntityId(),
                 false,
                 gamemode,
-                null,
+                previousGamemode,
                 worlds,
                 codec,
                 getWorld().getDimensionType().getName(),
@@ -142,6 +160,7 @@ public class Player extends LivingEntity implements Audience {
         try {
             super.remove();
             getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this));
+            save();
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -156,12 +175,29 @@ public class Player extends LivingEntity implements Audience {
         }
     }
 
+    @Override
     public String getName() {
         return profile.getUsername();
     }
 
     public String getUsername() {
         return profile.getUsername();
+    }
+
+    public void setDisplayName(Component displayName) {
+        this.displayName = displayName == null ? Component.text(getName()) : displayName;
+    }
+
+    public void setPlayerListName(Component playerListName) {
+        if (playerListName == null)
+            playerListName = Component.text(getName());
+        this.playerListName = playerListName;
+        try {
+            getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME, this));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setGamemode(Gamemode gamemode) {
@@ -187,4 +223,24 @@ public class Player extends LivingEntity implements Audience {
         sendPacket(new PacketPlayOutGameEvent(Event.CHANGE_GAMEMODE, gamemode.getId()));
     }
 
+    @Override
+    public NBTCompound toNBT() {
+        MutableNBTCompound nbtCompound = super.toNBT().toMutableCompound();
+        nbtCompound.setInt("playerGameType", gamemode.getId());
+        if (previousGamemode != null)
+            nbtCompound.setInt("previousPlayerGameType", previousGamemode.getId());
+        return nbtCompound.toCompound();
+    }
+
+    @Override
+    @SuppressWarnings("ConstantConditions")
+    protected void load(NBTCompound nbtCompound) {
+        super.load(nbtCompound);
+        gamemode = Gamemode.fromID(nbtCompound.contains("playerGameType") ? nbtCompound.getInt("playerGameType") : Gamemode.SURVIVAL.getId()); // TODO replace with default gamemode from server.properties
+        previousGamemode = nbtCompound.contains("previousPlayerGameType") ? Gamemode.fromID(nbtCompound.getInt("previousPlayerGameType")) : null;
+    }
+
+    protected void save() {
+        getServer().getPlayerDataContainer().savePlayerData(this);
+    }
 }

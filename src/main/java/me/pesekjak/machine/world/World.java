@@ -21,31 +21,28 @@ import me.pesekjak.machine.world.region.Region;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Playable world
  */
 @RequiredArgsConstructor
+@Getter
 public abstract class World implements ServerProperty {
 
-    @Getter
     private final Machine server;
 
     @Getter(AccessLevel.PROTECTED)
     protected final AtomicReference<WorldManager> manager = new AtomicReference<>();
 
-    @Getter
     private final NamespacedKey name;
-    @Getter
+    private final UUID uuid;
     private final DimensionType dimensionType;
-    @Getter
     private final long seed;
-    @Getter
     private Difficulty difficulty = Difficulty.DEFAULT_DIFFICULTY;
-    @Getter
     private Location worldSpawn;
-    @Getter
     protected boolean loaded = false;
 
     public WorldManager manager() {

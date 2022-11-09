@@ -12,6 +12,7 @@ import me.pesekjak.machine.entities.EntityManager;
 import me.pesekjak.machine.events.translations.TranslatorDispatcher;
 import me.pesekjak.machine.exception.ExceptionHandler;
 import me.pesekjak.machine.file.DimensionsJson;
+import me.pesekjak.machine.file.PlayerDataContainer;
 import me.pesekjak.machine.file.ServerProperties;
 import me.pesekjak.machine.file.WorldJson;
 import me.pesekjak.machine.logging.Console;
@@ -89,6 +90,9 @@ public class Machine {
     protected EntityManager entityManager;
     @Getter
     protected BlockManager blockManager;
+    @Getter
+    private final PlayerDataContainer playerDataContainer;
+
 
     @Getter
     protected ServerConnection connection;
@@ -173,6 +177,8 @@ public class Machine {
         console.info("Registered " + dimensionTypeManager.getDimensions().size() + " dimension types");
 
         messenger = new Messenger(this);
+
+        playerDataContainer = new PlayerDataContainer(this);
 
         worldManager = new WorldManager(this);
         for(Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {

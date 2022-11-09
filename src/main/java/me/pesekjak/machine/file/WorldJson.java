@@ -10,6 +10,7 @@ import me.pesekjak.machine.world.*;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 
 import java.io.*;
+import java.util.UUID;
 
 @Getter
 public class WorldJson implements ServerFile, ServerProperty {

@@ -8,7 +8,6 @@ import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.in.PacketLoginInStart;
 import me.pesekjak.machine.network.packets.out.PacketLoginOutEncryptionRequest;
 import me.pesekjak.machine.network.packets.out.PacketLoginOutSuccess;
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -32,7 +31,7 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
                 return;
             }
             connection.setClientState(ClientConnection.ClientState.PLAY);
-            new Player(connection.getServer(), profile, connection);
+            Player.spawn(connection.getServer(), profile, connection);
             return;
         }
         OnlineServer onlineServer = connection.getServer().getOnlineServer();

@@ -61,7 +61,7 @@ public class PacketPlayOutLogin extends PacketOut {
         isHardcore = buf.readBoolean();
         gamemode = Gamemode.fromID(buf.readByte());
         byte gamemodeId = buf.readByte();
-        previousGamemode = gamemodeId == -1 ? null : Gamemode.fromID(gamemodeId); // reading previous gamemode
+        previousGamemode = gamemodeId == -1 ? null : Gamemode.fromID(gamemodeId);
         dimensions = buf.readStringList(StandardCharsets.UTF_8);
         dimensionCodec = (NBTCompound) buf.readNBT();
         spawnWorldType = buf.readNamespacedKey();
