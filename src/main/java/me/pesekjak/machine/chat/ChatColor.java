@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 public enum ChatColor {
@@ -104,7 +105,7 @@ public enum ChatColor {
             return Style.style(NamedTextColor.WHITE);
         }
     },
-    OBFUSCATED('k', -1, true) {
+    OBFUSCATED('k', 5, true) {
         @Override
         public Style asStyle() {
             return Style.style(TextDecoration.OBFUSCATED);
@@ -185,6 +186,13 @@ public enum ChatColor {
     public static ChatColor byCode(@Range(from = 0, to = 21) int code) {
         Preconditions.checkArgument(code < values().length, "Unsupported ChatColor");
         return values()[code];
-
     }
+
+    public static @Nullable ChatColor byStyle(Style style) {
+        for(ChatColor chatColor : values()) {
+            if(chatColor.asStyle().equals(style)) return chatColor;
+        }
+        return null;
+    }
+
 }
