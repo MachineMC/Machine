@@ -9,7 +9,6 @@ import me.pesekjak.machine.entities.Entity;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.utils.FileUtils;
 import me.pesekjak.machine.utils.NamespacedKey;
-import me.pesekjak.machine.utils.UUIDUtils;
 import me.pesekjak.machine.world.blocks.BlockType;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 import me.pesekjak.machine.world.generation.FlatStoneGenerator;
@@ -22,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
