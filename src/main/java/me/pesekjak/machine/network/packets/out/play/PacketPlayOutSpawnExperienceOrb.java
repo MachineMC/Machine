@@ -28,7 +28,7 @@ public class PacketPlayOutSpawnExperienceOrb extends PacketOut {
 
     public PacketPlayOutSpawnExperienceOrb(FriendlyByteBuf buf) {
         entityId = buf.readVarInt();
-        location = Location.of(buf.readDouble(), buf.readDouble(), buf.readDouble(), 0, 0, null);
+        location = Location.of(buf.readDouble(), buf.readDouble(), buf.readDouble(), null);
         count = buf.readByte();
     }
 

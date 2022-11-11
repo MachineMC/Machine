@@ -16,8 +16,7 @@ public class PacketPlayOutUpdateLight extends PacketOut {
 
     private static final int ID = 0x24;
 
-    private int chunkX;
-    private int chunkZ;
+    private int chunkX, chunkZ;
     @NotNull
     private LightData lightData;
 

@@ -55,6 +55,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
                 .writeString(objectiveName, StandardCharsets.UTF_8)
                 .writeByte((byte) action.getId());
         if (action != Action.REMOVE) {
+            assert objectiveValue != null;
             assert type != null;
             buf.writeComponent(objectiveValue)
                     .writeVarInt(type.getId());

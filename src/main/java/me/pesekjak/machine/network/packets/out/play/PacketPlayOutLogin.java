@@ -1,4 +1,4 @@
-package me.pesekjak.machine.network.packets.out;
+package me.pesekjak.machine.network.packets.out.play;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +8,7 @@ import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.world.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
@@ -48,7 +49,11 @@ public class PacketPlayOutLogin extends PacketOut {
     private boolean enableRespawnScreen;
     private boolean isDebug;
     private boolean isFlat;
-    private final boolean hasDeathLocation = false; // TODO implement later
+    private boolean hasDeathLocation;
+    @Nullable
+    private NamespacedKey deathWorldName;
+    @Nullable
+    private BlockPosition deathLocation;
 
     static {
         register(PacketPlayOutLogin.class, ID, PacketState.PLAY_OUT,
@@ -74,7 +79,11 @@ public class PacketPlayOutLogin extends PacketOut {
         enableRespawnScreen = buf.readBoolean();
         isDebug = buf.readBoolean();
         isFlat = buf.readBoolean();
-        buf.readBoolean(); // reading if has death location
+        hasDeathLocation = buf.readBoolean();
+        if (hasDeathLocation) {
+            deathWorldName = buf.readNamespacedKey();
+            deathLocation = buf.readBlockPos();
+        }
     }
 
     @Override
@@ -84,7 +93,7 @@ public class PacketPlayOutLogin extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        return new FriendlyByteBuf()
+        FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeInt(entityID)
                 .writeBoolean(isHardcore)
                 .writeByte((byte) gamemode.getId())
@@ -101,8 +110,14 @@ public class PacketPlayOutLogin extends PacketOut {
                 .writeBoolean(enableRespawnScreen)
                 .writeBoolean(isDebug)
                 .writeBoolean(isFlat)
-                .writeBoolean(hasDeathLocation)
-                .bytes();
+                .writeBoolean(hasDeathLocation);
+        if (hasDeathLocation) {
+            assert deathWorldName != null;
+            assert deathLocation != null;
+            buf.writeNamespacedKey(deathWorldName)
+                    .writeBlockPos(deathLocation);
+        }
+        return buf.bytes();
     }
 
     @Override

@@ -29,7 +29,7 @@ public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
 
     public PacketPlayOutPlaceGhostRecipe(FriendlyByteBuf buf) {
         windowId = buf.readByte();
-        recipe = NamespacedKey.parse(buf.readString(StandardCharsets.UTF_8));
+        recipe = buf.readNamespacedKey();
     }
 
     @Override
@@ -41,7 +41,7 @@ public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeByte(windowId)
-                .writeString(recipe.toString(), StandardCharsets.UTF_8)
+                .writeNamespacedKey(recipe)
                 .bytes();
     }
 

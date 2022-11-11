@@ -11,7 +11,7 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 @ToString
 public class PacketPlayOutRenderDistance extends PacketOut {
 
-    private static final int ID = 0x4B;
+    private static final int ID = 0x4C;
 
     @Getter @Setter
     private int viewDistance; // (2-32)

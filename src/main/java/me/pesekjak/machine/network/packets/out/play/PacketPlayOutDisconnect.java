@@ -7,6 +7,7 @@ import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -14,7 +15,7 @@ public class PacketPlayOutDisconnect extends PacketOut {
 
     private static final int ID = 0x19;
 
-    @Getter @Setter
+    @Getter @Setter @NotNull
     private Component reason;
 
     static {

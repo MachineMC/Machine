@@ -30,7 +30,7 @@ public class PacketPlayOutPluginMessage extends PacketOut {
     }
 
     public PacketPlayOutPluginMessage(FriendlyByteBuf buf) {
-        channel = NamespacedKey.parse(buf.readString(StandardCharsets.UTF_8));
+        channel = buf.readNamespacedKey();
         data = new FriendlyByteBuf(buf.finish());
     }
 
@@ -42,7 +42,7 @@ public class PacketPlayOutPluginMessage extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeString(channel.toString(), StandardCharsets.UTF_8)
+                .writeNamespacedKey(channel)
                 .writeBytes(data.bytes())
                 .bytes();
     }

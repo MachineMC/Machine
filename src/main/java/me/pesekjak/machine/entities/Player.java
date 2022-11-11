@@ -122,7 +122,10 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
                 false, // TODO Server Properties - Reduced Debug Screen
                 true,
                 false,
-                false // TODO World - Is Spawn World Flat
+                false, // TODO World - Is Spawn World Flat
+                false,
+                null,
+                null
         ));
 
         // TODO Add this as option in server properties
