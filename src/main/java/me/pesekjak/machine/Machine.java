@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.auth.OnlineServer;
@@ -36,7 +35,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -55,9 +53,6 @@ public class Machine {
 
     @Getter
     public final int TPS = 20;
-
-    @Getter(AccessLevel.PROTECTED)
-    private final Unsafe UNSAFE;
 
     @Getter @Setter
     private Console console;
@@ -122,13 +117,6 @@ public class Machine {
         final long start = System.currentTimeMillis();
 
         final boolean colors = !arguments.contains("nocolors");
-
-        // Setting up Unsafe instance and colored terminal
-        Constructor<Unsafe> unsafeConstructor = Unsafe.class.getDeclaredConstructor();
-        unsafeConstructor.setAccessible(true);
-        UNSAFE = unsafeConstructor.newInstance();
-        unsafeConstructor.setAccessible(false);
-        if(colors) UNSAFE.coloredTerminal();
 
         // Setting up console
         console = new ServerConsole(this, colors);
