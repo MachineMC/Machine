@@ -1,7 +1,10 @@
 package me.pesekjak.machine.logging;
 
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestion;
+import com.mojang.brigadier.tree.CommandNode;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
@@ -14,11 +17,15 @@ import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jetbrains.annotations.NotNull;
+import org.jline.reader.*;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Scanner;
+import java.util.List;
 import java.util.logging.Level;
 
 public class ServerConsole implements Console {
@@ -27,6 +34,11 @@ public class ServerConsole implements Console {
     private final Machine server;
     @Getter @Setter
     private boolean colors;
+
+    private volatile Terminal terminal;
+    private volatile LineReader reader;
+
+    private volatile boolean running = false;
 
     @Getter @Setter
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -41,11 +53,11 @@ public class ServerConsole implements Console {
             warningColor = YELLOW,
             severeColor = RED;
 
-    @Getter
-    private boolean running = false;
+    @Getter @Setter
+    private String prompt = "> ";
 
     // Reset
-    public static final String RESET = "\033[0m";  // Text Reset
+    public static final String RESET = "\033[0m";
 
     // Regular Colors
     public static final String
@@ -129,6 +141,11 @@ public class ServerConsole implements Console {
     public ServerConsole(Machine server, boolean colors) {
         this.server = server;
         this.colors = colors;
+        try {
+            terminal = TerminalBuilder.terminal();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -141,11 +158,14 @@ public class ServerConsole implements Console {
             default -> "";
         };
         final String date = now();
-        for(String message : messages)
-            System.out.println(
-                    colors ? "[" + date + "] " + prefix + ChatUtils.consoleFormatted(message) + RESET
-                            : "[" + date + "] " + prefix + message
-            );
+        for(String message : messages) {
+            final String formatted = colors ? "[" + date + "] " + prefix + ChatUtils.consoleFormatted(message) + RESET
+                    : "[" + date + "] " + prefix + message;
+            if(reader != null && running)
+                reader.printAbove(formatted);
+            else
+                terminal.writer().println(formatted);
+        }
     }
 
     @Override
@@ -169,17 +189,28 @@ public class ServerConsole implements Console {
     }
 
     @Override
+    public void sendMessage(final @NotNull Identity source, final @NotNull Component message, final @NotNull MessageType type) {
+        if(colors)
+            info(ChatUtils.consoleFormatted(message));
+        else
+            info(ChatUtils.componentToString(message));
+    }
+
+    @Override
     public void start() {
         if(server.getScheduler() == null) throw new IllegalStateException();
-        if(running) throw new IllegalStateException("The console is already listening to system input");
+        if(running) throw new IllegalStateException("The console is already running");
         running = true;
+        reader = LineReaderBuilder.builder()
+                .completer(new ServerCompleter(server, this))
+                .terminal(terminal)
+                .build();
         Scheduler.task((i, session) -> {
-            final Scanner in = new Scanner(System.in);
             while(running) {
-                System.out.print(colors ? ("> " + CYAN) : "> ");
-                String input = in.nextLine();
-                if(colors) System.out.print(RESET);
-                execute(input);
+                try {
+                    final String command = reader.readLine(prompt);
+                    execute(command);
+                } catch (Exception ignored) { }
             }
             return null;
         }).async().run(server.getScheduler());
@@ -188,14 +219,6 @@ public class ServerConsole implements Console {
     @Override
     public void stop() {
         running = false;
-    }
-
-    @Override
-    public void sendMessage(final @NotNull Identity source, final @NotNull Component message, final @NotNull MessageType type) {
-        if(colors)
-            info(ChatUtils.consoleFormatted(message));
-        else
-            info(ChatUtils.componentToString(message));
     }
 
     private String now() {
@@ -223,4 +246,26 @@ public class ServerConsole implements Console {
         }
     }
 
+    private record ServerCompleter(Machine server, ServerConsole console) implements Completer {
+        @Override
+        public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
+            final CommandDispatcher<CommandExecutor> dispatcher = server.getCommandDispatcher();
+            if(line.wordIndex() == 0) {
+                final String commandString = line.word().toLowerCase();
+                candidates.addAll(dispatcher.getRoot().getChildren().stream()
+                        .map(CommandNode::getName)
+                        .filter(name -> commandString.isBlank() || name.toLowerCase().startsWith(commandString))
+                        .map(Candidate::new)
+                        .toList()
+                );
+            } else {
+                final String text = line.line();
+                dispatcher.getCompletionSuggestions(dispatcher.parse(text, console))
+                        .thenAccept(suggestions -> candidates.addAll(suggestions.getList().stream()
+                        .map(Suggestion::getText)
+                        .map(Candidate::new)
+                        .toList()));
+            }
+        }
+    }
 }

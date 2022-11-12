@@ -52,6 +52,9 @@ dependencies {
     // JNA
     implementation("net.java.dev.jna:jna-platform:5.12.1")
 
+    // JLine
+    implementation("org.jline:jline:3.21.0")
+
     // Guava
     implementation("com.google.guava:guava:11.0.2")
 }
