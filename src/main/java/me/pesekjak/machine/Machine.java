@@ -9,6 +9,7 @@ import lombok.Setter;
 import me.pesekjak.machine.auth.OnlineServer;
 import me.pesekjak.machine.chat.Messenger;
 import me.pesekjak.machine.entities.EntityManager;
+import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.events.translations.TranslatorDispatcher;
 import me.pesekjak.machine.exception.ExceptionHandler;
 import me.pesekjak.machine.file.DimensionsJson;
@@ -19,6 +20,7 @@ import me.pesekjak.machine.logging.Console;
 import me.pesekjak.machine.logging.IConsole;
 import me.pesekjak.machine.network.ServerConnection;
 import me.pesekjak.machine.network.packets.PacketFactory;
+import me.pesekjak.machine.server.PlayerManager;
 import me.pesekjak.machine.server.schedule.Scheduler;
 import me.pesekjak.machine.utils.*;
 import me.pesekjak.machine.world.*;
@@ -89,6 +91,8 @@ public class Machine {
     @Getter
     protected EntityManager entityManager;
     @Getter
+    protected PlayerManager playerManager;
+    @Getter
     protected BlockManager blockManager;
     @Getter
     private final PlayerDataContainer playerDataContainer;
@@ -108,7 +112,7 @@ public class Machine {
     /**
      * Start of new server.
      */
-    public Machine() throws Exception {
+    private Machine() throws Exception {
 
         final long start = System.currentTimeMillis();
 
@@ -221,6 +225,8 @@ public class Machine {
 
         entityManager = EntityManager.createDefault(this);
 
+        playerManager = new PlayerManager(this);
+
         ClassUtils.loadClass(PacketFactory.class);
         console.info("Loaded all packet mappings");
 
@@ -233,10 +239,16 @@ public class Machine {
 
         console.info("Server loaded in " + (System.currentTimeMillis() - start) + "ms");
         scheduler.run(); // blocks the thread
+
+        shutdown();
     }
 
     public void shutdown() {
         console.info("Shutting down...");
+        console.info("Saving player data...");
+        for(Player player : playerManager.getPlayers())
+            player.remove();
+        console.info("Saved all player data");
         for(World world : worldManager.getWorlds())
             world.save();
         console.info("Server has been stopped");

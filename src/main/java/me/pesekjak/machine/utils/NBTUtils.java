@@ -1,5 +1,6 @@
 package me.pesekjak.machine.utils;
 
+import lombok.Synchronized;
 import org.jglrxavpok.hephaistos.nbt.*;
 
 import java.io.File;
@@ -29,7 +30,6 @@ public final class NBTUtils {
      * @return NBT float list
      */
     public static NBTList<NBTFloat> floatList(float... floats) {
-        // This is super weird, you can't stream an array of floats??????
         Float[] floatArray = new Float[floats.length];
         for (int i = 0; i < floats.length; i++)
             floatArray[i] = floats[i];
@@ -43,15 +43,12 @@ public final class NBTUtils {
      * @param file The file to serialize to
      * @param nbt The NBT to serialize
      */
+    @Synchronized
     public static void serializeNBT(File file, NBT nbt) {
         try {
-            if (!file.exists()) {
-                if (file.getParentFile() != null)
-                    file.getParentFile().mkdirs();
-                if (!file.createNewFile())
-                    throw new IOException("Unable to create file at " + file.getAbsolutePath());
-            }
-            try (NBTWriter writer = new NBTWriter(file, CompressedProcesser.GZIP)) {
+            if (!file.exists() && !file.createNewFile())
+                throw new IOException("Unable to create file at " + file.getAbsolutePath());
+            try (NBTWriter writer = new NBTWriter(file, CompressedProcesser.NONE)) {
                 writer.writeNamed("", nbt);
             }
         } catch (IOException e) {
@@ -64,10 +61,15 @@ public final class NBTUtils {
      * @param file The file to deserialize from
      * @return The NBT stored in the file
      */
+    @Synchronized
     public static NBT deserializeNBTFile(File file) {
-        try (NBTReader reader = new NBTReader(file, CompressedProcesser.GZIP)) {
-            return reader.read();
-        } catch (IOException | NBTException e) {
+        try (NBTReader reader = new NBTReader(file, CompressedProcesser.NONE)) {
+            try {
+                return reader.read();
+            } catch (NBTException e) {
+                throw new RuntimeException("File at " + file.getAbsolutePath() + " doesn't follow nbt format");
+            }
+        } catch (IOException e) {
             throw new RuntimeException("Couldn't read file at " + file.getAbsolutePath(), e);
         }
     }

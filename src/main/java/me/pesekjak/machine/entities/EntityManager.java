@@ -5,16 +5,17 @@ import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.WorldManager;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("ClassCanBeRecord")
 @RequiredArgsConstructor
 public class EntityManager {
 
     private final WorldManager worldManager;
+
+    private final Map<UUID, Entity> entityMap = new ConcurrentHashMap<>();
 
     public static EntityManager createDefault(Machine server) {
         return new EntityManager(server.getWorldManager());
@@ -61,15 +62,25 @@ public class EntityManager {
         return new LinkedHashSet<>(world.getEntities());
     }
 
+    public Set<Entity> getEntities(Predicate<Entity> predicate) {
+        return getEntities().stream().filter(predicate).collect(Collectors.toSet());
+    }
+
+    public Entity getEntity(UUID uuid) {
+        return entityMap.get(uuid);
+    }
+
     protected void addEntity(Entity entity) {
-        if(entity.getWorld().manager() != worldManager)
+        if(entity.getWorld().manager() != worldManager || entityMap.containsKey(entity.getUuid()))
             throw new IllegalStateException();
         entity.getWorld().spawn(entity, entity.getLocation());
+        entityMap.put(entity.getUuid(), entity);
     }
 
     protected void removeEntity(Entity entity) {
-        if(entity.getWorld().manager() != worldManager)
+        if(entity.getWorld().manager() != worldManager || !entityMap.containsKey(entity.getUuid()))
             throw new IllegalStateException();
         entity.getWorld().remove(entity);
+        entityMap.remove(entity.getUuid());
     }
 }

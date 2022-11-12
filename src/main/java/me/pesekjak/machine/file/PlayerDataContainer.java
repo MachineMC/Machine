@@ -1,77 +1,53 @@
 package me.pesekjak.machine.file;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NBTUtils;
-import me.pesekjak.machine.utils.UUIDUtils;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.UUID;
 
-@SuppressWarnings("ResultOfMethodCallIgnored")
 public class PlayerDataContainer implements ServerProperty {
 
     public final static String DEFAULT_PLAYER_DATA_FOLDER = "playerdata";
 
-    private final HashMap<UUID, NBTCompound> container = new HashMap<>();
-    @Getter
+    @Getter(AccessLevel.PRIVATE)
     private final File playerDataFolder;
+    @Getter
     private final Machine server;
 
     public PlayerDataContainer(Machine server) {
         this.server = server;
         playerDataFolder = new File(DEFAULT_PLAYER_DATA_FOLDER);
-        createFolderIfAbsent();
-        String[] files = playerDataFolder.list();
-        if (files == null)
-            return;
-        for (String fileName : files) {
-            if (!fileName.endsWith(".dat"))
-                continue;
-            UUID uuid = UUIDUtils.parseUUID(fileName.replace(".dat", ""));
-            container.put(uuid, getPlayerData(uuid));
-        }
+        if(!playerDataFolder.exists() && !playerDataFolder.mkdirs())
+            throw new RuntimeException("Can't create the player data folder");
     }
 
-    public File createFolderIfAbsent() {
-        if (!playerDataFolder.exists())
-            playerDataFolder.mkdirs();
-        return playerDataFolder;
-    }
-
-    private NBTCompound getPlayerData(UUID uuid) {
+    public NBTCompound getPlayerData(UUID uuid) {
         File playerDataFile = getPlayerDataFile(uuid);
         return NBTUtils.deserializeNBTFile(playerDataFile) instanceof NBTCompound nbtCompound ? nbtCompound : null;
     }
 
     private File getPlayerDataFile(UUID uuid) {
-        File playerDataFile = new File(createFolderIfAbsent(), uuid + ".dat");
+        File playerDataFile = new File(new File(DEFAULT_PLAYER_DATA_FOLDER), uuid + ".dat");
         try {
-            if (!playerDataFile.exists())
-                playerDataFile.createNewFile();
+            if(!playerDataFile.exists() && !playerDataFile.createNewFile()) {
+                throw new RuntimeException("Can't create the player data file for " + uuid);
+            }
         }
         catch (IOException e) {
-            return null;
+            throw new RuntimeException(e);
         }
         return playerDataFile;
     }
 
-    public NBTCompound getPlayerData(Player player) {
-        return container.get(player.getUuid());
-    }
-
     public void savePlayerData(Player player) {
-        NBTCompound nbtCompound = player.serializeNBT(getPlayerDataFile(player.getUuid()));
-        container.put(player.getUuid(), nbtCompound);
+        player.serializeNBT(getPlayerDataFile(player.getUuid()));
     }
 
-    @Override
-    public Machine getServer() {
-        return server;
-    }
 }

@@ -32,8 +32,8 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
         String message = ChatUtils.DEFAULT_CHAT_FORMAT
                 .replace("%name%", player.getName())
                 .replace("%message%", packet.getMessage());
-        // TODO rework this once player management is done to send the message to everyone
-        player.sendMessage(player, Component.text(message), MessageType.SYSTEM);
+        for(Player serverPlayer : connection.getServer().getPlayerManager().getPlayers())
+            serverPlayer.sendMessage(player, Component.text(message), MessageType.SYSTEM);
         connection.getServer().getConsole().info(message);
     }
 

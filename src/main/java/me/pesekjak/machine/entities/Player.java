@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.chat.ChatMode;
+import me.pesekjak.machine.chat.ChatUtils;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.entities.player.Hand;
 import me.pesekjak.machine.entities.player.PlayerProfile;
@@ -78,10 +79,18 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
 
     public static Player spawn(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
         Player player = new Player(server, profile, connection);
-        NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player);
-        if (nbtCompound != null)
-            player.load(nbtCompound);
         try {
+            final NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player.getUuid());
+            if(nbtCompound != null)
+                player.load(nbtCompound);
+        } catch (Exception ignored) {
+            server.getConsole().warning("Failed to load player data for " + player.getName() + " (" + player.getUuid() + ")");
+        }
+        try {
+            server.getPlayerManager().addPlayer(player);
+            final Component joinMessage = Component.translatable("multiplayer.player.joined", Component.text(player.getName())).style(ChatColor.YELLOW.asStyle());
+            server.getPlayerManager().getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(joinMessage));
+            server.getConsole().info(ChatUtils.componentToString(player.getDisplayName()) + " joined the game");
             player.init();
             return player;
         } catch (Exception e) {
@@ -163,6 +172,10 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
         try {
             super.remove();
             getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this));
+            getServer().getPlayerManager().removePlayer(this);
+            final Component leaveMessage = Component.translatable("multiplayer.player.left", Component.text(getName())).style(ChatColor.YELLOW.asStyle());
+            getServer().getPlayerManager().getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(leaveMessage));
+            getServer().getConsole().info(ChatUtils.componentToString(getDisplayName()) + " left the game");
             save();
         }
         catch (IOException e) {
