@@ -3,7 +3,7 @@ package me.pesekjak.machine.exception;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.Machine;
-import me.pesekjak.machine.logging.Console;
+import me.pesekjak.machine.logging.ServerConsole;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.server.ServerProperty;
 
@@ -21,9 +21,9 @@ public class ExceptionHandler implements ServerProperty {
                 "Address: " + connection.getClientSocket().getInetAddress(),
                 "Stack trace:"
         );
-        System.out.print(Console.RED);
+        System.out.print(ServerConsole.RED);
         exception.getException().printStackTrace();
-        System.out.print(Console.RESET);
+        System.out.print(ServerConsole.RESET);
     }
 
 }
