@@ -3,11 +3,14 @@ package me.pesekjak.machine;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.mojang.brigadier.CommandDispatcher;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.auth.OnlineServer;
 import me.pesekjak.machine.chat.Messenger;
+import me.pesekjak.machine.commands.CommandExecutor;
+import me.pesekjak.machine.commands.ServerCommands;
 import me.pesekjak.machine.entities.EntityManager;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.events.translations.TranslatorDispatcher;
@@ -16,8 +19,8 @@ import me.pesekjak.machine.file.DimensionsJson;
 import me.pesekjak.machine.file.PlayerDataContainer;
 import me.pesekjak.machine.file.ServerProperties;
 import me.pesekjak.machine.file.WorldJson;
+import me.pesekjak.machine.logging.ServerConsole;
 import me.pesekjak.machine.logging.Console;
-import me.pesekjak.machine.logging.IConsole;
 import me.pesekjak.machine.network.ServerConnection;
 import me.pesekjak.machine.network.packets.PacketFactory;
 import me.pesekjak.machine.server.PlayerManager;
@@ -36,9 +39,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Machine {
@@ -59,7 +60,7 @@ public class Machine {
     private final Unsafe UNSAFE;
 
     @Getter @Setter
-    private IConsole console;
+    private Console console;
 
     @Getter
     protected ExceptionHandler exceptionHandler;
@@ -79,6 +80,9 @@ public class Machine {
 
     @Getter
     protected Scheduler scheduler;
+
+    @Getter
+    protected CommandDispatcher<CommandExecutor> commandDispatcher;
 
     @Getter
     protected DimensionTypeManager dimensionTypeManager;
@@ -106,25 +110,28 @@ public class Machine {
 
     public static void main(String[] args) throws Exception {
         if(System.console() == null) return;
-        new Machine();
+        new Machine(args);
     }
 
     /**
      * Start of new server.
      */
-    private Machine() throws Exception {
+    private Machine(String[] args) throws Exception {
 
+        final Set<String> arguments = Set.of(args);
         final long start = System.currentTimeMillis();
+
+        final boolean colors = !arguments.contains("nocolors");
 
         // Setting up Unsafe instance and colored terminal
         Constructor<Unsafe> unsafeConstructor = Unsafe.class.getDeclaredConstructor();
         unsafeConstructor.setAccessible(true);
         UNSAFE = unsafeConstructor.newInstance();
         unsafeConstructor.setAccessible(false);
-        UNSAFE.coloredTerminal();
+        if(colors) UNSAFE.coloredTerminal();
 
         // Setting up console
-        console = new Console(this);
+        console = new ServerConsole(this, colors);
         console.info("Loading Machine Server on Minecraft " + SERVER_IMPLEMENTATION_VERSION);
 
         exceptionHandler = new ExceptionHandler(this);
@@ -152,6 +159,9 @@ public class Machine {
                     "While this makes the game possible to play without internet access, it also opens up " +
                     "the ability for others to connect with any username they choose.");
         }
+
+        commandDispatcher = new CommandDispatcher<>();
+        ServerCommands.register(this, commandDispatcher);
 
         Arrays.stream(Material.values()).forEach(Material::createBlockData);
         BlockData.finishRegistration();
@@ -236,6 +246,7 @@ public class Machine {
         connection = new ServerConnection(this);
 
         scheduler = new Scheduler(4); // TODO add this to properties
+        console.start();
 
         console.info("Server loaded in " + (System.currentTimeMillis() - start) + "ms");
         scheduler.run(); // blocks the thread
@@ -244,6 +255,7 @@ public class Machine {
     }
 
     public void shutdown() {
+        console.stop();
         console.info("Shutting down...");
         console.info("Saving player data...");
         for(Player player : playerManager.getPlayers())

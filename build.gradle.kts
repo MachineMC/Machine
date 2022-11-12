@@ -12,6 +12,7 @@ repositories {
     mavenCentral()
     maven {
         url = uri("https://jitpack.io")
+        url = uri("https://libraries.minecraft.net")
     }
 }
 
@@ -41,6 +42,9 @@ dependencies {
     // Hephaistos
     implementation("io.github.jglrxavpok.hephaistos:common:2.5.1")
     implementation("io.github.jglrxavpok.hephaistos:gson:2.5.1")
+
+    // Brigadier
+    implementation("com.mojang:brigadier:1.0.18")
 
     // Netty Buffers
     implementation("io.netty:netty-buffer:4.1.80.Final")
