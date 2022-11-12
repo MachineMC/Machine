@@ -2,7 +2,7 @@ package me.pesekjak.machine.events.translations.translators.in;
 
 import me.pesekjak.machine.events.translations.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.in.PacketPlayInKeepAlive;
+import me.pesekjak.machine.network.packets.in.play.PacketPlayInKeepAlive;
 import org.jetbrains.annotations.NotNull;
 
 public class TranslatorPlayInKeepAlive extends PacketTranslator<PacketPlayInKeepAlive> {

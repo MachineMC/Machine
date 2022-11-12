@@ -2,8 +2,8 @@ package me.pesekjak.machine.events.translations.translators.in;
 
 import me.pesekjak.machine.events.translations.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.in.PacketStatusInPing;
-import me.pesekjak.machine.network.packets.out.PacketStatusOutPong;
+import me.pesekjak.machine.network.packets.in.status.PacketStatusInPing;
+import me.pesekjak.machine.network.packets.out.status.PacketStatusOutPong;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

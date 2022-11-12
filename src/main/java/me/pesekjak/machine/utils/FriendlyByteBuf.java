@@ -218,6 +218,21 @@ public class FriendlyByteBuf {
         }
     }
 
+    public int[] readVarIntArray() {
+        int length = readVarInt();
+        int[] ints = new int[length];
+        for(int i = 0; i < length; i++)
+            ints[i] = readVarInt();
+        return ints;
+    }
+
+    public FriendlyByteBuf writeVarIntArray(int[] ints) {
+        writeVarInt(ints.length);
+        for(int i : ints)
+            writeVarInt(i);
+        return this;
+    }
+
     public long readVarLong() {
         long value = 0;
         int position = 0;

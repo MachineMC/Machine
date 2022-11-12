@@ -4,7 +4,6 @@ import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
-import me.pesekjak.machine.chat.ChatColor;
 import me.pesekjak.machine.chat.ChatMode;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.entities.player.Hand;
@@ -12,8 +11,9 @@ import me.pesekjak.machine.entities.player.PlayerProfile;
 import me.pesekjak.machine.entities.player.SkinPart;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.PacketOut;
-import me.pesekjak.machine.network.packets.out.*;
-import me.pesekjak.machine.network.packets.out.PacketPlayOutGameEvent.Event;
+import me.pesekjak.machine.network.packets.out.PacketPlayOutLogin;
+import me.pesekjak.machine.network.packets.out.play.*;
+import me.pesekjak.machine.network.packets.out.play.PacketPlayOutGameEvent.Event;
 import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.server.codec.Codec;
 import me.pesekjak.machine.world.Difficulty;
@@ -122,7 +122,10 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
                 false, // TODO Server Properties - Reduced Debug Screen
                 true,
                 false,
-                false // TODO World - Is Spawn World Flat
+                false, // TODO World - Is Spawn World Flat
+                false,
+                null,
+                null
         ));
 
         // TODO Add this as option in server properties
