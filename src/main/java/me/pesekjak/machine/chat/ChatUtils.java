@@ -75,7 +75,7 @@ public final class ChatUtils {
         return builder;
     }
 
-    private static String asciiColor(TextColor color) {
+    public static String asciiColor(TextColor color) {
         return color != null ? "\u001B[38;2;" + color.red() + ";" + color.green() + ";" + color.blue() + "m" : "";
     }
 

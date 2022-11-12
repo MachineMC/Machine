@@ -3,6 +3,8 @@ package me.pesekjak.machine.exception;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.Machine;
+import me.pesekjak.machine.chat.ChatColor;
+import me.pesekjak.machine.chat.ChatUtils;
 import me.pesekjak.machine.logging.ServerConsole;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.server.ServerProperty;
@@ -21,7 +23,7 @@ public class ExceptionHandler implements ServerProperty {
                 "Address: " + connection.getClientSocket().getInetAddress(),
                 "Stack trace:"
         );
-        System.out.print(ServerConsole.RED);
+        System.out.print(ChatUtils.asciiColor(ChatColor.RED.asStyle().color()));
         exception.getException().printStackTrace();
         System.out.print(ServerConsole.RESET);
     }
