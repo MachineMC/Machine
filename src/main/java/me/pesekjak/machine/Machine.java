@@ -297,14 +297,15 @@ public class Machine {
             } catch (Exception exception) { exceptionHandler.handle(exception); }
         }
         console.info("Saved all player data");
+        console.info("Closing the connection...");
+        try { connection.close();
+        } catch (Exception ignored) { }
+        console.info("Connection has been closed");
+        console.info("Saving worlds...");
         for(World world : worldManager.getWorlds()) {
             try { world.save();
             } catch (Exception exception) { exceptionHandler.handle(exception); }
         }
-        console.info("Closing the connection");
-        try {
-            connection.close();
-        } catch (Exception ignored) { }
         console.info("Server has been stopped");
         System.exit(0);
     }
