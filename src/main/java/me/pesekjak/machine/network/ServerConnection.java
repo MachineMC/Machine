@@ -50,13 +50,13 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
             running = true;
             while(running) {
                 try {
-                    if(!server.isRunning()) continue;
                     Socket connection = socket.accept();
                     ClientConnection sc = new ClientConnection(server, connection);
                     clients.add(sc);
                     sc.start();
                 } catch (Exception exception) {
-                    server.getExceptionHandler().handle(exception);
+                    if(server.isRunning()) // preventing socket exception when closed
+                        server.getExceptionHandler().handle(exception);
                 }
             }
         } catch (IOException exception) {
