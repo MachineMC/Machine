@@ -13,7 +13,8 @@ public final class FileUtils {
             .getProtectionDomain()
             .getCodeSource()
             .getLocation()
-            .getFile());
+            .getFile()
+            .replaceAll("%20", " "));
 
 
     private FileUtils() {
