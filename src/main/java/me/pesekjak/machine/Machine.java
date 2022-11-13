@@ -30,6 +30,7 @@ import me.pesekjak.machine.world.biomes.BiomeManager;
 import me.pesekjak.machine.world.blocks.BlockManager;
 import me.pesekjak.machine.world.dimensions.DimensionType;
 import me.pesekjak.machine.world.dimensions.DimensionTypeManager;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +54,9 @@ public class Machine {
 
     @Getter
     public final int TPS = 20;
+
+    @Getter
+    private boolean running;
 
     @Getter @Setter
     private Console console;
@@ -94,7 +98,7 @@ public class Machine {
     @Getter
     protected BlockManager blockManager;
     @Getter
-    private final PlayerDataContainer playerDataContainer;
+    private PlayerDataContainer playerDataContainer;
 
 
     @Getter
@@ -119,7 +123,13 @@ public class Machine {
         final boolean colors = !arguments.contains("nocolors");
 
         // Setting up console
-        console = new ServerConsole(this, colors);
+        try {
+            console = new ServerConsole(this, colors);
+        } catch (Exception e) {
+            System.out.println("Failed to load server console");
+            e.printStackTrace();
+            System.exit(2);
+        }
         console.info("Loading Machine Server on Minecraft " + SERVER_IMPLEMENTATION_VERSION);
 
         exceptionHandler = new ExceptionHandler(this);
@@ -130,7 +140,12 @@ public class Machine {
             FileUtils.createFromDefault(propertiesFile);
             FileUtils.createFromDefault(new File(ServerProperties.ICON_FILE_NAME));
         }
-        properties = new ServerProperties(this, propertiesFile);
+        try {
+            properties = new ServerProperties(this, propertiesFile);
+        } catch (IOException exception) {
+            exceptionHandler.handle(exception, "Failed to load server properties");
+            System.exit(2);
+        }
         console.info("Loaded server properties");
 
         // Checking if the port in the properties in empty
@@ -180,33 +195,47 @@ public class Machine {
 
         messenger = new Messenger(this);
 
-        playerDataContainer = new PlayerDataContainer(this);
+        try {
+            playerDataContainer = new PlayerDataContainer(this);
+        } catch (Exception exception) {
+            exceptionHandler.handle(exception);
+            System.exit(2);
+        }
 
         worldManager = new WorldManager(this);
-        for(Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
-            if(!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;
-            if(path.getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
-            if(!path.getParent().getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
-            try {
-                WorldJson worldJson = new WorldJson(this, path.toFile());
-                if(worldManager.isRegistered(worldJson.getWorldName())) {
-                    console.severe("World with name '" + worldJson.getName() + "' is already registered");
-                    continue;
+        try {
+            for (Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
+                if (!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;
+                if (path.getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
+                if (!path.getParent().getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
+                try {
+                    WorldJson worldJson = new WorldJson(this, path.toFile());
+                    if (worldManager.isRegistered(worldJson.getWorldName())) {
+                        console.severe("World with name '" + worldJson.getName() + "' is already registered");
+                        continue;
+                    }
+                    World world = worldJson.buildWorld();
+                    worldManager.addWorld(world);
+                    console.info("Registered world '" + world.getName() + "'");
+                } catch (IOException exception) {
+                    console.severe("World file '" + path + "' failed to load");
                 }
-                World world = worldJson.buildWorld();
-                worldManager.addWorld(world);
-                console.info("Registered world '" + world.getName() + "'");
-            } catch (IOException exception) {
-                console.severe("World file '" + path + "' failed to load");
             }
+        } catch (Exception exception) {
+            exceptionHandler.handle(exception, "Failed to load the server worlds from server directory");
         }
 
         if(worldManager.getWorlds().size() == 0) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
-            File worldJson = new File(WorldJson.WORLD_FILE_NAME);
-            FileUtils.createFromDefaultAndLocate(worldJson, ServerWorld.DEFAULT_WORLD_FOLDER + "/");
-            World world = ServerWorld.createDefault(this);
-            worldManager.addWorld(world);
+            try {
+                File worldJson = new File(WorldJson.WORLD_FILE_NAME);
+                FileUtils.createFromDefaultAndLocate(worldJson, ServerWorld.DEFAULT_WORLD_FOLDER + "/");
+                World world = ServerWorld.createDefault(this);
+                worldManager.addWorld(world);
+            } catch (Exception exception) {
+                exceptionHandler.handle(exception, "Failed to create the default world");
+                System.exit(2);
+            }
         }
         defaultWorld = worldManager.getWorld(properties.getDefaultWorld());
         if(defaultWorld == null) {
@@ -228,14 +257,30 @@ public class Machine {
         ClassUtils.loadClass(PacketFactory.class);
         console.info("Loaded all packet mappings");
 
-        translatorDispatcher = TranslatorDispatcher.createDefault(this);
+        try {
+            translatorDispatcher = TranslatorDispatcher.createDefault(this);
+        } catch (Exception exception) {
+            exceptionHandler.handle(exception, "Failed to load packet translator dispatcher");
+            System.exit(2);
+        }
         console.info("Loaded all packet translators");
 
-        connection = new ServerConnection(this);
+        try {
+            connection = new ServerConnection(this);
+        } catch (Exception exception) {
+            exceptionHandler.handle(exception);
+            System.exit(2);
+        }
 
-        scheduler = new Scheduler(4); // TODO add this to properties
-        console.start();
+        try {
+            scheduler = new Scheduler(4); // TODO add this to properties
+            console.start();
+        } catch (Exception exception) {
+            exceptionHandler.handle(exception);
+            System.exit(2);
+        }
 
+        running = true;
         console.info("Server loaded in " + (System.currentTimeMillis() - start) + "ms");
         scheduler.run(); // blocks the thread
 
@@ -243,14 +288,23 @@ public class Machine {
     }
 
     public void shutdown() {
+        running = false;
         console.stop();
         console.info("Shutting down...");
         console.info("Saving player data...");
-        for(Player player : playerManager.getPlayers())
-            player.remove();
+        for(Player player : playerManager.getPlayers()) {
+            try { player.getConnection().disconnect(Component.translatable("disconnect.closed"));
+            } catch (Exception exception) { exceptionHandler.handle(exception); }
+        }
         console.info("Saved all player data");
-        for(World world : worldManager.getWorlds())
-            world.save();
+        for(World world : worldManager.getWorlds()) {
+            try { world.save();
+            } catch (Exception exception) { exceptionHandler.handle(exception); }
+        }
+        console.info("Closing the connection");
+        try {
+            connection.close();
+        } catch (Exception ignored) { }
         console.info("Server has been stopped");
         System.exit(0);
     }
@@ -283,6 +337,11 @@ public class Machine {
      */
     public boolean isOnline() {
         return onlineServer != null;
+    }
+
+    @Override
+    public String toString() {
+        return "Machine Server " + SERVER_IMPLEMENTATION_VERSION + " (" + SERVER_IMPLEMENTATION_PROTOCOL + ")";
     }
 
 }

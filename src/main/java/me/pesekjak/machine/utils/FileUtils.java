@@ -63,8 +63,8 @@ public final class FileUtils {
             try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(uidFile))) {
                 return new UUID(dataInputStream.readLong(), dataInputStream.readLong());
             }
-            catch (IOException e) {
-                e.printStackTrace();
+            catch (IOException exception) {
+                throw new RuntimeException(exception);
             }
         }
         UUID uuid = UUID.randomUUID();
@@ -72,8 +72,8 @@ public final class FileUtils {
             dataOutputStream.writeLong(uuid.getMostSignificantBits());
             dataOutputStream.writeLong(uuid.getLeastSignificantBits());
         }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (IOException exception) {
+            throw new RuntimeException(exception);
         }
         return uuid;
     }

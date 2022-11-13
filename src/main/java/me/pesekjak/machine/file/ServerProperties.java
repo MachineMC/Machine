@@ -37,6 +37,8 @@ public class ServerProperties implements ServerFile, ServerProperty {
     @Nullable
     private final String encodedIcon;
 
+    private final static int ICON_SIZE = 64;
+
     public ServerProperties(Machine server, File file) throws IOException {
         this.server = server;
         final Properties original = new Properties();
@@ -78,20 +80,13 @@ public class ServerProperties implements ServerFile, ServerProperty {
         File png = new File(ICON_FILE_NAME);
         BufferedImage icon = null;
         String encodedIcon = null;
-        if (png.exists()) {
+        if(png.exists()) {
             try {
-                BufferedImage image = ImageIO.read(png);
-                if (image.getHeight() == 64 && image.getWidth() == 64) {
-                    icon = image;
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    try {
-                        ImageIO.write(icon, "png", out);
-                    } catch (IOException ignored) {
-                    }
-                    encodedIcon = Base64.getEncoder().encodeToString(out.toByteArray());
-                }
-                else
-                    server.getConsole().severe("Unable to load icon.png, the image is not 64 x 64 in size");
+                icon = new BufferedImage(ICON_SIZE, ICON_SIZE, BufferedImage.TYPE_INT_RGB);
+                icon.createGraphics().drawImage(ImageIO.read(png), 0, 0, ICON_SIZE, ICON_SIZE, null);
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                ImageIO.write(icon, "png", out);
+                encodedIcon = Base64.getEncoder().encodeToString(out.toByteArray());
             } catch (Exception e) {
                 server.getConsole().severe("Unable to load server-icon.png! Is it a png image?");
             }

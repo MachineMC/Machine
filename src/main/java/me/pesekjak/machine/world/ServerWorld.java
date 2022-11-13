@@ -2,6 +2,7 @@ package me.pesekjak.machine.world;
 
 import io.netty.util.collection.IntObjectHashMap;
 import lombok.Getter;
+import lombok.Synchronized;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.chunk.Chunk;
 import me.pesekjak.machine.chunk.ChunkUtils;
@@ -68,7 +69,8 @@ public class ServerWorld extends World {
     }
 
     @Override
-    public synchronized void load() {
+    @Synchronized
+    public void load() {
         if(loaded) throw new UnsupportedOperationException();
         regionFolder = new File(folder.getPath() + "/region/");
         if(!regionFolder.mkdirs() && !regionFolder.exists()) {
@@ -82,7 +84,8 @@ public class ServerWorld extends World {
     }
 
     @Override
-    public synchronized void unload() {
+    @Synchronized
+    public void unload() {
         if(!loaded) throw new UnsupportedOperationException();
         loaded = false;
         save();

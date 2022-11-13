@@ -6,6 +6,7 @@ import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.entities.player.PlayerProfile;
 import me.pesekjak.machine.entities.player.PlayerTextures;
 import me.pesekjak.machine.events.translations.PacketTranslator;
+import me.pesekjak.machine.exception.ClientException;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.in.login.PacketLoginInEncryptionResponse;
 import me.pesekjak.machine.network.packets.out.login.PacketLoginOutSuccess;
@@ -50,15 +51,15 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
         MojangAuth.getAuthData(serverId, username).thenAccept(json -> {
             if(json == null) {
                 try {
-                    connection.disconnect(Component.text("Invalid session (Try restarting your game)"));
+                    connection.disconnect(Component.translatable("disconnect.loginFailedInfo.invalidSession"));
                 } catch (Exception exception) {
-                    exception.printStackTrace();
+                    throw new RuntimeException(exception);
                 }
                 return;
             }
             UUID authUUID = UUIDUtils.parseUUID(json.get("id").getAsString());
             if (authUUID == null) {
-                connection.disconnect(Component.text("UUID is null"));
+                connection.disconnect();
                 return;
             }
             String authUsername = json.get("name").getAsString();
@@ -66,12 +67,16 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
             final PlayerProfile profile = PlayerProfile.online(authUsername, authUUID, playerTextures);
             try {
                 connection.sendPacket(new PacketLoginOutSuccess(authUUID, authUsername, profile.getTextures()));
-            } catch (IOException ignored) {
-                connection.disconnect();
-                return;
+            } catch (IOException exception) {
+                throw new RuntimeException(exception);
             }
+            if(connection.getClientState() == ClientConnection.ClientState.DISCONNECTED)
+                return;
             connection.setClientState(ClientConnection.ClientState.PLAY);
             Player.spawn(connection.getServer(), profile, connection);
+        }).exceptionally(exception -> {
+            connection.getServer().getExceptionHandler().handle(new ClientException(connection, exception.getCause()));
+            return null;
         });
     }
 

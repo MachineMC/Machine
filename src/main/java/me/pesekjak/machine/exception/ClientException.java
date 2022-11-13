@@ -1,14 +1,31 @@
 package me.pesekjak.machine.exception;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.network.ClientConnection;
 
-@RequiredArgsConstructor
-@Getter
 public class ClientException extends RuntimeException {
 
+    @Getter
     private final ClientConnection connection;
-    private final Exception exception;
+
+    public ClientException(ClientConnection connection) {
+        super();
+        this.connection = connection;
+    }
+
+    public ClientException(ClientConnection connection, String message) {
+        super(message);
+        this.connection = connection;
+    }
+
+    public ClientException(ClientConnection connection, String message, Throwable cause) {
+        super(message, cause);
+        this.connection = connection;
+    }
+
+    public ClientException(ClientConnection connection, Throwable cause) {
+        super(cause);
+        this.connection = connection;
+    }
 
 }

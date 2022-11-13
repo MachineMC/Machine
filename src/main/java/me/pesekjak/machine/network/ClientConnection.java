@@ -13,6 +13,7 @@ import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.out.login.PacketLoginOutDisconnect;
+import me.pesekjak.machine.network.packets.out.play.PacketPlayOutDisconnect;
 import me.pesekjak.machine.network.packets.out.play.PacketPlayOutKeepAlive;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.server.schedule.Scheduler;
@@ -130,11 +131,11 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                                 lastReadTimestamp = System.currentTimeMillis();
                         } catch (Exception exception) {
                             getServer().getExceptionHandler().handle(new ClientException(this, exception));
-                            clientState = ClientState.DISCONNECTED;
+                            disconnect();
                             return null;
                         }
                         if(System.currentTimeMillis() - lastReadTimestamp > ServerConnection.READ_IDLE_TIMEOUT)
-                            disconnect(Component.text("Timed out"));
+                            disconnect(Component.translatable("disconnect.timeout"));
                         return null;
                     }))
                     .async()
@@ -142,29 +143,38 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                     .period(1000 / server.getTPS())
                     .run(server.getScheduler());
 
-        } catch (Exception ignored) { }
+        } catch (Exception exception) {
+            server.getExceptionHandler().handle(new ClientException(this, exception));
+            close();
+        }
     }
 
     /**
      * Closes the client connection.
      */
     @Override
-    public void close() throws Exception {
+    public synchronized void close() {
         clientState = ClientState.DISCONNECTED;
-        if(owner != null && owner.isActive()) owner.remove();
-        owner = null;
-        channel.close();
-        clientSocket.close();
         server.getConnection().disconnect(this);
+        try {
+            if (owner != null && owner.isActive()) owner.remove();
+        } catch (Exception exception) { server.getExceptionHandler().handle(exception); }
+        owner = null;
+        try { channel.close(); }
+        catch (Exception exception) { server.getExceptionHandler().handle(exception); }
+        try { clientSocket.close(); }
+        catch (Exception exception) { server.getExceptionHandler().handle(exception); }
     }
 
     /**
      * Changes the client state of the client connection
      * @param clientState new client state
      */
-    public void setClientState(ClientState clientState) {
+    public synchronized void setClientState(ClientState clientState) {
         if(clientState == ClientState.DISCONNECTED)
             throw new UnsupportedOperationException("You can't set the connection's state to disconnected");
+        if(this.clientState == ClientState.DISCONNECTED)
+            throw new UnsupportedOperationException("Connection has been already closed");
         this.clientState = clientState;
     }
 
@@ -240,7 +250,7 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
      * Disconnects the client from the server.
      */
     public void disconnect() {
-        disconnect(Component.text("Disconnected"));
+        disconnect(Component.translatable("disconnect.disconnected"));
     }
 
     /**
@@ -252,12 +262,10 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
         try {
             if(clientState == ClientState.LOGIN)
                 sendPacket(new PacketLoginOutDisconnect(reason));
+            if(clientState == ClientState.PLAY)
+                sendPacket(new PacketPlayOutDisconnect(reason));
         } catch (Exception ignored) { }
-        try {
-            close();
-        } catch (Exception exception) {
-            getServer().getExceptionHandler().handle(new ClientException(this, exception));
-        }
+        close();
     }
 
     /**

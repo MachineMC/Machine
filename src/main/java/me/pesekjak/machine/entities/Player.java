@@ -16,6 +16,7 @@ import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.out.play.*;
 import me.pesekjak.machine.network.packets.out.play.PacketPlayOutGameEvent.Event;
 import me.pesekjak.machine.server.NBTSerializable;
+import me.pesekjak.machine.server.PlayerManager;
 import me.pesekjak.machine.server.codec.Codec;
 import me.pesekjak.machine.world.Difficulty;
 import me.pesekjak.machine.world.Location;
@@ -78,6 +79,14 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
     }
 
     public static Player spawn(Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
+        final PlayerManager manager = server.getPlayerManager();
+        if(connection.getClientState() != ClientConnection.ClientState.PLAY) {
+            throw new IllegalStateException("Player can't be initialized if their connection isn't in play state");
+        }
+        if(manager.getPlayer(profile.getUsername()) != null || manager.getPlayer(profile.getUuid()) != null) {
+            connection.disconnect(Component.translatable("disconnect.loginFailed"));
+            throw new IllegalStateException("Session is already active");
+        }
         Player player = new Player(server, profile, connection);
         try {
             final NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player.getUuid());
@@ -87,17 +96,15 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
             server.getConsole().warning("Failed to load player data for " + player.getName() + " (" + player.getUuid() + ")");
         }
         try {
-            server.getPlayerManager().addPlayer(player);
+            manager.addPlayer(player);
             final Component joinMessage = Component.translatable("multiplayer.player.joined", Component.text(player.getName())).style(ChatColor.YELLOW.asStyle());
-            server.getPlayerManager().getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(joinMessage));
+            manager.getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(joinMessage));
             server.getConsole().info(ChatUtils.componentToString(player.getDisplayName()) + " joined the game");
             player.init();
             return player;
-        } catch (Exception e) {
-            e.printStackTrace();
-            connection.disconnect(Component.text("Failed initialization"));
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
         }
-        return null;
     }
 
     @Override
@@ -170,6 +177,8 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
     @Override
     public void remove() {
         try {
+            if(connection.getClientState() != ClientConnection.ClientState.DISCONNECTED)
+                throw new IllegalStateException("You can't remove player from server until the connection is closed");
             super.remove();
             getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this));
             getServer().getPlayerManager().removePlayer(this);
@@ -211,8 +220,8 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
         try {
             getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME, this));
         }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (IOException exception) {
+            throw new RuntimeException(exception);
         }
     }
 

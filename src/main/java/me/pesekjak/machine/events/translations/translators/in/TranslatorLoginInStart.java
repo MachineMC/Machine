@@ -27,9 +27,10 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
             try {
                 connection.sendPacket(new PacketLoginOutSuccess(profile.getUuid(), profile.getUsername(), profile.getTextures()));
             } catch (IOException exception) {
-                connection.disconnect();
-                return;
+                throw new RuntimeException(exception);
             }
+            if(connection.getClientState() == ClientConnection.ClientState.DISCONNECTED)
+                return;
             connection.setClientState(ClientConnection.ClientState.PLAY);
             Player.spawn(connection.getServer(), profile, connection);
             return;
@@ -46,7 +47,7 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
         try {
             connection.sendPacket(new PacketLoginOutEncryptionRequest(publicKey, verifyToken));
         } catch (IOException exception) {
-            connection.disconnect();
+            throw new RuntimeException(exception);
         }
     }
 
