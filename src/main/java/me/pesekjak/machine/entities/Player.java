@@ -100,7 +100,7 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
             manager.addPlayer(player);
             final Component joinMessage = Component.translatable("multiplayer.player.joined", Component.text(player.getName())).style(ChatColor.YELLOW.asStyle());
             manager.getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(joinMessage));
-            server.getConsole().info(ChatUtils.componentToString(player.getDisplayName()) + " joined the game");
+            server.getConsole().info(ChatColor.YELLOW + ChatUtils.componentToString(player.getDisplayName()) + " joined the game");
             player.init();
             return player;
         } catch (Exception exception) {
@@ -184,7 +184,7 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
             getServer().getPlayerManager().removePlayer(this);
             final Component leaveMessage = Component.translatable("multiplayer.player.left", Component.text(getName())).style(ChatColor.YELLOW.asStyle());
             getServer().getPlayerManager().getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(leaveMessage));
-            getServer().getConsole().info(ChatUtils.componentToString(getDisplayName()) + " left the game");
+            getServer().getConsole().info(ChatColor.YELLOW + ChatUtils.componentToString(getDisplayName()) + " left the game");
             save();
         }
         catch (IOException e) {
