@@ -35,7 +35,7 @@ public class ServerProperties implements ServerFile, ServerProperty {
     private final Difficulty defaultDifficulty;
     private final WorldType defaultWorldType;
     private final boolean reducedDebugScreen;
-    private final int viewDistance, simulationDistance;
+    private final int viewDistance, simulationDistance, TPS, serverResponsiveness;
     private final String serverBrand;
     @Nullable
     private final BufferedImage icon;
@@ -95,6 +95,12 @@ public class ServerProperties implements ServerFile, ServerProperty {
         simulationDistance = Integer.parseInt(properties.getProperty("simulation-distance", "8"));
 
         reducedDebugScreen = Boolean.parseBoolean(properties.getProperty("reduced-debug-screen", "false"));
+
+        int tps = Integer.parseInt(properties.getProperty("tps", Machine.DEFAULT_TPS + ""));
+        TPS = tps <= 0 ? 20 : tps;
+
+        int response = Integer.parseInt(properties.getProperty("server-responsiveness", "0"));
+        serverResponsiveness = Math.max(response, 0);
 
         serverBrand = properties.getProperty("server-brand", "Machine server");
 

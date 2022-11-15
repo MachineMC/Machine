@@ -76,11 +76,11 @@ public class WorldJson implements ServerFile, ServerProperty {
         WorldType worldType = WorldType.getByName(json.get("worldType").getAsString());
         if (worldType == null) {
             worldType = getServer().getProperties().getDefaultWorldType();
-            json.addProperty("difficulty", worldType.name().toLowerCase());
+            json.addProperty("worldType", worldType.name().toLowerCase());
         }
-        Writer writer = new FileWriter(file);
-        getServer().getGson().toJson(json, writer);
-        writer.close();
+        try (Writer writer = new FileWriter(file)) {
+            getServer().getGson().toJson(json, writer);
+        }
         this.difficulty = difficulty;
         this.worldType = worldType;
     }

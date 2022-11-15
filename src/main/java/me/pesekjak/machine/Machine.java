@@ -45,6 +45,7 @@ public class Machine {
     public static final String SERVER_BRAND = "Machine";
     public static final String SERVER_IMPLEMENTATION_VERSION = "1.19.2";
     public static final int SERVER_IMPLEMENTATION_PROTOCOL = 760;
+    public static final int DEFAULT_TPS = 20;
 
     public static final ClassLoader CLASS_LOADER = Machine.class.getClassLoader();
     public static final String PACKAGE = "me.pesekjak.machine";
@@ -52,7 +53,9 @@ public class Machine {
     public static final Path DIRECTORY = FileUtils.getMachineJar().getParentFile().toPath();
 
     @Getter
-    public final int TPS = 20;
+    public final int TPS;
+    @Getter
+    public final int serverResponsiveness;
 
     @Getter @Setter
     private Console console;
@@ -132,6 +135,10 @@ public class Machine {
         }
         properties = new ServerProperties(this, propertiesFile);
         console.info("Loaded server properties");
+
+        TPS = properties.getTPS();
+
+        serverResponsiveness = properties.getServerResponsiveness();
 
         // Checking if the port in the properties in empty
         if (!NetworkUtils.available(properties.getServerPort())) {

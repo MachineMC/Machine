@@ -5,9 +5,7 @@ import org.jetbrains.annotations.Nullable;
 public enum WorldType {
 
     NORMAL,
-    FLAT,
-    LARGE_BIOMES,
-    AMPLIFIED;
+    FLAT;
 
     @Nullable
     public static WorldType getByName(String name) {
