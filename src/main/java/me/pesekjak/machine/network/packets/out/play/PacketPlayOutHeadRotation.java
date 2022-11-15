@@ -24,7 +24,7 @@ public class PacketPlayOutHeadRotation extends PacketOut {
 
     public PacketPlayOutHeadRotation(FriendlyByteBuf buf) {
         entityId = buf.readVarInt();
-        angle = buf.readFloat();
+        angle = buf.readAngle();
     }
 
     @Override
@@ -36,7 +36,7 @@ public class PacketPlayOutHeadRotation extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(entityId)
-                .writeFloat(angle)
+                .writeAngle(angle)
                 .bytes();
     }
 

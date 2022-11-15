@@ -420,6 +420,15 @@ public class FriendlyByteBuf {
         return this;
     }
 
+    public float readAngle() {
+        return readByte() * 360f / 256f;
+    }
+
+    public FriendlyByteBuf writeAngle(float angle) {
+        writeByte((byte) (angle * 256f / 360f));
+        return this;
+    }
+
     public int readableBytes() {
         return buf.readableBytes();
     }
