@@ -111,8 +111,7 @@ public class DimensionsJson implements ServerFile, ServerProperty {
                         .build()
                 );
             } catch (Exception exception) {
-                exception.printStackTrace();
-                server.getConsole().severe("Failed to register '" + key + "' dimension");
+                server.getExceptionHandler().handle(exception, "Failed to register '" + key + "' dimension");
             }
         }
     }

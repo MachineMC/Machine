@@ -10,9 +10,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Connection of the Machine server
@@ -24,7 +24,7 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
 
     @Getter
     private final Machine server;
-    private final List<ClientConnection> clients = new ArrayList<>();
+    private final List<ClientConnection> clients = new CopyOnWriteArrayList<>();
     @Getter
     private final String ip;
     @Getter
@@ -52,13 +52,19 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
             server.getConsole().info("Server is listening on '" + socket.getInetAddress().getHostName() + ":" + socket.getLocalPort() + "'");
             running = true;
             while(running) {
-                Socket connection = socket.accept();
-                ClientConnection sc = new ClientConnection(server, connection);
-                clients.add(sc);
-                sc.start();
+                try {
+                    Socket connection = socket.accept();
+                    ClientConnection sc = new ClientConnection(server, connection);
+                    clients.add(sc);
+                    sc.start();
+                } catch (Exception exception) {
+                    if(server.isRunning()) // preventing socket exception when closed
+                        server.getExceptionHandler().handle(exception);
+                }
             }
         } catch (IOException exception) {
-            exception.printStackTrace();
+            server.getExceptionHandler().handle(exception);
+            System.exit(2);
         }
     }
 
@@ -97,7 +103,7 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
      * Disconnects the client connection.
      * @param connection client connection to disconnect
      */
-    public void disconnect(ClientConnection connection) {
+    protected void disconnect(ClientConnection connection) {
         if(connection.getClientState() != ClientConnection.ClientState.DISCONNECTED)
             connection.disconnect();
         clients.remove(connection);
