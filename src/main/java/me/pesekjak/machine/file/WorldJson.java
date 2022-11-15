@@ -23,6 +23,7 @@ public class WorldJson implements ServerFile, ServerProperty {
     private final DimensionType dimensionType;
     private final long seed;
     private final Difficulty difficulty;
+    private final WorldType worldType;
 
     private final File folder;
 
@@ -37,7 +38,6 @@ public class WorldJson implements ServerFile, ServerProperty {
         try {
             name = NamespacedKey.parse(unparsedName);
         } catch (Exception ignored) {
-            server.getConsole().severe("World '" + file.getParentFile().getName() + "' uses illegal name identifier and can't be registered");
             throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal name identifier and can't be registered");
         }
 
@@ -48,13 +48,11 @@ public class WorldJson implements ServerFile, ServerProperty {
         try {
             dimensionKey = NamespacedKey.parse(unparsedDimensionType);
         } catch (Exception ignored) {
-            server.getConsole().severe("World '" + file.getParentFile().getName() + "' uses illegal dimension identifier and can't be registered");
             throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal dimension identifier and can't be registered");
         }
 
         dimensionType = server.getDimensionTypeManager().getDimension(dimensionKey);
         if(dimensionType == null) {
-            getServer().getConsole().severe("World '" + this.name + "' uses non existing dimension");
             throw new IllegalStateException("World '" + this.name + "' uses non existing dimension");
         }
 
@@ -71,10 +69,17 @@ public class WorldJson implements ServerFile, ServerProperty {
             difficulty = getServer().getProperties().getDefaultDifficulty();
             json.addProperty("difficulty", difficulty.getName());
         }
-        Writer writer = new FileWriter(file);
-        getServer().getGson().toJson(json, writer);
-        writer.close();
+
+        WorldType worldType = WorldType.getByName(json.get("worldType").getAsString());
+        if (worldType == null) {
+            worldType = getServer().getProperties().getDefaultWorldType();
+            json.addProperty("worldType", worldType.name().toLowerCase());
+        }
+        try (Writer writer = new FileWriter(file)) {
+            getServer().getGson().toJson(json, writer);
+        }
         this.difficulty = difficulty;
+        this.worldType = worldType;
     }
 
     @Override
@@ -96,7 +101,7 @@ public class WorldJson implements ServerFile, ServerProperty {
      * @return newly created and registered world
      */
     public World buildWorld() {
-        World world = new ServerWorld(folder, server, name, dimensionType, seed);
+        World world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
         world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
         world.setDifficulty(server.getProperties().getDefaultDifficulty());
         return world;

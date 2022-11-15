@@ -20,6 +20,7 @@ import me.pesekjak.machine.server.codec.Codec;
 import me.pesekjak.machine.world.Difficulty;
 import me.pesekjak.machine.world.Location;
 import me.pesekjak.machine.world.World;
+import me.pesekjak.machine.world.WorldType;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
@@ -126,19 +127,18 @@ public class Player extends LivingEntity implements Audience, NBTSerializable {
                 getWorld().getName(),
                 Hashing.sha256().hashLong(getWorld().getSeed()).asLong(),
                 getServer().getProperties().getMaxPlayers(),
-                8, // TODO Server Properties - View Distance
-                8, // TODO Server Properties - Simulation Distance
-                false, // TODO Server Properties - Reduced Debug Screen
+                getServer().getProperties().getViewDistance(),
+                getServer().getProperties().getSimulationDistance(),
+                getServer().getProperties().isReducedDebugScreen(),
                 true,
                 false,
-                false, // TODO World - Is Spawn World Flat
+                getWorld().getWorldType() == WorldType.FLAT,
                 false,
                 null,
                 null
         ));
 
-        // TODO Add this as option in server properties
-        sendPacket(PacketPlayOutPluginMessage.getBrandPacket("Machine server"));
+        sendPacket(PacketPlayOutPluginMessage.getBrandPacket(getServer().getProperties().getServerBrand()));
 
         // Spawn Sequence: https://wiki.vg/Protocol_FAQ#What.27s_the_normal_login_sequence_for_a_client.3F
         sendDifficultyChange(getWorld().getDifficulty());

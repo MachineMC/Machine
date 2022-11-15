@@ -45,14 +45,15 @@ public class ServerWorld extends World {
                 server,
                 NamespacedKey.machine("main"),
                 server.getDimensionTypeManager().getDimensions().iterator().next(),
+                server.getProperties().getDefaultWorldType(),
                 1);
         world.setWorldSpawn(new Location(0, world.getDimensionType().getMinY(), 0, world));
         world.setDifficulty(server.getProperties().getDefaultDifficulty());
         return world;
     }
 
-    public ServerWorld(File folder, Machine server, NamespacedKey name, DimensionType dimensionType, long seed) {
-        super(server, name, FileUtils.getOrCreateUUID(folder), dimensionType, seed);
+    public ServerWorld(File folder, Machine server, NamespacedKey name, DimensionType dimensionType, WorldType worldType, long seed) {
+        super(server, name, FileUtils.getOrCreateUUID(folder), dimensionType, worldType, seed);
         this.folder = folder;
     }
 

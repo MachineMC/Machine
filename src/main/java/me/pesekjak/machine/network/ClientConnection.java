@@ -119,6 +119,7 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                     new TranslatorHandler(server.getTranslatorDispatcher())
             );
 
+            int responsiveness = server.getServerResponsiveness();
             Scheduler.task(((input, session) -> {
                         if(clientState == ClientState.DISCONNECTED) {
                             session.stop();
@@ -139,7 +140,7 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                     }))
                     .async()
                     .repeat(true)
-                    .period(1000 / server.getTPS())
+                    .period(responsiveness != 0 ? responsiveness : 1000 / server.getTPS())
                     .run(server.getScheduler());
 
         } catch (Exception ignored) { }

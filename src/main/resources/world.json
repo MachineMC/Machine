@@ -2,5 +2,6 @@
   "name": "machine:main",
   "dimension": "minecraft:overworld",
   "seed": 1,
-  "difficulty": ""
+  "difficulty": "",
+  "worldType": ""
 }

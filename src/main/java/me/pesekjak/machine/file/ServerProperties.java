@@ -5,6 +5,7 @@ import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.Difficulty;
+import me.pesekjak.machine.world.WorldType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +33,10 @@ public class ServerProperties implements ServerFile, ServerProperty {
     private final Component motd;
     private final NamespacedKey defaultWorld;
     private final Difficulty defaultDifficulty;
+    private final WorldType defaultWorldType;
+    private final boolean reducedDebugScreen;
+    private final int viewDistance, simulationDistance, tps, serverResponsiveness;
+    private final String serverBrand;
     @Nullable
     private final BufferedImage icon;
     @Nullable
@@ -69,11 +74,35 @@ public class ServerProperties implements ServerFile, ServerProperty {
         } catch (Exception ignored) { }
         defaultWorld = defaultWorldParsed;
 
-        Difficulty difficulty = Difficulty.DEFAULT_DIFFICULTY;
+        Difficulty difficulty;
         try {
             difficulty = Difficulty.valueOf(properties.getProperty("default-difficulty").toUpperCase());
-        } catch (Exception ignore) { }
+        } catch (Exception e) {
+            difficulty = Difficulty.DEFAULT_DIFFICULTY;
+        }
         defaultDifficulty = difficulty;
+
+        WorldType worldType;
+        try {
+            worldType = WorldType.valueOf(properties.getProperty("default-world-type").toUpperCase());
+        } catch (Exception e) {
+            worldType = WorldType.NORMAL;
+        }
+        defaultWorldType = worldType;
+
+        viewDistance = Integer.parseInt(properties.getProperty("view-distance"));
+
+        simulationDistance = Integer.parseInt(properties.getProperty("simulation-distance"));
+
+        reducedDebugScreen = Boolean.parseBoolean(properties.getProperty("reduced-debug-screen"));
+
+        int tps = Integer.parseInt(properties.getProperty("tps"));
+        this.tps = tps <= 0 ? Machine.DEFAULT_TPS : tps;
+
+        int response = Integer.parseInt(properties.getProperty("server-responsiveness"));
+        serverResponsiveness = Math.max(response, 0);
+
+        serverBrand = properties.getProperty("server-brand");
 
         File png = new File(ICON_FILE_NAME);
         BufferedImage icon = null;
