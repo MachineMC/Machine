@@ -38,7 +38,6 @@ public class WorldJson implements ServerFile, ServerProperty {
         try {
             name = NamespacedKey.parse(unparsedName);
         } catch (Exception ignored) {
-            server.getConsole().severe("World '" + file.getParentFile().getName() + "' uses illegal name identifier and can't be registered");
             throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal name identifier and can't be registered");
         }
 
@@ -49,13 +48,11 @@ public class WorldJson implements ServerFile, ServerProperty {
         try {
             dimensionKey = NamespacedKey.parse(unparsedDimensionType);
         } catch (Exception ignored) {
-            server.getConsole().severe("World '" + file.getParentFile().getName() + "' uses illegal dimension identifier and can't be registered");
             throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal dimension identifier and can't be registered");
         }
 
         dimensionType = server.getDimensionTypeManager().getDimension(dimensionKey);
         if(dimensionType == null) {
-            getServer().getConsole().severe("World '" + this.name + "' uses non existing dimension");
             throw new IllegalStateException("World '" + this.name + "' uses non existing dimension");
         }
 

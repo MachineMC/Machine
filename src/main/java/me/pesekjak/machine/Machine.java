@@ -136,7 +136,7 @@ public class Machine {
         properties = new ServerProperties(this, propertiesFile);
         console.info("Loaded server properties");
 
-        TPS = properties.getTPS();
+        TPS = properties.getTps();
 
         serverResponsiveness = properties.getServerResponsiveness();
 

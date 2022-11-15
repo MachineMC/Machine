@@ -35,7 +35,7 @@ public class ServerProperties implements ServerFile, ServerProperty {
     private final Difficulty defaultDifficulty;
     private final WorldType defaultWorldType;
     private final boolean reducedDebugScreen;
-    private final int viewDistance, simulationDistance, TPS, serverResponsiveness;
+    private final int viewDistance, simulationDistance, tps, serverResponsiveness;
     private final String serverBrand;
     @Nullable
     private final BufferedImage icon;
@@ -90,19 +90,19 @@ public class ServerProperties implements ServerFile, ServerProperty {
         }
         defaultWorldType = worldType;
 
-        viewDistance = Integer.parseInt(properties.getProperty("view-distance", "8"));
+        viewDistance = Integer.parseInt(properties.getProperty("view-distance"));
 
-        simulationDistance = Integer.parseInt(properties.getProperty("simulation-distance", "8"));
+        simulationDistance = Integer.parseInt(properties.getProperty("simulation-distance"));
 
-        reducedDebugScreen = Boolean.parseBoolean(properties.getProperty("reduced-debug-screen", "false"));
+        reducedDebugScreen = Boolean.parseBoolean(properties.getProperty("reduced-debug-screen"));
 
-        int tps = Integer.parseInt(properties.getProperty("tps", Machine.DEFAULT_TPS + ""));
-        TPS = tps <= 0 ? 20 : tps;
+        int tps = Integer.parseInt(properties.getProperty("tps"));
+        this.tps = tps <= 0 ? Machine.DEFAULT_TPS : tps;
 
-        int response = Integer.parseInt(properties.getProperty("server-responsiveness", "0"));
+        int response = Integer.parseInt(properties.getProperty("server-responsiveness"));
         serverResponsiveness = Math.max(response, 0);
 
-        serverBrand = properties.getProperty("server-brand", "Machine server");
+        serverBrand = properties.getProperty("server-brand");
 
         File png = new File(ICON_FILE_NAME);
         BufferedImage icon = null;
