@@ -39,6 +39,7 @@ public abstract class World implements ServerProperty {
     private final NamespacedKey name;
     private final UUID uuid;
     private final DimensionType dimensionType;
+    private final WorldType worldType;
     private final long seed;
     private Difficulty difficulty = Difficulty.DEFAULT_DIFFICULTY;
     private Location worldSpawn;

@@ -23,6 +23,7 @@ public class WorldJson implements ServerFile, ServerProperty {
     private final DimensionType dimensionType;
     private final long seed;
     private final Difficulty difficulty;
+    private final WorldType worldType;
 
     private final File folder;
 
@@ -71,10 +72,17 @@ public class WorldJson implements ServerFile, ServerProperty {
             difficulty = getServer().getProperties().getDefaultDifficulty();
             json.addProperty("difficulty", difficulty.getName());
         }
+
+        WorldType worldType = WorldType.getByName(json.get("worldType").getAsString());
+        if (worldType == null) {
+            worldType = getServer().getProperties().getDefaultWorldType();
+            json.addProperty("difficulty", worldType.name().toLowerCase());
+        }
         Writer writer = new FileWriter(file);
         getServer().getGson().toJson(json, writer);
         writer.close();
         this.difficulty = difficulty;
+        this.worldType = worldType;
     }
 
     @Override
@@ -96,7 +104,7 @@ public class WorldJson implements ServerFile, ServerProperty {
      * @return newly created and registered world
      */
     public World buildWorld() {
-        World world = new ServerWorld(folder, server, name, dimensionType, seed);
+        World world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
         world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
         world.setDifficulty(server.getProperties().getDefaultDifficulty());
         return world;

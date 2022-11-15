@@ -26,6 +26,8 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
     private final Machine server;
     private final List<ClientConnection> clients = new ArrayList<>();
     @Getter
+    private final String ip;
+    @Getter
     private final int port;
     @Getter
     private ServerSocket socket;
@@ -35,6 +37,7 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
         if(server.getConnection() != null)
             throw new IllegalStateException();
         this.server = server;
+        ip = server.getProperties().getServerIp();
         port = server.getProperties().getServerPort();
         start();
     }
@@ -45,7 +48,7 @@ public class ServerConnection extends Thread implements ServerProperty, AutoClos
     @Override
     public void run() {
         try {
-            socket = new ServerSocket(port, 50, InetAddress.getByName("localhost"));
+            socket = new ServerSocket(port, 50, InetAddress.getByName(ip));
             server.getConsole().info("Server is listening on '" + socket.getInetAddress().getHostName() + ":" + socket.getLocalPort() + "'");
             running = true;
             while(running) {
