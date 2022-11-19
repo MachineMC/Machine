@@ -43,11 +43,11 @@ public class PacketPlayOutSpawnPlayer extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        return new FriendlyByteBuf()
                 .writeVarInt(entityId)
-                .writeUUID(uuid);
-        location.write(buf);
-        return buf.bytes();
+                .writeUUID(uuid)
+                .write(location)
+                .bytes();
     }
 
     @Override

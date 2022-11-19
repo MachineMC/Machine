@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
 import me.pesekjak.machine.chunk.Chunk;
+import me.pesekjak.machine.utils.Writable;
 import me.pesekjak.machine.utils.math.Vector3;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 @AllArgsConstructor(staticName = "of")
 @Data
 @With
-public class Location implements Cloneable {
+public class Location implements Cloneable, Writable {
 
     private double x, y, z;
     private float yaw, pitch;
@@ -167,6 +168,7 @@ public class Location implements Cloneable {
      * Writes the location to the {@link FriendlyByteBuf}.
      * @param buf buffer to write into
      */
+    @Override
     public void write(FriendlyByteBuf buf) {
         writePos(buf);
         writeRot(buf);

@@ -39,10 +39,10 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeVarInt(entityId);
-        location.write(buf);
-        return buf.writeBoolean(onGround)
+        return new FriendlyByteBuf()
+                .writeVarInt(entityId)
+                .write(location)
+                .writeBoolean(onGround)
                 .bytes();
     }
 

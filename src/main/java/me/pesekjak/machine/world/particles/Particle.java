@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.Writable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
@@ -14,7 +15,7 @@ import java.util.Optional;
  * Represents playable particle, use {@link Particle#of(ParticleType)} or
  * {@link Particle#of(ParticleType, ParticleOptions)} to create new one.
  */
-public class Particle implements NBTSerializable {
+public class Particle implements NBTSerializable, Writable {
 
     @Getter @Setter
     private ParticleType type;
@@ -68,11 +69,11 @@ public class Particle implements NBTSerializable {
      * @param buf buffer to write to
      * @return updated buffer
      */
-    public FriendlyByteBuf write(FriendlyByteBuf buf) {
+    @Override
+    public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(type.getID());
         if(options != null)
-            options.write(buf);
-        return buf;
+            buf.write(options);
     }
 
     @Override

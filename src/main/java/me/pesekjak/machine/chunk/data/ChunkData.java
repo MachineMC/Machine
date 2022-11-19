@@ -3,6 +3,7 @@ package me.pesekjak.machine.chunk.data;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.Writable;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 /**
@@ -10,7 +11,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
  */
 @AllArgsConstructor
 @Getter
-public class ChunkData {
+public class ChunkData implements Writable {
 
     private final NBTCompound heightmaps;
     private final byte[] data;
@@ -24,6 +25,7 @@ public class ChunkData {
      * Writes the data to a given buffer.
      * @param buf buffer to write into
      */
+    @Override
     public void write(FriendlyByteBuf buf) {
         buf.writeNBT("", this.heightmaps);
         buf.writeByteArray(data);

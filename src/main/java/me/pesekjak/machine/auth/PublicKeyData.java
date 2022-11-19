@@ -1,6 +1,7 @@
 package me.pesekjak.machine.auth;
 
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.Writable;
 
 import java.security.PublicKey;
 import java.time.Instant;
@@ -9,7 +10,7 @@ import java.util.Arrays;
 /**
  * The public key the client received from Mojang.
  */
-public record PublicKeyData(PublicKey publicKey, byte[] signature, Instant timestamp) {
+public record PublicKeyData(PublicKey publicKey, byte[] signature, Instant timestamp) implements Writable {
 
     /**
      * @return true if data are expired
@@ -18,6 +19,7 @@ public record PublicKeyData(PublicKey publicKey, byte[] signature, Instant times
         return timestamp.isBefore(Instant.now());
     }
 
+    @Override
     public void write(FriendlyByteBuf buf) {
         buf.writeLong(timestamp.toEpochMilli())
                 .writeByteArray(publicKey.getEncoded())

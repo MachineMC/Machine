@@ -38,11 +38,11 @@ public class PacketPlayOutUpdateLight extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        return new FriendlyByteBuf()
                 .writeVarInt(chunkX)
-                .writeVarInt(chunkZ);
-        lightData.write(buf);
-        return buf.bytes();
+                .writeVarInt(chunkZ)
+                .write(lightData)
+                .bytes();
     }
 
     @Override

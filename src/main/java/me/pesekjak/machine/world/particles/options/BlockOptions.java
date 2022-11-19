@@ -3,12 +3,13 @@ package me.pesekjak.machine.world.particles.options;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.Writable;
 import me.pesekjak.machine.world.BlockData;
 import me.pesekjak.machine.world.particles.ParticleOptions;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
-public class BlockOptions implements ParticleOptions {
+public class BlockOptions implements ParticleOptions, Writable {
 
     @Getter @Setter
     private BlockData blockData;
@@ -27,8 +28,8 @@ public class BlockOptions implements ParticleOptions {
     }
 
     @Override
-    public FriendlyByteBuf write(FriendlyByteBuf buf) {
-        return buf.writeVarInt(blockData.getId());
+    public void write(FriendlyByteBuf buf) {
+        buf.writeVarInt(blockData.getId());
     }
 
 }

@@ -43,12 +43,12 @@ public class PacketPlayOutChunkData extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        return new FriendlyByteBuf()
                 .writeInt(chunkX)
-                .writeInt(chunkZ);
-        chunkData.write(buf);
-        lightData.write(buf);
-        return buf.bytes();
+                .writeInt(chunkZ)
+                .write(chunkData)
+                .write(lightData)
+                .bytes();
     }
 
     @Override

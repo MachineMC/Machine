@@ -88,6 +88,11 @@ public class FriendlyByteBuf {
         return stream;
     }
 
+    public FriendlyByteBuf write(Writable writable) {
+        writable.write(this);
+        return this;
+    }
+
     public boolean readBoolean() {
         return buf.readBoolean();
     }
@@ -414,9 +419,8 @@ public class FriendlyByteBuf {
     }
 
     public FriendlyByteBuf writeSignature(@Nullable MessageSignature messageSignature) {
-        if (messageSignature == null)
-            return this;
-        messageSignature.write(this);
+        if (messageSignature != null)
+            write(messageSignature);
         return this;
     }
 

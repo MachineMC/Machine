@@ -2,6 +2,7 @@ package me.pesekjak.machine.chunk.data;
 
 import lombok.AllArgsConstructor;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.Writable;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -11,7 +12,7 @@ import java.util.List;
  * Data about chunk's lighting.
  */
 @AllArgsConstructor
-public class LightData {
+public class LightData implements Writable {
 
     private final boolean trustEdges;
     private final BitSet skyMask;
@@ -43,6 +44,7 @@ public class LightData {
      * Writes the data to a given buffer.
      * @param buf buffer to write into
      */
+    @Override
     public void write(FriendlyByteBuf buf) {
         buf.writeBoolean(trustEdges);
 
