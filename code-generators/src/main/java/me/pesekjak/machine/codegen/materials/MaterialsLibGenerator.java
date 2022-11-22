@@ -8,10 +8,7 @@ import me.pesekjak.machine.codegen.CodeGenerator;
 import me.pesekjak.machine.codegen.blockdata.BlockDataLibGenerator;
 import org.objectweb.asm.*;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -21,8 +18,8 @@ public class MaterialsLibGenerator extends CodeGenerator {
     @Getter
     private final String path = "me.pesekjak.machine.world.Material";
 
-    public MaterialsLibGenerator() throws IOException {
-        super("Materials", "registries.json");
+    public MaterialsLibGenerator(File outputDir) throws IOException {
+        super(outputDir, "Materials", "registries.json");
     }
 
     @Override

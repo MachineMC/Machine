@@ -1,15 +1,16 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    java
     application
-    kotlin("jvm") version "1.7.10"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    alias(libs.plugins.jetbrains.kotlin.jvm)
+    alias(libs.plugins.johnrengelman.shadow)
+    id("machine.java-conventions-library")
+    id("machine.generator-library")
 }
 
 group = "me.pesekjak"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    mavenCentral()
     maven {
         url = uri("https://jitpack.io")
         url = uri("https://libraries.minecraft.net")
@@ -18,53 +19,25 @@ repositories {
 
 dependencies {
 
-    // Local generated libraries by code generators
-    val libsFolder = "libs/"
-    val libsPrefix = "Machine"
-    implementation(files(libsFolder+libsPrefix+ "Materials.jar"))
-    implementation(files(libsFolder+libsPrefix+ "BlockData.jar"))
+    sequenceOf(
+        "Materials",
+        "BlockData"
+    ).forEach {
+        implementation(files("libs/Machine$it.jar"))
+    }
 
-    // JetBrains Annotations
-    implementation("org.jetbrains:annotations:20.1.0")
+    implementation(libs.google.guava)
+    implementation(libs.netty.buffer)
+    implementation(libs.jna)
+    implementation(libs.jline)
 
-    // Lombok
-    compileOnly("org.projectlombok:lombok:1.18.24")
-    testCompileOnly("org.projectlombok:lombok:1.18.24")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.24")
-    annotationProcessor("org.projectlombok:lombok:1.18.24")
-
-    // Adventure
-    implementation("net.kyori:adventure-api:4.11.0")
-    implementation("net.kyori:adventure-text-serializer-gson:4.11.0")
-    implementation("net.kyori:adventure-text-serializer-legacy:4.11.0")
-    implementation("net.kyori:adventure-text-serializer-plain:4.11.0")
-
-    // Hephaistos
-    implementation("io.github.jglrxavpok.hephaistos:common:2.5.1")
-    implementation("io.github.jglrxavpok.hephaistos:gson:2.5.1")
-
-    // Brigadier
-    implementation("com.mojang:brigadier:1.0.18")
-
-    // Netty Buffers
-    implementation("io.netty:netty-buffer:4.1.80.Final")
-
-    // JNA
-    implementation("net.java.dev.jna:jna-platform:5.12.1")
-
-    // JLine
-    implementation("org.jline:jline:3.21.0")
-
-    // Guava
-    implementation("com.google.guava:guava:11.0.2")
+    implementation(libs.bundles.kyori.adventure)
+    implementation(libs.bundles.hephaistos)
+    implementation(libs.mojang.brigadier)
 }
 
 application {
     mainClass.set("me.pesekjak.machine.Machine")
-}
-
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 tasks {
@@ -73,5 +46,4 @@ tasks {
             attributes["Main-Class"] = application.mainClass
         }
     }
-
 }

@@ -1,7 +1,10 @@
 package me.pesekjak.machine.codegen.blockdata;
 
 import lombok.Getter;
-import org.objectweb.asm.*;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

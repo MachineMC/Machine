@@ -1,2 +1,8 @@
 rootProject.name = "Machine"
-include("code-generators")
+
+enableFeaturePreview("VERSION_CATALOGS")
+
+pluginManagement {
+    includeBuild("build-logic")
+    includeBuild("code-generators")
+}
