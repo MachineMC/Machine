@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -23,21 +24,30 @@ public class CodeGenerator {
     public final static String CONSTRUCTOR_NAME = "<init>";
     public final static String STATIC_NAME = "<clinit>";
 
-    protected final ZipOutputStream zip;
+    protected ZipOutputStream zip;
     protected final JsonParser parser = new JsonParser();
     @Getter(AccessLevel.PROTECTED) @Setter(AccessLevel.PROTECTED)
     private JsonObject source;
 
-    protected CodeGenerator(String libraryName) throws IOException {
-        boolean s = new File(Generators.OUTPUT_PATH + prefix + libraryName + ".jar").createNewFile();
+    @Getter(AccessLevel.PROTECTED)
+    private boolean exists = false;
+
+    protected CodeGenerator(@NotNull File outputDir, String libraryName) throws IOException {
         this.libraryName = libraryName;
-        zip = new ZipOutputStream(
-                new FileOutputStream(Generators.OUTPUT_PATH + prefix + libraryName + ".jar"));
+        final File jar = new File(outputDir.getPath() + "/" + prefix + libraryName + ".jar");
+        if(jar.exists()) {
+            exists = true;
+            return;
+        }
+        if(!jar.createNewFile())
+            throw new IOException("Failed to create the jar file for " + libraryName + " Machine Library");
+        zip = new ZipOutputStream(new FileOutputStream(jar));
         source = null;
     }
 
-    protected CodeGenerator(String libraryName, String jsonFile) throws IOException {
-        this(libraryName);
+    protected CodeGenerator(File outputDir, String libraryName, String jsonFile) throws IOException {
+        this(outputDir, libraryName);
+        if(exists) return;
         final InputStream stream = getClass().getClassLoader().getResourceAsStream(jsonFile);
         if(stream == null)
             throw new FileNotFoundException();
@@ -56,11 +66,11 @@ public class CodeGenerator {
         zip.closeEntry();
     }
 
-    public Type type(String dotPath) {
+    public Type type(@NotNull String dotPath) {
         return Type.getType("L" + dotPath.replace(".", "/") + ";");
     }
 
-    public Type array(Type type) {
+    public Type array(@NotNull Type type) {
         return Type.getType("[" + type.getDescriptor());
     }
 

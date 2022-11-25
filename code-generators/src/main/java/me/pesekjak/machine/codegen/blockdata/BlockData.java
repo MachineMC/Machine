@@ -505,12 +505,12 @@ public class BlockData {
         return cw.toByteArray();
     }
 
-    private org.objectweb.asm.Type type(String dotPath) {
-        return org.objectweb.asm.Type.getType("L" + dotPath.replace(".", "/") + ";");
+    private Type type(String dotPath) {
+        return Type.getType("L" + dotPath.replace(".", "/") + ";");
     }
 
-    private org.objectweb.asm.Type array(org.objectweb.asm.Type type) {
-        return org.objectweb.asm.Type.getType("[" + type.getDescriptor());
+    private Type array(Type type) {
+        return Type.getType("[" + type.getDescriptor());
     }
 
     private void pushValue(final MethodVisitor mv, Object o) {

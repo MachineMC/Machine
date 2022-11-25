@@ -1,0 +1,59 @@
+[versions]
+
+jetbrains-kotlin-gradle = "1.7.21"
+jetbrains-annotations = "23.0.0"
+lombok = "1.18.24"
+google-gson = "2.7"
+google-guava = "11.0.2"
+asm = "9.2"
+netty = "4.1.80.Final"
+jna = "5.12.1"
+jline = "3.21.0"
+kyori-adventure = "4.11.0"
+hephaistos = "2.5.1"
+mojang-brigadier = "1.0.18"
+junit = "5.9.1"
+
+jetbrains-kotlin-jvm = "1.7.10"
+johnrengelman-shadow = "7.1.2"
+
+
+[libraries]
+
+jetbrains-kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "jetbrains-kotlin-gradle" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+
+google-gson = { module = "com.google.code.gson:gson", version.ref = "google-gson" }
+google-guava = { module = "com.google.guava:guava", version.ref = "google-guava" }
+
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+
+netty-buffer = { module = "io.netty:netty-buffer", version.ref = "netty" }
+
+jna = { module = "net.java.dev.jna:jna-platform", version.ref = "jna" }
+
+jline = { module = "org.jline:jline", version.ref = "jline" }
+
+kyori-adventure-api = { module = "net.kyori:adventure-api", version.ref = "kyori-adventure" }
+kyori-adventure-text-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "kyori-adventure" }
+kyori-adventure-text-serializer-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "kyori-adventure" }
+kyori-adventure-text-serializer-plain = { module = "net.kyori:adventure-text-serializer-plain", version.ref = "kyori-adventure" }
+
+hephaistos-common = { module = "io.github.jglrxavpok.hephaistos:common", version.ref = "hephaistos" }
+hephaistos-gson = { module = "io.github.jglrxavpok.hephaistos:gson", version.ref = "hephaistos" }
+
+mojang-brigadier = { module = "com.mojang:brigadier", version.ref = "mojang-brigadier" }
+
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+
+[bundles]
+kyori-adventure = ["kyori-adventure-api", "kyori-adventure-text-serializer-gson", "kyori-adventure-text-serializer-legacy", "kyori-adventure-text-serializer-plain"]
+hephaistos = ["hephaistos-common", "hephaistos-gson"]
+
+[plugins]
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrains-kotlin-jvm" }
+johnrengelman-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "johnrengelman-shadow" }

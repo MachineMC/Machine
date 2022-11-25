@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import me.pesekjak.machine.codegen.CodeGenerator;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,8 +16,8 @@ public class BlockDataLibGenerator extends CodeGenerator {
     @Getter(AccessLevel.PROTECTED)
     private final Map<String, Property> properties = new LinkedHashMap<>();
 
-    public BlockDataLibGenerator() throws IOException {
-        super("BlockData", "blocks.json");
+    public BlockDataLibGenerator(File outputDir) throws IOException {
+        super(outputDir, "BlockData", "blocks.json");
     }
 
     @Override
