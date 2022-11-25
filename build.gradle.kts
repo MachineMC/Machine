@@ -46,4 +46,7 @@ tasks {
             attributes["Main-Class"] = application.mainClass
         }
     }
+    shadowJar {
+        this.archiveClassifier.set("")
+    }
 }
