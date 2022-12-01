@@ -2,6 +2,7 @@ package me.pesekjak.machine.logging;
 
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
@@ -36,6 +37,7 @@ public class ServerConsole implements Console {
     @Getter @Setter
     private boolean colors;
 
+    @Getter(AccessLevel.PACKAGE)
     private volatile Terminal terminal;
     private volatile LineReader reader;
 
