@@ -2,7 +2,9 @@ package me.pesekjak.machine.chunk.data;
 
 import lombok.AllArgsConstructor;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.Writable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -45,7 +47,7 @@ public class LightData implements Writable {
      * @param buf buffer to write into
      */
     @Override
-    public void write(FriendlyByteBuf buf) {
+    public void write(@NotNull ServerBuffer buf) {
         buf.writeBoolean(trustEdges);
 
         buf.writeLongArray(skyMask.toLongArray());

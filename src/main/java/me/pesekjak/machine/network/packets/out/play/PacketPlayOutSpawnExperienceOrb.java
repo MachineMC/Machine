@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
-import me.pesekjak.machine.world.Location;
+import me.pesekjak.machine.utils.math.Vector3;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -18,7 +18,7 @@ public class PacketPlayOutSpawnExperienceOrb extends PacketOut {
 
     private int entityId;
     @NotNull
-    private Location location;
+    private Vector3 position;
     private short count;
 
     static {
@@ -28,26 +28,33 @@ public class PacketPlayOutSpawnExperienceOrb extends PacketOut {
 
     public PacketPlayOutSpawnExperienceOrb(FriendlyByteBuf buf) {
         entityId = buf.readVarInt();
-        location = Location.of(buf.readDouble(), buf.readDouble(), buf.readDouble(), null);
+        position = Vector3.of(buf.readDouble(), buf.readDouble(), buf.readDouble());
         count = buf.readByte();
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeVarInt(entityId);
-        location.writePos(buf);
+                .writeVarInt(entityId)
+                .writeDouble(position.getX())
+                .writeDouble(position.getY())
+                .writeDouble(position.getZ());
         return buf.writeShort(count)
                 .bytes();
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutSpawnExperienceOrb(new FriendlyByteBuf(serialize()));
     }
 

@@ -1,10 +1,11 @@
 package me.pesekjak.machine.world.region;
 
-import me.pesekjak.machine.chunk.Chunk;
+import me.pesekjak.machine.chunk.WorldChunk;
 import me.pesekjak.machine.chunk.DynamicChunk;
 import me.pesekjak.machine.utils.NamespacedKey;
-import me.pesekjak.machine.world.World;
+import me.pesekjak.machine.world.WorldImpl;
 import me.pesekjak.machine.world.blocks.BlockType;
+import me.pesekjak.machine.world.blocks.BlockTypeImpl;
 import org.jetbrains.annotations.Range;
 import org.jglrxavpok.hephaistos.data.RandomAccessFileSource;
 import org.jglrxavpok.hephaistos.mca.AnvilException;
@@ -27,7 +28,7 @@ public class AnvilRegion extends Region {
 
     private RegionFile regionFile;
 
-    public AnvilRegion(World world, File file, int x, int z) throws IOException, AnvilException {
+    public AnvilRegion(WorldImpl world, File file, int x, int z) throws IOException, AnvilException {
         super(world, x, z);
         regionFile = new RegionFile(new RandomAccessFileSource(new RandomAccessFile(file, MODE)), x, z, 0, world.getDimensionType().getHeight());
     }
@@ -35,8 +36,8 @@ public class AnvilRegion extends Region {
     @Override
     public void save() {
         try {
-            for(Chunk[] chunks : grid) {
-                for(Chunk chunk : chunks) {
+            for(WorldChunk[] chunks : grid) {
+                for(WorldChunk chunk : chunks) {
                     if(chunk == null) continue;
                     ChunkColumn column = regionFile.getChunk(chunk.getChunkX(), chunk.getChunkZ());
                     if(column == null) continue;
@@ -51,7 +52,7 @@ public class AnvilRegion extends Region {
     }
 
     @Override
-    public Chunk getChunk(@Range(from = 0, to = 31) int x, @Range(from = 0, to = 31) int z) {
+    public WorldChunk getChunk(@Range(from = 0, to = 31) int x, @Range(from = 0, to = 31) int z) {
         if(grid[x][z] == null) {
             try {
                 loadChunk(x, z);
@@ -71,7 +72,7 @@ public class AnvilRegion extends Region {
         final int worldX = this.x * 32 + x;
         final int worldZ = this.z * 32 + z;
         ChunkColumn column;
-        Chunk chunk = new DynamicChunk(world, worldX, worldZ);
+        WorldChunk chunk = new DynamicChunk(world, worldX, worldZ);
         if(shouldGenerate(x, z)) {
             column = regionFile.getOrCreateChunk(worldX, worldZ);
             column.setYRange(0, world.getDimensionType().getHeight());
@@ -114,7 +115,7 @@ public class AnvilRegion extends Region {
      * @param column column to fill
      * @param chunk chunk with the data
      */
-    private void fillColumn(ChunkColumn column, Chunk chunk) {
+    private void fillColumn(ChunkColumn column, WorldChunk chunk) {
         if(column.getMaxY() != chunk.getWorld().getDimensionType().getHeight())
             throw new IllegalStateException();
         for (int x = 0; x < 16; x++) {
@@ -136,7 +137,7 @@ public class AnvilRegion extends Region {
      * @param chunk chunk to fill
      * @param column column with the data
      */
-    private void fillChunk(Chunk chunk, ChunkColumn column) {
+    private void fillChunk(WorldChunk chunk, ChunkColumn column) {
         if(column.getMaxY() != chunk.getWorld().getDimensionType().getHeight())
             throw new IllegalStateException();
         final Map<String, BlockType> blockMap = new HashMap<>();
@@ -146,7 +147,7 @@ public class AnvilRegion extends Region {
                     final String name = column.getBlockState(x, y, z).getName();
                     if(blockMap.get(name) == null)
                         blockMap.put(name, world.getServer().getBlockManager().getBlockType(NamespacedKey.parse(name)));
-                    chunk.setBlock(x, y, z, blockMap.get(name), BlockType.CreateReason.SET, BlockType.DestroyReason.REMOVED, null);
+                    chunk.setBlock(x, y, z, blockMap.get(name), BlockTypeImpl.CreateReason.SET, BlockTypeImpl.DestroyReason.REMOVED, null);
                 }
             }
         }

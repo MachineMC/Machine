@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import me.pesekjak.machine.auth.PublicKeyData;
+import me.pesekjak.machine.auth.PublicKeyDataImpl;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,7 @@ public class PacketLoginInStart extends PacketIn {
     @NotNull
     private String username;
     @Nullable
-    private PublicKeyData publicKeyData;
+    private PublicKeyDataImpl publicKeyData;
     @Nullable
     private UUID uuid;
 
@@ -42,12 +42,17 @@ public class PacketLoginInStart extends PacketIn {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.LOGIN_IN;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(username, StandardCharsets.UTF_8)
                 .writeBoolean(publicKeyData != null);
@@ -60,7 +65,7 @@ public class PacketLoginInStart extends PacketIn {
     }
 
     @Override
-    public PacketIn clone() {
+    public @NotNull PacketIn clone() {
         return new PacketLoginInStart(new FriendlyByteBuf(serialize()));
     }
 

@@ -29,19 +29,24 @@ public class PacketLoginOutDisconnect extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.LOGIN_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeComponent(message)
                 .bytes();
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketLoginOutDisconnect(new FriendlyByteBuf(serialize()));
     }
 

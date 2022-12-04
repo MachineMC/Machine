@@ -6,3 +6,5 @@ pluginManagement {
     includeBuild("build-logic")
     includeBuild("code-generators")
 }
+
+include("api")

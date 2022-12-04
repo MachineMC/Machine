@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -26,19 +27,24 @@ public class PacketPlayInKeepAlive extends PacketIn {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_IN;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeLong(keepAliveId)
                 .bytes();
     }
 
     @Override
-    public PacketIn clone() {
+    public @NotNull PacketIn clone() {
         return new PacketPlayInKeepAlive(new FriendlyByteBuf(serialize()));
     }
 

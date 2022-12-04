@@ -1,0 +1,30 @@
+package me.pesekjak.machine.world.blocks;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import me.pesekjak.machine.world.BlockPosition;
+import me.pesekjak.machine.world.World;
+import me.pesekjak.machine.world.WorldImpl;
+
+/**
+ * Block located in a world with given type, location and visual.
+ */
+@EqualsAndHashCode
+@ToString
+@Getter
+public class WorldBlockImpl implements WorldBlock {
+
+    private final BlockType blockType;
+    private final BlockPosition position;
+    private final World world;
+    private final BlockVisual visual;
+
+    public WorldBlockImpl(BlockType blockType, BlockPosition position, World world) {
+        this.blockType = blockType;
+        this.position = position;
+        this.world = world;
+        this.visual = blockType.getVisualizer().create(this);
+    }
+
+}

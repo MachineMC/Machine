@@ -4,7 +4,11 @@ import com.google.common.base.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.world.Material;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
@@ -15,14 +19,14 @@ import java.io.StringReader;
 /**
  * Represents an item in inventory.
  */
-public class ItemStack implements Cloneable {
+public class ItemStack implements Item {
 
     private final static Material[] REGISTRY;
 
     @Getter @Setter
     private Material material;
     @Getter @Setter
-    private int amount = 1;
+    private byte amount = 1;
     @Getter @Setter
     private NBTCompound nbtCompound = new NBTCompound();
 
@@ -39,7 +43,8 @@ public class ItemStack implements Cloneable {
      * @param id id of the material
      * @return material with the id
      */
-    public static Material getMaterial(int id) {
+    @Contract(pure = true)
+    public static @Nullable Material getMaterial(int id) {
         if(id == -1) return null;
         if(REGISTRY.length <= id) return null;
         return REGISTRY[id];
@@ -50,40 +55,73 @@ public class ItemStack implements Cloneable {
      * @param material material to get id from
      * @return id of the material
      */
-    public static int getId(Material material) {
+    @Contract(pure = true)
+    public static int getId(@NotNull Material material) {
         return material.getId();
     }
 
-    public ItemStack(Material material) {
+    public ItemStack(@NotNull Material material) {
         if(material.getId() == -1)
             throw new IllegalStateException("Material " + material + " can't have item form");
         this.material = material;
     }
 
-    public ItemStack(Material material, int amount) {
+    public ItemStack(Material material, byte amount) {
         this(material);
         this.amount = amount;
     }
 
-    public Material getType() {
+    @Override
+    public @NotNull Item withMaterial(@NotNull Material material) {
+        final ItemStack itemStack = clone();
+        itemStack.setMaterial(material);
+        return itemStack;
+    }
+
+    @Override
+    public @NotNull Item withAmount(byte amount) {
+        final ItemStack itemStack = clone();
+        itemStack.setAmount(amount);
+        return itemStack;
+    }
+
+    @Override
+    public @NotNull Item withNbtCompound(NBTCompound compound) {
+        final ItemStack itemStack = clone();
+        itemStack.setNbtCompound(compound);
+        return itemStack;
+    }
+
+    @Override
+    public @NotNull Material getType() {
         return material;
     }
 
-    public void setType(Material material) {
+    @Override
+    public void setType(@NotNull Material material) {
         this.material = material;
+    }
+
+    @Override
+    public @NotNull Item withType(Material type) {
+        final ItemStack itemStack = clone();
+        itemStack.setMaterial(type);
+        return itemStack;
     }
 
     /**
      * Changes the NBT of the item to NBT of given string.
      * @param nbtCompound new nbt of the ItemStack
      */
-    public void writeNBT(String nbtCompound) throws NBTException {
+    @Override
+    public void writeNBT(@NotNull String nbtCompound) throws NBTException {
         this.nbtCompound = (NBTCompound) new SNBTParser(new StringReader(nbtCompound)).parse();
     }
 
     /**
      * Resets the NBT of the ItemStack
      */
+    @Override
     public void removeNBT() {
         nbtCompound = new NBTCompound();
     }
@@ -92,46 +130,36 @@ public class ItemStack implements Cloneable {
      * Adds given amount to the ItemStack.
      * @param amount amount to add
      */
-    public void add(int amount) {
+    @Override
+    public void add(byte amount) {
         this.amount += amount;
-    }
-
-    /**
-     * Adds 1 to the amount of the ItemStack.
-     */
-    public void add() {
-        add(1);
     }
 
     /**
      * Removes given amount from the ItemStack
      * @param amount amount to remove
      */
-    public void subtract(int amount) {
+    @Override
+    public void subtract(byte amount) {
         this.amount -= amount;
-    }
-
-    /**
-     * Removes 1 from the amount of the ItemStack
-     */
-    public void subtract() {
-        subtract(1);
     }
 
     /**
      * @return the copy of the ItemStack with amount of 1
      */
-    public ItemStack single() {
+    @Override
+    public @NotNull ItemStack single() {
         ItemStack single = clone();
         single.amount = 1;
         return single;
     }
 
-    public byte[] serialize() {
+    @Override
+    public byte @NotNull [] serialize() {
         return serialize(this);
     }
 
-    public static ItemStack deserialize(byte[] bytes) {
+    public static @NotNull ItemStack deserialize(byte[] bytes) {
         FriendlyByteBuf buf = new FriendlyByteBuf(bytes);
         if(!buf.readBoolean())
             return new ItemStack(Material.AIR);
@@ -142,15 +170,15 @@ public class ItemStack implements Cloneable {
         return itemStack;
     }
 
-    public static byte[] serialize(ItemStack itemStack) {
+    public static byte[] serialize(@NotNull ItemStack itemStack) {
         FriendlyByteBuf buf = new FriendlyByteBuf();
-        if(itemStack.material == Material.AIR || itemStack.amount < 1 || itemStack.amount > Byte.MAX_VALUE) {
+        if(itemStack.material == Material.AIR) {
             buf.writeBoolean(false);
             return buf.bytes();
         }
         buf.writeBoolean(true);
         buf.writeVarInt(itemStack.material.getId());
-        buf.writeByte((byte) itemStack.amount);
+        buf.writeByte(itemStack.amount);
         if(itemStack.nbtCompound.getSize() != 0)
             buf.writeNBT("", itemStack.nbtCompound);
         else
@@ -185,6 +213,11 @@ public class ItemStack implements Cloneable {
     @Override
     public int hashCode() {
         return Objects.hashCode(material, amount, nbtCompound);
+    }
+
+    @Override
+    public void write(@NotNull ServerBuffer buf) {
+        buf.writeSlot(this);
     }
 
 }

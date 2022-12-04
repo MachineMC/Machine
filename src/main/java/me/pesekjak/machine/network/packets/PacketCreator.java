@@ -7,7 +7,7 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
  * @param <T> packet
  */
 @FunctionalInterface
-public interface PacketCreator<T extends Packet> {
+public interface PacketCreator<T extends PacketImpl> {
 
     /**
      * Creates new packet instance from given {@link FriendlyByteBuf},

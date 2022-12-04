@@ -5,9 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.auth.PublicKeyData;
+import me.pesekjak.machine.auth.PublicKeyDataImpl;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.entities.player.PlayerTextures;
+import me.pesekjak.machine.entities.player.PlayerTexturesImpl;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import net.kyori.adventure.text.Component;
@@ -53,11 +55,11 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
         for (int i = 0; i < playerAmount; i++) {
             UUID uuid = buf.readUUID();
             String name = null;
-            PlayerTextures skin = null;
+            PlayerTexturesImpl skin = null;
             Gamemode gamemode = null;
             int latency = 0;
             Component displayName = null;
-            PublicKeyData publicKeyData = null;
+            PublicKeyDataImpl publicKeyData = null;
             switch (action) {
                 case ADD_PLAYER -> {
                     name = buf.readString(StandardCharsets.UTF_8);
@@ -80,12 +82,17 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf();
         buf.writeVarInt(action.getId())
                 .writeVarInt(playerInfoDataArray.length);
@@ -95,7 +102,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutPlayerInfo(new FriendlyByteBuf(serialize()));
     }
 

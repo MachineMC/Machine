@@ -43,12 +43,17 @@ public class PacketPlayOutUpdateScore extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(entityName, StandardCharsets.UTF_8)
                 .writeVarInt(action.getId())
@@ -61,7 +66,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutUpdateScore(new FriendlyByteBuf(serialize()));
     }
 

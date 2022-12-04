@@ -33,12 +33,17 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(entityId)
                 .write(location)
@@ -47,7 +52,7 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutTeleportEntity(new FriendlyByteBuf(serialize()));
     }
 

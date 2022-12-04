@@ -1,9 +1,11 @@
 package me.pesekjak.machine.network.packets;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Packet sent from client to server.
  */
-public abstract class PacketIn extends Packet {
+public abstract class PacketIn extends PacketImpl {
 
     /**
      * Creates mapping and creator for the packet. Each PacketIn has to call this in static block.
@@ -17,6 +19,6 @@ public abstract class PacketIn extends Packet {
         PacketFactory.IN_CREATORS.put(packetClass, creator);
     }
 
-    public abstract PacketIn clone();
+    public abstract @NotNull PacketIn clone();
 
 }

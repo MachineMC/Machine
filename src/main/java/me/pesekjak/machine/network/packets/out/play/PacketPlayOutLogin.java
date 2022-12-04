@@ -24,9 +24,11 @@ public class PacketPlayOutLogin extends PacketOut {
 
     private static final int ID = 0x25;
 
+    // TODO remove?
     public static final NamespacedKey DIMENSION_TYPE_CODEC_NAME = NamespacedKey.minecraft("dimension_type");
     public static final NamespacedKey WORLD_GEN_BIOME_CODEC_NAME = NamespacedKey.minecraft("worldgen/biome");
 
+    // TODO cleanup (define fields of same type at once)
     private int entityID;
     private boolean isHardcore;
     @NotNull
@@ -87,12 +89,17 @@ public class PacketPlayOutLogin extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeInt(entityID)
                 .writeBoolean(isHardcore)
@@ -121,7 +128,7 @@ public class PacketPlayOutLogin extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutLogin(new FriendlyByteBuf(serialize()));
     }
 

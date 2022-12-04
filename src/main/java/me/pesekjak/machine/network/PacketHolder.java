@@ -1,9 +1,9 @@
 package me.pesekjak.machine.network;
 
-import me.pesekjak.machine.network.packets.Packet;
+import me.pesekjak.machine.network.packets.PacketImpl;
 
 public interface PacketHolder {
 
-    Packet getPacket();
+    PacketImpl getPacket();
 
 }

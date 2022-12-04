@@ -2,6 +2,7 @@ package me.pesekjak.machine.network;
 
 import lombok.*;
 import me.pesekjak.machine.auth.Crypt;
+import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.out.login.PacketLoginOutSetCompression;
@@ -166,9 +167,9 @@ public class Channel implements AutoCloseable {
      * @param packet packet to write
      * @return true if packet wasn't cancelled
      */
-    protected synchronized boolean writePacket(PacketOut packet) throws IOException {
+    protected synchronized boolean writePacket(Packet packet) throws IOException {
         if(!open) return false;
-        PacketWriter write = new PacketWriter(packet);
+        PacketWriter write = new PacketWriter((PacketOut) packet); // TODO clean up once api is done
         for(Pair<NamespacedKey, PacketHandler> pair : handlers)
             write = pair.second().write(this, write);
         if(write.getPacket() == null) return false;

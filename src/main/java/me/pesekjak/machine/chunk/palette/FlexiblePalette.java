@@ -2,6 +2,7 @@ package me.pesekjak.machine.chunk.palette;
 
 import io.netty.util.collection.IntObjectHashMap;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.math.MathUtils;
 import org.antlr.v4.runtime.misc.IntegerList;
 import org.jetbrains.annotations.NotNull;
@@ -204,7 +205,7 @@ public class FlexiblePalette implements Palette {
     }
 
     @Override
-    public void write(@NotNull FriendlyByteBuf buf) {
+    public void write(@NotNull ServerBuffer buf) {
         buf.writeByte(bitsPerEntry);
         if (bitsPerEntry <= maxBitsPerEntry()) {
             buf.writeVarInt(paletteToValueList.size());

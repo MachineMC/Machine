@@ -7,7 +7,8 @@ import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NamespacedKey;
-import me.pesekjak.machine.world.dimensions.DimensionType;
+import me.pesekjak.machine.world.dimensions.DimensionTypeImpl;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.Collections;
@@ -21,7 +22,7 @@ public class DimensionsJson implements ServerFile, ServerProperty {
 
     @Getter
     private final Machine server;
-    private final Set<DimensionType> dimensions = new LinkedHashSet<>();
+    private final Set<DimensionTypeImpl> dimensions = new LinkedHashSet<>();
 
     private static final boolean defaultNatural = true;
     private static final float defaultAmbientLight = 0;
@@ -88,7 +89,7 @@ public class DimensionsJson implements ServerFile, ServerProperty {
                 int monsterSpawnBlockLightLimit = dimension.get("monster_spawn_block_light_limit") != null ? dimension.get("monster_spawn_block_light_limit").getAsNumber().intValue() : defaultMonsterSpawnBlockLightLimit;
                 int monsterSpawnLightLevel = dimension.get("monster_spawn_light_level") != null ? dimension.get("monster_spawn_light_level").getAsNumber().intValue() : defaultMonsterSpawnLightLevel;
 
-                this.dimensions.add(DimensionType.builder()
+                this.dimensions.add(DimensionTypeImpl.builder()
                         .name(key)
                         .natural(natural)
                         .ambientLight(ambientLight)
@@ -116,12 +117,12 @@ public class DimensionsJson implements ServerFile, ServerProperty {
         }
     }
 
-    public Set<DimensionType> dimensions() {
+    public Set<DimensionTypeImpl> dimensions() {
         return Collections.unmodifiableSet(dimensions);
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return DIMENSIONS_FILE_NAME;
     }
 

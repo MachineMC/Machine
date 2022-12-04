@@ -51,16 +51,21 @@ public class PacketPlayInClientInformation extends PacketIn {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_IN;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeString(locale, StandardCharsets.UTF_8)
                 .writeByte(viewDistance)
-                .writeVarInt(chatMode.getId())
+                .writeVarInt(chatMode.getID())
                 .writeBoolean(chatColor)
                 .writeByte((byte) SkinPart.skinMask(displayedSkinParts.toArray(new SkinPart[0])))
                 .writeVarInt(mainHand.getId())
@@ -70,7 +75,7 @@ public class PacketPlayInClientInformation extends PacketIn {
     }
 
     @Override
-    public PacketIn clone() {
+    public @NotNull PacketIn clone() {
         return new PacketPlayInClientInformation(new FriendlyByteBuf(serialize()));
     }
 

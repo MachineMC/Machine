@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import me.pesekjak.machine.auth.MessageSignature;
+import me.pesekjak.machine.auth.MessageSignatureImpl;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +21,7 @@ public class PacketPlayInChatMessage extends PacketIn {
     @NotNull
     private String message;
     @NotNull
-    private MessageSignature messageSignature;
+    private MessageSignatureImpl messageSignature;
 
     static {
         register(PacketPlayInChatMessage.class, ID, PacketState.PLAY_IN,
@@ -34,12 +34,17 @@ public class PacketPlayInChatMessage extends PacketIn {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_IN;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeString(message, StandardCharsets.UTF_8)
                 .writeSignature(messageSignature)
@@ -47,7 +52,7 @@ public class PacketPlayInChatMessage extends PacketIn {
     }
 
     @Override
-    public PacketIn clone() {
+    public @NotNull PacketIn clone() {
         return new PacketPlayInChatMessage(new FriendlyByteBuf(serialize()));
     }
 }

@@ -1,7 +1,7 @@
 package me.pesekjak.machine.network.packets.out.play;
 
 import lombok.*;
-import me.pesekjak.machine.auth.MessageSignature;
+import me.pesekjak.machine.auth.MessageSignatureImpl;
 import me.pesekjak.machine.chat.ChatType;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
@@ -31,7 +31,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
     @Nullable
     private Component teamName;
     @NotNull
-    private MessageSignature messageSignature;
+    private MessageSignatureImpl messageSignature;
 
     static {
         register(PacketPlayOutChatMessage.class, ID, PacketState.PLAY_OUT,
@@ -51,12 +51,17 @@ public class PacketPlayOutChatMessage extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeComponent(signedMessage)
                 .writeBoolean(unsignedMessage != null);
@@ -73,7 +78,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutChatMessage(new FriendlyByteBuf(serialize()));
     }
 

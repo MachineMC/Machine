@@ -1,5 +1,6 @@
 package me.pesekjak.machine.chunk;
 
+import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.chunk.data.ChunkData;
 import me.pesekjak.machine.chunk.data.LightData;
 import me.pesekjak.machine.entities.Entity;
@@ -13,8 +14,9 @@ import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.biomes.Biome;
 import me.pesekjak.machine.world.blocks.BlockType;
+import me.pesekjak.machine.world.blocks.BlockTypeImpl;
 import me.pesekjak.machine.world.blocks.BlockVisual;
-import me.pesekjak.machine.world.blocks.WorldBlock;
+import me.pesekjak.machine.world.blocks.WorldBlockImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
@@ -26,38 +28,38 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Chunk that can change individual blocks and biomes at any time.
  */
-public class DynamicChunk extends Chunk {
+public class DynamicChunk extends WorldChunk {
 
-    private final Map<Integer, WorldBlock> blocks = new ConcurrentHashMap<>();
-    private final List<Section> sections = new ArrayList<>();
+    private final Map<Integer, WorldBlockImpl> blocks = new ConcurrentHashMap<>();
+    private final List<SectionImpl> sections = new ArrayList<>();
 
     private final int bottom;
     private final int height;
 
     public DynamicChunk(World world, int chunkX, int chunkZ) {
         super(world, chunkX, chunkZ);
-        if(world.manager() == null) throw new IllegalStateException("The world has to have a manager");
+        if(world.getManager() == null) throw new IllegalStateException("The world has to have a manager");
         bottom = world.getDimensionType().getMinY();
         height = world.getDimensionType().getHeight();
         for(int i = 0; i < height / 16; i++)
-            sections.add(new Section());
+            sections.add(new SectionImpl());
     }
 
     @Override
-    public WorldBlock getBlock(int x, int y, int z) {
+    public @NotNull WorldBlockImpl getBlock(int x, int y, int z) {
         return blocks.get(ChunkUtils.getBlockIndex(x, y, z));
     }
 
     @Override
-    public WorldBlock setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
-        final WorldBlock previous = getBlock(x, y, z);
+    public @NotNull WorldBlockImpl setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
+        final WorldBlockImpl previous = getBlock(x, y, z);
         if(previous != null)
-            previous.getBlockType().destroy(previous, replaceReason != null ? replaceReason : BlockType.DestroyReason.OTHER, null);
+            previous.getBlockType().destroy(previous, replaceReason != null ? replaceReason : BlockTypeImpl.DestroyReason.OTHER, null);
         final int index = ChunkUtils.getBlockIndex(x, y, z);
         BlockPosition position = ChunkUtils.getBlockPosition(index, chunkX, chunkZ);
-        position.setY(position.getY() + bottom); // offset from bottom
-        WorldBlock block = new WorldBlock(blockType, position, world);
-        block.getBlockType().create(block, reason != null ? reason : BlockType.CreateReason.OTHER, source);
+        position = position.withY(position.getY() + bottom); // offset from bottom
+        WorldBlockImpl block = new WorldBlockImpl(blockType, position, world);
+        block.getBlockType().create(block, reason != null ? reason : BlockTypeImpl.CreateReason.OTHER, source);
         setVisual(x, y, z, block.getVisual());
         blocks.put(index, block);
         return block;
@@ -73,13 +75,13 @@ public class DynamicChunk extends Chunk {
     }
 
     @Override
-    public Biome getBiome(int x, int y, int z) {
+    public @NotNull Biome getBiome(int x, int y, int z) {
         final Section section = getSectionAt(y);
         final int id = section.getBiomePalette().get(
                 ChunkUtils.getSectionRelativeCoordinate(x) / 4,
                 ChunkUtils.getSectionRelativeCoordinate(y) / 4,
                 ChunkUtils.getSectionRelativeCoordinate(z) / 4);
-        return world.manager().getServer().getBiomeManager().getById(id);
+        return ((Machine) world.getManager().getServer()).getBiomeManager().getById(id);
     }
 
     @Override
@@ -94,7 +96,8 @@ public class DynamicChunk extends Chunk {
     }
 
     @Override
-    public @NotNull Section getSection(int section) {
+    public @NotNull SectionImpl getSection(int section) {
+        if(sections.get(section) == null) throw new IllegalStateException();
         return sections.get(section);
     }
 
@@ -109,7 +112,7 @@ public class DynamicChunk extends Chunk {
     }
 
     @Override
-    public @NotNull Chunk copy(@NotNull World world, int chunkX, int chunkZ) {
+    public @NotNull WorldChunk copy(@NotNull World world, int chunkX, int chunkZ) {
         DynamicChunk copy = new DynamicChunk(world, chunkX, chunkZ);
         for(int i : blocks.keySet())
             copy.blocks.put(i, blocks.get(i));
@@ -123,7 +126,7 @@ public class DynamicChunk extends Chunk {
         blocks.clear();
         sections.clear();
         for(int i = 0; i < height / 16; i++)
-            sections.add(new Section());
+            sections.add(new SectionImpl());
     }
 
     /**
@@ -146,7 +149,7 @@ public class DynamicChunk extends Chunk {
 
         // Data
         FriendlyByteBuf buf = new FriendlyByteBuf();
-        for(Section section : sections) section.write(buf);
+        for(SectionImpl section : sections) section.write(buf);
         final byte[] data = buf.bytes();
 
         return new ChunkData(heightmaps, data);
@@ -163,7 +166,7 @@ public class DynamicChunk extends Chunk {
         List<byte[]> skyLights = new ArrayList<>();
         List<byte[]> blockLights = new ArrayList<>();
         int index = 0;
-        for (Section section : sections) {
+        for (SectionImpl section : sections) {
             index++;
             final byte[] skyLight = section.getSkyLight();
             final byte[] blockLight = section.getBlockLight();

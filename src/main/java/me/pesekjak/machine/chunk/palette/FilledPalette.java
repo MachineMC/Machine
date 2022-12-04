@@ -2,6 +2,7 @@ package me.pesekjak.machine.chunk.palette;
 
 import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -89,7 +90,7 @@ public class FilledPalette implements Palette {
     }
 
     @Override
-    public void write(@NotNull FriendlyByteBuf buf) {
+    public void write(@NotNull ServerBuffer buf) {
         buf.writeByte((byte) 0);
         buf.writeVarInt(value);
         buf.writeVarInt(0);

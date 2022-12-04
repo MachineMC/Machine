@@ -134,7 +134,7 @@ public enum ChatType implements NBTSerializable {
     }
 
     @Override
-    public NBTCompound toNBT() {
+    public @NotNull NBTCompound toNBT() {
         return NBT.Compound(chatType -> {
             chatType.setString("name", name.toString());
             chatType.setInt("id", ordinal());
@@ -183,7 +183,7 @@ public enum ChatType implements NBTSerializable {
         }
 
         @Override
-        public NBTCompound toNBT() {
+        public @NotNull NBTCompound toNBT() {
             final List<NBTString> parameters = new ArrayList<>();
             for(Parameter parameter : this.parameters)
                 parameters.add(new NBTString(parameter.getName()));

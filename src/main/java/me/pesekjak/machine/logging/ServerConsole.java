@@ -24,7 +24,6 @@ import org.jline.terminal.TerminalBuilder;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.logging.Level;
 
 import static me.pesekjak.machine.chat.ChatUtils.asciiColor;
@@ -36,15 +35,15 @@ public class ServerConsole implements Console {
     @Getter @Setter
     private boolean colors;
 
-    private volatile Terminal terminal;
+    private final Terminal terminal;
     private volatile LineReader reader;
 
     @Getter
-    private volatile Completer completer;
+    private final Completer completer;
     @Getter
-    private volatile Highlighter highlighter;
+    private final Highlighter highlighter;
     @Getter
-    private volatile History history;
+    private final History history;
 
     private volatile boolean running = false;
 
@@ -85,10 +84,10 @@ public class ServerConsole implements Console {
     @Override
     public void log(@NotNull Level level, String... messages) {
         final String prefix = switch (level.intValue()) {
-            case 700 -> (colors ? asciiColor(configColor) : EMPTY) + configPrefix + ": "; // Config value
-            case 800 -> (colors ? asciiColor(infoColor) : EMPTY) + infoPrefix + ": "; // Info value
-            case 900 -> (colors ? asciiColor(warningColor) : EMPTY) + warningPrefix + ": "; // Warning value
-            case 1000 -> (colors ? asciiColor(severeColor) : EMPTY) + severePrefix + ": "; // Severe value
+            case 700 -> (colors && configColor != null ? asciiColor(configColor) : EMPTY) + configPrefix + ": "; // Config value
+            case 800 -> (colors && infoColor != null ? asciiColor(infoColor) : EMPTY) + infoPrefix + ": "; // Info value
+            case 900 -> (colors && warningColor != null ? asciiColor(warningColor) : EMPTY) + warningPrefix + ": "; // Warning value
+            case 1000 -> (colors && severeColor != null ? asciiColor(severeColor) : EMPTY) + severePrefix + ": "; // Severe value
             default -> "";
         };
         final String date = now();
@@ -100,26 +99,6 @@ public class ServerConsole implements Console {
             else
                 terminal.writer().println(formatted);
         }
-    }
-
-    @Override
-    public final void info(String... messages) {
-        Arrays.stream(messages).forEach(message -> log(Level.INFO, message));
-    }
-
-    @Override
-    public final void warning(String... messages) {
-        Arrays.stream(messages).forEach(message -> log(Level.WARNING, message));
-    }
-
-    @Override
-    public final void severe(String... messages) {
-        Arrays.stream(messages).forEach(message -> log(Level.SEVERE, message));
-    }
-
-    @Override
-    public void config(String... messages) {
-        Arrays.stream(messages).forEach(message -> log(Level.CONFIG, message));
     }
 
     @Override
@@ -162,7 +141,7 @@ public class ServerConsole implements Console {
     }
 
     @Override
-    public int execute(String input) {
+    public int execute(@NotNull String input) {
         input = CommandExecutor.formatCommandInput(input);
         if(input.length() == 0) return 0;
         final ParseResults<CommandExecutor> parse = server.getCommandDispatcher().parse(input, this);

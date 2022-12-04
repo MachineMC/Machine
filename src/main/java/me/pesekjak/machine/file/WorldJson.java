@@ -8,9 +8,9 @@ import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.*;
 import me.pesekjak.machine.world.dimensions.DimensionType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.UUID;
 
 @Getter
 public class WorldJson implements ServerFile, ServerProperty {
@@ -67,7 +67,7 @@ public class WorldJson implements ServerFile, ServerProperty {
         Difficulty difficulty = Difficulty.getByName(json.get("difficulty").getAsString());
         if (difficulty == null) {
             difficulty = getServer().getProperties().getDefaultDifficulty();
-            json.addProperty("difficulty", difficulty.getName());
+            json.addProperty("difficulty", difficulty.name().toLowerCase());
         }
 
         WorldType worldType = WorldType.getByName(json.get("worldType").getAsString());
@@ -83,7 +83,7 @@ public class WorldJson implements ServerFile, ServerProperty {
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return WORLD_FILE_NAME;
     }
 
@@ -100,8 +100,8 @@ public class WorldJson implements ServerFile, ServerProperty {
      * Creates and registers the world to the server's WorldManager.
      * @return newly created and registered world
      */
-    public World buildWorld() {
-        World world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
+    public WorldImpl buildWorld() {
+        WorldImpl world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
         world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
         world.setDifficulty(server.getProperties().getDefaultDifficulty());
         return world;

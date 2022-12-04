@@ -2,17 +2,17 @@ package me.pesekjak.machine.utils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import me.pesekjak.machine.auth.Crypt;
-import me.pesekjak.machine.auth.PublicKeyData;
-import me.pesekjak.machine.auth.MessageSignature;
+import me.pesekjak.machine.auth.*;
 import me.pesekjak.machine.entities.player.PlayerTextures;
+import me.pesekjak.machine.entities.player.PlayerTexturesImpl;
+import me.pesekjak.machine.inventory.Item;
 import me.pesekjak.machine.inventory.ItemStack;
 import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.Material;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.intellij.lang.annotations.Subst;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.*;
 
@@ -27,23 +27,28 @@ import java.util.UUID;
 /**
  * Special ByteBuffer for implementing Minecraft Protocol.
  */
-@SuppressWarnings("UnusedReturnValue")
-@NoArgsConstructor
-@AllArgsConstructor
-public class FriendlyByteBuf {
+public class FriendlyByteBuf implements ServerBuffer {
 
-    @SuppressWarnings("FieldMayBeFinal")
-    private ByteBuf buf = Unpooled.buffer(0);
+    private final ByteBuf buf;
 
     private static final int SEGMENT_BITS = 0x7F;
     private static final int CONTINUE_BIT = 0x80;
 
+    public FriendlyByteBuf() {
+        this(new byte[0]);
+    }
+
     public FriendlyByteBuf(byte[] bytes) {
+        buf = Unpooled.buffer(0);
         buf.writeBytes(bytes);
     }
 
+    public FriendlyByteBuf(ByteBuf byteBuf) {
+        buf = byteBuf;
+    }
+
     public FriendlyByteBuf(DataInputStream dataInputStream) throws IOException {
-        buf.writeBytes(dataInputStream.readAllBytes());
+        this(dataInputStream.readAllBytes());
     }
 
     /**
@@ -51,7 +56,7 @@ public class FriendlyByteBuf {
      * reader index and starts from byte 0.
      * @return all bytes of the buffer
      */
-    public byte[] bytes() {
+    public byte @NotNull [] bytes() {
         int length = buf.writerIndex();
         int reader = buf.readerIndex();
         buf.readerIndex(0);
@@ -67,7 +72,7 @@ public class FriendlyByteBuf {
      * reader index at the end.
      * @return all remaining bytes of the buffer to read
      */
-    public byte[] finish() {
+    public byte @NotNull [] finish() {
         int length = buf.writerIndex();
         int reader = buf.readerIndex();
         byte[] bytes = new byte[length - reader];
@@ -76,19 +81,19 @@ public class FriendlyByteBuf {
         return bytes;
     }
 
-    public DataOutputStream stream() throws IOException {
+    public @NotNull DataOutputStream stream() throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         DataOutputStream stream = new DataOutputStream(buffer);
         stream.write(bytes());
         return stream;
     }
 
-    public DataOutputStream writeToStream(DataOutputStream stream) throws IOException {
+    public @NotNull DataOutputStream writeToStream(@NotNull DataOutputStream stream) throws IOException {
         stream.write(bytes());
         return stream;
     }
 
-    public FriendlyByteBuf write(Writable writable) {
+    public @NotNull FriendlyByteBuf write(@NotNull Writable writable) {
         writable.write(this);
         return this;
     }
@@ -97,7 +102,7 @@ public class FriendlyByteBuf {
         return buf.readBoolean();
     }
 
-    public FriendlyByteBuf writeBoolean(boolean value) {
+    public @NotNull FriendlyByteBuf writeBoolean(boolean value) {
         buf.writeBoolean(value);
         return this;
     }
@@ -106,24 +111,24 @@ public class FriendlyByteBuf {
         return buf.readByte();
     }
 
-    public FriendlyByteBuf writeByte(byte value) {
+    public @NotNull FriendlyByteBuf writeByte(byte value) {
         buf.writeByte(value);
         return this;
     }
 
-    public byte[] readBytes(int length) {
+    public byte @NotNull [] readBytes(int length) {
         byte[] result = new byte[length];
         for(int i = 0; i < length; i++)
             result[i] = readByte();
         return result;
     }
 
-    public FriendlyByteBuf writeBytes(byte... bytes) {
+    public @NotNull FriendlyByteBuf writeBytes(byte @NotNull ... bytes) {
         buf.writeBytes(bytes);
         return this;
     }
 
-    public byte[] readByteArray() {
+    public byte @NotNull [] readByteArray() {
         int length = readVarInt();
         byte[] bytes = new byte[length];
         for (int i = 0; i < length; i++)
@@ -131,7 +136,7 @@ public class FriendlyByteBuf {
         return bytes;
     }
 
-    public FriendlyByteBuf writeByteArray(byte[] bytes) {
+    public @NotNull FriendlyByteBuf writeByteArray(byte @NotNull [] bytes) {
         writeVarInt(bytes.length);
         for (byte b : bytes)
             writeByte(b);
@@ -142,7 +147,7 @@ public class FriendlyByteBuf {
         return buf.readShort();
     }
 
-    public FriendlyByteBuf writeShort(short value) {
+    public @NotNull FriendlyByteBuf writeShort(short value) {
         buf.writeShort(value);
         return this;
     }
@@ -151,7 +156,7 @@ public class FriendlyByteBuf {
         return buf.readInt();
     }
 
-    public FriendlyByteBuf writeInt(int value) {
+    public @NotNull FriendlyByteBuf writeInt(int value) {
         buf.writeInt(value);
         return this;
     }
@@ -160,7 +165,7 @@ public class FriendlyByteBuf {
         return buf.readLong();
     }
 
-    public FriendlyByteBuf writeLong(long value) {
+    public @NotNull FriendlyByteBuf writeLong(long value) {
         buf.writeLong(value);
         return this;
     }
@@ -173,7 +178,7 @@ public class FriendlyByteBuf {
         return longs;
     }
 
-    public FriendlyByteBuf writeLongArray(long[] longs) {
+    public @NotNull FriendlyByteBuf writeLongArray(long @NotNull [] longs) {
         writeVarInt(longs.length);
         for(long l : longs)
             writeLong(l);
@@ -184,7 +189,7 @@ public class FriendlyByteBuf {
         return buf.readFloat();
     }
 
-    public FriendlyByteBuf writeFloat(float value) {
+    public @NotNull FriendlyByteBuf writeFloat(float value) {
         buf.writeFloat(value);
         return this;
     }
@@ -193,7 +198,7 @@ public class FriendlyByteBuf {
         return buf.readDouble();
     }
 
-    public FriendlyByteBuf writeDouble(double value) {
+    public @NotNull FriendlyByteBuf writeDouble(double value) {
         buf.writeDouble(value);
         return this;
     }
@@ -212,7 +217,7 @@ public class FriendlyByteBuf {
         return value;
     }
 
-    public FriendlyByteBuf writeVarInt(int value) {
+    public @NotNull FriendlyByteBuf writeVarInt(int value) {
         while (true) {
             if ((value & ~SEGMENT_BITS) == 0) {
                 writeByte((byte) value);
@@ -223,7 +228,7 @@ public class FriendlyByteBuf {
         }
     }
 
-    public int[] readVarIntArray() {
+    public int @NotNull [] readVarIntArray() {
         int length = readVarInt();
         int[] ints = new int[length];
         for(int i = 0; i < length; i++)
@@ -231,7 +236,7 @@ public class FriendlyByteBuf {
         return ints;
     }
 
-    public FriendlyByteBuf writeVarIntArray(int[] ints) {
+    public @NotNull FriendlyByteBuf writeVarIntArray(int @NotNull [] ints) {
         writeVarInt(ints.length);
         for(int i : ints)
             writeVarInt(i);
@@ -252,7 +257,7 @@ public class FriendlyByteBuf {
         return value;
     }
 
-    public FriendlyByteBuf writeVarLong(long value) {
+    public @NotNull FriendlyByteBuf writeVarLong(long value) {
         while (true) {
             if ((value & ~((long) SEGMENT_BITS)) == 0) {
                 writeByte((byte) value);
@@ -263,7 +268,7 @@ public class FriendlyByteBuf {
         }
     }
 
-    public String readString(Charset charset) {
+    public @NotNull String readString(@NotNull Charset charset) {
         int length = readVarInt();
         if (length == -1) return null;
         byte[] bytes = new byte[length];
@@ -272,14 +277,14 @@ public class FriendlyByteBuf {
         return new String(bytes, charset);
     }
 
-    public FriendlyByteBuf writeString(String value, Charset charset) {
+    public @NotNull FriendlyByteBuf writeString(@NotNull String value, @NotNull Charset charset) {
         byte[] bytes = value.getBytes(charset);
         writeVarInt(bytes.length);
         buf.writeBytes(bytes);
         return this;
     }
 
-    public List<String> readStringList(Charset charset) {
+    public @NotNull List<String> readStringList(@NotNull Charset charset) {
         final List<String> strings = new ArrayList<>();
         int length = readVarInt();
         for (int i = 0; i < length; i++)
@@ -287,33 +292,47 @@ public class FriendlyByteBuf {
         return strings;
     }
 
-    public FriendlyByteBuf writeStringList(List<String> strings, Charset charset) {
+    public @NotNull FriendlyByteBuf writeStringList(@NotNull List<String> strings, @NotNull Charset charset) {
         writeVarInt(strings.size());
         for(String string : strings)
             writeString(string, charset);
         return this;
     }
 
-    public UUID readUUID() {
+    public @NotNull UUID readUUID() {
         return new UUID(readLong(), readLong());
     }
 
-    public FriendlyByteBuf writeUUID(UUID uuid) {
+    public @NotNull FriendlyByteBuf writeUUID(@NotNull UUID uuid) {
         writeLong(uuid.getMostSignificantBits());
         writeLong(uuid.getLeastSignificantBits());
         return this;
     }
 
-    public BlockPosition readBlockPos() {
+    public @NotNull BlockPosition readBlockPos() {
         return BlockPosition.of(readLong());
     }
 
-    public FriendlyByteBuf writeBlockPos(BlockPosition position) {
+    public @NotNull FriendlyByteBuf writeBlockPos(@NotNull BlockPosition position) {
         writeLong(position.asLong());
         return this;
     }
 
-    public FriendlyByteBuf writeNBT(String name, NBT tag) {
+    public @NotNull NBT readNBT() {
+        byte[] bytes = buf.array();
+        ByteArrayInputStream buffer = new ByteArrayInputStream(bytes, buf.readerIndex(), bytes.length);
+        NBTReader reader = new NBTReader(buffer, CompressedProcesser.NONE);
+        NBT tag = null;
+        try {
+            tag = reader.read();
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+        buf.readerIndex(bytes.length - buffer.available());
+        return tag;
+    }
+
+    public @NotNull FriendlyByteBuf writeNBT(@NotNull String name, @NotNull NBT tag) {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         NBTWriter writer = new NBTWriter(buffer, CompressedProcesser.NONE);
         try {
@@ -323,46 +342,35 @@ public class FriendlyByteBuf {
         return this;
     }
 
-    public NBT readNBT() {
-        byte[] bytes = buf.array();
-        ByteArrayInputStream buffer = new ByteArrayInputStream(bytes, buf.readerIndex(), bytes.length);
-        NBTReader reader = new NBTReader(buffer, CompressedProcesser.NONE);
-        NBT tag = null;
-        try {
-            tag = reader.read();
-        } catch (Exception ignored) { }
-        buf.readerIndex(bytes.length - buffer.available());
-        return tag;
-    }
-
-    public Component readComponent() {
+    public @NotNull Component readComponent() {
         return GsonComponentSerializer.gson().deserialize(readString(StandardCharsets.UTF_8));
     }
 
-    public FriendlyByteBuf writeComponent(Component component) {
+    public @NotNull FriendlyByteBuf writeComponent(@NotNull Component component) {
         writeString(GsonComponentSerializer.gson().serialize(component), StandardCharsets.UTF_8);
         return this;
     }
 
-    public NamespacedKey readNamespacedKey() {
-        return NamespacedKey.parse(readString(StandardCharsets.UTF_8));
+    public @NotNull NamespacedKey readNamespacedKey() {
+        final @Subst("machine:server") String namespaceKey = readString(StandardCharsets.UTF_8);
+        return NamespacedKey.parse(namespaceKey);
     }
 
-    public FriendlyByteBuf writeNamespacedKey(NamespacedKey namespacedKey) {
+    public @NotNull FriendlyByteBuf writeNamespacedKey(@NotNull NamespacedKey namespacedKey) {
         writeString(namespacedKey.toString(), StandardCharsets.UTF_8);
         return this;
     }
 
-    public Instant readInstant() {
+    public @NotNull Instant readInstant() {
         return Instant.ofEpochMilli(readLong());
     }
 
-    public FriendlyByteBuf writeInstant(Instant instant) {
+    public @NotNull FriendlyByteBuf writeInstant(@NotNull Instant instant) {
         buf.writeLong(instant.toEpochMilli());
         return this;
     }
 
-    public ItemStack readSlot() {
+    public @NotNull Item readSlot() {
         if(!readBoolean())
             return new ItemStack(Material.AIR);
         ItemStack itemStack = new ItemStack(ItemStack.getMaterial(readVarInt()), readByte());
@@ -370,24 +378,24 @@ public class FriendlyByteBuf {
         return itemStack;
     }
 
-    public FriendlyByteBuf writeSlot(ItemStack itemStack) {
+    public @NotNull FriendlyByteBuf writeSlot(@NotNull Item itemStack) {
         writeBytes(itemStack.serialize());
         return this;
     }
 
-    public PublicKeyData readPublicKey() {
+    public @NotNull PublicKeyDataImpl readPublicKey() {
         Instant instant = Instant.ofEpochMilli(readLong());
-        return new PublicKeyData(Crypt.pubicKeyFrom(readByteArray()), readByteArray(), instant);
+        return new PublicKeyDataImpl(Crypt.pubicKeyFrom(readByteArray()), readByteArray(), instant);
     }
 
-    public FriendlyByteBuf writePublicKey(PublicKeyData publicKeyData) {
+    public @NotNull FriendlyByteBuf writePublicKey(@NotNull PublicKeyData publicKeyData) {
         writeLong(publicKeyData.timestamp().toEpochMilli())
                 .writeByteArray(publicKeyData.publicKey().getEncoded())
                 .writeByteArray(publicKeyData.signature());
         return this;
     }
 
-    public PlayerTextures readTextures() {
+    public @Nullable PlayerTexturesImpl readTextures() {
         if (readVarInt() == 0)
             return null;
         readString(StandardCharsets.UTF_8);
@@ -395,10 +403,14 @@ public class FriendlyByteBuf {
         String signature = null;
         if (readBoolean())
             signature = readString(StandardCharsets.UTF_8);
-        return PlayerTextures.buildSkin(value, signature);
+        try {
+            return PlayerTexturesImpl.buildSkin(value, signature);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
-    public FriendlyByteBuf writeTextures(@Nullable PlayerTextures playerSkin) {
+    public @NotNull FriendlyByteBuf writeTextures(@Nullable PlayerTextures playerSkin) {
         if (playerSkin == null) {
             writeVarInt(0);
             return this;
@@ -406,21 +418,23 @@ public class FriendlyByteBuf {
         writeVarInt(1);
         writeString("textures", StandardCharsets.UTF_8);
         writeString(playerSkin.value(), StandardCharsets.UTF_8);
-        writeBoolean(true);
-        writeString(playerSkin.signature(), StandardCharsets.UTF_8);
+        final String signature = playerSkin.signature();
+        if (signature != null) {
+            writeBoolean(true);
+            writeString(signature, StandardCharsets.UTF_8);
+        } else writeBoolean(false);
         return this;
     }
 
-    public MessageSignature readSignature() {
+    public @NotNull MessageSignatureImpl readSignature() {
         Instant timestamp = readInstant();
         long salt = readLong();
         byte[] signature = readByteArray();
-        return new MessageSignature(timestamp, salt, signature);
+        return new MessageSignatureImpl(timestamp, salt, signature);
     }
 
-    public FriendlyByteBuf writeSignature(@Nullable MessageSignature messageSignature) {
-        if (messageSignature != null)
-            write(messageSignature);
+    public @NotNull FriendlyByteBuf writeSignature(@NotNull MessageSignature messageSignature) {
+        write(messageSignature);
         return this;
     }
 
@@ -428,7 +442,7 @@ public class FriendlyByteBuf {
         return readByte() * 360f / 256f;
     }
 
-    public FriendlyByteBuf writeAngle(float angle) {
+    public @NotNull FriendlyByteBuf writeAngle(float angle) {
         writeByte((byte) (angle * 256f / 360f));
         return this;
     }
@@ -436,4 +450,27 @@ public class FriendlyByteBuf {
     public int readableBytes() {
         return buf.readableBytes();
     }
+
+    @Override
+    public int readerIndex() {
+        return buf.readerIndex();
+    }
+
+    @Override
+    public @NotNull ServerBuffer setReaderIndex(int index) {
+        buf.readerIndex(index);
+        return this;
+    }
+
+    @Override
+    public int writerIndex() {
+        return buf.writerIndex();
+    }
+
+    @Override
+    public @NotNull ServerBuffer setWriterIndex(int index) {
+        buf.writerIndex(index);
+        return this;
+    }
+
 }

@@ -3,9 +3,15 @@ package me.pesekjak.machine.chunk;
 import me.pesekjak.machine.world.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
+import static me.pesekjak.machine.chunk.Chunk.CHUNK_SIZE_BITS;
+
 public final class ChunkUtils {
 
-    // Magic number for MOTION_BLOCKING encoding (https://wiki.vg/Chunk_Format#MOTION_BLOCKING_encoding)
+    /**
+     * Magic number for MOTION_BLOCKING encoding.
+     *
+     * @see <a href="https://wiki.vg/Chunk_Format#MOTION_BLOCKING_encoding">Motion Blocking Encoding</a>
+     */
     private static final int[] MAGIC = {
             -1, -1, 0, Integer.MIN_VALUE, 0, 0, 1431655765, 1431655765, 0, Integer.MIN_VALUE,
             0, 1, 858993459, 858993459, 0, 715827882, 715827882, 0, 613566756, 613566756,
@@ -43,7 +49,7 @@ public final class ChunkUtils {
      * @return the chunk X, Y or Z coordinate
      */
     public static int getChunkCoordinate(int xyz) {
-        return xyz >> 4;
+        return xyz >> CHUNK_SIZE_BITS;
     }
 
     /**

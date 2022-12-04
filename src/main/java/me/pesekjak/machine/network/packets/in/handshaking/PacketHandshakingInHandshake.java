@@ -39,12 +39,17 @@ public class PacketHandshakingInHandshake extends PacketIn {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.HANDSHAKING_IN;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(protocolVersion)
                 .writeString(serverAddress, StandardCharsets.UTF_8)
@@ -54,7 +59,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
     }
 
     @Override
-    public PacketIn clone() {
+    public @NotNull PacketIn clone() {
         return new PacketHandshakingInHandshake(new FriendlyByteBuf(serialize()));
     }
 

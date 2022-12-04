@@ -1,34 +1,33 @@
 package me.pesekjak.machine.network;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
 import me.pesekjak.machine.Machine;
-import me.pesekjak.machine.auth.PublicKeyData;
-import me.pesekjak.machine.entities.Player;
-import me.pesekjak.machine.events.translations.TranslatorHandler;
-import me.pesekjak.machine.exception.ClientException;
+import me.pesekjak.machine.auth.PublicKeyDataImpl;
+import me.pesekjak.machine.entities.ServerPlayer;
 import me.pesekjak.machine.network.packets.Packet;
+import me.pesekjak.machine.translation.TranslatorHandler;
+import me.pesekjak.machine.exception.ClientException;
 import me.pesekjak.machine.network.packets.PacketIn;
-import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.network.packets.out.login.PacketLoginOutDisconnect;
 import me.pesekjak.machine.network.packets.out.play.PacketPlayOutDisconnect;
 import me.pesekjak.machine.network.packets.out.play.PacketPlayOutKeepAlive;
-import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.server.schedule.Scheduler;
 import me.pesekjak.machine.utils.NamespacedKey;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.crypto.SecretKey;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Random;
 
-public class ClientConnection extends Thread implements ServerProperty, AutoCloseable {
+public class ClientConnection extends Thread implements PlayerConnection {
 
     private static final NamespacedKey DEFAULT_HANDLER_NAMESPACE = NamespacedKey.minecraft("default");
 
@@ -47,12 +46,12 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
     private long lastReadTimestamp = System.currentTimeMillis();
 
     @Getter @Setter
-    private PublicKeyData publicKeyData;
+    private PublicKeyDataImpl publicKeyData;
     @Getter @Setter
     private String loginUsername;
 
     @Getter @Nullable
-    private Player owner;
+    private ServerPlayer owner;
 
     @Getter
     private long keepAliveKey = -1;
@@ -68,11 +67,11 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
      * @param packet packet sent to the client
      */
     @Synchronized
-    public boolean sendPacket(PacketOut packet) throws IOException {
+    public boolean sendPacket(@NotNull Packet packet) throws IOException {
         assert channel != null;
         if(clientState == ClientState.DISCONNECTED)
             return false;
-        if (channel.writePacket(packet)) {
+        if (channel.writePacket(packet)) { // TODO add check if the packet is packet out
             lastSendTimestamp = System.currentTimeMillis();
             return true;
         }
@@ -135,13 +134,13 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                             disconnect();
                             return null;
                         }
-                        if(System.currentTimeMillis() - lastReadTimestamp > ServerConnection.READ_IDLE_TIMEOUT)
+                        if(System.currentTimeMillis() - lastReadTimestamp > ServerConnectionImpl.READ_IDLE_TIMEOUT)
                             disconnect(Component.translatable("disconnect.timeout"));
                         return null;
                     }))
                     .async()
                     .repeat(true)
-                    .period(responsiveness != 0 ? responsiveness : 1000 / server.getTPS())
+                    .period(responsiveness != 0 ? responsiveness : 1000 / server.getTps())
                     .run(server.getScheduler());
 
         } catch (Exception exception) {
@@ -200,7 +199,7 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
      * Sets the owner of the connection, can't be changed once it's set.
      * @param player owner of the connection
      */
-    public void setOwner(Player player) {
+    public void setOwner(ServerPlayer player) {
         if(owner != null)
             throw new IllegalStateException("Connection has been already initialized");
         if(!player.getName().equals(loginUsername))
@@ -232,7 +231,7 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                 }))
                 .async()
                 .repeat(true)
-                .period(ServerConnection.KEEP_ALIVE_FREQ)
+                .period(ServerConnectionImpl.KEEP_ALIVE_FREQ)
                 .run(server.getScheduler());
     }
 
@@ -254,12 +253,17 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
         disconnect(Component.translatable("disconnect.disconnected"));
     }
 
+    @Override
+    public @NotNull InetSocketAddress getAddress() {
+        return ((InetSocketAddress) clientSocket.getRemoteSocketAddress());
+    }
+
     /**
      * Disconnects the client from the server with given reason that will
      * be visible in the game.
      * @param reason disconnect reason
      */
-    public void disconnect(Component reason) {
+    public void disconnect(@NotNull Component reason) {
         try {
             if(clientState == ClientState.LOGIN)
                 sendPacket(new PacketLoginOutDisconnect(reason));
@@ -267,30 +271,6 @@ public class ClientConnection extends Thread implements ServerProperty, AutoClos
                 sendPacket(new PacketPlayOutDisconnect(reason));
         } catch (Exception ignored) { }
         close();
-    }
-
-    /**
-     * Client state of the connection, use to determinate the correct
-     * group of packets to write/read.
-     */
-    @AllArgsConstructor
-    public enum ClientState {
-        HANDSHAKE(Packet.PacketState.HANDSHAKING_IN, Packet.PacketState.HANDSHAKING_OUT),
-        STATUS(Packet.PacketState.STATUS_IN, Packet.PacketState.STATUS_OUT),
-        LOGIN(Packet.PacketState.LOGIN_IN, Packet.PacketState.LOGIN_OUT),
-        PLAY(Packet.PacketState.PLAY_IN, Packet.PacketState.PLAY_OUT),
-        DISCONNECTED(null, null);
-
-        protected final Packet.PacketState in;
-        protected final Packet.PacketState out;
-
-        public static ClientState fromState(Packet.PacketState state) {
-            for(ClientState clientState : values()) {
-                if(clientState.in == state || clientState.out == state)
-                    return clientState;
-            }
-            return null;
-        }
     }
 
 }

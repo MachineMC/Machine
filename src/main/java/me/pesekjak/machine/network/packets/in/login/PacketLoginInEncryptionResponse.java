@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -35,12 +36,17 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.LOGIN_IN;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeByteArray(secret);
         if(verifyToken != null)
@@ -54,7 +60,7 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
     }
 
     @Override
-    public PacketIn clone() {
+    public @NotNull PacketIn clone() {
         return new PacketLoginInEncryptionResponse(new FriendlyByteBuf(serialize()));
     }
 

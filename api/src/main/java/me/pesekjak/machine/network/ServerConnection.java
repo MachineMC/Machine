@@ -1,0 +1,49 @@
+package me.pesekjak.machine.network;
+
+import me.pesekjak.machine.network.packets.Packet;
+import me.pesekjak.machine.server.ServerProperty;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
+
+import java.io.IOException;
+import java.util.Set;
+
+/**
+ * Represents server's connection.
+ */
+public interface ServerConnection extends ServerProperty, AutoCloseable {
+
+    /**
+     * @return server's ip
+     */
+    @NotNull @NonNls String getIp();
+
+    /**
+     * @return server's port
+     */
+    int getPort();
+
+    /**
+     * @return all player connections connected to the server
+     */
+    @Unmodifiable @NotNull Set<PlayerConnection> getClients();
+
+    /**
+     * Starts accepting client connections.
+     */
+    void start();
+
+    /**
+     * Closes the server connection.
+     */
+    void close();
+
+    /**
+     * Sends a packet to all clients connected to the server.
+     * @param packet packet to send
+     * @throws IOException if an I/O error occurs during writing the bytes
+     */
+    void broadcastPacket(@NotNull Packet packet) throws IOException;
+
+}

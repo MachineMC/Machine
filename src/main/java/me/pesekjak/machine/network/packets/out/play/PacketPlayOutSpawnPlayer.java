@@ -37,12 +37,17 @@ public class PacketPlayOutSpawnPlayer extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(entityId)
                 .writeUUID(uuid)
@@ -51,7 +56,7 @@ public class PacketPlayOutSpawnPlayer extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutSpawnPlayer(new FriendlyByteBuf(serialize()));
     }
 
