@@ -2,9 +2,7 @@ package me.pesekjak.machine.network;
 
 import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.server.ServerProperty;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.*;
 
 import java.io.IOException;
 import java.util.Set;
@@ -32,6 +30,7 @@ public interface ServerConnection extends ServerProperty, AutoCloseable {
     /**
      * Starts accepting client connections.
      */
+    @Async.Execute
     void start();
 
     /**

@@ -6,10 +6,7 @@ import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.server.ServerProperty;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -51,6 +48,7 @@ public interface PlayerConnection extends ServerProperty, AutoCloseable {
     /**
      * Starts listening to incoming the packets.
      */
+    @Async.Execute
     void start();
 
     /**

@@ -82,7 +82,7 @@ public class ServerConsole implements Console {
     }
 
     @Override
-    public void log(@NotNull Level level, String... messages) {
+    public void log(@NotNull Level level, String @NotNull ... messages) {
         final String prefix = switch (level.intValue()) {
             case 700 -> (colors && configColor != null ? asciiColor(configColor) : EMPTY) + configPrefix + ": "; // Config value
             case 800 -> (colors && infoColor != null ? asciiColor(infoColor) : EMPTY) + infoPrefix + ": "; // Info value
