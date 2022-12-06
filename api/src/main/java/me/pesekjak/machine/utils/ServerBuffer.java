@@ -21,10 +21,12 @@ import java.util.UUID;
 /**
  * Special byte buffer for implementing Minecraft Protocol.
  */
-public interface ServerBuffer {
+public interface ServerBuffer extends Cloneable {
 
     /**
-     * @return all bytes in the buffer
+     * Returns content of the full buffer, doesn't move with
+     * reader index and starts from byte 0.
+     * @return all bytes of the buffer
      */
     byte @NotNull [] bytes();
 
@@ -426,5 +428,7 @@ public interface ServerBuffer {
      */
     @Contract("_ -> this")
     @NotNull ServerBuffer setWriterIndex(int index);
+
+    @NotNull ServerBuffer clone();
 
 }

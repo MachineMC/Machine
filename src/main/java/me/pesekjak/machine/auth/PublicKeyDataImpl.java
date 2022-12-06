@@ -20,13 +20,6 @@ public record PublicKeyDataImpl(PublicKey publicKey, byte[] signature, Instant t
         return timestamp.isBefore(Instant.now());
     }
 
-    @Override
-    public void write(@NotNull ServerBuffer buf) {
-        buf.writeLong(timestamp.toEpochMilli())
-                .writeByteArray(publicKey.getEncoded())
-                .writeByteArray(signature);
-    }
-
     @Contract(pure = true)
     @Override
     public @NotNull String toString() {

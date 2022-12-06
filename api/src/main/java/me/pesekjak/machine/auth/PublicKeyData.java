@@ -1,5 +1,6 @@
 package me.pesekjak.machine.auth;
 
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.Writable;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,5 +26,9 @@ public interface PublicKeyData extends Writable {
      * @return when the key data will expire
      */
     @NotNull Instant timestamp();
+
+    default void write(@NotNull ServerBuffer buf) {
+        buf.writePublicKey(this);
+    }
 
 }

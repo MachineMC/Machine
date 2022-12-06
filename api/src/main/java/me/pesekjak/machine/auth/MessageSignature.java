@@ -1,5 +1,6 @@
 package me.pesekjak.machine.auth;
 
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.Writable;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,5 +25,9 @@ public interface MessageSignature extends Writable {
      * @return encoded signature of the message
      */
     byte @NotNull [] signature();
+
+    default void write(@NotNull ServerBuffer buf) {
+        buf.writeSignature(this);
+    }
 
 }

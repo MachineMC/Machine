@@ -1,5 +1,6 @@
 package me.pesekjak.machine.entities.player;
 
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.Writable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -36,5 +37,9 @@ public interface PlayerTextures extends Writable {
      * @return type of the skin model
      */
     @NotNull SkinModel skinModel();
+
+    default void write(@NotNull ServerBuffer buf) {
+        buf.writeTextures(this);
+    }
 
 }

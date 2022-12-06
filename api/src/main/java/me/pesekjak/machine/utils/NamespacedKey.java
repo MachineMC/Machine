@@ -11,7 +11,9 @@ import java.util.regex.Pattern;
 /**
  * An identifying object used to fetch and/or store unique objects,
  * NamespacedKey consists of namespace and key.
+ * <p>
  * Valid characters for namespaces are [a-z0-9.-_].
+ * <p>
  * Valid characters for keys are [a-z0-9.-_/].
  * @param namespace namespace of the namespace key
  * @param key key of the namespace key

@@ -53,9 +53,4 @@ public record PlayerTexturesImpl(@NotNull String value, @Nullable String signatu
         }
     }
 
-    @Override
-    public void write(@NotNull ServerBuffer buf) {
-        buf.writeTextures(this);
-    }
-
 }

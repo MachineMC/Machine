@@ -1,5 +1,6 @@
 package me.pesekjak.machine.inventory;
 
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.Writable;
 import me.pesekjak.machine.world.Material;
 import org.jetbrains.annotations.Contract;
@@ -130,9 +131,8 @@ public interface Item extends Writable, Cloneable {
     @Contract(pure = true)
     @NotNull Item single();
 
-    /**
-     * @return serialized item
-     */
-    byte @NotNull [] serialize();
+    default void write(@NotNull ServerBuffer buf) {
+        buf.writeSlot(this);
+    }
 
 }
