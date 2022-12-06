@@ -23,7 +23,6 @@ dependencies {
     implementation(libs.jetbrains.annotations) // overrides default compileOnly
 
     implementation(libs.google.guava)
-    implementation(libs.netty.buffer)
 
     implementation(libs.bundles.kyori.adventure)
     implementation(libs.bundles.hephaistos)
