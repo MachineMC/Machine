@@ -32,6 +32,7 @@ import me.pesekjak.machine.world.dimensions.DimensionTypeImpl;
 import me.pesekjak.machine.world.dimensions.DimensionTypeManagerImpl;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -52,11 +53,6 @@ public class Machine implements Server {
     public static final String PACKAGE = "me.pesekjak.machine";
 
     public static final Path DIRECTORY = FileUtils.getMachineJar().getParentFile().toPath();
-
-    @Getter
-    public final int tps;
-    @Getter
-    public final int serverResponsiveness;
 
     @Getter
     private boolean running;
@@ -149,10 +145,6 @@ public class Machine implements Server {
             System.exit(2);
         }
         console.info("Loaded server properties");
-
-        tps = properties.getTps();
-
-        serverResponsiveness = properties.getServerResponsiveness();
 
         // Checking if the port in the properties in empty
         if (!NetworkUtils.available(properties.getServerPort())) {
@@ -336,6 +328,21 @@ public class Machine implements Server {
         return gson
                 .toJson(json)
                 .replace("\"%MOTD%\"", GsonComponentSerializer.gson().serialize(properties.getMotd()));
+    }
+
+    @Override
+    public @NotNull String getBrand() {
+        return SERVER_BRAND;
+    }
+
+    @Override
+    public @NotNull String getImplementationVersion() {
+        return SERVER_IMPLEMENTATION_VERSION;
+    }
+
+    @Override
+    public int getImplementationProtocol() {
+        return SERVER_IMPLEMENTATION_PROTOCOL;
     }
 
     /**
