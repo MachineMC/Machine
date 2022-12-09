@@ -1,10 +1,12 @@
 package me.pesekjak.machine.inventory;
 
+import me.pesekjak.machine.Server;
 import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.Writable;
 import me.pesekjak.machine.world.Material;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 
@@ -12,6 +14,42 @@ import org.jglrxavpok.hephaistos.nbt.NBTException;
  * Represents an item in inventory.
  */
 public interface Item extends Writable, Cloneable {
+
+    /**
+     * Creates new instance of the classic item implementation.
+     * @param material material of the item
+     * @param amount amount of the item
+     * @return new item
+     * @throws UnsupportedOperationException if the creator hasn't been initialized
+     * @throws IllegalStateException if the material can't have item form
+     */
+    static @NotNull Item of(@NotNull Material material, byte amount) {
+        return Server.createItem(material, amount);
+    }
+
+    /**
+     * Creates new instance of the classic item implementation.
+     * @param material material of the item
+     * @param amount amount of the item
+     * @return new item
+     * @throws UnsupportedOperationException if the creator hasn't been initialized
+     * @throws IllegalStateException if the material can't have item form
+     */
+    static @NotNull Item of(@NotNull Material material, @Range(from = Byte.MIN_VALUE, to = Byte.MAX_VALUE) int amount) {
+        return of(material, (byte) amount);
+    }
+
+    /**
+     * Creates new instance of the classic item implementation with the amount
+     * of 1.
+     * @param material material of the item
+     * @return new item
+     * @throws UnsupportedOperationException if the creator hasn't been initialized
+     * @throws IllegalStateException if the material can't have item form
+     */
+    static @NotNull Item of(@NotNull Material material) {
+        return Server.createItem(material);
+    }
 
     /**
      * @return material of the item

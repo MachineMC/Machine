@@ -6,6 +6,8 @@ import me.pesekjak.machine.utils.Writable;
 /**
  * Represents an option for the particle type.
  */
-public interface ParticleOptions extends NBTSerializable, Writable {
+public interface ParticleOptions extends NBTSerializable, Writable, Cloneable {
+
+    ParticleOptions clone();
 
 }

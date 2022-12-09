@@ -11,17 +11,22 @@ import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.exception.ExceptionHandler;
 import me.pesekjak.machine.file.PlayerDataContainer;
 import me.pesekjak.machine.file.ServerProperties;
+import me.pesekjak.machine.inventory.Item;
 import me.pesekjak.machine.logging.Console;
 import me.pesekjak.machine.network.ServerConnection;
 import me.pesekjak.machine.server.PlayerManager;
 import me.pesekjak.machine.server.schedule.Scheduler;
 import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.utils.ServerBuffer;
+import me.pesekjak.machine.world.Material;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.WorldManager;
 import me.pesekjak.machine.world.biomes.BiomeManager;
 import me.pesekjak.machine.world.blocks.BlockManager;
 import me.pesekjak.machine.world.blocks.BlockType;
 import me.pesekjak.machine.world.dimensions.DimensionTypeManager;
+import me.pesekjak.machine.world.particles.Particle;
+import me.pesekjak.machine.world.particles.ParticleType;
 import org.jetbrains.annotations.*;
 
 import java.util.Set;
@@ -33,6 +38,55 @@ import java.util.logging.Level;
  */
 @ApiStatus.NonExtendable
 public interface Server {
+
+    /**
+     * Creates new instance of the classic buffer implementation.
+     * @return new default server buffer
+     * @throws UnsupportedOperationException if the creator hasn't been initialized
+     */
+    static @NotNull ServerBuffer createServerBuffer() {
+        if(Factories.BUFFER_FACTORY == null)
+            throw new UnsupportedOperationException();
+        return Factories.BUFFER_FACTORY.create();
+    }
+
+    /**
+     * Creates new instance of the classic item implementation.
+     * @param material material of the item
+     * @param amount amount of the item
+     * @return new item
+     * @throws UnsupportedOperationException if the creator hasn't been initialized
+     * @throws IllegalStateException if the material can't have item form
+     */
+    static @NotNull Item createItem(@NotNull Material material, byte amount) {
+        if(Factories.ITEM_FACTORY == null)
+            throw new UnsupportedOperationException();
+        return Factories.ITEM_FACTORY.create(material, amount);
+    }
+
+    /**
+     * Creates new instance of the classic item implementation with the amount
+     * of 1.
+     * @param material material of the item
+     * @return new item
+     * @throws UnsupportedOperationException if the creator hasn't been initialized
+     * @throws IllegalStateException if the material can't have item form
+     */
+    static @NotNull Item createItem(@NotNull Material material) {
+        return createItem(material, (byte) 1);
+    }
+
+    /**
+     * Creates new instance of the classic particle implementation.
+     * @param type type of the particle
+     * @return new particle
+     * @throws UnsupportedOperationException if the creator hasn't been initialized
+     */
+    static @NotNull Particle createParticle(@NotNull ParticleType type) {
+        if(Factories.PARTICLE_FACTORY == null)
+            throw new UnsupportedOperationException();
+        return Factories.PARTICLE_FACTORY.create(type);
+    }
 
     /**
      * @return server's brand

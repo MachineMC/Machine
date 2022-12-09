@@ -12,6 +12,7 @@ import me.pesekjak.machine.commands.CommandExecutor;
 import me.pesekjak.machine.commands.ServerCommands;
 import me.pesekjak.machine.entities.EntityManagerImpl;
 import me.pesekjak.machine.entities.Player;
+import me.pesekjak.machine.inventory.ItemStack;
 import me.pesekjak.machine.translation.TranslatorDispatcher;
 import me.pesekjak.machine.exception.ExceptionHandlerImpl;
 import me.pesekjak.machine.file.DimensionsJson;
@@ -30,6 +31,7 @@ import me.pesekjak.machine.world.biomes.BiomeManagerImpl;
 import me.pesekjak.machine.world.blocks.BlockManagerImpl;
 import me.pesekjak.machine.world.dimensions.DimensionTypeImpl;
 import me.pesekjak.machine.world.dimensions.DimensionTypeManagerImpl;
+import me.pesekjak.machine.world.particles.ParticleFactory;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
@@ -105,14 +107,17 @@ public class Machine implements Server {
     @Getter
     protected World defaultWorld;
 
+    static {
+        Factories.BUFFER_FACTORY = FriendlyByteBuf::new;
+        Factories.ITEM_FACTORY = ItemStack::new;
+        Factories.PARTICLE_FACTORY = ParticleFactory::create;
+    }
+
     public static void main(String[] args) throws Exception {
         if(System.console() == null) return;
         new Machine(args);
     }
 
-    /**
-     * Start of new server.
-     */
     private Machine(String[] args) throws Exception {
 
         final Set<String> arguments = Set.of(args);
@@ -129,7 +134,7 @@ public class Machine implements Server {
             System.exit(2);
         }
         console.info("Loading Machine Server on Minecraft " + SERVER_IMPLEMENTATION_VERSION);
-
+        scheduler = new Scheduler(4);
         exceptionHandler = new ExceptionHandlerImpl(this);
 
         // Setting up server properties
@@ -271,7 +276,6 @@ public class Machine implements Server {
         }
 
         try {
-            scheduler = new Scheduler(4); // TODO add this to properties
             console.start();
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
@@ -285,6 +289,27 @@ public class Machine implements Server {
         shutdown();
     }
 
+    @Override
+    public @NotNull String getBrand() {
+        return SERVER_BRAND;
+    }
+
+    @Override
+    public @NotNull String getImplementationVersion() {
+        return SERVER_IMPLEMENTATION_VERSION;
+    }
+
+    @Override
+    public int getImplementationProtocol() {
+        return SERVER_IMPLEMENTATION_PROTOCOL;
+    }
+
+    @Override
+    public boolean isOnline() {
+        return onlineServer != null;
+    }
+
+    @Override
     public void shutdown() {
         running = false;
         console.stop();
@@ -308,6 +333,11 @@ public class Machine implements Server {
         System.exit(0);
     }
 
+    @Override
+    public String toString() {
+        return "Machine Server " + SERVER_IMPLEMENTATION_VERSION + " (" + SERVER_IMPLEMENTATION_PROTOCOL + ")";
+    }
+
     /**
      * Builds the MOTD json of the server in the multiplayer server list.
      * @return MOTD json of the server
@@ -328,34 +358,6 @@ public class Machine implements Server {
         return gson
                 .toJson(json)
                 .replace("\"%MOTD%\"", GsonComponentSerializer.gson().serialize(properties.getMotd()));
-    }
-
-    @Override
-    public @NotNull String getBrand() {
-        return SERVER_BRAND;
-    }
-
-    @Override
-    public @NotNull String getImplementationVersion() {
-        return SERVER_IMPLEMENTATION_VERSION;
-    }
-
-    @Override
-    public int getImplementationProtocol() {
-        return SERVER_IMPLEMENTATION_PROTOCOL;
-    }
-
-    /**
-     * Checks if server is in online mode.
-     * @return true if server is in online mode
-     */
-    public boolean isOnline() {
-        return onlineServer != null;
-    }
-
-    @Override
-    public String toString() {
-        return "Machine Server " + SERVER_IMPLEMENTATION_VERSION + " (" + SERVER_IMPLEMENTATION_PROTOCOL + ")";
     }
 
 }

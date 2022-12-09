@@ -1,8 +1,6 @@
 package me.pesekjak.machine.inventory;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import me.pesekjak.machine.world.Material;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -16,17 +14,14 @@ import java.io.StringReader;
 /**
  * Default item implementation.
  */
-@EqualsAndHashCode
+@Data
 public class ItemStack implements Item {
 
-    private final static Material[] REGISTRY;
+    private final static Material @NotNull [] REGISTRY;
 
-    @Getter @Setter
-    private Material material;
-    @Getter @Setter
+    private @NotNull Material material;
     private byte amount = 1;
-    @Getter @Setter
-    private NBTCompound nbtCompound = new NBTCompound();
+    private @NotNull NBTCompound nbtCompound = new NBTCompound();
 
     static {
         Material[] materials = Material.values();

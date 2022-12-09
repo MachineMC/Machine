@@ -94,16 +94,22 @@ public interface BiomeEffects extends NBTSerializable {
         @NotNull NamespacedKey sound();
 
         /**
-         * @return delay
+         * @return the minimum delay in two plays
          */
         int tickDelay();
 
         /**
+         * Determines the cubic range of possible positions to
+         * find place to play the mood sound.
+         * The player is at the center of the cubic range,
+         * and the edge length is 2 * block_search_extent.
          * @return block search extent
          */
         int blockSearchExtent();
 
         /**
+         * The higher the value makes the sound source further
+         * away from the player.
          * @return offset
          */
         double offset();
@@ -121,7 +127,7 @@ public interface BiomeEffects extends NBTSerializable {
         NamespacedKey sound();
 
         /**
-         * @return chance
+         * @return the probability to start playing the sound
          */
         double tickChance();
 
@@ -138,12 +144,12 @@ public interface BiomeEffects extends NBTSerializable {
         NamespacedKey sound();
 
         /**
-         * @return min delay
+         * @return min delay between two music
          */
         int minDelay();
 
         /**
-         * @return max delay
+         * @return max delay between two music
          */
         int maxDelay();
 

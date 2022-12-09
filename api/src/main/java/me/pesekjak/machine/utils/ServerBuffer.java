@@ -1,5 +1,6 @@
 package me.pesekjak.machine.utils;
 
+import me.pesekjak.machine.Server;
 import me.pesekjak.machine.auth.MessageSignature;
 import me.pesekjak.machine.auth.PublicKeyData;
 import me.pesekjak.machine.entities.player.PlayerTextures;
@@ -22,6 +23,15 @@ import java.util.UUID;
  * Special byte buffer for implementing Minecraft Protocol.
  */
 public interface ServerBuffer extends Cloneable {
+
+    /**
+     * Creates new instance of the classic buffer implementation.
+     * @return new default server buffer
+     * @throws UnsupportedOperationException if the creator hasn't been initialized
+     */
+    static @NotNull ServerBuffer create() {
+        return Server.createServerBuffer();
+    }
 
     /**
      * Returns content of the full buffer, doesn't move with
