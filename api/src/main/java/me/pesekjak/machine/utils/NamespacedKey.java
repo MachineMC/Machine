@@ -70,7 +70,7 @@ public record NamespacedKey(
      * @return minecraft NamespacedKey
      */
     @Contract("_ -> new")
-    public static @NotNull NamespacedKey minecraft(@Subst("server") @NotNull String key) {
+    public static @NotNull NamespacedKey minecraft(@Subst("server") @org.intellij.lang.annotations.Pattern(KEY_REGEX) @NotNull String key) {
         return new NamespacedKey(MINECRAFT_NAMESPACE, key);
     }
 
@@ -80,7 +80,7 @@ public record NamespacedKey(
      * @return machine NamespacedKey
      */
     @Contract("_ -> new")
-    public static @NotNull NamespacedKey machine(@Subst("server") @NotNull String key) {
+    public static @NotNull NamespacedKey machine(@Subst("server") @org.intellij.lang.annotations.Pattern(KEY_REGEX) @NotNull String key) {
         return new NamespacedKey(MACHINE_NAMESPACE, key);
     }
 

@@ -20,7 +20,7 @@ public interface ServerConnection extends ServerProperty, AutoCloseable {
     /**
      * @return server's port
      */
-    int getPort();
+    @Range(from = 0, to = 65536) int getPort();
 
     /**
      * @return all player connections connected to the server

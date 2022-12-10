@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
-import lombok.Setter;
 import me.pesekjak.machine.auth.OnlineServerImpl;
 import me.pesekjak.machine.chat.MessengerImpl;
 import me.pesekjak.machine.commands.CommandExecutor;
