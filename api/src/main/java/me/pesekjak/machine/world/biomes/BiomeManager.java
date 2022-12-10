@@ -13,13 +13,14 @@ import java.util.Set;
 public interface BiomeManager extends CodecPart, ServerProperty {
 
     /**
-     * Registers new biome to the manager.
+     * Registers new biome to the manager if it's not registered already
+     * in a different one.
      * @param biome biome to register
      */
     void addBiome(@NotNull Biome biome);
 
     /**
-     * Unregisters a biome from the manager.
+     * Removes a biome from the manager if it's registered in this manager.
      * @param biome biome to unregister
      * @return if the biome was successfully removed
      */

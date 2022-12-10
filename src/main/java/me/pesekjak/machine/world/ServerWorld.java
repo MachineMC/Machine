@@ -9,7 +9,6 @@ import me.pesekjak.machine.chunk.WorldChunk;
 import me.pesekjak.machine.chunk.ChunkUtils;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.entities.Entity;
-import me.pesekjak.machine.entities.ServerPlayer;
 import me.pesekjak.machine.utils.FileUtils;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.blocks.BlockType;
@@ -29,23 +28,28 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * Server with a folder in the main server directory
+ * Server with a folder in the main server directory.
  */
 public class ServerWorld extends WorldImpl {
 
     public final static String DEFAULT_WORLD_FOLDER = "level";
 
     @Getter
-    private final File folder;
-    private File regionFolder;
-    private final IntObjectHashMap<Region> regionMap = new IntObjectHashMap<>();
+    private final @NotNull File folder;
+    private final @NotNull File regionFolder;
+    private final @NotNull IntObjectHashMap<Region> regionMap = new IntObjectHashMap<>();
 
-    protected final Set<Entity> entityList = new CopyOnWriteArraySet<>();
+    protected final @NotNull Set<Entity> entityList = new CopyOnWriteArraySet<>();
 
-    private final Generator generator = new FlatStoneGenerator(getServer(), getSeed());
+    private final @NotNull Generator generator = new FlatStoneGenerator(getServer(), getSeed());
 
-    public static ServerWorld createDefault(Machine server) {
-        ServerWorld world = new ServerWorld(
+    /**
+     * Creates default server world.
+     * @param server server
+     * @return default server world
+     */
+    public static @NotNull World createDefault(@NotNull Machine server) {
+        final World world = new ServerWorld(
                 new File(DEFAULT_WORLD_FOLDER + "/"),
                 server,
                 NamespacedKey.machine("main"),
@@ -57,9 +61,10 @@ public class ServerWorld extends WorldImpl {
         return world;
     }
 
-    public ServerWorld(File folder, Machine server, NamespacedKey name, DimensionType dimensionType, WorldType worldType, long seed) {
+    public ServerWorld(@NotNull File folder, @NotNull Machine server, @NotNull NamespacedKey name, @NotNull DimensionType dimensionType, @NotNull WorldType worldType, long seed) {
         super(server, name, FileUtils.getOrCreateUUID(folder), dimensionType, worldType, seed);
         this.folder = folder;
+        regionFolder = new File(folder.getPath() + "/region/");
     }
 
     @Override
@@ -67,30 +72,24 @@ public class ServerWorld extends WorldImpl {
         return Collections.unmodifiableSet(entityList);
     }
 
-    // TODO proper generator support
     @Override
-    public Generator getGenerator() {
+    public @NotNull Generator getGenerator() {
         return generator;
     }
 
     @Override
     @Synchronized
-    public void load() {
+    public void load() throws IOException {
         if(loaded) throw new UnsupportedOperationException();
-        regionFolder = new File(folder.getPath() + "/region/");
-        if(!regionFolder.mkdirs() && !regionFolder.exists()) {
-            getServer().getConsole().severe("Failed to load world '" + getName() + "'");
-            unload();
-            return;
-        }
-
+        if(!regionFolder.mkdirs() && !regionFolder.exists())
+            throw new IOException();
         loaded = true;
         getServer().getConsole().info("Loaded world '" + getName() + "'");
     }
 
     @Override
     @Synchronized
-    public void unload() {
+    public void unload() throws IOException {
         if(!loaded) throw new UnsupportedOperationException();
         loaded = false;
         save();
@@ -99,7 +98,8 @@ public class ServerWorld extends WorldImpl {
     }
 
     @Override
-    public synchronized void save() {
+    @Synchronized
+    public void save() throws IOException {
         getServer().getConsole().info("Saving world '" + getName() + "'...");
         for(Region region : regionMap.values())
             region.save();
@@ -108,20 +108,19 @@ public class ServerWorld extends WorldImpl {
 
     @Override
     public void loadPlayer(@NotNull Player player) {
-//        final byte range = (byte) (player.getViewDistance() / 2);
-        final byte range = 3;
-        final WorldChunk center = getChunk(player.getLocation());
+        final byte range = 3; // (byte) getServer().getViewDistance();
+        final Chunk center = getChunk(player.getLocation());
         for(int x = -range; x < range + 1; x++) {
             for(int z = -range; z < range + 1; z++) {
-                WorldChunk chunk = getChunk(center.getChunkX() + x, center.getChunkZ() + z);
-                chunk.sendChunk((ServerPlayer)player); // TODO cleanup
+                Chunk chunk = getChunk(center.getChunkX() + x, center.getChunkZ() + z);
+                chunk.sendChunk(player);
             }
         }
     }
 
     @Override
     public void unloadPlayer(@NotNull Player player) {
-
+        // TODO implement player unloading
     }
 
     @Override
@@ -137,24 +136,25 @@ public class ServerWorld extends WorldImpl {
     }
 
     @Override
-    public Region getRegion(int regionX, int regionZ) {
+    public @NotNull Region getRegion(int regionX, int regionZ) {
         return regionMap.get(createRegionIndex(regionX, regionZ));
     }
 
     @Override
-    public void saveRegion(int regionX, int regionZ) {
+    public void saveRegion(int regionX, int regionZ) throws IOException {
         getRegion(regionX, regionZ).save();
     }
 
     @Override
-    public WorldChunk getChunk(int chunkX, int chunkZ) {
+    public @NotNull WorldChunk getChunk(int chunkX, int chunkZ) {
         final int regionX = ChunkUtils.getRegionCoordinate(chunkX);
         final int regionZ = ChunkUtils.getRegionCoordinate(chunkZ);
         Region region = regionMap.get(createRegionIndex(regionX, regionZ));
         if(region == null) {
             try {
                 File regionFile = new File(regionFolder.getPath() + "/r." + regionX + "." + regionZ + ".mca");
-                if(!regionFile.createNewFile() && !regionFile.exists()) return null;
+                if(!regionFile.createNewFile() && !regionFile.exists())
+                    throw new IllegalStateException();
                 region = new AnvilRegion(this, regionFile, regionX, regionZ);
                 regionMap.put(createRegionIndex(regionX, regionZ), region);
             } catch (AnvilException | IOException e) {

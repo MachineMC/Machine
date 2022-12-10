@@ -4,26 +4,32 @@ import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.BlockPosition;
+import me.pesekjak.machine.world.blocks.BlockManager;
 import me.pesekjak.machine.world.blocks.BlockManagerImpl;
 import me.pesekjak.machine.world.blocks.BlockType;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Simple flat world stone generator.
+ */
+@Getter
 public class FlatStoneGenerator implements Generator {
 
-    @Getter
-    private final Machine server;
-    @Getter
+    private final @NotNull Machine server;
     private final long seed;
 
-    private final BlockType air;
-    private final BlockType stone;
+    private final @NotNull BlockType air;
+    private final @NotNull BlockType stone;
 
-    public FlatStoneGenerator(Machine server, long seed) {
+    public FlatStoneGenerator(@NotNull Machine server, long seed) {
         this.server = server;
         this.seed = seed;
-        BlockManagerImpl manager = server.getBlockManager();
-        air = manager.getBlockType(NamespacedKey.minecraft("air"));
-        stone = manager.getBlockType(NamespacedKey.minecraft("stone"));
+        final BlockManager manager = server.getBlockManager();
+        final BlockType air = manager.getBlockType(NamespacedKey.minecraft("air"));
+        final BlockType stone = manager.getBlockType(NamespacedKey.minecraft("stone"));
+        if(air == null || stone == null) throw new IllegalStateException();
+        this.air = air;
+        this.stone = stone;
     }
 
     @Override

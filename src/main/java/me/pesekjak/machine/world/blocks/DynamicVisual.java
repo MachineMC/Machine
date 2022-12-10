@@ -4,18 +4,19 @@ import lombok.*;
 import me.pesekjak.machine.chunk.ChunkUtils;
 import me.pesekjak.machine.world.BlockData;
 import me.pesekjak.machine.world.BlockPosition;
-import me.pesekjak.machine.world.WorldImpl;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Changeable visual of a block.
+ * Visual of a block that can be changed.
  */
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class DynamicVisual implements BlockVisual {
 
-    private final WorldBlock source;
-    private BlockData blockData;
+    @ToString.Exclude
+    private final @NotNull WorldBlock source;
+    private @NotNull BlockData blockData;
 
     @Override
     public @NotNull BlockData getBlockData() {
@@ -28,17 +29,13 @@ public class DynamicVisual implements BlockVisual {
         this.blockData = blockData;
         final BlockPosition position = source.getPosition();
         final int offset = source.getWorld().getDimensionType().getMinY();
-        ((WorldImpl) source.getWorld()).getChunk(position) // TODO cleanup
+        source.getWorld().getChunk(position)
                 .getSectionAt(position.getY() - offset)
                 .getBlockPalette().set(
                         ChunkUtils.getSectionRelativeCoordinate(position.getX()),
                         ChunkUtils.getSectionRelativeCoordinate(position.getY() - offset),
                         ChunkUtils.getSectionRelativeCoordinate(position.getZ()),
                         blockData.getId());
-    }
-
-    public String toString() {
-        return "BlockVisual(" + blockData.toString() + ")";
     }
 
 }

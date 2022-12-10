@@ -27,9 +27,13 @@ import me.pesekjak.machine.server.PlayerManagerImpl;
 import me.pesekjak.machine.server.schedule.Scheduler;
 import me.pesekjak.machine.utils.*;
 import me.pesekjak.machine.world.*;
+import me.pesekjak.machine.world.biomes.BiomeManager;
 import me.pesekjak.machine.world.biomes.BiomeManagerImpl;
+import me.pesekjak.machine.world.blocks.BlockManager;
 import me.pesekjak.machine.world.blocks.BlockManagerImpl;
+import me.pesekjak.machine.world.dimensions.DimensionType;
 import me.pesekjak.machine.world.dimensions.DimensionTypeImpl;
+import me.pesekjak.machine.world.dimensions.DimensionTypeManager;
 import me.pesekjak.machine.world.dimensions.DimensionTypeManagerImpl;
 import me.pesekjak.machine.world.particles.ParticleFactory;
 import net.kyori.adventure.text.Component;
@@ -59,7 +63,7 @@ public class Machine implements Server {
     @Getter
     private boolean running;
 
-    @Getter @Setter
+    @Getter
     private Console console;
 
     @Getter
@@ -85,19 +89,19 @@ public class Machine implements Server {
     protected CommandDispatcher<CommandExecutor> commandDispatcher;
 
     @Getter
-    protected DimensionTypeManagerImpl dimensionTypeManager;
+    protected DimensionTypeManager dimensionTypeManager;
     @Getter
     protected MessengerImpl messenger;
     @Getter
-    protected WorldManagerImpl worldManager;
+    protected WorldManager worldManager;
     @Getter
-    protected BiomeManagerImpl biomeManager;
+    protected BiomeManager biomeManager;
     @Getter
     protected EntityManagerImpl entityManager;
     @Getter
     protected PlayerManagerImpl playerManager;
     @Getter
-    protected BlockManagerImpl blockManager;
+    protected BlockManager blockManager;
     @Getter
     private PlayerDataContainerImpl playerDataContainer;
 
@@ -179,7 +183,7 @@ public class Machine implements Server {
         File dimensionsFile = new File(DimensionsJson.DIMENSIONS_FILE_NAME);
         if(!dimensionsFile.exists())
             FileUtils.createFromDefault(dimensionsFile);
-        Set<DimensionTypeImpl> dimensions = new LinkedHashSet<>();
+        Set<DimensionType> dimensions = new LinkedHashSet<>();
         try {
             dimensions = new DimensionsJson(this, dimensionsFile).dimensions();
         } catch (Exception exception) {
@@ -191,7 +195,7 @@ public class Machine implements Server {
             console.warning("There are no defined dimensions in the dimensions file, loading default dimension instead");
             dimensionTypeManager.addDimension(DimensionTypeImpl.createDefault());
         } else {
-            for(DimensionTypeImpl dimension : dimensions)
+            for(DimensionType dimension : dimensions)
                 dimensionTypeManager.addDimension(dimension);
         }
         console.info("Registered " + dimensionTypeManager.getDimensions().size() + " dimension types");
@@ -212,12 +216,12 @@ public class Machine implements Server {
                 if (path.getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
                 if (!path.getParent().getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
                 try {
-                    WorldJson worldJson = new WorldJson(this, path.toFile());
+                    final WorldJson worldJson = new WorldJson(this, path.toFile());
                     if (worldManager.isRegistered(worldJson.getWorldName())) {
                         console.severe("World with name '" + worldJson.getName() + "' is already registered");
                         continue;
                     }
-                    WorldImpl world = worldJson.buildWorld();
+                    final World world = worldJson.buildWorld();
                     worldManager.addWorld(world);
                     console.info("Registered world '" + world.getName() + "'");
                 } catch (IOException exception) {
@@ -231,9 +235,9 @@ public class Machine implements Server {
         if(worldManager.getWorlds().size() == 0) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             try {
-                File worldJson = new File(WorldJson.WORLD_FILE_NAME);
+                final File worldJson = new File(WorldJson.WORLD_FILE_NAME);
                 FileUtils.createFromDefaultAndLocate(worldJson, ServerWorld.DEFAULT_WORLD_FOLDER + "/");
-                WorldImpl world = ServerWorld.createDefault(this);
+                final World world = ServerWorld.createDefault(this);
                 worldManager.addWorld(world);
             } catch (Exception exception) {
                 exceptionHandler.handle(exception, "Failed to create the default world");
@@ -246,8 +250,13 @@ public class Machine implements Server {
             console.warning("Default world in the server properties doesn't exist, using '" + defaultWorld.getName() + "' instead");
         }
 
-        for(World world : worldManager.getWorlds())
-            world.load();
+        for(World world : worldManager.getWorlds()) {
+            try {
+                world.load();
+            } catch (Exception exception) {
+                exceptionHandler.handle(exception, "Failed to load world '" + world.getName() + "'");
+            }
+        }
         console.info("Loaded all server worlds");
 
         // TODO Implement biomes json
@@ -316,18 +325,25 @@ public class Machine implements Server {
         console.info("Shutting down...");
         console.info("Saving player data...");
         for(Player player : playerManager.getPlayers()) {
-            try { player.getConnection().disconnect(Component.translatable("disconnect.closed"));
-            } catch (Exception exception) { exceptionHandler.handle(exception); }
+            try {
+                player.getConnection().disconnect(Component.translatable("disconnect.closed"));
+            } catch (Exception exception) {
+                exceptionHandler.handle(exception);
+            }
         }
         console.info("Saved all player data");
         console.info("Closing the connection...");
-        try { connection.close();
+        try {
+            connection.close();
         } catch (Exception ignored) { }
         console.info("Connection has been closed");
         console.info("Saving worlds...");
         for(World world : worldManager.getWorlds()) {
-            try { world.save();
-            } catch (Exception exception) { exceptionHandler.handle(exception); }
+            try {
+                world.save();
+            } catch (Exception exception) {
+                exceptionHandler.handle(exception);
+            }
         }
         console.info("Server has been stopped");
         System.exit(0);

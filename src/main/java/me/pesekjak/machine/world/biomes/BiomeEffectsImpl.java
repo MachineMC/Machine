@@ -3,7 +3,7 @@ package me.pesekjak.machine.world.biomes;
 import lombok.Builder;
 import lombok.Getter;
 import me.pesekjak.machine.utils.NamespacedKey;
-import me.pesekjak.machine.world.particles.ParticleImpl;
+import me.pesekjak.machine.world.particles.Particle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
@@ -12,18 +12,18 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import java.util.Map;
 
 /**
- * Effects of a biome.
+ * Default biome effects implementation.
  */
 @Getter
 @Builder
 public class BiomeEffectsImpl implements BiomeEffects {
 
-    public static BiomeEffectsImpl createDefault() {
+    /**
+     * Creates the default biome effects.
+     * @return newly created biome effects
+     */
+    public static @NotNull BiomeEffects createDefault() {
         return BiomeEffectsImpl.builder()
-                .fogColor(0xC0D8FF)
-                .skyColor(0x78A7FF)
-                .waterColor(0x3F76E4)
-                .waterFogColor(0x50533)
                 .build();
     }
 
@@ -31,21 +31,15 @@ public class BiomeEffectsImpl implements BiomeEffects {
     @Builder.Default private final int skyColor = 0x78A7FF;
     @Builder.Default private final int waterColor = 0x3F76E4;
     @Builder.Default private final int waterFogColor = 0x50533;
-    private final Integer foliageColor;
-    private final Integer grassColor;
-    @Nullable
-    private final BiomeEffects.GrassColorModifier grassColorModifier;
-    @Nullable
-    private final NamespacedKey ambientSound;
-    @Nullable
-    private final BiomeEffectsImpl.MoodSoundImpl moodSound;
-    @Nullable
-    private final BiomeEffectsImpl.AdditionsSoundImpl additionsSound;
-    @Nullable
-    private final BiomeEffectsImpl.MusicImpl music;
-    private final Integer biomeParticleProbability;
-    @Nullable
-    private final ParticleImpl biomeParticle;
+    private final @Nullable Integer foliageColor;
+    private final @Nullable Integer grassColor;
+    private final @Nullable BiomeEffects.GrassColorModifier grassColorModifier;
+    private final @Nullable NamespacedKey ambientSound;
+    private final @Nullable MoodSound moodSound;
+    private final @Nullable AdditionsSound additionsSound;
+    private final @Nullable Music music;
+    private final @Nullable Integer biomeParticleProbability;
+    private final @Nullable Particle biomeParticle;
 
     @Override
     public @NotNull NBTCompound toNBT() {
@@ -79,7 +73,7 @@ public class BiomeEffectsImpl implements BiomeEffects {
     /**
      * Sound playing in a biome
      */
-    public record MoodSoundImpl(NamespacedKey sound, int tickDelay, int blockSearchExtent, double offset) implements MoodSound {
+    public record MoodSoundImpl(@NotNull NamespacedKey sound, int tickDelay, int blockSearchExtent, double offset) implements MoodSound {
         @Override
         public @NotNull NBTCompound toNBT() {
             return NBT.Compound(Map.of(
@@ -93,7 +87,7 @@ public class BiomeEffectsImpl implements BiomeEffects {
     /**
      * Additional sound playing in a biome
      */
-    public record AdditionsSoundImpl(NamespacedKey sound, double tickChance) implements AdditionsSound {
+    public record AdditionsSoundImpl(@NotNull NamespacedKey sound, double tickChance) implements AdditionsSound {
         @Override
         public @NotNull NBTCompound toNBT() {
             return NBT.Compound(Map.of(
@@ -105,7 +99,7 @@ public class BiomeEffectsImpl implements BiomeEffects {
     /**
      * Music playing in a biome
      */
-    public record MusicImpl(NamespacedKey sound, int minDelay, int maxDelay, boolean replaceCurrentMusic) implements Music {
+    public record MusicImpl(@NotNull NamespacedKey sound, int minDelay, int maxDelay, boolean replaceCurrentMusic) implements Music {
         @Override
         public @NotNull NBTCompound toNBT() {
             return NBT.Compound(Map.of(

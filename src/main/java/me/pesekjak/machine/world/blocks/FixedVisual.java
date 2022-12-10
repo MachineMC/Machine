@@ -1,10 +1,9 @@
 package me.pesekjak.machine.world.blocks;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import me.pesekjak.machine.world.BlockData;
-import me.pesekjak.machine.world.BlockDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -13,9 +12,10 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("ClassCanBeRecord")
 @RequiredArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class FixedVisual implements BlockVisual {
 
-    private final BlockData blockData;
+    private final @NotNull BlockData blockData;
 
     @Override
     public @NotNull BlockData getBlockData() {

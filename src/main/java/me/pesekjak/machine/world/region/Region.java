@@ -3,8 +3,12 @@ package me.pesekjak.machine.world.region;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.chunk.WorldChunk;
-import me.pesekjak.machine.world.WorldImpl;
+import me.pesekjak.machine.world.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+
+import java.io.IOException;
 
 /**
  * Represents a 32x32 grid of chunks.
@@ -13,15 +17,16 @@ import org.jetbrains.annotations.Range;
 @Getter
 public abstract class Region {
 
-    protected final WorldImpl world;
+    protected final @NotNull World world;
     protected final int x;
     protected final int z;
-    protected final WorldChunk[][] grid = new WorldChunk[32][32];
+    protected final @Nullable WorldChunk[][] grid = new WorldChunk[32][32];
 
     /**
      * Saves the region.
+     * @throws IOException if an I/O error occurs during saving
      */
-    public abstract void save();
+    public abstract void save() throws IOException;
 
     /**
      * Returns chunk at given relative coordinates.
@@ -29,7 +34,7 @@ public abstract class Region {
      * @param z z coordinate of the chunk in the region
      * @return chunk at given coordinates
      */
-    public abstract WorldChunk getChunk(@Range(from = 0, to = 31) int x, @Range(from = 0, to = 31) int z);
+    public abstract @NotNull WorldChunk getChunk(@Range(from = 0, to = 31) int x, @Range(from = 0, to = 31) int z);
 
     /**
      * Returns true if the chunk at given coordinates has not yet been generated - its

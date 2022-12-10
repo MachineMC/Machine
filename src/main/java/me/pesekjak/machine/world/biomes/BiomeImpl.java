@@ -12,45 +12,32 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Represents a biome of a world.
+ * Default biome implementation.
  */
 @Builder
 @Getter
 public class BiomeImpl implements Biome {
 
-    protected final AtomicReference<BiomeManager> managerReference = new AtomicReference<>();
-    protected final AtomicInteger idReference = new AtomicInteger(-1);
+    protected final @NotNull AtomicReference<BiomeManager> managerReference = new AtomicReference<>();
+    protected final @NotNull AtomicInteger idReference = new AtomicInteger(-1);
 
-    @NotNull
-    private final NamespacedKey name;
-    private final float depth;
-    private final float temperature;
-    private final float scale;
-    private final float downfall;
-    @NotNull
-    private final Category category;
-    @NotNull
-    private final BiomeEffectsImpl effects;
-    @NotNull
-    private final Precipitation precipitation;
-    @NotNull
-    private final TemperatureModifier temperatureModifier;
+    private final @NotNull NamespacedKey name;
+    @Builder.Default private final float depth = 0.125F;
+    @Builder.Default private final float temperature = 0.8F;
+    @Builder.Default private final float scale = 0.05F;
+    @Builder.Default private final float downfall = 0.4F;
+    @Builder.Default private final @NotNull Category category = Category.NONE;
+    @Builder.Default private final @NotNull BiomeEffects effects = BiomeEffectsImpl.createDefault();
+    @Builder.Default private final @NotNull Precipitation precipitation = Precipitation.RAIN;
+    @Builder.Default private final @NotNull TemperatureModifier temperatureModifier = TemperatureModifier.NONE;
 
     /**
      * Creates the default biome.
      * @return newly created biome
      */
-    public static BiomeImpl createDefault() {
+    public static @NotNull Biome createDefault() {
         return BiomeImpl.builder()
                 .name(new NamespacedKey(NamespacedKey.MINECRAFT_NAMESPACE, "plains"))
-                .depth(0.125F)
-                .temperature(0.8F)
-                .scale(0.05F)
-                .downfall(0.4F)
-                .category(Category.NONE)
-                .effects(BiomeEffectsImpl.createDefault())
-                .precipitation(Precipitation.RAIN)
-                .temperatureModifier(TemperatureModifier.NONE)
                 .build();
     }
 

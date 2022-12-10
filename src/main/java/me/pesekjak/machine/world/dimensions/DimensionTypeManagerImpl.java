@@ -18,35 +18,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static me.pesekjak.machine.chunk.Chunk.CHUNK_SECTION_SIZE;
 
 /**
- * Manages multiple dimension types of the server, each dimension type
- * has to reference manager it was created for.
+ * Default implementation of the dimension manager.
  */
 @RequiredArgsConstructor
 public class DimensionTypeManagerImpl implements DimensionTypeManager {
 
-    protected final AtomicInteger ID_COUNTER = new AtomicInteger(0);
+    protected final @NotNull AtomicInteger ID_COUNTER = new AtomicInteger(0);
     private final static String CODEC_TYPE = "minecraft:dimension_type";
 
-    private final Set<DimensionType> dimensionTypes = new CopyOnWriteArraySet<>();
+    private final @NotNull Set<DimensionType> dimensionTypes = new CopyOnWriteArraySet<>();
     @Getter
-    private final Machine server;
+    private final @NotNull Machine server;
 
     /**
-     * Creates manager with default settings.
-     * @param server server to create manager for
-     * @return newly created manager
+     * Creates dimension manager with default values.
+     * @param server server
+     * @return new manager
      */
-    public static @NotNull DimensionTypeManagerImpl createDefault(Machine server) {
+    public static @NotNull DimensionTypeManager createDefault(@NotNull Machine server) {
         DimensionTypeManagerImpl manager = new DimensionTypeManagerImpl(server);
         manager.addDimension(DimensionTypeImpl.createDefault());
         return manager;
     }
 
-    /**
-     * Registers the dimension type to this manager if it's not registered already
-     * in a different one.
-     * @param dimensionType dimension type to register
-     */
+    @SuppressWarnings("ConstantConditions")
+    @Override
     public void addDimension(@NotNull DimensionType dimensionType) {
         if(dimensionType.getManagerReference().get() != null && dimensionType.getManagerReference().get() != this)
             throw new IllegalStateException("Dimension type '" + dimensionType.getName() + "' is already registered in a different DimensionManager");
@@ -58,17 +54,12 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
             throw new IllegalStateException("Logical height of dimension type can't be higher than its height");
         if(dimensionType.getMinY() < -2032 || dimensionType.getMinY() > 2016)
             throw new IllegalStateException("Dimension type minimal Y level has to be between -2032 and 2016");
-
         dimensionType.getManagerReference().set(this);
         dimensionType.getIdReference().set(ID_COUNTER.getAndIncrement());
         dimensionTypes.add(dimensionType);
     }
 
-    /**
-     * Removes the dimension type from the manager if it's registered in this manager.
-     * @param dimensionType dimension type that should be removed
-     * @return true if the dimension type was removed successfully
-     */
+    @Override
     public boolean removeDimension(@NotNull DimensionType dimensionType) {
         if(dimensionType.getManagerReference().get() != this) return false;
         if(dimensionTypes.remove(dimensionType)) {
@@ -79,31 +70,14 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
         return false;
     }
 
-    /**
-     * Checks if the dimension type with given name exists.
-     * @param name name of the dimension type
-     * @return true if the dimension type exists
-     */
+    @Override
     public boolean isRegistered(@NotNull NamespacedKey name) {
         final DimensionType dimension = getDimension(name);
         if(dimension == null) return false;
         return isRegistered(dimension);
     }
 
-    /**
-     * Checks if the dimension type is registered in this manager.
-     * @param dimensionType dimension type to check for
-     * @return true if the dimension type is registered in this manager
-     */
-    public boolean isRegistered(DimensionTypeImpl dimensionType) {
-        return dimensionTypes.contains(dimensionType);
-    }
-
-    /**
-     * Searches for registered dimension type with the given name in this manager.
-     * @param name name of the dimension type to search for
-     * @return dimension type with the given name
-     */
+    @Override
     public DimensionType getDimension(@NotNull NamespacedKey name) {
         for(DimensionType dimensionType : getDimensions()) {
             if(!(dimensionType.getName().equals(name))) continue;
@@ -112,11 +86,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
         return null;
     }
 
-    /**
-     * Searches for registered dimension type with the given id in this manager.
-     * @param id id of the dimension type to search for
-     * @return dimension type with the given id
-     */
+    @Override
     public @Nullable DimensionType getById(int id) {
         for(DimensionType dimensionType : getDimensions()) {
             if (dimensionType.getIdReference().get() != id) continue;
@@ -125,10 +95,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
         return null;
     }
 
-    /**
-     * Collection of all registered dimension types in this manager
-     * @return collection of all registered dimension types
-     */
+    @Override
     public @NotNull Set<DimensionType> getDimensions() {
         return Collections.unmodifiableSet(dimensionTypes);
     }

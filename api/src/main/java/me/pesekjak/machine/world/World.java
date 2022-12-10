@@ -8,11 +8,13 @@ import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.blocks.BlockType;
 import me.pesekjak.machine.world.blocks.WorldBlock;
 import me.pesekjak.machine.world.dimensions.DimensionType;
+import me.pesekjak.machine.world.generation.Generator;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -83,19 +85,27 @@ public interface World extends ServerProperty {
     @Unmodifiable @NotNull Set<Entity> getEntities();
 
     /**
-     * Loads the world.
+     * @return generator used by the world
      */
-    void load();
+     @NotNull Generator getGenerator();
+
+    /**
+     * Loads the world.
+     * @throws IOException if an I/O error occurs during loading
+     */
+    void load() throws IOException;
 
     /**
      * Unloads the world.
+     * @throws IOException if an I/O error occurs during unloading
      */
-    void unload();
+    void unload() throws IOException;
 
     /**
      * Saves the world and its regions.
+     * @throws IOException if an I/O error occurs during saving
      */
-    void save();
+    void save() throws IOException;
 
     /**
      * Loads player into the world.
@@ -130,13 +140,13 @@ public interface World extends ServerProperty {
      * @param chunkZ z coordinate of the chunk
      * @return chunk with given coordinates
      */
-    Chunk getChunk(int chunkX, int chunkZ);
+    @NotNull Chunk getChunk(int chunkX, int chunkZ);
 
     /**
      * @param position position
      * @return chunk at given position
      */
-    default Chunk getChunk(BlockPosition position) {
+    default @NotNull Chunk getChunk(@NotNull BlockPosition position) {
         return getChunk(position.getX() >> CHUNK_SIZE_BITS, position.getZ() >> CHUNK_SIZE_BITS);
     }
 
@@ -144,7 +154,7 @@ public interface World extends ServerProperty {
      * @param location location
      * @return chunk at given location
      */
-    default Chunk getChunk(Location location) {
+    default @NotNull Chunk getChunk(@NotNull Location location) {
         return getChunk(location.toBlockPosition());
     }
 

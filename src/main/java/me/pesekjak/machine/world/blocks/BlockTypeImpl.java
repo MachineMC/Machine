@@ -8,15 +8,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
+/**
+ * Default implementation of block type.
+ */
 @AllArgsConstructor
+@Getter
 public class BlockTypeImpl implements BlockType {
 
-    @Getter
-    protected final NamespacedKey name;
-    @Getter
-    protected final BlockProperties properties;
-    @Getter
-    protected BlockVisualizer visualizer;
+    private final @NotNull NamespacedKey name;
+    private final @NotNull BlockProperties properties;
+    protected @NotNull BlockVisualizer visualizer;
 
     @Override
     public void create(@NotNull WorldBlock block, @NotNull CreateReason reason, @Nullable Entity source) {
@@ -33,22 +34,20 @@ public class BlockTypeImpl implements BlockType {
 
     }
 
+    /**
+     * Default block properties implementation.
+     */
     @Data
     @Builder
     public static class BlockProperties implements BlockType.BlockProperties {
 
-        @Builder.Default
-        private Color color = Color.BLACK;
-        @Builder.Default
-        private boolean hasCollision = true;
+        @Builder.Default private @NotNull Color color = Color.BLACK;
+        @Builder.Default private boolean hasCollision = true;
         private float resistance;
-        @Builder.Default
-        private boolean isAir = false;
+        private boolean isAir;
         private float blockHardness;
-        @Builder.Default
-        private boolean allowsSpawning = true;
-        @Builder.Default
-        private boolean solidBlock = true;
+        @Builder.Default private boolean allowsSpawning = true;
+        @Builder.Default private boolean solidBlock = true;
         private boolean transparent;
         private boolean dynamicShape;
 

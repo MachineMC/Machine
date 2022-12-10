@@ -49,7 +49,7 @@ public class ParticleFactory {
      * @param buf particle options
      * @return new particle
      */
-    public static @NotNull ParticleImpl create(@NotNull ParticleType type, @NotNull ServerBuffer buf) {
+    public static @NotNull Particle create(@NotNull ParticleType type, @NotNull ServerBuffer buf) {
         return CREATOR_MAP.get(type).create(type, buf);
     }
 
@@ -58,7 +58,7 @@ public class ParticleFactory {
      * @param type type of the particle
      * @return new particle
      */
-    public static @NotNull ParticleImpl create(@NotNull ParticleType type) {
+    public static @NotNull Particle create(@NotNull ParticleType type) {
         return ParticleImpl.of(type, DEFAULT_OPTIONS_MAP.get(type.getOptions()).get());
     }
 

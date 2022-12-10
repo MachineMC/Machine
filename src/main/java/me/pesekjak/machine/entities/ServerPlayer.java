@@ -175,6 +175,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
             if(connection.getClientState() != ClientConnection.ClientState.DISCONNECTED)
                 throw new IllegalStateException("You can't remove player from server until the connection is closed");
             super.remove();
+            getWorld().unloadPlayer(this);
             getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this));
             getServer().getPlayerManager().removePlayer(this);
             final Component leaveMessage = Component.translatable("multiplayer.player.left", Component.text(getName())).style(ChatColor.YELLOW.asStyle());

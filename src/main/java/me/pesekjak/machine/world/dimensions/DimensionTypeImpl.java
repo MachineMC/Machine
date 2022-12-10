@@ -13,65 +13,42 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Represents a dimension type of a world.
+ * Default implementation of the dimension type.
  */
 @Builder
 @Getter
 public class DimensionTypeImpl implements DimensionType {
 
-    protected final AtomicReference<DimensionTypeManager> managerReference = new AtomicReference<>();
-    protected final AtomicInteger idReference = new AtomicInteger(-1);
+    protected final @NotNull AtomicReference<DimensionTypeManager> managerReference = new AtomicReference<>();
+    protected final @NotNull AtomicInteger idReference = new AtomicInteger(-1);
 
-    @NotNull
-    private final NamespacedKey name;
-    private final boolean natural;
+    private final @NotNull NamespacedKey name;
+    @Builder.Default private final boolean natural = true;
     private final float ambientLight;
     private final boolean ceilingEnabled;
-    private final boolean skylightEnabled;
-    @Nullable
-    private final Long fixedTime;
-    private final boolean raidCapable;
+    @Builder.Default private final boolean skylightEnabled = true;
+    private final @Nullable Long fixedTime;
+    @Builder.Default private final boolean raidCapable = true;
     private final boolean respawnAnchorSafe;
     private final boolean ultrawarm;
-    private final boolean bedSafe;
-    @NotNull
-    private final NamespacedKey effects;
+    @Builder.Default private final boolean bedSafe = true;
+    @Builder.Default private final @NotNull NamespacedKey effects = NamespacedKey.minecraft("overworld");
     private final boolean piglinSafe;
-    @Range(from = -2032, to = 2016)
-    private final int minY;
-    @Range(from = 0, to = 4064)
-    private final int height;
-    private final int logicalHeight;
-    private final int coordinateScale;
-    private final NamespacedKey infiniburn;
-    private final int monsterSpawnBlockLightLimit;
-    private final int monsterSpawnLightLevel;
+    @Builder.Default private final @Range(from = -2032, to = 2016) int minY = -64;
+    @Builder.Default private final @Range(from = 0, to = 4064) int height = 384;
+    @Builder.Default private final @Range(from = 0, to = 4064) int logicalHeight = 384;
+    @Builder.Default private final int coordinateScale = 1;
+    @Builder.Default private final @NotNull NamespacedKey infiniburn = NamespacedKey.minecraft("infiniburn_overworld");
+    @Builder.Default private final int monsterSpawnBlockLightLimit = 5;
+    @Builder.Default private final int monsterSpawnLightLevel = 1;
 
     /**
      * Creates the default dimension type.
      * @return default dimension type
      */
-    public static DimensionTypeImpl createDefault() {
+    public static @NotNull DimensionType createDefault() {
         return DimensionTypeImpl.builder()
                 .name(new NamespacedKey(NamespacedKey.MINECRAFT_NAMESPACE, "overworld"))
-                .natural(true)
-                .ambientLight(0)
-                .ceilingEnabled(false)
-                .skylightEnabled(true)
-                .fixedTime(null)
-                .raidCapable(true)
-                .respawnAnchorSafe(false)
-                .ultrawarm(false)
-                .bedSafe(true)
-                .effects(NamespacedKey.minecraft("overworld"))
-                .piglinSafe(false)
-                .minY(-64)
-                .height(384)
-                .logicalHeight(384)
-                .coordinateScale(1)
-                .infiniburn(NamespacedKey.minecraft("infiniburn_overworld"))
-                .monsterSpawnBlockLightLimit(5)
-                .monsterSpawnLightLevel(1)
                 .build();
     }
 

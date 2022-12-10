@@ -3,7 +3,7 @@ package me.pesekjak.machine.entities;
 import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.world.World;
-import me.pesekjak.machine.world.WorldManagerImpl;
+import me.pesekjak.machine.world.WorldManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EntityManagerImpl implements EntityManager {
 
-    private final WorldManagerImpl worldManager;
+    private final WorldManager worldManager;
 
     private final Map<UUID, Entity> entityMap = new ConcurrentHashMap<>();
 

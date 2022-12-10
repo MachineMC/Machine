@@ -11,20 +11,16 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * Manages multiple worlds of the server, each world
- * has to reference manager it was created for.
+ * Default implementation of the world manager.
  */
 @RequiredArgsConstructor
 public class WorldManagerImpl implements WorldManager {
 
-    private final Set<World> worlds = new CopyOnWriteArraySet<>();
+    private final @NotNull Set<World> worlds = new CopyOnWriteArraySet<>();
     @Getter
-    private final Machine server;
+    private final @NotNull Machine server;
 
-    /**
-     * Registers the world to this manager if it's not registered already in a different one.
-     * @param world world that should be registered
-     */
+    @Override
     public void addWorld(@NotNull World world) {
         if(world.getManagerReference().get() != null && world.getManagerReference().get() != this)
             throw new IllegalStateException("World '" + world.getName() + "' is already registered in a different WorldManager");
@@ -32,12 +28,8 @@ public class WorldManagerImpl implements WorldManager {
         worlds.add(world);
     }
 
-    /**
-     * Removes the world from the manager if it's registered in this manager.
-     * @param world world that should be removed
-     * @return true if the world was removed successfully
-     */
-    public boolean removeWorld(World world) {
+    @Override
+    public boolean removeWorld(@NotNull World world) {
         if(world.getManagerReference().get() != this) return false;
         if(worlds.remove(world)) {
             world.getManagerReference().set(null);
@@ -46,31 +38,19 @@ public class WorldManagerImpl implements WorldManager {
         return false;
     }
 
-    /**
-     * Checks if the world with given name exists.
-     * @param name name of the world
-     * @return true if the world exists
-     */
-    public boolean isRegistered(NamespacedKey name) {
+    @Override
+    public boolean isRegistered(@NotNull NamespacedKey name) {
         final World world = getWorld(name);
         if(world == null) return false;
         return isRegistered(world);
     }
 
-    /**
-     * Checks if the world is registered in this manager.
-     * @param world world to check for
-     * @return true if the world is registered in this manager
-     */
+    @Override
     public boolean isRegistered(@NotNull World world) {
         return worlds.contains(world);
     }
 
-    /**
-     * Searches for registered world with the given name in this manager.
-     * @param name name of the world to search for
-     * @return world with the given name
-     */
+    @Override
     public World getWorld(@NotNull NamespacedKey name) {
         for(World world : getWorlds()) {
             if(!(world.getName().equals(name))) continue;
@@ -79,10 +59,7 @@ public class WorldManagerImpl implements WorldManager {
         return null;
     }
 
-    /**
-     * Collection of all registered worlds in this manager
-     * @return collection of all registered worlds
-     */
+    @Override
     public @NotNull Set<World> getWorlds() {
         return Collections.unmodifiableSet(worlds);
     }

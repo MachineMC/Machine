@@ -16,14 +16,15 @@ import java.util.Set;
 public interface DimensionTypeManager extends CodecPart, ServerProperty {
 
     /**
-     * Registers new dimension to the manager.
+     * Registers new dimension to the manager if it's not registered already
+     * in a different one.
      * @param dimensionType dimension to register
      */
     void addDimension(@NotNull DimensionType dimensionType);
 
     /**
-     * Unregisters a dimension from the manager.
-     * @param dimensionType dimension to unregister
+     * Removes the dimension type from the manager if it's registered in this manager.
+     * @param dimensionType dimension to remove
      * @return if the dimension was successfully removed
      */
     boolean removeDimension(@NotNull DimensionType dimensionType);
@@ -42,7 +43,7 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @return if the dimension is registered in this manager
      */
     default boolean isRegistered(@NotNull DimensionType dimensionType) {
-        return this.equals(dimensionType.getManager());
+        return this.equals(dimensionType.getManager()) && isRegistered(dimensionType.getName());
     }
 
     /**

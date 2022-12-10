@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -23,7 +24,9 @@ public interface BlockManager extends ServerProperty {
      * Registers multiple block types to the manager.
      * @param blockTypes block types to register
      */
-    void addBlocks(BlockType @NotNull ... blockTypes);
+    default void addBlocks(BlockType @NotNull ... blockTypes) {
+        Arrays.stream(blockTypes).forEach(this::addBlock);
+    }
 
     /**
      * Removes a block type from the manager.
@@ -35,7 +38,9 @@ public interface BlockManager extends ServerProperty {
      * Removes multiple block types from the manager.
      * @param blockTypes block type to remove
      */
-    void removeBlocks(BlockType @NotNull ... blockTypes);
+    default void removeBlocks(BlockType @NotNull ... blockTypes) {
+        Arrays.stream(blockTypes).forEach(this::removeBlock);
+    }
 
     /**
      * Checks if block type with given name is registered in this manager.

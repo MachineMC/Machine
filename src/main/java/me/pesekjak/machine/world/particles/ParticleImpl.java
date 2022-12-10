@@ -33,7 +33,7 @@ public class ParticleImpl implements Particle {
      * @param type type of the particle
      * @return particle created from the given type
      */
-    public static @NotNull ParticleImpl of(@NotNull ParticleType type) {
+    public static @NotNull Particle of(@NotNull ParticleType type) {
         return ParticleFactory.create(type);
     }
 
@@ -43,7 +43,7 @@ public class ParticleImpl implements Particle {
      * @param options options of the particle
      * @return particle created from the given type and options
      */
-    public static @NotNull ParticleImpl of(@NotNull ParticleType type, @Nullable ParticleOptions options) {
+    public static @NotNull Particle of(@NotNull ParticleType type, @Nullable ParticleOptions options) {
         ParticleImpl particle = new ParticleImpl(type);
         particle.options = options;
         return particle;
@@ -54,7 +54,7 @@ public class ParticleImpl implements Particle {
      * @param buf buffer with particle id and options
      * @return particle created from the buffer
      */
-    public static @NotNull ParticleImpl fromBuffer(@NotNull FriendlyByteBuf buf) {
+    public static @NotNull Particle fromBuffer(@NotNull FriendlyByteBuf buf) {
         ParticleType type = ParticleType.fromID(buf.readVarInt());
         return ParticleFactory.create(type, buf);
     }

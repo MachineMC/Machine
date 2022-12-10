@@ -1,6 +1,7 @@
 package me.pesekjak.machine.world.particles;
 
 import me.pesekjak.machine.utils.ServerBuffer;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Creates particles from the type and buffer.
@@ -16,6 +17,6 @@ public interface ParticleCreator {
      * @param buf buffer with data of the particle options
      * @return created Particle
      */
-    ParticleImpl create(ParticleType type, ServerBuffer buf);
+    @NotNull Particle create(@NotNull ParticleType type, @NotNull ServerBuffer buf);
 
 }
