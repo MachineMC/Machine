@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -28,7 +29,7 @@ public class PacketPlayOutDisplayObjective extends PacketOut {
                 PacketPlayOutDisplayObjective::new);
     }
 
-    public PacketPlayOutDisplayObjective(FriendlyByteBuf buf) {
+    public PacketPlayOutDisplayObjective(@NotNull ServerBuffer buf) {
         position = buf.readByte();
         objectiveName = buf.readString(StandardCharsets.UTF_8);
     }

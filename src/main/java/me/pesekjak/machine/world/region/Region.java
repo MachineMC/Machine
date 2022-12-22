@@ -2,7 +2,7 @@ package me.pesekjak.machine.world.region;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.pesekjak.machine.chunk.WorldChunk;
+import me.pesekjak.machine.chunk.Chunk;
 import me.pesekjak.machine.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +20,7 @@ public abstract class Region {
     protected final @NotNull World world;
     protected final int x;
     protected final int z;
-    protected final @Nullable WorldChunk[][] grid = new WorldChunk[32][32];
+    protected final @Nullable Chunk[][] grid = new Chunk[32][32];
 
     /**
      * Saves the region.
@@ -34,7 +34,7 @@ public abstract class Region {
      * @param z z coordinate of the chunk in the region
      * @return chunk at given coordinates
      */
-    public abstract @NotNull WorldChunk getChunk(@Range(from = 0, to = 31) int x, @Range(from = 0, to = 31) int z);
+    public abstract @NotNull Chunk getChunk(@Range(from = 0, to = 31) int x, @Range(from = 0, to = 31) int z);
 
     /**
      * Returns true if the chunk at given coordinates has not yet been generated - its

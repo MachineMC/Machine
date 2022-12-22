@@ -14,7 +14,11 @@ import org.jline.reader.ParsedLine;
 
 import java.util.List;
 
+/**
+ * Default console completer for Machine server.
+ */
 public record ConsoleCompleter(Machine server, ServerConsole console) implements Completer, ServerProperty {
+
     @Override
     public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
         final CommandDispatcher<CommandExecutor> dispatcher = server.getCommandDispatcher();

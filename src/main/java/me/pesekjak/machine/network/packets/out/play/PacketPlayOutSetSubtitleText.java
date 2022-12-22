@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,15 +16,15 @@ public class PacketPlayOutSetSubtitleText extends PacketOut {
 
     private static final int ID = 0x5B;
 
-    @Getter @Setter @NotNull
-    private Component text;
+    @Getter @Setter
+    private @NotNull Component text;
 
     static {
         register(PacketPlayOutSetSubtitleText.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutSetSubtitleText::new);
     }
 
-    public PacketPlayOutSetSubtitleText(FriendlyByteBuf buf) {
+    public PacketPlayOutSetSubtitleText(@NotNull ServerBuffer buf) {
         text = buf.readComponent();
     }
 

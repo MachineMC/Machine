@@ -1,7 +1,8 @@
 package me.pesekjak.machine.translation.translators.in;
 
-import me.pesekjak.machine.auth.OnlineServerImpl;
+import me.pesekjak.machine.auth.OnlineServer;
 import me.pesekjak.machine.entities.ServerPlayer;
+import me.pesekjak.machine.entities.player.PlayerProfile;
 import me.pesekjak.machine.entities.player.PlayerProfileImpl;
 import me.pesekjak.machine.translation.PacketTranslator;
 import me.pesekjak.machine.network.ClientConnection;
@@ -15,15 +16,15 @@ import java.io.IOException;
 public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart> {
 
     @Override
-    public boolean translate(ClientConnection connection, PacketLoginInStart packet) {
+    public boolean translate(@NotNull ClientConnection connection, @NotNull PacketLoginInStart packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(ClientConnection connection, PacketLoginInStart packet) {
+    public void translateAfter(@NotNull ClientConnection connection, @NotNull PacketLoginInStart packet) {
         connection.setLoginUsername(packet.getUsername());
         if(!connection.getServer().isOnline()) {
-            final PlayerProfileImpl profile = PlayerProfileImpl.offline(packet.getUsername());
+            final PlayerProfile profile = PlayerProfileImpl.offline(packet.getUsername());
             try {
                 connection.sendPacket(new PacketLoginOutSuccess(profile.getUuid(), profile.getUsername(), profile.getTextures()));
             } catch (IOException exception) {
@@ -35,7 +36,7 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
             ServerPlayer.spawn(connection.getServer(), profile, connection);
             return;
         }
-        OnlineServerImpl onlineServer = connection.getServer().getOnlineServer();
+        OnlineServer onlineServer = connection.getServer().getOnlineServer();
         if(onlineServer == null) {
             connection.disconnect();
             throw new IllegalStateException("Online server hasn't been initialized");

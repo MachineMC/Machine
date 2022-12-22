@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Synchronized;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.chunk.Chunk;
-import me.pesekjak.machine.chunk.WorldChunk;
 import me.pesekjak.machine.chunk.ChunkUtils;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.entities.Entity;
@@ -146,7 +145,7 @@ public class ServerWorld extends WorldImpl {
     }
 
     @Override
-    public @NotNull WorldChunk getChunk(int chunkX, int chunkZ) {
+    public @NotNull Chunk getChunk(int chunkX, int chunkZ) {
         final int regionX = ChunkUtils.getRegionCoordinate(chunkX);
         final int regionZ = ChunkUtils.getRegionCoordinate(chunkZ);
         Region region = regionMap.get(createRegionIndex(regionX, regionZ));
@@ -166,7 +165,7 @@ public class ServerWorld extends WorldImpl {
         final int relativeZ = Math.abs((chunkZ + 32) % 32);
 
         boolean generation = region.shouldGenerate(relativeX, relativeZ);
-        WorldChunk chunk = region.getChunk(Math.abs((chunkX + 32) % 32), Math.abs((chunkZ + 32) % 32));
+        Chunk chunk = region.getChunk(Math.abs((chunkX + 32) % 32), Math.abs((chunkZ + 32) % 32));
         if(!generation) return chunk;
         final int minY = getDimensionType().getMinY();
         for (int x = 0; x < 16; x++) {

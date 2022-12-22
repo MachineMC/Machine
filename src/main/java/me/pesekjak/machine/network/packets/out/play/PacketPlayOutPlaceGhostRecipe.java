@@ -7,6 +7,7 @@ import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -17,15 +18,14 @@ public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
     private static final int ID = 0x30;
 
     private byte windowId;
-    @NotNull
-    private NamespacedKey recipe;
+    private @NotNull NamespacedKey recipe;
 
     static {
         register(PacketPlayOutPlaceGhostRecipe.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutPlaceGhostRecipe::new);
     }
 
-    public PacketPlayOutPlaceGhostRecipe(FriendlyByteBuf buf) {
+    public PacketPlayOutPlaceGhostRecipe(@NotNull ServerBuffer buf) {
         windowId = buf.readByte();
         recipe = buf.readNamespacedKey();
     }

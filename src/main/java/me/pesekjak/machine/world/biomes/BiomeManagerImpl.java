@@ -3,8 +3,6 @@ package me.pesekjak.machine.world.biomes;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.Machine;
-import me.pesekjak.machine.server.ServerProperty;
-import me.pesekjak.machine.server.codec.CodecPart;
 import me.pesekjak.machine.utils.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -117,18 +117,18 @@ public enum ChatType implements NBTSerializable {
             )
     );
 
-    @Getter @NotNull
-    private final NamespacedKey name;
-    @Getter(AccessLevel.PROTECTED) @NotNull
-    protected final Element chatElement;
-    @Getter(AccessLevel.PROTECTED) @NotNull
-    protected final Element narrationElement;
+    @Getter
+    private final @NotNull NamespacedKey name;
+    @Getter(AccessLevel.PROTECTED)
+    protected final @NotNull Element chatElement;
+    @Getter(AccessLevel.PROTECTED)
+    protected final @NotNull Element narrationElement;
 
     public int getId() {
         return ordinal();
     }
 
-    public static ChatType fromID(@Range(from = 0, to = 7) int id) {
+    public static @NotNull ChatType fromID(@Range(from = 0, to = 7) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported Chat type");
         return values()[id];
     }
@@ -151,12 +151,12 @@ public enum ChatType implements NBTSerializable {
      * Chat and Narration types of chat types, contain information
      * about their parameters, translation key and chat style.
      */
-    protected record Element(ElementType type,
-                             Set<Parameter> parameters,
-                             String translationKey,
+    protected record Element(@NotNull ElementType type,
+                             @NotNull Set<Parameter> parameters,
+                             @NotNull String translationKey,
                              @Nullable Style style) implements NBTSerializable {
 
-        static final Element DEFAULT_NARRATION_ELEMENT = Element.narration(
+        static final @NotNull Element DEFAULT_NARRATION_ELEMENT = Element.narration(
                 Set.of(Parameter.SENDER, Parameter.CONTENT),
                 "chat.type.text.narrate",
                 null);
@@ -168,7 +168,7 @@ public enum ChatType implements NBTSerializable {
          * @param style chat style of the element
          * @return created chat type element
          */
-        public static Element chat(Set<Parameter> parameters, String translationKey, @Nullable Style style) {
+        public static @NotNull Element chat(Set<Parameter> parameters, String translationKey, @Nullable Style style) {
             return new Element(ElementType.CHAT, parameters, translationKey, style);
         }
         /**
@@ -178,7 +178,7 @@ public enum ChatType implements NBTSerializable {
          * @param style chat style of the element
          * @return created chat type element
          */
-        public static Element narration(Set<Parameter> parameters, String translationKey, @Nullable Style style) {
+        public static @NotNull Element narration(Set<Parameter> parameters, String translationKey, @Nullable Style style) {
             return new Element(ElementType.NARRATION, parameters, translationKey, style);
         }
 
@@ -229,7 +229,7 @@ public enum ChatType implements NBTSerializable {
         CHAT("chat"),
         NARRATION("narration");
         @Getter
-        private final String name;
+        private final @NotNull String name;
     }
 
     /**
@@ -241,7 +241,7 @@ public enum ChatType implements NBTSerializable {
         TARGET("target"),
         CONTENT("content");
         @Getter
-        private final String name;
+        private final @NotNull String name;
     }
 
 }

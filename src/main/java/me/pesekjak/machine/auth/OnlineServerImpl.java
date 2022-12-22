@@ -2,21 +2,20 @@ package me.pesekjak.machine.auth;
 
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
+import org.jetbrains.annotations.NotNull;
 
 import java.security.KeyPair;
 
 /**
- * Adds functionality to Machine server in online mode
+ * Default functionality of the online server.
  */
+@Getter
 public class OnlineServerImpl implements OnlineServer {
 
-    @Getter
-    private final Machine server;
+    private final @NotNull Machine server;
+    protected final @NotNull KeyPair key;
 
-    @Getter
-    protected final KeyPair key;
-
-    public OnlineServerImpl(Machine server) {
+    public OnlineServerImpl(@NotNull Machine server) {
         this.server = server;
         key = Crypt.generateKeyPair();
     }

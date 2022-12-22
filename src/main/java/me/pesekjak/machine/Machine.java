@@ -5,19 +5,22 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
+import me.pesekjak.machine.auth.OnlineServer;
 import me.pesekjak.machine.auth.OnlineServerImpl;
+import me.pesekjak.machine.chat.Messenger;
 import me.pesekjak.machine.chat.MessengerImpl;
 import me.pesekjak.machine.commands.CommandExecutor;
 import me.pesekjak.machine.commands.ServerCommands;
+import me.pesekjak.machine.entities.EntityManager;
 import me.pesekjak.machine.entities.EntityManagerImpl;
 import me.pesekjak.machine.entities.Player;
+import me.pesekjak.machine.exception.ExceptionHandler;
+import me.pesekjak.machine.file.*;
 import me.pesekjak.machine.inventory.ItemStack;
+import me.pesekjak.machine.network.ServerConnection;
+import me.pesekjak.machine.server.PlayerManager;
 import me.pesekjak.machine.translation.TranslatorDispatcher;
 import me.pesekjak.machine.exception.ExceptionHandlerImpl;
-import me.pesekjak.machine.file.DimensionsJson;
-import me.pesekjak.machine.file.PlayerDataContainerImpl;
-import me.pesekjak.machine.file.ServerPropertiesImpl;
-import me.pesekjak.machine.file.WorldJson;
 import me.pesekjak.machine.logging.ServerConsole;
 import me.pesekjak.machine.logging.Console;
 import me.pesekjak.machine.network.ServerConnectionImpl;
@@ -66,46 +69,46 @@ public class Machine implements Server {
     private Console console;
 
     @Getter
-    protected ExceptionHandlerImpl exceptionHandler;
+    protected @NotNull ExceptionHandler exceptionHandler;
 
-    @Getter @Nullable
-    private OnlineServerImpl onlineServer;
+    @Getter
+    private @Nullable OnlineServer onlineServer;
 
     @Getter
     protected final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
     @Getter
-    protected ServerPropertiesImpl properties;
+    protected ServerProperties properties;
 
     @Getter
     protected TranslatorDispatcher translatorDispatcher;
 
     @Getter
-    protected Scheduler scheduler;
+    protected @NotNull Scheduler scheduler;
 
     @Getter
-    protected CommandDispatcher<CommandExecutor> commandDispatcher;
+    protected @NotNull CommandDispatcher<CommandExecutor> commandDispatcher;
 
     @Getter
-    protected DimensionTypeManager dimensionTypeManager;
+    protected @NotNull DimensionTypeManager dimensionTypeManager;
     @Getter
-    protected MessengerImpl messenger;
+    protected @NotNull Messenger messenger;
     @Getter
-    protected WorldManager worldManager;
+    protected @NotNull WorldManager worldManager;
     @Getter
-    protected BiomeManager biomeManager;
+    protected @NotNull BiomeManager biomeManager;
     @Getter
-    protected EntityManagerImpl entityManager;
+    protected @NotNull EntityManager entityManager;
     @Getter
-    protected PlayerManagerImpl playerManager;
+    protected @NotNull PlayerManager playerManager;
     @Getter
-    protected BlockManager blockManager;
+    protected @NotNull BlockManager blockManager;
     @Getter
-    private PlayerDataContainerImpl playerDataContainer;
+    private PlayerDataContainer playerDataContainer;
 
     @Getter
-    protected ServerConnectionImpl connection;
+    protected ServerConnection connection;
 
     @Getter
     protected World defaultWorld;

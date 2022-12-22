@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -23,7 +24,7 @@ public class PacketStatusInPing extends PacketIn {
         );
     }
 
-    public PacketStatusInPing(FriendlyByteBuf buf) {
+    public PacketStatusInPing(@NotNull ServerBuffer buf) {
         payload = buf.readLong();
     }
 

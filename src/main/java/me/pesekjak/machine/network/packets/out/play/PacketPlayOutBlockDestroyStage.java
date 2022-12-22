@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.world.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,8 +18,7 @@ public class PacketPlayOutBlockDestroyStage extends PacketOut {
     private static final int ID = 0x06;
 
     private int entityId;
-    @NotNull
-    private BlockPosition position;
+    private @NotNull BlockPosition position;
     private byte destroyStage;
 
     static {
@@ -26,7 +26,7 @@ public class PacketPlayOutBlockDestroyStage extends PacketOut {
                 PacketPlayOutBlockDestroyStage::new);
     }
 
-    public PacketPlayOutBlockDestroyStage(FriendlyByteBuf buf) {
+    public PacketPlayOutBlockDestroyStage(@NotNull ServerBuffer buf) {
         entityId = buf.readVarInt();
         position = buf.readBlockPos();
         destroyStage = buf.readByte();

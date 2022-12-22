@@ -28,47 +28,51 @@ import java.util.logging.Level;
 
 import static me.pesekjak.machine.chat.ChatUtils.asciiColor;
 
+/**
+ * Represents default console implementation with colors support, tab
+ * completion, highlighter and history.
+ */
 public class ServerConsole implements Console {
 
     @Getter
-    private final Machine server;
+    private final @NotNull Machine server;
     @Getter @Setter
     private boolean colors;
 
-    private final Terminal terminal;
-    private volatile LineReader reader;
+    private final @NotNull Terminal terminal;
+    private volatile @Nullable LineReader reader;
 
     @Getter
-    private final Completer completer;
+    private final @NotNull Completer completer;
     @Getter
-    private final Highlighter highlighter;
+    private final @NotNull Highlighter highlighter;
     @Getter
-    private final History history;
+    private final @NotNull History history;
 
     private volatile boolean running = false;
 
     @Getter @Setter
-    private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private @Nullable DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
     @Getter @Setter @NotNull
     private String
             configPrefix = "CONFIG",
             infoPrefix = "INFO",
             warningPrefix = "WARNING",
             severePrefix = "SEVERE";
-    @Getter @Setter @Nullable
-    private TextColor
+    @Getter @Setter
+    private @Nullable TextColor
             configColor = null,
             infoColor = null,
             warningColor = ChatColor.GOLD.asStyle().color(),
             severeColor = ChatColor.RED.asStyle().color();
 
     @Getter @Setter
-    private String prompt = "> ";
+    private @NotNull String prompt = "> ";
 
     public static final String RESET = "\033[0m";
     public static final String EMPTY = "";
 
-    public ServerConsole(Machine server, boolean colors) {
+    public ServerConsole(@NotNull Machine server, boolean colors) {
         this.server = server;
         this.colors = colors;
         try {
@@ -91,12 +95,13 @@ public class ServerConsole implements Console {
             default -> "";
         };
         final String date = now();
+        final LineReader reader = this.reader;
         for(String message : messages) {
             final String formatted = colors ? "[" + date + "] " + prefix + ChatUtils.consoleFormatted(message) + RESET
                     : "[" + date + "] " + prefix + message;
-            if(reader != null && running)
+            if(reader != null && running) {
                 reader.printAbove(formatted);
-            else
+            } else
                 terminal.writer().println(formatted);
         }
     }
@@ -111,7 +116,6 @@ public class ServerConsole implements Console {
 
     @Override
     public void start() {
-        if(server.getScheduler() == null) throw new IllegalStateException();
         if(running) throw new IllegalStateException("The console is already running");
         running = true;
         reader = LineReaderBuilder.builder()
@@ -120,6 +124,8 @@ public class ServerConsole implements Console {
                 .history(history)
                 .terminal(terminal)
                 .build();
+        final LineReader reader = this.reader;
+        if(reader == null) return;
         Scheduler.task((i, session) -> {
             while(running) {
                 try {
@@ -134,10 +140,6 @@ public class ServerConsole implements Console {
     @Override
     public void stop() {
         running = false;
-    }
-
-    private String now() {
-        return dateFormatter != null ? dateFormatter.format(LocalDateTime.now()) : EMPTY;
     }
 
     @Override
@@ -159,6 +161,14 @@ public class ServerConsole implements Console {
                     .append(Component.text("<--[HERE]").style(ChatColor.RED.asStyle())));
             return -1;
         }
+    }
+
+    /**
+     * Returns a current date using console's date formatter.
+     * @return formatted date
+     */
+    private @NotNull String now() {
+        return dateFormatter != null ? dateFormatter.format(LocalDateTime.now()) : EMPTY;
     }
 
 }

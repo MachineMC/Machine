@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.world.Difficulty;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,8 +17,8 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
 
     private static final int ID = 0x0B;
 
-    @Setter @NotNull
-    private Difficulty difficulty;
+    @Setter
+    private @NotNull Difficulty difficulty;
     // Always locked in multiplayer
     private final boolean isLocked = true;
 
@@ -26,7 +27,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
                 PacketPlayOutChangeDifficulty::new);
     }
 
-    public PacketPlayOutChangeDifficulty(FriendlyByteBuf buf) {
+    public PacketPlayOutChangeDifficulty(@NotNull ServerBuffer buf) {
         difficulty = Difficulty.fromID(buf.readByte());
         buf.readBoolean();
     }

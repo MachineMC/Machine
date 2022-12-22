@@ -9,6 +9,7 @@ import me.pesekjak.machine.entities.player.Hand;
 import me.pesekjak.machine.entities.player.SkinPart;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -21,16 +22,12 @@ public class PacketPlayInClientInformation extends PacketIn {
 
     private static final int ID = 0x08;
 
-    @NotNull
-    private String locale;
+    private @NotNull String locale;
     private byte viewDistance;
-    @NotNull
-    private ChatMode chatMode;
+    private @NotNull ChatMode chatMode;
     private boolean chatColor;
-    @NotNull
-    private Set<SkinPart> displayedSkinParts;
-    @NotNull
-    private Hand mainHand;
+    private @NotNull Set<SkinPart> displayedSkinParts;
+    private @NotNull Hand mainHand;
     private boolean enableTextFiltering;
     private boolean allowServerListings;
 
@@ -39,7 +36,7 @@ public class PacketPlayInClientInformation extends PacketIn {
                 PacketPlayInClientInformation::new);
     }
 
-    public PacketPlayInClientInformation(FriendlyByteBuf buf) {
+    public PacketPlayInClientInformation(@NotNull ServerBuffer buf) {
         locale = buf.readString(StandardCharsets.UTF_8);
         viewDistance = buf.readByte();
         chatMode = ChatMode.fromID(buf.readVarInt());

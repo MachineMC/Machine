@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.world.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,15 +16,15 @@ public class PacketPlayOutOpenSignEditor extends PacketOut {
 
     private static final int ID = 0x2E;
 
-    @Getter @Setter @NotNull
-    private BlockPosition position;
+    @Getter @Setter
+    private @NotNull BlockPosition position;
 
     static {
         register(PacketPlayOutOpenSignEditor.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutOpenSignEditor::new);
     }
 
-    public PacketPlayOutOpenSignEditor(FriendlyByteBuf buf) {
+    public PacketPlayOutOpenSignEditor(@NotNull ServerBuffer buf) {
         position = buf.readBlockPos();
     }
 

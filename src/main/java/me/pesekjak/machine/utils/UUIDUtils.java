@@ -3,7 +3,6 @@ package me.pesekjak.machine.utils;
 import com.google.common.base.Preconditions;
 import lombok.experimental.UtilityClass;
 import org.intellij.lang.annotations.RegExp;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +24,6 @@ public class UUIDUtils {
      * @param ints The ints (must be an array of 4 integers)
      * @return The UUID
      */
-    @Contract("_ -> new")
     public static @NotNull UUID uuidFromIntArray(int @NotNull [] ints) {
         Preconditions.checkArgument(ints.length == 4, "The length of ints must be 4");
         return new UUID((long) ints[0] << 32 | (long) ints[1] & 4294967295L, (long) ints[2] << 32 | (long) ints[3] & 4294967295L);
@@ -36,7 +34,6 @@ public class UUIDUtils {
      * @param uuid The UUID
      * @return The int array
      */
-    @Contract(pure = true)
     public static int @NotNull [] uuidToIntArray(@NotNull UUID uuid) {
         long most = uuid.getMostSignificantBits();
         long least = uuid.getLeastSignificantBits();
@@ -49,7 +46,6 @@ public class UUIDUtils {
      * @param least The least bits of a UUID
      * @return The int array
      */
-    @Contract(value = "_, _ -> new", pure = true)
     private static int @NotNull [] leastMostToIntArray(long most, long least) {
         return new int[]{(int) (most >> 32), (int) most, (int) (least >> 32), (int) least};
     }
@@ -59,7 +55,6 @@ public class UUIDUtils {
      * @param string the string uuid
      * @return parsed uuid
      */
-    @Contract(value = "null -> null", pure = true)
     public static @Nullable UUID parseUUID(@Nullable String string) {
         if (string == null)
             return null;

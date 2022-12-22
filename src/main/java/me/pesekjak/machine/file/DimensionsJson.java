@@ -11,6 +11,7 @@ import me.pesekjak.machine.world.dimensions.DimensionType;
 import me.pesekjak.machine.world.dimensions.DimensionTypeImpl;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.Collections;
@@ -27,7 +28,7 @@ public class DimensionsJson implements ServerFile, ServerProperty {
 
     @Getter
     private final @NotNull Machine server;
-    private final @NotNull Set<DimensionTypeImpl> dimensions = new LinkedHashSet<>();
+    private final @NotNull Set<DimensionType> dimensions = new LinkedHashSet<>();
 
     public DimensionsJson(@NotNull Machine server, @NotNull File file) throws IOException {
         this.server = server;
@@ -105,7 +106,7 @@ public class DimensionsJson implements ServerFile, ServerProperty {
     }
 
     @Override
-    public InputStream getOriginal() {
+    public @Nullable InputStream getOriginal() {
         return Machine.CLASS_LOADER.getResourceAsStream(DIMENSIONS_FILE_NAME);
     }
 

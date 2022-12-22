@@ -2,7 +2,6 @@ package me.pesekjak.machine.inventory;
 
 import lombok.Data;
 import me.pesekjak.machine.world.Material;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
@@ -36,7 +35,6 @@ public class ItemStack implements Item {
      * @param id id of the material
      * @return material with the id
      */
-    @Contract(pure = true)
     public static @Nullable Material getMaterial(int id) {
         if(id == -1) return null;
         if(REGISTRY.length <= id) return null;
@@ -48,7 +46,6 @@ public class ItemStack implements Item {
      * @param material material to get id from
      * @return id of the material
      */
-    @Contract(pure = true)
     public static int getId(@NotNull Material material) {
         return material.getId();
     }

@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -23,7 +24,7 @@ public class PacketPlayOutSetExperience extends PacketOut {
                 PacketPlayOutSetExperience::new);
     }
 
-    public PacketPlayOutSetExperience(FriendlyByteBuf buf) {
+    public PacketPlayOutSetExperience(@NotNull ServerBuffer buf) {
         experienceBar = buf.readFloat();
         level = buf.readVarInt();
         totalExperience = buf.readVarInt();

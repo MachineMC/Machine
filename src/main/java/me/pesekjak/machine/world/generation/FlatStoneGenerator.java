@@ -5,7 +5,6 @@ import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.blocks.BlockManager;
-import me.pesekjak.machine.world.blocks.BlockManagerImpl;
 import me.pesekjak.machine.world.blocks.BlockType;
 import org.jetbrains.annotations.NotNull;
 

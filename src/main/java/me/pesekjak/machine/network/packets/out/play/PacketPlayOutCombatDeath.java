@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,15 +19,14 @@ public class PacketPlayOutCombatDeath extends PacketOut {
 
     private int playerId;
     private int entityId;
-    @NotNull
-    private Component deathMessage;
+    private @NotNull Component deathMessage;
 
     static {
         register(PacketPlayOutCombatDeath.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutCombatDeath::new);
     }
 
-    public PacketPlayOutCombatDeath(FriendlyByteBuf buf) {
+    public PacketPlayOutCombatDeath(@NotNull ServerBuffer buf) {
         playerId = buf.readVarInt();
         entityId = buf.readInt();
         deathMessage = buf.readComponent();

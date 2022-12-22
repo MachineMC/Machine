@@ -5,13 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.auth.PublicKeyData;
-import me.pesekjak.machine.auth.PublicKeyDataImpl;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.entities.player.PlayerTextures;
-import me.pesekjak.machine.entities.player.PlayerTexturesImpl;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,40 +25,38 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
 
     private static final int ID = 0x37;
 
-    @NotNull
-    private Action action;
-    @NotNull
-    private PlayerInfoData[] playerInfoDataArray;
+    private @NotNull Action action;
+    private PlayerInfoData @NotNull [] playerInfoDataArray;
 
     static {
         register(PacketPlayOutPlayerInfo.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutPlayerInfo::new);
     }
 
-    public PacketPlayOutPlayerInfo(Action action, PlayerInfoData... playerInfoDataArray) {
+    public PacketPlayOutPlayerInfo(@NotNull Action action, PlayerInfoData @NotNull ... playerInfoDataArray) {
         this.action = action;
         this.playerInfoDataArray = playerInfoDataArray;
     }
 
-    public PacketPlayOutPlayerInfo(Action action, Player... players) {
+    public PacketPlayOutPlayerInfo(@NotNull Action action, Player @NotNull ... players) {
         this.action = action;
         playerInfoDataArray = new PlayerInfoData[players.length];
         for (int i = 0; i < players.length; i++)
             playerInfoDataArray[i] = new PlayerInfoData(players[i]);
     }
 
-    public PacketPlayOutPlayerInfo(FriendlyByteBuf buf) {
+    public PacketPlayOutPlayerInfo(@NotNull ServerBuffer buf) {
         action = Action.fromID(buf.readVarInt());
         int playerAmount = buf.readVarInt();
         playerInfoDataArray = new PlayerInfoData[playerAmount];
         for (int i = 0; i < playerAmount; i++) {
             UUID uuid = buf.readUUID();
             String name = null;
-            PlayerTexturesImpl skin = null;
+            PlayerTextures skin = null;
             Gamemode gamemode = null;
             int latency = 0;
             Component displayName = null;
-            PublicKeyDataImpl publicKeyData = null;
+            PublicKeyData publicKeyData = null;
             switch (action) {
                 case ADD_PLAYER -> {
                     name = buf.readString(StandardCharsets.UTF_8);

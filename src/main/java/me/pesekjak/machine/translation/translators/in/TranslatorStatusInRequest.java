@@ -11,12 +11,12 @@ import java.io.IOException;
 public class TranslatorStatusInRequest extends PacketTranslator<PacketStatusInRequest> {
 
     @Override
-    public boolean translate(ClientConnection connection, PacketStatusInRequest packet) {
+    public boolean translate(@NotNull ClientConnection connection, @NotNull PacketStatusInRequest packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(ClientConnection connection, PacketStatusInRequest packet) {
+    public void translateAfter(@NotNull ClientConnection connection, @NotNull PacketStatusInRequest packet) {
         try {
             connection.sendPacket(new PacketStatusOutResponse(connection.getServer().statusJson()));
         } catch (IOException ignored) { }

@@ -12,16 +12,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * Default implementation of player data container
+ */
 public class PlayerDataContainerImpl implements PlayerDataContainer {
 
     public final static String DEFAULT_PLAYER_DATA_FOLDER = "playerdata";
 
     @Getter(AccessLevel.PRIVATE)
-    private final File playerDataFolder;
+    private final @NotNull File playerDataFolder;
     @Getter
-    private final Machine server;
+    private final @NotNull Machine server;
 
-    public PlayerDataContainerImpl(Machine server) {
+    public PlayerDataContainerImpl(@NotNull Machine server) {
         this.server = server;
         playerDataFolder = new File(DEFAULT_PLAYER_DATA_FOLDER);
         if(!playerDataFolder.exists() && !playerDataFolder.mkdirs())
@@ -34,7 +37,12 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
         return NBTUtils.deserializeNBTFile(playerDataFile) instanceof NBTCompound nbtCompound ? nbtCompound : null;
     }
 
-    private File getPlayerDataFile(UUID uuid) {
+    /**
+     * Returns player data file for player with given uuid.
+     * @param uuid uuid of the player
+     * @return player's data file
+     */
+    private @NotNull File getPlayerDataFile(@NotNull UUID uuid) {
         File playerDataFile = new File(new File(DEFAULT_PLAYER_DATA_FOLDER), uuid + ".dat");
         try {
             if(!playerDataFile.exists() && !playerDataFile.createNewFile()) {
@@ -47,6 +55,10 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
         return playerDataFile;
     }
 
+    /**
+     * Saves players data file with the newest information
+     * @param player player to save data for
+     */
     @Override
     public void savePlayerData(@NotNull Player player) {
         player.serializeNBT(getPlayerDataFile(player.getUuid()));

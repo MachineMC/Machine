@@ -1,7 +1,5 @@
 package me.pesekjak.machine.auth;
 
-import me.pesekjak.machine.utils.ServerBuffer;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.PublicKey;
@@ -9,9 +7,9 @@ import java.time.Instant;
 import java.util.Arrays;
 
 /**
- * The public key the client received from Mojang.
+ * Default implementation of public key data.
  */
-public record PublicKeyDataImpl(PublicKey publicKey, byte[] signature, Instant timestamp) implements PublicKeyData {
+public record PublicKeyDataImpl(@NotNull PublicKey publicKey, byte @NotNull [] signature, @NotNull Instant timestamp) implements PublicKeyData {
 
     /**
      * @return true if data are expired
@@ -20,7 +18,6 @@ public record PublicKeyDataImpl(PublicKey publicKey, byte[] signature, Instant t
         return timestamp.isBefore(Instant.now());
     }
 
-    @Contract(pure = true)
     @Override
     public @NotNull String toString() {
         return "PublicKeyData(" +

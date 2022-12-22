@@ -1,9 +1,13 @@
 package me.pesekjak.machine.network;
 
-import me.pesekjak.machine.network.packets.PacketImpl;
+import me.pesekjak.machine.network.packets.Packet;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * Object holding a server packet.
+ */
 public interface PacketHolder {
 
-    PacketImpl getPacket();
+    @Nullable Packet getPacket();
 
 }

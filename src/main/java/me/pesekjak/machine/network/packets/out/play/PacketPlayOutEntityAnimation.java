@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -18,15 +19,14 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
     private static final int ID = 0x03;
 
     private int entityId;
-    @NotNull
-    private Animation animation;
+    private @NotNull Animation animation;
 
     static {
         register(PacketPlayOutEntityAnimation.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutEntityAnimation::new);
     }
 
-    public PacketPlayOutEntityAnimation(FriendlyByteBuf buf) {
+    public PacketPlayOutEntityAnimation(@NotNull ServerBuffer buf) {
         entityId = buf.readVarInt();
         animation = Animation.fromID(buf.readByte());
     }

@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -22,7 +23,7 @@ public class PacketPlayOutUpdateTime extends PacketOut {
                 PacketPlayOutUpdateTime::new);
     }
 
-    public PacketPlayOutUpdateTime(FriendlyByteBuf buf) {
+    public PacketPlayOutUpdateTime(@NotNull ServerBuffer buf) {
         worldAge = buf.readLong();
         timeOfDay = buf.readLong();
     }

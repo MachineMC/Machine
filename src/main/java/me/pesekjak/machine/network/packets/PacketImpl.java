@@ -6,6 +6,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
+/**
+ * Default packet implementation.
+ */
 public abstract class PacketImpl implements Packet {
 
     /**
@@ -80,6 +83,9 @@ public abstract class PacketImpl implements Packet {
         return getCompressedPacketData().length;
     }
 
+    /**
+     * @return compressed packet data, id included
+     */
     private byte @NotNull [] getCompressedPacketData() {
         try {
             return ZLib.compress(new FriendlyByteBuf()

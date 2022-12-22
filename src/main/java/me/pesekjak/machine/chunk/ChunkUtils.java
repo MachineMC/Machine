@@ -1,11 +1,13 @@
 package me.pesekjak.machine.chunk;
 
+import lombok.experimental.UtilityClass;
 import me.pesekjak.machine.world.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
 import static me.pesekjak.machine.chunk.Chunk.CHUNK_SIZE_BITS;
 
-public final class ChunkUtils {
+@UtilityClass
+public class ChunkUtils {
 
     /**
      * Magic number for MOTION_BLOCKING encoding.
@@ -34,17 +36,11 @@ public final class ChunkUtils {
             70409299, 70409299, 0, 69273666, 69273666, 0, 68174084, 68174084, 0, Integer.MIN_VALUE,
             0, 5};
 
-    private ChunkUtils() {
-        throw new UnsupportedOperationException();
-    }
-
     /**
      * Converts a global coordinate to a coordinate of
      * the section the it's in.
-     * Example:
-     *     5 -> 0
-     *     -1 -> -1
-     *     16 -> 1
+     * <p>
+     * Example: 5 -> 0; -1 -> -1; 16 -> 1
      * @param xyz the coordinate to convert
      * @return the chunk X, Y or Z coordinate
      */
@@ -54,10 +50,8 @@ public final class ChunkUtils {
 
     /**
      * Converts a global coordinate to a section coordinate.
-     * Example:
-     *     5 -> 5
-     *     -1 -> 15
-     *     16 -> 0
+     * <p>
+     * Example: 5 -> 5; -1 -> 15; 16 -> 0
      * @param xyz global coordinate
      * @return section coordinate
      */
@@ -107,7 +101,7 @@ public final class ChunkUtils {
      * @param bitsPerEntry bits per entry
      * @return encoded blocks
      */
-    public static long[] encodeBlocks(int[] blocks, int bitsPerEntry) {
+    public static long @NotNull [] encodeBlocks(int @NotNull [] blocks, int bitsPerEntry) {
         final long maxEntryValue = (1L << bitsPerEntry) - 1;
         final int valuesPerLong = (64 / bitsPerEntry);
         final int magicIndex = 3 * (valuesPerLong - 1);

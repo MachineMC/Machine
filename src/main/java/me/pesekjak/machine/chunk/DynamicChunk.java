@@ -1,6 +1,5 @@
 package me.pesekjak.machine.chunk;
 
-import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.chunk.data.ChunkData;
 import me.pesekjak.machine.chunk.data.LightData;
 import me.pesekjak.machine.entities.Entity;
@@ -13,10 +12,7 @@ import me.pesekjak.machine.utils.math.MathUtils;
 import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.biomes.Biome;
-import me.pesekjak.machine.world.blocks.BlockType;
-import me.pesekjak.machine.world.blocks.BlockTypeImpl;
-import me.pesekjak.machine.world.blocks.BlockVisual;
-import me.pesekjak.machine.world.blocks.WorldBlockImpl;
+import me.pesekjak.machine.world.blocks.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
@@ -30,13 +26,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DynamicChunk extends WorldChunk {
 
-    private final Map<Integer, WorldBlockImpl> blocks = new ConcurrentHashMap<>();
+    private final Map<Integer, WorldBlock> blocks = new ConcurrentHashMap<>();
     private final List<SectionImpl> sections = new ArrayList<>();
 
     private final int bottom;
     private final int height;
 
-    public DynamicChunk(World world, int chunkX, int chunkZ) {
+    public DynamicChunk(@NotNull World world, int chunkX, int chunkZ) {
         super(world, chunkX, chunkZ);
         if(world.getManager() == null) throw new IllegalStateException("The world has to have a manager");
         bottom = world.getDimensionType().getMinY();
@@ -46,14 +42,14 @@ public class DynamicChunk extends WorldChunk {
     }
 
     @Override
-    public @NotNull WorldBlockImpl getBlock(int x, int y, int z) {
+    public @NotNull WorldBlock getBlock(int x, int y, int z) {
         return blocks.get(ChunkUtils.getBlockIndex(x, y, z));
     }
 
     @Override
-    public @NotNull WorldBlockImpl setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
-        final WorldBlockImpl previous = getBlock(x, y, z);
-        if(previous != null)
+    public @NotNull WorldBlock setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
+        final WorldBlock previous = getBlock(x, y, z);
+        if(previous != null) // TODO this can happen but shouldn't, fix
             previous.getBlockType().destroy(previous, replaceReason != null ? replaceReason : BlockTypeImpl.DestroyReason.OTHER, null);
         final int index = ChunkUtils.getBlockIndex(x, y, z);
         BlockPosition position = ChunkUtils.getBlockPosition(index, chunkX, chunkZ);
@@ -81,7 +77,10 @@ public class DynamicChunk extends WorldChunk {
                 ChunkUtils.getSectionRelativeCoordinate(x) / 4,
                 ChunkUtils.getSectionRelativeCoordinate(y) / 4,
                 ChunkUtils.getSectionRelativeCoordinate(z) / 4);
-        return ((Machine) world.getManager().getServer()).getBiomeManager().getById(id);
+        if(world.getManager() == null) throw new IllegalStateException();
+        final Biome biome = world.getManager().getServer().getBiomeManager().getById(id);
+        if(biome == null) throw new IllegalStateException();
+        return biome;
     }
 
     @Override
@@ -96,7 +95,7 @@ public class DynamicChunk extends WorldChunk {
     }
 
     @Override
-    public @NotNull SectionImpl getSection(int section) {
+    public @NotNull Section getSection(int section) {
         if(sections.get(section) == null) throw new IllegalStateException();
         return sections.get(section);
     }
@@ -132,7 +131,7 @@ public class DynamicChunk extends WorldChunk {
     /**
      * @return chunk data of this chunk
      */
-    private ChunkData createChunkData() {
+    private @NotNull ChunkData createChunkData() {
         int[] motionBlocking = new int[16 * 16];
         int[] worldSurface = new int[16 * 16];
         for (int x = 0; x < 16; x++) {
@@ -158,7 +157,7 @@ public class DynamicChunk extends WorldChunk {
     /**
      * @return light data of this chunk
      */
-    private LightData createLightData() {
+    private @NotNull LightData createLightData() {
         BitSet skyMask = new BitSet();
         BitSet blockMask = new BitSet();
         BitSet emptySkyMask = new BitSet();
@@ -192,7 +191,7 @@ public class DynamicChunk extends WorldChunk {
     /**
      * @return chunk packet of this chunk
      */
-    private PacketPlayOutChunkData createChunkPacket() {
+    private @NotNull PacketPlayOutChunkData createChunkPacket() {
         return new PacketPlayOutChunkData(chunkX, chunkZ,
                 createChunkData(),
                 createLightData());
@@ -201,7 +200,7 @@ public class DynamicChunk extends WorldChunk {
     /**
      * @return light packet of this chunk
      */
-    private PacketPlayOutUpdateLight createLightPacket() {
+    private @NotNull PacketPlayOutUpdateLight createLightPacket() {
         return new PacketPlayOutUpdateLight(chunkX, chunkZ, createLightData());
     }
 

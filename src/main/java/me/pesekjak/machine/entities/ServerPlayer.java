@@ -7,14 +7,11 @@ import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.chat.ChatColor;
 import me.pesekjak.machine.chat.ChatMode;
 import me.pesekjak.machine.chat.ChatUtils;
-import me.pesekjak.machine.entities.player.Gamemode;
-import me.pesekjak.machine.entities.player.Hand;
-import me.pesekjak.machine.entities.player.PlayerProfileImpl;
-import me.pesekjak.machine.entities.player.SkinPart;
+import me.pesekjak.machine.entities.player.*;
 import me.pesekjak.machine.network.ClientConnection;
 import me.pesekjak.machine.network.packets.out.play.*;
 import me.pesekjak.machine.network.packets.out.play.PacketPlayOutGameEvent.Event;
-import me.pesekjak.machine.server.PlayerManagerImpl;
+import me.pesekjak.machine.server.PlayerManager;
 import me.pesekjak.machine.server.codec.Codec;
 import me.pesekjak.machine.world.*;
 import net.kyori.adventure.audience.MessageType;
@@ -30,36 +27,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Default implementation of player
+ */
 public class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Getter
-    private final ClientConnection connection;
+    private final @NotNull ClientConnection connection;
     @Getter @Setter
-    private PlayerProfileImpl profile;
+    private @NotNull PlayerProfile profile;
 
     @Getter
-    private Gamemode gamemode = Gamemode.CREATIVE; // for now
+    private @NotNull Gamemode gamemode = Gamemode.CREATIVE; // for now
     @Getter @Nullable
-    private Gamemode previousGamemode = null;
+    private @NotNull Gamemode previousGamemode = null;
 
     @Getter @Setter
-    private String locale;
+    private @NotNull String locale;
     @Getter @Setter
     private byte viewDistance;
     @Getter @Setter
-    private ChatMode chatMode;
+    private @NotNull ChatMode chatMode;
     @Getter @Setter
-    private Set<SkinPart> displayedSkinParts;
+    private @NotNull Set<SkinPart> displayedSkinParts;
     @Getter @Setter
-    private Hand mainHand;
+    private @NotNull Hand mainHand;
     @Getter @Setter
     private int latency = 0;
     @Getter
-    private Component displayName;
+    private @NotNull Component displayName;
     @Getter
-    private Component playerListName;
+    private @NotNull Component playerListName;
 
-    private ServerPlayer(Machine server, @NotNull PlayerProfileImpl profile, @NotNull ClientConnection connection) {
+    private ServerPlayer(@NotNull Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUuid());
         this.profile = profile;
         if(connection.getOwner() != null)
@@ -73,8 +73,17 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
         playerListName = displayName;
     }
 
-    public static ServerPlayer spawn(Machine server, @NotNull PlayerProfileImpl profile, @NotNull ClientConnection connection) {
-        final PlayerManagerImpl manager = server.getPlayerManager();
+    /**
+     * Creates new player instance from uninitialized connection,
+     * loads information from server's player data container and
+     * adds player to the server's manager.
+     * @param server server
+     * @param profile profile of the player
+     * @param connection connection of the player
+     * @return created player instance
+     */
+    public static @NotNull ServerPlayer spawn(@NotNull Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
+        final PlayerManager manager = server.getPlayerManager();
         if(connection.getClientState() != ClientConnection.ClientState.PLAY) {
             throw new IllegalStateException("Player can't be initialized if their connection isn't in play state");
         }
@@ -193,10 +202,12 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
         return profile.getUsername();
     }
 
+    @Override
     public void setDisplayName(@Nullable Component displayName) {
         this.displayName = displayName == null ? Component.text(getName()) : displayName;
     }
 
+    @Override
     public void setPlayerListName(@Nullable Component playerListName) {
         if (playerListName == null)
             playerListName = Component.text(getName());
@@ -209,6 +220,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
         }
     }
 
+    @Override
     public void setGamemode(@NotNull Gamemode gamemode) {
         previousGamemode = this.gamemode;
         this.gamemode = gamemode;
@@ -220,15 +232,27 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
         getServer().getMessenger().sendMessage(this, message, type);
     }
 
-    private void sendDifficultyChange(Difficulty difficulty) {
+    /**
+     * Sends packet to change difficulty
+     * @param difficulty new difficulty
+     */
+    private void sendDifficultyChange(@NotNull Difficulty difficulty) {
         sendPacket(new PacketPlayOutChangeDifficulty(difficulty));
     }
 
-    private void sendWorldSpawnChange(Location location) {
+    /**
+     * Sends packet to change world spawn
+     * @param location new world spawn
+     */
+    private void sendWorldSpawnChange(@NotNull Location location) {
         sendPacket(new PacketPlayOutWorldSpawnPosition(location));
     }
 
-    private void sendGamemodeChange(Gamemode gamemode) {
+    /**
+     * Sends packet to change gamemode
+     * @param gamemode new gamemode
+     */
+    private void sendGamemodeChange(@NotNull Gamemode gamemode) {
         sendPacket(new PacketPlayOutGameEvent(Event.CHANGE_GAMEMODE, gamemode.getId()));
     }
 
@@ -249,7 +273,9 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
         previousGamemode = nbtCompound.contains("previousPlayerGameType") ? Gamemode.fromID(nbtCompound.getInt("previousPlayerGameType")) : null;
     }
 
+    @Override
     public void save() {
         getServer().getPlayerDataContainer().savePlayerData(this);
     }
+
 }

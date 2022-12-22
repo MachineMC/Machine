@@ -3,10 +3,9 @@ package me.pesekjak.machine.network;
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.network.packets.Packet;
-import me.pesekjak.machine.network.packets.PacketFactory;
-import me.pesekjak.machine.network.packets.PacketOut;
-import me.pesekjak.machine.server.ServerProperty;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -14,14 +13,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 /**
- * Connection of the Machine server
+ * Default implementation of the server connection.
  */
 public class ServerConnectionImpl extends Thread implements ServerConnection {
 
@@ -29,18 +26,18 @@ public class ServerConnectionImpl extends Thread implements ServerConnection {
     public final static int KEEP_ALIVE_FREQ = 20000;
 
     @Getter
-    private final Machine server;
-    private final Set<ClientConnection> clients = new CopyOnWriteArraySet<>();
+    private final @NotNull Machine server;
+    private final Set<PlayerConnection> clients = new CopyOnWriteArraySet<>();
     @Getter
-    private final String ip;
+    private final @NotNull String ip;
     @Getter
     private final int port;
     @Getter
-    private ServerSocket socket;
+    private @Nullable ServerSocket socket;
     private boolean running;
 
-    public ServerConnectionImpl(Machine server) {
-        if(server.getConnection() != null)
+    public ServerConnectionImpl(@NotNull Machine server) {
+        if(server.isRunning())
             throw new IllegalStateException();
         this.server = server;
         ip = server.getProperties().getServerIp();
@@ -83,13 +80,14 @@ public class ServerConnectionImpl extends Thread implements ServerConnection {
             throw new IllegalStateException("Server connection isn't running");
         running = false;
         try {
-            socket.close();
+            if(socket != null) socket.close();
         } catch (IOException ignored) { }
     }
 
     /**
      * @return list of all connected clients
      */
+    @Override
     public @NotNull Set<PlayerConnection> getClients() {
         return Collections.unmodifiableSet(clients);
     }
@@ -98,10 +96,11 @@ public class ServerConnectionImpl extends Thread implements ServerConnection {
      * Sends a packet to all clients with state matching the packet's state.
      * @param packet packet that will be sent
      */
+    @Override
     public void broadcastPacket(@NotNull Packet packet) throws IOException {
         final Set<ClientConnection.ClientState> states = Arrays.stream(PlayerConnection.ClientState.fromState(packet.getPacketState()))
                 .collect(Collectors.toSet());
-        for(ClientConnection client : clients) {
+        for(PlayerConnection client : clients) {
             if(states.contains(client.getClientState())) client.sendPacket(packet);
         }
     }
@@ -110,9 +109,9 @@ public class ServerConnectionImpl extends Thread implements ServerConnection {
      * Disconnects the client connection.
      * @param connection client connection to disconnect
      */
-    protected void disconnect(@NotNull ClientConnection connection) {
+    public void disconnect(@NotNull PlayerConnection connection) {
         if(connection.getClientState() != ClientConnection.ClientState.DISCONNECTED)
-            connection.disconnect();
+            connection.disconnect(Component.translatable("disconnect.disconnected"));
         clients.remove(connection);
     }
 

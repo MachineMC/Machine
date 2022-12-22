@@ -8,19 +8,17 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.UUID;
 
+/**
+ * Default living entity implementation.
+ */
+@Getter @Setter
 public abstract class ServerLivingEntity extends ServerEntity implements LivingEntity {
 
-    @Getter @Setter
     private float health;
-    @Getter @Setter
     private short hurtTime;
-    @Getter @Setter
     private int hurtByTimestamp;
-    @Getter @Setter
     private short deathTime;
-    @Getter @Setter
     private float absorptionAmount;
-    @Getter @Setter
     private boolean fallFlying;
 
     public ServerLivingEntity(Machine server, EntityType entityType, UUID uuid) {

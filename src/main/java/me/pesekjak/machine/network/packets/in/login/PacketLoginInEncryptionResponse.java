@@ -6,7 +6,9 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @AllArgsConstructor
 @ToString
@@ -15,17 +17,17 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
 
     private static final int ID = 0x01;
 
-    private byte[] secret;
-    private byte[] verifyToken;
+    private byte @NotNull [] secret;
+    private byte @Nullable [] verifyToken;
     private long salt;
-    private byte[] messageSignature;
+    private byte @Nullable [] messageSignature;
 
     static {
         register(PacketLoginInEncryptionResponse.class, ID, PacketState.LOGIN_IN,
                 PacketLoginInEncryptionResponse::new);
     }
 
-    public PacketLoginInEncryptionResponse(FriendlyByteBuf buf) {
+    public PacketLoginInEncryptionResponse(@NotNull ServerBuffer buf) {
         secret = buf.readByteArray();
         if(buf.readBoolean()) {
             verifyToken = buf.readByteArray();

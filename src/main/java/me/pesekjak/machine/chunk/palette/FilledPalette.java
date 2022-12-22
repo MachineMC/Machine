@@ -1,7 +1,6 @@
 package me.pesekjak.machine.chunk.palette;
 
 import lombok.RequiredArgsConstructor;
-import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 

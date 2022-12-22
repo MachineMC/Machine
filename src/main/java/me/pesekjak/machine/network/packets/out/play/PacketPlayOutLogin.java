@@ -8,6 +8,7 @@ import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.world.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,38 +25,25 @@ public class PacketPlayOutLogin extends PacketOut {
 
     private static final int ID = 0x25;
 
-    // TODO remove?
-    public static final NamespacedKey DIMENSION_TYPE_CODEC_NAME = NamespacedKey.minecraft("dimension_type");
-    public static final NamespacedKey WORLD_GEN_BIOME_CODEC_NAME = NamespacedKey.minecraft("worldgen/biome");
-
-    // TODO cleanup (define fields of same type at once)
     private int entityID;
     private boolean isHardcore;
-    @NotNull
-    private Gamemode gamemode;
-    @Nullable
-    private Gamemode previousGamemode;
-    @NotNull
-    private List<String> dimensions;
-    @NotNull
-    private NBTCompound dimensionCodec;
-    @NotNull
-    private NamespacedKey spawnWorldType;
-    @NotNull
-    private NamespacedKey spawnWorld;
+    private @NotNull Gamemode gamemode;
+    private @Nullable Gamemode previousGamemode;
+    private @NotNull List<String> dimensions;
+    private @NotNull NBTCompound dimensionCodec;
+    private @NotNull NamespacedKey spawnWorldType;
+    private @NotNull NamespacedKey spawnWorld;
     private long hashedSeed;
-    private int maxPlayers;
-    private int viewDistance;
-    private int simulationDistance;
-    private boolean reducedDebugInfo;
-    private boolean enableRespawnScreen;
-    private boolean isDebug;
-    private boolean isFlat;
-    private boolean hasDeathLocation;
-    @Nullable
-    private NamespacedKey deathWorldName;
-    @Nullable
-    private BlockPosition deathLocation;
+    private int maxPlayers,
+            viewDistance,
+            simulationDistance;
+    private boolean reducedDebugInfo,
+            enableRespawnScreen,
+            isDebug,
+            isFlat,
+            hasDeathLocation;
+    private @Nullable NamespacedKey deathWorldName;
+    private @Nullable BlockPosition deathLocation;
 
     static {
         register(PacketPlayOutLogin.class, ID, PacketState.PLAY_OUT,
@@ -63,7 +51,7 @@ public class PacketPlayOutLogin extends PacketOut {
         );
     }
 
-    public PacketPlayOutLogin(FriendlyByteBuf buf) {
+    public PacketPlayOutLogin(@NotNull ServerBuffer buf) {
         entityID = buf.readInt();
         isHardcore = buf.readBoolean();
         gamemode = Gamemode.fromID(buf.readByte());

@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -23,7 +24,7 @@ public class PacketPlayOutPlayerAbilities extends PacketOut {
                 PacketPlayOutPlayerAbilities::new);
     }
 
-    public PacketPlayOutPlayerAbilities(FriendlyByteBuf buf) {
+    public PacketPlayOutPlayerAbilities(@NotNull ServerBuffer buf) {
         flags = buf.readByte();
         flyingSpeed = buf.readFloat();
         fovModifier = buf.readFloat();

@@ -1,7 +1,6 @@
 package me.pesekjak.machine.chunk.data;
 
 import lombok.AllArgsConstructor;
-import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.Writable;
 import org.jetbrains.annotations.NotNull;
@@ -17,14 +16,14 @@ import java.util.List;
 public class LightData implements Writable {
 
     private final boolean trustEdges;
-    private final BitSet skyMask;
-    private final BitSet blockMask;
-    private final BitSet emptySkyMask;
-    private final BitSet emptyBlockMask;
-    private final List<byte[]> skyLight;
-    private final List<byte[]> blockLight;
+    private final @NotNull BitSet
+            skyMask,
+            blockMask,
+            emptySkyMask,
+            emptyBlockMask;
+    private final @NotNull List<byte[]> skyLight, blockLight;
 
-    public LightData(FriendlyByteBuf buf) {
+    public LightData(@NotNull ServerBuffer buf) {
         trustEdges = buf.readBoolean();
         skyMask = BitSet.valueOf(buf.readLongArray());
         blockMask = BitSet.valueOf(buf.readLongArray());

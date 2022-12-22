@@ -1,8 +1,9 @@
 package me.pesekjak.machine.translation.translators.in;
 
 import me.pesekjak.machine.auth.MojangAuth;
-import me.pesekjak.machine.auth.OnlineServerImpl;
+import me.pesekjak.machine.auth.OnlineServer;
 import me.pesekjak.machine.entities.ServerPlayer;
+import me.pesekjak.machine.entities.player.PlayerProfile;
 import me.pesekjak.machine.entities.player.PlayerProfileImpl;
 import me.pesekjak.machine.entities.player.PlayerTexturesImpl;
 import me.pesekjak.machine.translation.PacketTranslator;
@@ -26,13 +27,13 @@ import static me.pesekjak.machine.network.packets.out.login.PacketLoginOutEncryp
 public class TranslatorLoginInEncryptionResponse extends PacketTranslator<PacketLoginInEncryptionResponse> {
 
     @Override
-    public boolean translate(ClientConnection connection, PacketLoginInEncryptionResponse packet) {
+    public boolean translate(@NotNull ClientConnection connection, @NotNull PacketLoginInEncryptionResponse packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(ClientConnection connection, PacketLoginInEncryptionResponse packet) {
-        OnlineServerImpl onlineServer = connection.getServer().getOnlineServer();
+    public void translateAfter(@NotNull ClientConnection connection, @NotNull PacketLoginInEncryptionResponse packet) {
+        OnlineServer onlineServer = connection.getServer().getOnlineServer();
         if(onlineServer == null) {
             connection.disconnect();
             return;
@@ -64,7 +65,7 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
             }
             String authUsername = json.get("name").getAsString();
             PlayerTexturesImpl playerTextures = PlayerTexturesImpl.buildSkin(json.getAsJsonArray("properties").get(0));
-            final PlayerProfileImpl profile = PlayerProfileImpl.online(authUsername, authUUID, playerTextures);
+            final PlayerProfile profile = PlayerProfileImpl.online(authUsername, authUUID, playerTextures);
             try {
                 connection.sendPacket(new PacketLoginOutSuccess(authUUID, authUsername, profile.getTextures()));
             } catch (IOException exception) {

@@ -13,6 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Default player manager implementation.
+ */
 @RequiredArgsConstructor
 public class PlayerManagerImpl implements PlayerManager {
 

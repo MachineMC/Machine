@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -22,7 +23,7 @@ public class PacketPlayOutBorderCenter extends PacketOut {
                 PacketPlayOutBorderCenter::new);
     }
 
-    public PacketPlayOutBorderCenter(FriendlyByteBuf buf) {
+    public PacketPlayOutBorderCenter(@NotNull ServerBuffer buf) {
         x = buf.readDouble();
         z = buf.readDouble();
     }

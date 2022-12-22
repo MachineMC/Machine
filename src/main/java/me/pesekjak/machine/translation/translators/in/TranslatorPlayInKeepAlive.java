@@ -8,14 +8,14 @@ import org.jetbrains.annotations.NotNull;
 public class TranslatorPlayInKeepAlive extends PacketTranslator<PacketPlayInKeepAlive> {
 
     @Override
-    public boolean translate(ClientConnection connection, PacketPlayInKeepAlive packet) {
+    public boolean translate(@NotNull ClientConnection connection, @NotNull PacketPlayInKeepAlive packet) {
         if(packet.getKeepAliveId() != connection.getKeepAliveKey()) return false;
         connection.keepAlive();
         return true;
     }
 
     @Override
-    public void translateAfter(ClientConnection connection, PacketPlayInKeepAlive packet) {
+    public void translateAfter(@NotNull ClientConnection connection, @NotNull PacketPlayInKeepAlive packet) {
 
     }
 

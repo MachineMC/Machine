@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,15 +19,14 @@ public class PacketPlayOutChatPreview extends PacketOut {
     private static final int ID = 0x0C;
 
     private int queryId;
-    @Nullable
-    private Component preview;
+    private @Nullable Component preview;
 
     static {
         register(PacketPlayOutChatPreview.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutChatPreview::new);
     }
 
-    public PacketPlayOutChatPreview(FriendlyByteBuf buf) {
+    public PacketPlayOutChatPreview(@NotNull ServerBuffer buf) {
         queryId = buf.readVarInt();
         if (buf.readBoolean())
             preview = buf.readComponent();

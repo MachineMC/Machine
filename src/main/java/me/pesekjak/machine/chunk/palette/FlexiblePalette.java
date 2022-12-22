@@ -1,7 +1,6 @@
 package me.pesekjak.machine.chunk.palette;
 
 import io.netty.util.collection.IntObjectHashMap;
-import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.math.MathUtils;
 import org.antlr.v4.runtime.misc.IntegerList;
@@ -20,13 +19,13 @@ public class FlexiblePalette implements Palette {
     protected byte bitsPerEntry;
     protected int count;
 
-    protected final AdaptivePalette adaptivePalette;
-    protected long[] values;
+    protected final @NotNull AdaptivePalette adaptivePalette;
+    protected long @NotNull [] values;
 
-    protected IntegerList paletteToValueList;
-    protected IntObjectHashMap<Integer> valueToPaletteMap;
+    protected @NotNull IntegerList paletteToValueList;
+    protected @NotNull IntObjectHashMap<Integer> valueToPaletteMap;
 
-    protected FlexiblePalette(AdaptivePalette adaptivePalette, byte bitsPerEntry) {
+    protected FlexiblePalette(@NotNull AdaptivePalette adaptivePalette, byte bitsPerEntry) {
         this.adaptivePalette = adaptivePalette;
         this.bitsPerEntry = bitsPerEntry;
         this.paletteToValueList = new IntegerList(1);
@@ -38,7 +37,7 @@ public class FlexiblePalette implements Palette {
         values = new long[(maxSize() + valuesPerLong - 1) / valuesPerLong];
     }
 
-    protected FlexiblePalette(AdaptivePalette adaptivePalette) {
+    protected FlexiblePalette(@NotNull AdaptivePalette adaptivePalette) {
         this(adaptivePalette, adaptivePalette.defaultBitsPerEntry);
     }
 
@@ -192,7 +191,7 @@ public class FlexiblePalette implements Palette {
         } catch (CloneNotSupportedException e) {
             return null;
         }
-        palette.values = values != null ? values.clone() : null;
+        palette.values = values.clone();
         palette.paletteToValueList = new IntegerList();
         palette.valueToPaletteMap = new IntObjectHashMap<>();
         for(int i : paletteToValueList.toArray())
@@ -260,7 +259,7 @@ public class FlexiblePalette implements Palette {
      * Updates all palette values.
      * @param paletteValues new palette values
      */
-    private void updateAll(int[] paletteValues) {
+    private void updateAll(int @NotNull [] paletteValues) {
         final int size = maxSize();
         assert paletteValues.length >= size;
 

@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -19,11 +20,9 @@ public class PacketHandshakingInHandshake extends PacketIn {
     private static final int ID = 0x00;
 
     private int protocolVersion;
-    @NotNull
-    private String serverAddress;
+    private @NotNull String serverAddress;
     private int serverPort;
-    @NotNull
-    private HandshakeType handshakeType;
+    private @NotNull HandshakeType handshakeType;
 
     static {
         register(PacketHandshakingInHandshake.class, ID, PacketState.HANDSHAKING_IN,
@@ -31,7 +30,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
         );
     }
 
-    public PacketHandshakingInHandshake(FriendlyByteBuf buf) {
+    public PacketHandshakingInHandshake(@NotNull ServerBuffer buf) {
         protocolVersion = buf.readVarInt();
         serverAddress = buf.readString(StandardCharsets.UTF_8);
         serverPort = buf.readShort() & 0xFFFF;

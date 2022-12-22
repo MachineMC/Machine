@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -22,7 +23,7 @@ public class PacketPlayOutBorderWarningDistance extends PacketOut {
                 PacketPlayOutBorderWarningDistance::new);
     }
 
-    public PacketPlayOutBorderWarningDistance(FriendlyByteBuf buf) {
+    public PacketPlayOutBorderWarningDistance(@NotNull ServerBuffer buf) {
         warningBlocks = buf.readVarInt();
     }
 

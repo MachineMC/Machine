@@ -4,12 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
 import me.pesekjak.machine.Machine;
-import me.pesekjak.machine.auth.PublicKeyDataImpl;
+import me.pesekjak.machine.auth.PublicKeyData;
 import me.pesekjak.machine.entities.ServerPlayer;
 import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.translation.TranslatorHandler;
 import me.pesekjak.machine.exception.ClientException;
-import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.network.packets.out.login.PacketLoginOutDisconnect;
 import me.pesekjak.machine.network.packets.out.play.PacketPlayOutDisconnect;
 import me.pesekjak.machine.network.packets.out.play.PacketPlayOutKeepAlive;
@@ -27,18 +26,21 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Random;
 
+/**
+ * Default player connection implementation.
+ */
 public class ClientConnection extends Thread implements PlayerConnection {
 
     private static final NamespacedKey DEFAULT_HANDLER_NAMESPACE = NamespacedKey.minecraft("default");
 
     @Getter
-    private final Machine server;
+    private final @NotNull Machine server;
     @Getter
-    private final Socket clientSocket;
+    private final @NotNull Socket clientSocket;
     @Getter
-    protected Channel channel;
+    protected @Nullable Channel channel;
     @Getter
-    private ClientState clientState;
+    private @NotNull ClientState clientState = ClientState.DISCONNECTED;
 
     @Getter
     private long lastSendTimestamp = System.currentTimeMillis();
@@ -46,18 +48,18 @@ public class ClientConnection extends Thread implements PlayerConnection {
     private long lastReadTimestamp = System.currentTimeMillis();
 
     @Getter @Setter
-    private PublicKeyDataImpl publicKeyData;
+    private @Nullable PublicKeyData publicKeyData;
     @Getter @Setter
-    private String loginUsername;
+    private @Nullable String loginUsername;
 
-    @Getter @Nullable
-    private ServerPlayer owner;
+    @Getter
+    private @Nullable ServerPlayer owner;
 
     @Getter
     private long keepAliveKey = -1;
     private long lastKeepAlive;
 
-    public ClientConnection(Machine server, Socket clientSocket) {
+    public ClientConnection(@NotNull Machine server, @NotNull Socket clientSocket) {
         this.server = server;
         this.clientSocket = clientSocket;
     }
@@ -67,11 +69,15 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * @param packet packet sent to the client
      */
     @Synchronized
+    @Override
     public boolean sendPacket(@NotNull Packet packet) throws IOException {
-        assert channel != null;
+        if(channel == null)
+            throw new IllegalStateException();
         if(clientState == ClientState.DISCONNECTED)
             return false;
-        if (channel.writePacket(packet)) { // TODO add check if the packet is packet out
+        if(!Packet.PacketState.out().contains(packet.getPacketState()))
+            throw new UnsupportedOperationException();
+        if (channel.writePacket(packet)) {
             lastSendTimestamp = System.currentTimeMillis();
             return true;
         }
@@ -83,7 +89,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * @return packets sent by client
      */
     @Synchronized
-    public PacketIn[] readPackets() throws IOException {
+    public Packet @Nullable [] readPackets() throws IOException {
         assert channel != null;
         if(clientState == ClientState.DISCONNECTED)
             return null;
@@ -96,7 +102,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * @param input input of the client socket
      * @param output output of the client socket
      */
-    private void setChannel(DataInputStream input, DataOutputStream output) {
+    private void setChannel(@NotNull DataInputStream input, @NotNull DataOutputStream output) {
         this.channel = new Channel(this, input, output);
         this.channel.addHandlerBefore(DEFAULT_HANDLER_NAMESPACE, new PacketHandler());
     }
@@ -114,7 +120,9 @@ public class ClientConnection extends Thread implements PlayerConnection {
                     new DataInputStream(clientSocket.getInputStream()),
                     new DataOutputStream(clientSocket.getOutputStream())
             );
-            getChannel().addHandlerAfter(
+            final Channel channel = getChannel();
+            if(channel == null) throw new IllegalStateException();
+            channel.addHandlerAfter(
                     NamespacedKey.machine("main"),
                     new TranslatorHandler(server.getTranslatorDispatcher())
             );
@@ -126,7 +134,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
                             return null;
                         }
                         try {
-                            PacketIn[] packets = readPackets();
+                            Packet[] packets = readPackets();
                             if(packets != null && packets.length != 0)
                                 lastReadTimestamp = System.currentTimeMillis();
                         } catch (Exception exception) {
@@ -152,16 +160,23 @@ public class ClientConnection extends Thread implements PlayerConnection {
     /**
      * Closes the client connection.
      */
+    @Synchronized
     @Override
-    public synchronized void close() {
+    public void close() {
         clientState = ClientState.DISCONNECTED;
         server.getConnection().disconnect(this);
         try {
             if (owner != null && owner.isActive()) owner.remove();
         } catch (Exception exception) { server.getExceptionHandler().handle(exception); }
         owner = null;
-        try { channel.close(); }
-        catch (Exception exception) { server.getExceptionHandler().handle(exception); }
+        final Channel channel = getChannel();
+        if(channel != null) {
+            try {
+                channel.close();
+            } catch (Exception exception) {
+                server.getExceptionHandler().handle(exception);
+            }
+        }
         try { clientSocket.close(); }
         catch (Exception exception) { server.getExceptionHandler().handle(exception); }
     }
@@ -170,7 +185,8 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * Changes the client state of the client connection
      * @param clientState new client state
      */
-    public synchronized void setClientState(ClientState clientState) {
+    @Synchronized
+    public void setClientState(ClientState clientState) {
         if(clientState == ClientState.DISCONNECTED)
             throw new UnsupportedOperationException("You can't set the connection's state to disconnected");
         if(this.clientState == ClientState.DISCONNECTED)
@@ -182,7 +198,8 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * @return secret key used for encryption, only if online mode is
      * enabled.
      */
-    public SecretKey getSecretKey() {
+    public @Nullable SecretKey getSecretKey() {
+        if(channel == null) return null;
         return channel.getSecretKey();
     }
 
@@ -191,7 +208,8 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * the encryption.
      * @param key new secret key
      */
-    public void setSecretKey(SecretKey key) {
+    public void setSecretKey(@NotNull SecretKey key) {
+        if(channel == null) return;
         channel.setSecretKey(key);
     }
 
@@ -199,7 +217,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * Sets the owner of the connection, can't be changed once it's set.
      * @param player owner of the connection
      */
-    public void setOwner(ServerPlayer player) {
+    public void setOwner(@NotNull ServerPlayer player) {
         if(owner != null)
             throw new IllegalStateException("Connection has been already initialized");
         if(!player.getName().equals(loginUsername))
@@ -263,6 +281,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * be visible in the game.
      * @param reason disconnect reason
      */
+    @Override
     public void disconnect(@NotNull Component reason) {
         try {
             if(clientState == ClientState.LOGIN)

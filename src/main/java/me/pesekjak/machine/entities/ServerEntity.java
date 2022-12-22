@@ -7,26 +7,29 @@ import me.pesekjak.machine.utils.EntityUtils;
 import me.pesekjak.machine.utils.NBTUtils;
 import me.pesekjak.machine.utils.UUIDUtils;
 import me.pesekjak.machine.world.Location;
-import me.pesekjak.machine.world.WorldImpl;
+import me.pesekjak.machine.world.World;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.*;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Default server entity implementation.
+ */
 public abstract class ServerEntity implements Entity {
 
     @Getter
-    private final Machine server;
+    private final @NotNull Machine server;
 
     @Getter
-    private final EntityType entityType;
+    private final @NotNull EntityType entityType;
     @Getter
-    private UUID uuid;
+    private @NotNull UUID uuid;
     @Getter
     private final int entityId;
 
@@ -45,7 +48,7 @@ public abstract class ServerEntity implements Entity {
     @Getter @Setter
     private int ticksFrozen;
     @Getter @Setter
-    private Location location;
+    private @NotNull Location location;
     @Getter @Setter
     private float fallDistance;
     @Getter @Setter
@@ -57,7 +60,7 @@ public abstract class ServerEntity implements Entity {
     @Getter @Setter
     private int portalCooldown;
 
-    public ServerEntity(Machine server, EntityType entityType, UUID uuid) {
+    public ServerEntity(@NotNull Machine server, @NotNull EntityType entityType, @NotNull UUID uuid) {
         this.server = server;
         this.entityType = entityType;
         this.uuid = uuid;
@@ -71,47 +74,54 @@ public abstract class ServerEntity implements Entity {
         return uuid;
     }
 
+    @Override
     public @NotNull String getName() {
         return entityType.getTypeName();
     }
 
     @Override
-    public Component getCustomName() {
+    public @Nullable Component getCustomName() {
         // TODO return custom name metadata
         return null;
     }
 
     @Override
-    public void setCustomName(Component customName) {
+    public void setCustomName(@Nullable Component customName) {
         // TODO set custom name metadata
     }
 
-
+    @Override
     public boolean isCustomNameVisible() {
         // TODO metadata
         return false;
     }
 
+    @Override
     public void setCustomNameVisible(boolean customNameVisible) {
         // TODO metadata
     }
 
-    public @NotNull WorldImpl getWorld() {
-        return (WorldImpl) location.getWorld();
+    @Override
+    public @NotNull World getWorld() {
+        return location.getWorld();
     }
 
+    @Override
     public @NotNull Set<String> getTags() {
         return Set.copyOf(tags);
     }
 
+    @Override
     public boolean addTag(@NotNull String tag) {
         return tags.size() < 1024 && tags.add(tag);
     }
 
+    @Override
     public boolean removeTag(@NotNull String tag) {
         return tags.remove(tag);
     }
 
+    @Override
     public void init() {
         if (active)
             throw new IllegalStateException(this + " is already initiated");
@@ -119,6 +129,7 @@ public abstract class ServerEntity implements Entity {
         getServer().getEntityManager().addEntity(this);
     }
 
+    @Override
     public void remove() {
         if (!active)
             throw new IllegalStateException(this + " is not active");
@@ -149,19 +160,19 @@ public abstract class ServerEntity implements Entity {
                 nbt.setByte("CustomNameVisible", (byte) (isCustomNameVisible() ? 1 : 0));
 
             if (silent)
-                nbt.setByte("Silent", (byte) (silent ? 1 : 0));
+                nbt.setByte("Silent", (byte) 1);
 
             if (noGravity)
-                nbt.setByte("NoGravity", (byte) (noGravity ? 1 : 0));
+                nbt.setByte("NoGravity", (byte) 1);
 
             if (glowing)
-                nbt.setByte("Glowing", (byte) (glowing ? 1 : 0));
+                nbt.setByte("Glowing", (byte) 1);
 
             if (ticksFrozen > 0)
                 nbt.setInt("TicksFrozen", (byte) ticksFrozen);
 
             if (hasVisualFire)
-                nbt.setByte("HasVisualFire", (byte) (hasVisualFire ? 1 : 0));
+                nbt.setByte("HasVisualFire", (byte) 1);
 
             if (!tags.isEmpty())
                 nbt.set("Tags", new NBTList<>(NBTType.TAG_String, tags.stream()

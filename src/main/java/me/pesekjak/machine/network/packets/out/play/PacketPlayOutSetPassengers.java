@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -16,14 +17,14 @@ public class PacketPlayOutSetPassengers extends PacketOut {
     private static final int ID = 0x57;
 
     private int entityId;
-    private int[] passengers;
+    private int @NotNull [] passengers;
 
     static {
         register(PacketPlayOutSetPassengers.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutSetPassengers::new);
     }
 
-    public PacketPlayOutSetPassengers(FriendlyByteBuf buf) {
+    public PacketPlayOutSetPassengers(@NotNull ServerBuffer buf) {
         entityId = buf.readVarInt();
         passengers = buf.readVarIntArray();
     }

@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInChatMessage> {
 
     @Override
-    public boolean translate(ClientConnection connection, PacketPlayInChatMessage packet) {
+    public boolean translate(@NotNull ClientConnection connection, @NotNull PacketPlayInChatMessage packet) {
         ServerPlayer player = connection.getOwner();
         if (player == null)
             return false;
@@ -26,7 +26,7 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
     }
 
     @Override
-    public void translateAfter(ClientConnection connection, PacketPlayInChatMessage packet) {
+    public void translateAfter(@NotNull ClientConnection connection, @NotNull PacketPlayInChatMessage packet) {
         ServerPlayer player = connection.getOwner();
         if (player == null)
             return;

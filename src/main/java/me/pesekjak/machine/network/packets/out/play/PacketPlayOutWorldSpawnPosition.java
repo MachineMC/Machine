@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.Location;
 import org.jetbrains.annotations.NotNull;
@@ -17,8 +18,7 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
 
     private static final int ID = 0x4D;
 
-    @NotNull
-    private BlockPosition position;
+    private @NotNull BlockPosition position;
     private float angle;
 
     static {
@@ -30,7 +30,7 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
         this(new BlockPosition(location), location.getYaw());
     }
 
-    public PacketPlayOutWorldSpawnPosition(FriendlyByteBuf buf) {
+    public PacketPlayOutWorldSpawnPosition(@NotNull ServerBuffer buf) {
         position = buf.readBlockPos();
         angle = buf.readFloat();
     }

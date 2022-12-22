@@ -45,4 +45,10 @@ public interface ServerConnection extends ServerProperty, AutoCloseable {
      */
     void broadcastPacket(@NotNull Packet packet) throws IOException;
 
+    /**
+     * Disconnects a player connection from the server.
+     * @param connection connection to disconnect
+     */
+    void disconnect(@NotNull PlayerConnection connection);
+
 }

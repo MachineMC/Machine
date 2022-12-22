@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,8 +17,7 @@ public class PacketPlayOutSystemChatMessage extends PacketOut {
 
     private static final int ID = 0x62;
 
-    @NotNull
-    private Component message;
+    private @NotNull Component message;
     private boolean overlay;
 
     static {
@@ -25,7 +25,7 @@ public class PacketPlayOutSystemChatMessage extends PacketOut {
                 PacketPlayOutSystemChatMessage::new);
     }
 
-    public PacketPlayOutSystemChatMessage(FriendlyByteBuf buf) {
+    public PacketPlayOutSystemChatMessage(@NotNull ServerBuffer buf) {
         message = buf.readComponent();
         overlay = buf.readBoolean();
     }

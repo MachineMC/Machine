@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -24,7 +25,7 @@ public class PacketPlayOutSetHealth extends PacketOut {
                 PacketPlayOutSetHealth::new);
     }
 
-    public PacketPlayOutSetHealth(FriendlyByteBuf buf) {
+    public PacketPlayOutSetHealth(@NotNull ServerBuffer buf) {
         health = buf.readFloat();
         food = buf.readVarInt();
         saturation = buf.readFloat();

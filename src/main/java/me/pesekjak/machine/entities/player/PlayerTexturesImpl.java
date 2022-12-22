@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +12,7 @@ import java.net.URL;
 import java.util.Base64;
 
 /**
- * Represents player's skin textures.
+ * Default implementation of player textures.
  */
 public record PlayerTexturesImpl(@NotNull String value, @Nullable String signature, @NotNull URL skinUrl, @Nullable URL capeUrl, @NotNull SkinModel skinModel) implements PlayerTextures {
 
@@ -37,7 +36,12 @@ public record PlayerTexturesImpl(@NotNull String value, @Nullable String signatu
         return new PlayerTexturesImpl(value, signature, skinUrl, capeUrl, skinModel);
     }
 
-    public static PlayerTexturesImpl buildSkin(JsonElement jsonElement) {
+    /**
+     * Creates new player textures from a json object.
+     * @param jsonElement json of the player textures
+     * @return player textures from the json
+     */
+    public static @Nullable PlayerTexturesImpl buildSkin(@NotNull JsonElement jsonElement) {
         if (!jsonElement.isJsonObject())
             return null;
         JsonObject texturesJson = jsonElement.getAsJsonObject();

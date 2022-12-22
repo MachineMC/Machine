@@ -7,10 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.network.ClientConnection;
-import me.pesekjak.machine.network.packets.PacketImpl;
-import me.pesekjak.machine.network.packets.PacketIn;
-import me.pesekjak.machine.network.packets.PacketOut;
+import me.pesekjak.machine.network.packets.Packet;
+import me.pesekjak.machine.network.packets.PacketFactory;
 import me.pesekjak.machine.utils.ClassUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,10 +22,10 @@ import java.util.List;
 public class TranslatorDispatcher {
 
     @Getter
-    private final Machine server;
+    private final @NotNull Machine server;
 
-    private final Multimap<Class<? extends PacketIn>, PacketTranslator<? extends PacketIn>> IN_TRANSLATORS = ArrayListMultimap.create();
-    private final Multimap<Class<? extends PacketOut>, PacketTranslator<? extends PacketOut>> OUT_TRANSLATORS = ArrayListMultimap.create();
+    private final Multimap<Class<? extends Packet>, PacketTranslator<? extends Packet>> IN_TRANSLATORS = ArrayListMultimap.create();
+    private final Multimap<Class<? extends Packet>, PacketTranslator<? extends Packet>> OUT_TRANSLATORS = ArrayListMultimap.create();
 
     /**
      * Creates the default dispatcher with all translators from 'translators' package
@@ -33,8 +33,7 @@ public class TranslatorDispatcher {
      * @param server server to create the dispatcher for
      * @return created dispatcher with all server's translators loaded
      */
-    @SuppressWarnings("unchecked")
-    public static TranslatorDispatcher createDefault(Machine server) throws ClassNotFoundException, IOException {
+    public static @NotNull TranslatorDispatcher createDefault(@NotNull Machine server) throws ClassNotFoundException, IOException {
         TranslatorDispatcher dispatcher = new TranslatorDispatcher(server);
         List<String> classes = ClassUtils.getClasses(TranslatorDispatcher.class.getPackageName());
         for(String className : classes) {
@@ -49,12 +48,12 @@ public class TranslatorDispatcher {
                         "it has no default constructor");
                 continue;
             }
-            if(PacketIn.class.isAssignableFrom(translator.packetClass()))
-                dispatcher.registerInTranslator((PacketTranslator<? extends PacketIn>) translator);
-            else if(PacketOut.class.isAssignableFrom(translator.packetClass()))
-                dispatcher.registerOutTranslator((PacketTranslator<? extends PacketOut>) translator);
-            else
-                throw new RuntimeException(new IllegalStateException());
+            final Packet.PacketState state = PacketFactory.getRegisteredState(translator.packetClass());
+            if(state == null) continue;
+            if(Packet.PacketState.in().contains(state))
+                dispatcher.registerInTranslator(translator);
+            else if(Packet.PacketState.out().contains(state))
+                dispatcher.registerOutTranslator(translator);
         }
         return dispatcher;
     }
@@ -63,7 +62,7 @@ public class TranslatorDispatcher {
      * Registers the new packet translator for the dispatcher.
      * @param translator translator to register
      */
-    public void registerInTranslator(PacketTranslator<? extends PacketIn> translator) {
+    public void registerInTranslator(@NotNull PacketTranslator<? extends Packet> translator) {
         IN_TRANSLATORS.put(translator.packetClass(), translator);
     }
 
@@ -71,7 +70,7 @@ public class TranslatorDispatcher {
      * Unregisters the new packet translator for the dispatcher.
      * @param translator translator to register
      */
-    public void unregisterInTranslator(PacketTranslator<? extends PacketIn> translator) {
+    public void unregisterInTranslator(@NotNull PacketTranslator<? extends Packet> translator) {
         IN_TRANSLATORS.remove(translator.packetClass(), translator);
     }
 
@@ -79,7 +78,7 @@ public class TranslatorDispatcher {
      * Unregisters all the packet translators listening to packet of provided class.
      * @param packetClass packet class of packet translators to unregister
      */
-    public void unregisterInTranslator(Class<? extends PacketIn> packetClass) {
+    public void unregisterInTranslator(@NotNull Class<? extends Packet> packetClass) {
         IN_TRANSLATORS.removeAll(packetClass);
     }
 
@@ -87,7 +86,7 @@ public class TranslatorDispatcher {
      * Registers the new packet translator for the dispatcher.
      * @param translator translator to register
      */
-    public void registerOutTranslator(PacketTranslator<? extends PacketOut> translator) {
+    public void registerOutTranslator(@NotNull PacketTranslator<? extends Packet> translator) {
         OUT_TRANSLATORS.put(translator.packetClass(), translator);
     }
 
@@ -95,7 +94,7 @@ public class TranslatorDispatcher {
      * Unregisters the new packet translator for the dispatcher.
      * @param translator translator to register
      */
-    public void unregisterOutTranslator(PacketTranslator<? extends PacketOut> translator) {
+    public void unregisterOutTranslator(@NotNull PacketTranslator<? extends Packet> translator) {
         OUT_TRANSLATORS.remove(translator.packetClass(), translator);
     }
 
@@ -103,7 +102,7 @@ public class TranslatorDispatcher {
      * Unregisters all the packet translators listening to packet of provided class.
      * @param packetClass packet class of packet translators to unregister
      */
-    public void unregisterOutTranslator(Class<? extends PacketOut> packetClass) {
+    public void unregisterOutTranslator(@NotNull Class<? extends Packet> packetClass) {
         OUT_TRANSLATORS.removeAll(packetClass);
     }
 
@@ -115,11 +114,17 @@ public class TranslatorDispatcher {
         OUT_TRANSLATORS.clear();
     }
 
-    protected boolean play(ClientConnection connection, PacketImpl packet) {
-        if(packet instanceof PacketIn)
-            return playIn(connection, (PacketIn) packet);
-        else if (packet instanceof PacketOut)
-            return playOut(connection, (PacketOut) packet);
+    /**
+     * Plays all translators for given packet using given connection.
+     * @param connection connection that sent the packet
+     * @param packet packet
+     * @return true if the packet wasn't cancelled
+     */
+    protected boolean play(@NotNull ClientConnection connection, @NotNull Packet packet) {
+        if (Packet.PacketState.in().contains(packet.getPacketState()))
+            return playIn(connection, packet);
+        else if (Packet.PacketState.out().contains(packet.getPacketState()))
+            return playOut(connection, packet);
         return false;
     }
 
@@ -129,9 +134,9 @@ public class TranslatorDispatcher {
      * @param packet packet
      * @return true if the packet wasn't cancelled
      */
-    protected boolean playIn(ClientConnection connection, PacketIn packet) {
+    protected boolean playIn(@NotNull ClientConnection connection, @NotNull Packet packet) {
         boolean result = true;
-        for(PacketTranslator<? extends PacketIn> translator : IN_TRANSLATORS.get(packet.getClass()))
+        for(PacketTranslator<? extends Packet> translator : IN_TRANSLATORS.get(packet.getClass()))
             result = translator.rawTranslate(connection, packet);
         return result;
     }
@@ -142,18 +147,11 @@ public class TranslatorDispatcher {
      * @param packet packet
      * @return true if the packet wasn't cancelled
      */
-    protected boolean playOut(ClientConnection connection, PacketOut packet) {
+    protected boolean playOut(@NotNull ClientConnection connection, @NotNull Packet packet) {
         boolean result = true;
-        for(PacketTranslator<? extends PacketOut> translator : OUT_TRANSLATORS.get(packet.getClass()))
+        for(PacketTranslator<? extends Packet> translator : OUT_TRANSLATORS.get(packet.getClass()))
             result = translator.rawTranslate(connection, packet);
         return result;
-    }
-
-    protected void playAfter(ClientConnection connection, PacketImpl packet) {
-        if(packet instanceof PacketIn)
-            playInAfter(connection, (PacketIn) packet);
-        else if (packet instanceof PacketOut)
-            playOutAfter(connection, (PacketOut) packet);
     }
 
     /**
@@ -161,8 +159,20 @@ public class TranslatorDispatcher {
      * @param connection connection that sent the packet
      * @param packet packet
      */
-    protected void playInAfter(ClientConnection connection, PacketIn packet) {
-        for(PacketTranslator<? extends PacketIn> translator : IN_TRANSLATORS.get(packet.getClass()))
+    protected void playAfter(@NotNull ClientConnection connection, @NotNull Packet packet) {
+        if(Packet.PacketState.in().contains(packet.getPacketState()))
+            playInAfter(connection, packet);
+        else if (Packet.PacketState.out().contains(packet.getPacketState()))
+            playOutAfter(connection, packet);
+    }
+
+    /**
+     * Plays all the translators after the packet was received by server
+     * @param connection connection that sent the packet
+     * @param packet packet
+     */
+    protected void playInAfter(@NotNull ClientConnection connection, @NotNull Packet packet) {
+        for(PacketTranslator<? extends Packet> translator : IN_TRANSLATORS.get(packet.getClass()))
             translator.rawTranslateAfter(connection, packet);
     }
 
@@ -171,8 +181,8 @@ public class TranslatorDispatcher {
      * @param connection connection that received the packet
      * @param packet packet
      */
-    protected void playOutAfter(ClientConnection connection, PacketOut packet) {
-        for(PacketTranslator<? extends PacketOut> translator : OUT_TRANSLATORS.get(packet.getClass()))
+    protected void playOutAfter(@NotNull ClientConnection connection, @NotNull Packet packet) {
+        for(PacketTranslator<? extends Packet> translator : OUT_TRANSLATORS.get(packet.getClass()))
             translator.rawTranslateAfter(connection, packet);
     }
 

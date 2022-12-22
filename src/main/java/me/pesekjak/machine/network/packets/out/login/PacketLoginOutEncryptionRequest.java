@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -18,15 +19,15 @@ public class PacketLoginOutEncryptionRequest extends PacketOut {
     private static final int ID = 0x01;
 
     private final String serverID = SERVER_ID; // always same
-    private byte[] publicKey;
-    private byte[] verifyToken;
+    private byte @NotNull [] publicKey;
+    private byte @NotNull [] verifyToken;
 
     static {
         register(PacketLoginOutEncryptionRequest.class, ID, PacketState.LOGIN_OUT,
                 PacketLoginOutEncryptionRequest::new);
     }
 
-    public PacketLoginOutEncryptionRequest(FriendlyByteBuf buf) {
+    public PacketLoginOutEncryptionRequest(@NotNull ServerBuffer buf) {
         buf.readString(StandardCharsets.UTF_8); // reading serverID
         publicKey = buf.readByteArray();
         verifyToken = buf.readByteArray();

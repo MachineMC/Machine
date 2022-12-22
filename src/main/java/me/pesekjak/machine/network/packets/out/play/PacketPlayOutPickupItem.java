@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -22,7 +23,7 @@ public class PacketPlayOutPickupItem extends PacketOut {
                 PacketPlayOutPickupItem::new);
     }
 
-    public PacketPlayOutPickupItem(FriendlyByteBuf buf) {
+    public PacketPlayOutPickupItem(@NotNull ServerBuffer buf) {
         collectedEntityId = buf.readVarInt();
         collectorEntityId = buf.readVarInt();
         pickupItemCount = buf.readVarInt();

@@ -7,6 +7,7 @@ import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -18,10 +19,8 @@ public class PacketPlayOutPluginMessage extends PacketOut {
 
     private static final int ID = 0x16;
 
-    @NotNull
-    private NamespacedKey channel;
-    @NotNull
-    private FriendlyByteBuf data;
+    private @NotNull NamespacedKey channel;
+    private @NotNull ServerBuffer data;
 
     static {
         register(PacketPlayOutPluginMessage.class, ID, PacketState.PLAY_OUT,
@@ -29,7 +28,7 @@ public class PacketPlayOutPluginMessage extends PacketOut {
         );
     }
 
-    public PacketPlayOutPluginMessage(FriendlyByteBuf buf) {
+    public PacketPlayOutPluginMessage(@NotNull ServerBuffer buf) {
         channel = buf.readNamespacedKey();
         data = new FriendlyByteBuf(buf.finish());
     }

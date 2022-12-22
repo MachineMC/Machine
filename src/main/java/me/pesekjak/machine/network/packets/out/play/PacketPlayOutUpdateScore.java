@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -20,21 +21,17 @@ public class PacketPlayOutUpdateScore extends PacketOut {
 
     private static final int ID = 0x59;
 
-    @NotNull
-    private String entityName;
-    @NotNull
-    private Action action;
-    @NotNull
-    private String objectiveName;
-    @Nullable
-    private Integer value;
+    private @NotNull String entityName;
+    private @NotNull Action action;
+    private @NotNull String objectiveName;
+    private @Nullable Integer value;
 
     static {
         register(PacketPlayOutUpdateScore.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutUpdateScore::new);
     }
 
-    public PacketPlayOutUpdateScore(FriendlyByteBuf buf) {
+    public PacketPlayOutUpdateScore(@NotNull ServerBuffer buf) {
         entityName = buf.readString(StandardCharsets.UTF_8);
         action = Action.fromID(buf.readByte());
         objectiveName = buf.readString(StandardCharsets.UTF_8);

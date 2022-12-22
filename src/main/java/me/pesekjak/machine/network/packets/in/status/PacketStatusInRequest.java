@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -18,7 +19,7 @@ public class PacketStatusInRequest extends PacketIn {
         );
     }
 
-    public PacketStatusInRequest(FriendlyByteBuf buf) {
+    public PacketStatusInRequest(@NotNull ServerBuffer buf) {
 
     }
 

@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,15 +16,15 @@ public class PacketPlayOutSetTablistHeaderAndFooter extends PacketOut {
 
     private static final int ID = 0x63;
 
-    @Getter @Setter @NotNull
-    private Component header, footer;
+    @Getter @Setter
+    private @NotNull Component header, footer;
 
     static {
         register(PacketPlayOutSetTablistHeaderAndFooter.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutSetTablistHeaderAndFooter::new);
     }
 
-    public PacketPlayOutSetTablistHeaderAndFooter(FriendlyByteBuf buf) {
+    public PacketPlayOutSetTablistHeaderAndFooter(@NotNull ServerBuffer buf) {
         header = buf.readComponent();
         footer = buf.readComponent();
     }

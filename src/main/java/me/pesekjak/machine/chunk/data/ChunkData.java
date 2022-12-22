@@ -2,7 +2,6 @@ package me.pesekjak.machine.chunk.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.Writable;
 import org.jetbrains.annotations.NotNull;
@@ -15,10 +14,10 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 @Getter
 public class ChunkData implements Writable {
 
-    private final NBTCompound heightmaps;
-    private final byte[] data;
+    private final @NotNull NBTCompound heightmaps;
+    private final byte @NotNull [] data;
 
-    public ChunkData(FriendlyByteBuf buf) {
+    public ChunkData(@NotNull ServerBuffer buf) {
         this((NBTCompound) buf.readNBT(), buf.readByteArray());
         buf.readVarInt();
     }
