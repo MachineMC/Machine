@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -22,24 +24,29 @@ public class PacketLoginOutSetCompression extends PacketOut {
         );
     }
 
-    public PacketLoginOutSetCompression(FriendlyByteBuf buf) {
+    public PacketLoginOutSetCompression(@NotNull ServerBuffer buf) {
         threshold = buf.readVarInt();
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.LOGIN_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(threshold)
                 .bytes();
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketLoginOutSetCompression(new FriendlyByteBuf(serialize()));
     }
 

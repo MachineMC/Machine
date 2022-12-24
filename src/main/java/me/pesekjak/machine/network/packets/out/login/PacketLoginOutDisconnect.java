@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,24 +25,29 @@ public class PacketLoginOutDisconnect extends PacketOut {
     @Getter @Setter @NotNull
     private Component message;
 
-    public PacketLoginOutDisconnect(FriendlyByteBuf buf) {
+    public PacketLoginOutDisconnect(@NotNull ServerBuffer buf) {
         message = buf.readComponent();
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.LOGIN_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeComponent(message)
                 .bytes();
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketLoginOutDisconnect(new FriendlyByteBuf(serialize()));
     }
 

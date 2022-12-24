@@ -7,6 +7,7 @@ import lombok.ToString;
 import me.pesekjak.machine.entities.player.PlayerTextures;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,12 +21,9 @@ public class PacketLoginOutSuccess extends PacketOut {
 
     private static final int ID = 0x02;
 
-    @NotNull
-    private UUID uuid;
-    @NotNull
-    private String userName;
-    @Nullable
-    private PlayerTextures textures;
+    private @NotNull UUID uuid;
+    private @NotNull String userName;
+    private @Nullable PlayerTextures textures;
 
     static {
         register(PacketLoginOutSuccess.class, ID, PacketState.LOGIN_OUT,
@@ -33,19 +31,24 @@ public class PacketLoginOutSuccess extends PacketOut {
         );
     }
 
-    public PacketLoginOutSuccess(FriendlyByteBuf buf) {
+    public PacketLoginOutSuccess(@NotNull ServerBuffer buf) {
         uuid = buf.readUUID();
         userName = buf.readString(StandardCharsets.UTF_8);
         textures = buf.readTextures();
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.LOGIN_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeUUID(uuid)
                 .writeString(userName, StandardCharsets.UTF_8)
@@ -54,7 +57,7 @@ public class PacketLoginOutSuccess extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketLoginOutSuccess(new FriendlyByteBuf(serialize()));
     }
 

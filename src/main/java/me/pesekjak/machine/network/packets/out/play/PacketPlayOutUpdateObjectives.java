@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,21 +22,17 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
 
     private static final int ID = 0x56;
 
-    @NotNull
-    private String objectiveName;
-    @NotNull
-    private Action action;
-    @Nullable
-    private Component objectiveValue;
-    @Nullable
-    private DisplayType type;
+    private @NotNull String objectiveName;
+    private @NotNull Action action;
+    private @Nullable Component objectiveValue;
+    private @Nullable DisplayType type;
 
     static {
         register(PacketPlayOutUpdateObjectives.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutUpdateObjectives::new);
     }
 
-    public PacketPlayOutUpdateObjectives(FriendlyByteBuf buf) {
+    public PacketPlayOutUpdateObjectives(@NotNull ServerBuffer buf) {
         objectiveName = buf.readString(StandardCharsets.UTF_8);
         action = Action.fromID(buf.readByte());
         if (action != Action.REMOVE) {
@@ -45,12 +42,17 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(objectiveName, StandardCharsets.UTF_8)
                 .writeByte((byte) action.getId());
@@ -64,7 +66,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutUpdateObjectives(new FriendlyByteBuf(serialize()));
     }
 

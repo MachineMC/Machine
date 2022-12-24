@@ -7,6 +7,7 @@ import lombok.ToString;
 import me.pesekjak.machine.auth.PublicKeyData;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,12 +21,9 @@ public class PacketLoginInStart extends PacketIn {
 
     private static final int ID = 0x00;
 
-    @NotNull
-    private String username;
-    @Nullable
-    private PublicKeyData publicKeyData;
-    @Nullable
-    private UUID uuid;
+    private @NotNull String username;
+    private @Nullable PublicKeyData publicKeyData;
+    private @Nullable UUID uuid;
 
     static {
         register(PacketLoginInStart.class, ID, PacketState.LOGIN_IN,
@@ -33,7 +31,7 @@ public class PacketLoginInStart extends PacketIn {
         );
     }
 
-    public PacketLoginInStart(FriendlyByteBuf buf) {
+    public PacketLoginInStart(@NotNull ServerBuffer buf) {
         username = buf.readString(StandardCharsets.UTF_8);
         if (buf.readBoolean())
             publicKeyData = buf.readPublicKey();
@@ -42,12 +40,17 @@ public class PacketLoginInStart extends PacketIn {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.LOGIN_IN;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(username, StandardCharsets.UTF_8)
                 .writeBoolean(publicKeyData != null);
@@ -60,7 +63,7 @@ public class PacketLoginInStart extends PacketIn {
     }
 
     @Override
-    public PacketIn clone() {
+    public @NotNull PacketIn clone() {
         return new PacketLoginInStart(new FriendlyByteBuf(serialize()));
     }
 

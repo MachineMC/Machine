@@ -1,6 +1,7 @@
 package me.pesekjak.machine.world.particles;
 
-import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Creates particles from the type and buffer.
@@ -8,7 +9,7 @@ import me.pesekjak.machine.utils.FriendlyByteBuf;
 @FunctionalInterface
 public interface ParticleCreator {
 
-    ParticleCreator empty = (type, buf) -> Particle.of(type);
+    ParticleCreator empty = (type, buf) -> ParticleImpl.of(type);
 
     /**
      * Creates the Particle from the type and buffer with its options data
@@ -16,6 +17,6 @@ public interface ParticleCreator {
      * @param buf buffer with data of the particle options
      * @return created Particle
      */
-    Particle create(ParticleType type, FriendlyByteBuf buf);
+    @NotNull Particle create(@NotNull ParticleType type, @NotNull ServerBuffer buf);
 
 }

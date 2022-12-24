@@ -19,6 +19,8 @@ repositories {
 
 dependencies {
 
+    implementation(project(":api"))
+
     sequenceOf(
         "Materials",
         "BlockData"

@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -22,18 +24,23 @@ public class PacketPlayOutHeadRotation extends PacketOut {
                 PacketPlayOutHeadRotation::new);
     }
 
-    public PacketPlayOutHeadRotation(FriendlyByteBuf buf) {
+    public PacketPlayOutHeadRotation(@NotNull ServerBuffer buf) {
         entityId = buf.readVarInt();
         angle = buf.readAngle();
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(entityId)
                 .writeAngle(angle)
@@ -41,7 +48,7 @@ public class PacketPlayOutHeadRotation extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutHeadRotation(new FriendlyByteBuf(serialize()));
     }
 

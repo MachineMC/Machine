@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Getter;
 import me.pesekjak.machine.codegen.CodeGenerator;
+import me.pesekjak.machine.codegen.blockdata.BlockData;
 import me.pesekjak.machine.codegen.blockdata.BlockDataLibGenerator;
 import org.objectweb.asm.*;
 
@@ -14,9 +15,11 @@ import java.util.TreeMap;
 
 public class MaterialsLibGenerator extends CodeGenerator {
 
+    public final static String MATERIAL_CLASS = "me.pesekjak.machine.world.Material";
+
     private final Map<String, Integer> itemsMap = new TreeMap<>();
     @Getter
-    private final String path = "me.pesekjak.machine.world.Material";
+    private final String path = MATERIAL_CLASS;
 
     public MaterialsLibGenerator(File outputDir) throws IOException {
         super(outputDir, "Materials", "registries.json");
@@ -31,7 +34,8 @@ public class MaterialsLibGenerator extends CodeGenerator {
             handleEntry(entry, true);
 
         // Getting the BlockData information
-        String blockDataPath = "me.pesekjak.machine.world.BlockData";
+        String blockDataPath = BlockData.BLOCKDATA_CLASS;
+        String iBlockDataPath = BlockData.I_BLOCKDATA_CLASS;
         JsonParser parser = new JsonParser();
         final InputStream stream = getClass().getClassLoader().getResourceAsStream("blocks.json");
         if(stream == null)
@@ -78,7 +82,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
         cw.visitEnd();
         fv = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL,
                 "blockData",
-                type(blockDataPath).getDescriptor(),
+                type(iBlockDataPath).getDescriptor(),
                 null,
                 null);
         fv.visitEnd();
@@ -87,7 +91,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
         // Constructor
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PRIVATE,
                 CONSTRUCTOR_NAME,
-                "(Ljava/lang/String;ILjava/lang/String;I" + type(blockDataPath).getDescriptor() + ")V",
+                "(Ljava/lang/String;ILjava/lang/String;I" + type(iBlockDataPath).getDescriptor() + ")V",
                 null,
                 new String[0]);
         mv.visitCode();
@@ -126,9 +130,9 @@ public class MaterialsLibGenerator extends CodeGenerator {
         mv.visitVarInsn(Opcodes.ALOAD, 5);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                type(blockDataPath).getInternalName(),
+                type(iBlockDataPath).getInternalName(),
                 "setMaterial",
-                "(" + type(path).getDescriptor() + ")" + type(blockDataPath).getDescriptor(),
+                "(" + type(path).getDescriptor() + ")" + type(iBlockDataPath).getDescriptor(),
                 false);
         mv.visitInsn(Opcodes.POP);
         mv.visitJumpInsn(Opcodes.GOTO, end);
@@ -140,7 +144,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
         mv.visitFieldInsn(Opcodes.PUTFIELD,
                 type(path).getInternalName(),
                 "blockData",
-                type(blockDataPath).getDescriptor());
+                type(iBlockDataPath).getDescriptor());
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -225,7 +229,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
                     type(path).getInternalName(),
                     CONSTRUCTOR_NAME,
-                    "(Ljava/lang/String;ILjava/lang/String;I" + type(blockDataPath).getDescriptor() + ")V",
+                    "(Ljava/lang/String;ILjava/lang/String;I" + type(iBlockDataPath).getDescriptor() + ")V",
                     false);
             mv.visitFieldInsn(Opcodes.PUTSTATIC,
                     type(path).getInternalName(),
@@ -250,7 +254,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
         // BlockData cloner
         mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
                 "createBlockData",
-                "()" + type(blockDataPath).getDescriptor(),
+                "()" + type(iBlockDataPath).getDescriptor(),
                 null,
                 new String[0]);
         mv.visitCode();
@@ -262,18 +266,18 @@ public class MaterialsLibGenerator extends CodeGenerator {
         mv.visitFieldInsn(Opcodes.GETFIELD,
                 type(path).getInternalName(),
                 "blockData",
-                type(blockDataPath).getDescriptor());
+                type(iBlockDataPath).getDescriptor());
         mv.visitJumpInsn(Opcodes.IFNULL, nullLabel);
 
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD,
                 type(path).getInternalName(),
                 "blockData",
-                type(blockDataPath).getDescriptor());
+                type(iBlockDataPath).getDescriptor());
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                type(blockDataPath).getInternalName(),
+                type(iBlockDataPath).getInternalName(),
                 "clone",
-                "()Lme/pesekjak/machine/world/BlockData;",
+                "()" + type(iBlockDataPath).getDescriptor(),
                 false);
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitJumpInsn(Opcodes.GOTO, notNullLabel);

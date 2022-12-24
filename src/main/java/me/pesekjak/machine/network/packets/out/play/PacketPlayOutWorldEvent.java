@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.world.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +27,7 @@ public class PacketPlayOutWorldEvent extends PacketOut {
                 PacketPlayOutWorldEvent::new);
     }
 
-    public PacketPlayOutWorldEvent(FriendlyByteBuf buf) {
+    public PacketPlayOutWorldEvent(@NotNull ServerBuffer buf) {
         event = buf.readInt();
         position = buf.readBlockPos();
         data = buf.readInt();
@@ -34,12 +35,17 @@ public class PacketPlayOutWorldEvent extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeInt(event)
                 .writeBlockPos(position)
@@ -49,7 +55,7 @@ public class PacketPlayOutWorldEvent extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutWorldEvent(new FriendlyByteBuf(serialize()));
     }
 

@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,20 +20,17 @@ public class PacketPlayOutResourcePack extends PacketOut {
 
     private static final int ID = 0x3D;
 
-    @NotNull
-    private String url;
-    @NotNull
-    private String hash;
+    private @NotNull String url;
+    private @NotNull String hash;
     private boolean forced;
-    @Nullable
-    private Component promptMessage;
+    private @Nullable Component promptMessage;
 
     static {
         register(PacketPlayOutResourcePack.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutResourcePack::new);
     }
 
-    public PacketPlayOutResourcePack(FriendlyByteBuf buf) {
+    public PacketPlayOutResourcePack(@NotNull ServerBuffer buf) {
         url = buf.readString(StandardCharsets.UTF_8);
         hash = buf.readString(StandardCharsets.UTF_8);
         forced = buf.readBoolean();
@@ -41,12 +39,17 @@ public class PacketPlayOutResourcePack extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(url, StandardCharsets.UTF_8)
                 .writeString(hash, StandardCharsets.UTF_8)
@@ -58,7 +61,7 @@ public class PacketPlayOutResourcePack extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutResourcePack(new FriendlyByteBuf(serialize()));
     }
 

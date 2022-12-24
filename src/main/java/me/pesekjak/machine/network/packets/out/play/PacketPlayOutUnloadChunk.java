@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -21,18 +23,23 @@ public class PacketPlayOutUnloadChunk extends PacketOut {
                 PacketPlayOutUnloadChunk::new);
     }
 
-    public PacketPlayOutUnloadChunk(FriendlyByteBuf buf) {
+    public PacketPlayOutUnloadChunk(@NotNull ServerBuffer buf) {
         chunkX = buf.readInt();
         chunkZ = buf.readInt();
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeInt(chunkX)
                 .writeInt(chunkZ)
@@ -40,7 +47,7 @@ public class PacketPlayOutUnloadChunk extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutUnloadChunk(new FriendlyByteBuf(serialize()));
     }
 

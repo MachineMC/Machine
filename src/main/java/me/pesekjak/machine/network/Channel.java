@@ -2,13 +2,14 @@ package me.pesekjak.machine.network;
 
 import lombok.*;
 import me.pesekjak.machine.auth.Crypt;
-import me.pesekjak.machine.network.packets.PacketIn;
-import me.pesekjak.machine.network.packets.PacketOut;
+import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.network.packets.out.login.PacketLoginOutSetCompression;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.utils.Pair;
 import me.pesekjak.machine.utils.ZLib;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.crypto.*;
 import java.io.DataInputStream;
@@ -27,9 +28,9 @@ public class Channel implements AutoCloseable {
     private final List<Pair<NamespacedKey, PacketHandler>> handlers = new CopyOnWriteArrayList<>();
 
     @Getter
-    private final ClientConnection connection;
-    protected final DataInputStream input;
-    protected final DataOutputStream output;
+    private final @NotNull ClientConnection connection;
+    protected final @NotNull DataInputStream input;
+    protected final @NotNull DataOutputStream output;
 
     @Getter
     private boolean open = true;
@@ -40,18 +41,17 @@ public class Channel implements AutoCloseable {
     private int threshold;
 
     @Getter
-    private SecretKey secretKey;
-    private EncryptionContext encryptionContext;
+    private @Nullable SecretKey secretKey;
+    private @Nullable EncryptionContext encryptionContext;
 
-    private final List<Byte> preReadBytes = new ArrayList<>();
+    private FriendlyByteBuf preReadBytes = new FriendlyByteBuf();
 
     /**
      * Adds new handler before the all existing ones.
      * @param key namespaced key of the handler
      * @param handler new handler
      */
-    public void addHandlerBefore(NamespacedKey key, PacketHandler handler) {
-        assert handler != null;
+    public void addHandlerBefore(@NotNull NamespacedKey key, @NotNull PacketHandler handler) {
         handlers.add(0, new Pair<>(key, handler));
     }
 
@@ -60,8 +60,7 @@ public class Channel implements AutoCloseable {
      * @param key namespaced key of the handler
      * @param handler new handler
      */
-    public void addHandlerAfter(NamespacedKey key, PacketHandler handler) {
-        assert handler != null;
+    public void addHandlerAfter(@NotNull NamespacedKey key, @NotNull PacketHandler handler) {
         handlers.add(new Pair<>(key, handler));
     }
 
@@ -69,7 +68,7 @@ public class Channel implements AutoCloseable {
      * Removes the handler from the channel
      * @param key key of the handler to remove
      */
-    public void removeHandler(NamespacedKey key) {
+    public void removeHandler(@NotNull NamespacedKey key) {
         handlers.removeIf(pair -> pair.first().equals(key));
     }
 
@@ -78,7 +77,8 @@ public class Channel implements AutoCloseable {
      * @param threshold maximum packet size without compression
      * @return true if client accepted the compression
      */
-    public synchronized boolean setCompression(int threshold) throws IOException {
+    @Synchronized
+    public boolean setCompression(int threshold) throws IOException {
         if(threshold <= 0) threshold = -1;
         boolean success = writePacket(new PacketLoginOutSetCompression(threshold));
         if(success) {
@@ -92,7 +92,8 @@ public class Channel implements AutoCloseable {
      * Disables the packet compression for this channel.
      * @return true if client accepted cancellation of the compression
      */
-    public synchronized boolean disableCompression() throws IOException {
+    @Synchronized
+    public boolean disableCompression() throws IOException {
         return setCompression(-1);
     }
 
@@ -100,8 +101,9 @@ public class Channel implements AutoCloseable {
      * Reads not yet read packets sent by client, handles, and returns.
      * @return handled packets
      */
-    protected synchronized PacketIn[] readPackets() throws IOException {
-        if(!open) return new PacketIn[0];
+    @Synchronized
+    protected Packet @NotNull [] readPackets() throws IOException {
+        if(!open) return new Packet[0];
         if(input.available() == 0) {
             /*
             Channel tries to read bytes before they're available,
@@ -111,24 +113,24 @@ public class Channel implements AutoCloseable {
             int preReadByte;
             try {
                 preReadByte = connection.getClientSocket().getInputStream().read();
-            } catch (Exception exception) { return new PacketIn[0]; }
+            } catch (Exception exception) { return new Packet[0]; }
             if(preReadByte == -1) {
                 connection.disconnect();
-                return new PacketIn[0];
+                return new Packet[0];
             }
-            preReadBytes.add((byte) preReadByte);
-            return new PacketIn[0];
+            preReadBytes.writeByte((byte) preReadByte);
+            return new Packet[0];
         }
         FriendlyByteBuf input = new FriendlyByteBuf();
         // Writes pre-read bytes to the buffer and clears
-        for(Byte preReadByte : preReadBytes) input.writeByte(preReadByte);
-        preReadBytes.clear();
+        input.writeBytes(preReadBytes.finish());
+        preReadBytes = new FriendlyByteBuf();
         // Writes available bytes to the buffer
         input.writeBytes(this.input.readNBytes(this.input.available()));
         // decryption
-        if(secretKey != null)
+        if(secretKey != null && encryptionContext != null)
             input = new FriendlyByteBuf(encryptionContext.decrypt.update(input.bytes()));
-        List<PacketIn> packets = new ArrayList<>();
+        List<Packet> packets = new ArrayList<>();
         do {
             int length = input.readVarInt();
             FriendlyByteBuf buf = new FriendlyByteBuf();
@@ -148,7 +150,9 @@ public class Channel implements AutoCloseable {
                 buf.writeVarInt(length);
                 buf.writeBytes(input.readBytes(length));
             }
-            PacketReader read = new PacketReader(buf, getConnection().getClientState().in);
+            final Packet.PacketState packetState = getConnection().getClientState().in;
+            if(packetState == null) return new Packet[0];
+            PacketReader read = new PacketReader(buf, packetState);
             if(read.getPacket() == null) continue;
             for(Pair<NamespacedKey, PacketHandler> pair : handlers)
                 read = pair.second().read(this, read);
@@ -158,7 +162,7 @@ public class Channel implements AutoCloseable {
                 packets.add(read.getPacket());
             }
         } while(input.readableBytes() != 0);
-        return packets.toArray(new PacketIn[0]);
+        return packets.toArray(new Packet[0]);
     }
 
     /**
@@ -166,8 +170,11 @@ public class Channel implements AutoCloseable {
      * @param packet packet to write
      * @return true if packet wasn't cancelled
      */
-    protected synchronized boolean writePacket(PacketOut packet) throws IOException {
+    @Synchronized
+    protected boolean writePacket(@NotNull Packet packet) throws IOException {
         if(!open) return false;
+        if(!Packet.PacketState.out().contains(packet.getPacketState()))
+            throw new UnsupportedOperationException();
         PacketWriter write = new PacketWriter(packet);
         for(Pair<NamespacedKey, PacketHandler> pair : handlers)
             write = pair.second().write(this, write);
@@ -179,7 +186,7 @@ public class Channel implements AutoCloseable {
         else
             buf.writeBytes(write.getPacket().rawSerialize());
         // Encryption
-        if(secretKey != null)
+        if(secretKey != null && encryptionContext != null)
             output.write(encryptionContext.encrypt.update(buf.bytes()));
         else
             output.write(buf.bytes());

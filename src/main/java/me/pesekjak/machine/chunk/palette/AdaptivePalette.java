@@ -1,6 +1,6 @@
 package me.pesekjak.machine.chunk.palette;
 
-import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.math.MathUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,6 +8,31 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class AdaptivePalette implements Palette {
+
+    /**
+     * @return default palette for blocks
+     */
+    public static @NotNull Palette blocks() {
+        return newPalette(16, 8, 4);
+    }
+
+    /**
+     * @return default palette for biomes
+     */
+    public static @NotNull Palette biomes() {
+        return newPalette(4, 3, 1);
+    }
+
+    /**
+     * Creates new palette filled with zeros
+     * @param dimension dimension of the palette
+     * @param maxBitsPerEntry max bits per entry
+     * @param bitsPerEntry min bits per entry
+     * @return created palette
+     */
+    public static @NotNull Palette newPalette(int dimension, int maxBitsPerEntry, int bitsPerEntry) {
+        return new AdaptivePalette((byte) dimension, (byte) maxBitsPerEntry, (byte) bitsPerEntry);
+    }
 
     protected final byte
             dimension,
@@ -103,7 +128,7 @@ public class AdaptivePalette implements Palette {
     }
 
     @Override
-    public void write(@NotNull FriendlyByteBuf buf) {
+    public void write(@NotNull ServerBuffer buf) {
         final Palette optimized = optimizedPalette();
         this.palette = optimized;
         optimized.write(buf);
@@ -115,7 +140,7 @@ public class AdaptivePalette implements Palette {
      * if possible.
      * @return optimized palette
      */
-    Palette optimizedPalette() {
+    @NotNull Palette optimizedPalette() {
         final Palette currentPalette = palette;
 
         if(!(currentPalette instanceof FlexiblePalette flexiblePalette))
@@ -147,7 +172,7 @@ public class AdaptivePalette implements Palette {
      * FlexiblePalette in case it's FilledPalette.
      * @return converted flexible palette
      */
-    Palette flexiblePalette() {
+    @NotNull Palette flexiblePalette() {
         Palette currentPalette = palette;
         if (currentPalette instanceof FilledPalette filledPalette) {
             currentPalette = new FlexiblePalette(this);

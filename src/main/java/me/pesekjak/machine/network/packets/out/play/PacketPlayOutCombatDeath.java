@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,27 +19,31 @@ public class PacketPlayOutCombatDeath extends PacketOut {
 
     private int playerId;
     private int entityId;
-    @NotNull
-    private Component deathMessage;
+    private @NotNull Component deathMessage;
 
     static {
         register(PacketPlayOutCombatDeath.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutCombatDeath::new);
     }
 
-    public PacketPlayOutCombatDeath(FriendlyByteBuf buf) {
+    public PacketPlayOutCombatDeath(@NotNull ServerBuffer buf) {
         playerId = buf.readVarInt();
         entityId = buf.readInt();
         deathMessage = buf.readComponent();
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(playerId)
                 .writeInt(entityId)
@@ -47,7 +52,7 @@ public class PacketPlayOutCombatDeath extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutCombatDeath(new FriendlyByteBuf(serialize()));
     }
 

@@ -1,11 +1,19 @@
 package me.pesekjak.machine.chunk;
 
+import lombok.experimental.UtilityClass;
 import me.pesekjak.machine.world.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
-public final class ChunkUtils {
+import static me.pesekjak.machine.chunk.Chunk.CHUNK_SIZE_BITS;
 
-    // Magic number for MOTION_BLOCKING encoding (https://wiki.vg/Chunk_Format#MOTION_BLOCKING_encoding)
+@UtilityClass
+public class ChunkUtils {
+
+    /**
+     * Magic number for MOTION_BLOCKING encoding.
+     *
+     * @see <a href="https://wiki.vg/Chunk_Format#MOTION_BLOCKING_encoding">Motion Blocking Encoding</a>
+     */
     private static final int[] MAGIC = {
             -1, -1, 0, Integer.MIN_VALUE, 0, 0, 1431655765, 1431655765, 0, Integer.MIN_VALUE,
             0, 1, 858993459, 858993459, 0, 715827882, 715827882, 0, 613566756, 613566756,
@@ -28,30 +36,22 @@ public final class ChunkUtils {
             70409299, 70409299, 0, 69273666, 69273666, 0, 68174084, 68174084, 0, Integer.MIN_VALUE,
             0, 5};
 
-    private ChunkUtils() {
-        throw new UnsupportedOperationException();
-    }
-
     /**
      * Converts a global coordinate to a coordinate of
      * the section the it's in.
-     * Example:
-     *     5 -> 0
-     *     -1 -> -1
-     *     16 -> 1
+     * <p>
+     * Example: 5 -> 0; -1 -> -1; 16 -> 1
      * @param xyz the coordinate to convert
      * @return the chunk X, Y or Z coordinate
      */
     public static int getChunkCoordinate(int xyz) {
-        return xyz >> 4;
+        return xyz >> CHUNK_SIZE_BITS;
     }
 
     /**
      * Converts a global coordinate to a section coordinate.
-     * Example:
-     *     5 -> 5
-     *     -1 -> 15
-     *     16 -> 0
+     * <p>
+     * Example: 5 -> 5; -1 -> 15; 16 -> 0
      * @param xyz global coordinate
      * @return section coordinate
      */
@@ -101,7 +101,7 @@ public final class ChunkUtils {
      * @param bitsPerEntry bits per entry
      * @return encoded blocks
      */
-    public static long[] encodeBlocks(int[] blocks, int bitsPerEntry) {
+    public static long @NotNull [] encodeBlocks(int @NotNull [] blocks, int bitsPerEntry) {
         final long maxEntryValue = (1L << bitsPerEntry) - 1;
         final int valuesPerLong = (64 / bitsPerEntry);
         final int magicIndex = 3 * (valuesPerLong - 1);
