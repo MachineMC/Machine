@@ -1,7 +1,6 @@
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     alias(libs.plugins.jetbrains.kotlin.jvm)
-    alias(libs.plugins.johnrengelman.shadow)
     id("machine.java-conventions-library")
 }
 

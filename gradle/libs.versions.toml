@@ -15,7 +15,6 @@ mojang-brigadier = "1.0.18"
 junit = "5.9.1"
 
 jetbrains-kotlin-jvm = "1.7.10"
-johnrengelman-shadow = "7.1.2"
 
 
 [libraries]
@@ -56,4 +55,3 @@ hephaistos = ["hephaistos-common", "hephaistos-gson"]
 
 [plugins]
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrains-kotlin-jvm" }
-johnrengelman-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "johnrengelman-shadow" }

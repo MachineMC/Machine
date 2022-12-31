@@ -2,7 +2,6 @@
 plugins {
     application
     alias(libs.plugins.jetbrains.kotlin.jvm)
-    alias(libs.plugins.johnrengelman.shadow)
     id("machine.java-conventions-library")
     id("machine.generator-library")
 }
@@ -48,7 +47,9 @@ tasks {
             attributes["Main-Class"] = application.mainClass
         }
     }
-    shadowJar {
-        this.archiveClassifier.set("")
+    fatJar {
+        manifest {
+            attributes["Main-Class"] = application.mainClass
+        }
     }
 }

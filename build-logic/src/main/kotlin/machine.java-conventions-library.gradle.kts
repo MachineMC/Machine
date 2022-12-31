@@ -41,3 +41,13 @@ tasks {
         useJUnitPlatform()
     }
 }
+
+tasks.register<Jar>("fatJar") {
+    group = "build"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(sourceSets.main.get().output)
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
+}
