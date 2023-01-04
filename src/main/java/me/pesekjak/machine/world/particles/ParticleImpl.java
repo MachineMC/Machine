@@ -5,10 +5,9 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.ServerBuffer;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBT;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.Map;
 import java.util.Optional;
@@ -75,9 +74,10 @@ public class ParticleImpl implements Particle {
 
     @Override
     public @NotNull NBTCompound toNBT() {
-        NBTCompound particle = NBT.Compound(Map.of("type", NBT.String(type.getName().key())));
+        NBTCompound particle = new NBTCompound(Map.of("type", type.getName().key()));
         if(options == null) return particle;
-        return particle.plus(options.toNBT());
+        particle.putAll(options.toNBT());
+        return particle;
     }
 
 }

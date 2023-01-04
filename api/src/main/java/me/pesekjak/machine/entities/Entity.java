@@ -4,12 +4,12 @@ import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.world.Location;
 import me.pesekjak.machine.world.World;
+import mx.kenzie.nbt.NBTCompound;
 import net.kyori.adventure.identity.Identity;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.Set;
 import java.util.UUID;

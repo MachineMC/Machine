@@ -30,7 +30,15 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      * @param messages messages to send
      */
     default void info(String @NotNull ... messages) {
-        Arrays.stream(messages).forEach(message -> log(Level.INFO, message));
+        log(Level.INFO, messages);
+    }
+
+    /**
+     * Sends multiple objects at INFO logging level
+     * @param objects objects to send
+     */
+    default void info(Object @NotNull ... objects) {
+        info(Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
     }
 
     /**
@@ -38,7 +46,15 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      * @param messages messages to send
      */
     default void warning(String @NotNull ... messages) {
-        Arrays.stream(messages).forEach(message -> log(Level.WARNING, message));
+        log(Level.WARNING, messages);
+    }
+
+    /**
+     * Sends multiple objects at WARNING logging level
+     * @param objects objects to send
+     */
+    default void warning(Object @NotNull ... objects) {
+        warning(Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
     }
 
     /**
@@ -46,7 +62,15 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      * @param messages messages to send
      */
     default void severe(String @NotNull ... messages) {
-        Arrays.stream(messages).forEach(message -> log(Level.SEVERE, message));
+        log(Level.SEVERE, messages);
+    }
+
+    /**
+     * Sends multiple objects at SEVERE logging level
+     * @param objects objects to send
+     */
+    default void severe(Object @NotNull ... objects) {
+        severe(Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
     }
 
     /**
@@ -54,7 +78,15 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      * @param messages messages to send
      */
     default void config(String @NotNull ... messages) {
-        Arrays.stream(messages).forEach(message -> log(Level.CONFIG, message));
+        log(Level.CONFIG, messages);
+    }
+
+    /**
+     * Sends multiple objects at CONFIG logging level
+     * @param objects objects to send
+     */
+    default void config(Object @NotNull ... objects) {
+        config(Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
     }
 
     /**

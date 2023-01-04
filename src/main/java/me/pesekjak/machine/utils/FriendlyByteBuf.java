@@ -9,12 +9,12 @@ import me.pesekjak.machine.inventory.Item;
 import me.pesekjak.machine.inventory.ItemStack;
 import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.Material;
+import mx.kenzie.nbt.NBTCompound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.*;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -353,28 +353,31 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public @NotNull NBT readNBT() {
+    public @NotNull NBTCompound readNBT() {
         final byte[] bytes = buf.array();
-        final ByteArrayInputStream buffer = new ByteArrayInputStream(bytes, buf.readerIndex(), bytes.length);
-        final NBTReader reader = new NBTReader(buffer, CompressedProcesser.NONE);
-        final NBT tag;
+        final ByteArrayInputStream is = new ByteArrayInputStream(bytes, buf.readerIndex(), bytes.length);
+        NBTCompound compound;
         try {
-            tag = reader.read();
+            compound = new NBTCompound();
+            compound.readAll(is);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
-        buf.readerIndex(bytes.length - buffer.available());
-        return tag;
+        buf.readerIndex(bytes.length - is.available());
+        try {
+            is.close();
+        } catch (IOException ignored) { }
+        return compound;
     }
 
     @Override
-    public @NotNull FriendlyByteBuf writeNBT(@NotNull String name, @NotNull NBT tag) {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final NBTWriter writer = new NBTWriter(buffer, CompressedProcesser.NONE);
+    public @NotNull FriendlyByteBuf writeNBT(@NotNull NBTCompound compound) {
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        compound.writeAll(os);
+        buf.writeBytes(os.toByteArray());
         try {
-            writer.writeNamed(name, tag);
+            os.close();
         } catch (IOException ignored) { }
-        buf.writeBytes(buffer.toByteArray());
         return this;
     }
 
@@ -418,7 +421,8 @@ public class FriendlyByteBuf implements ServerBuffer {
             return new ItemStack(Material.AIR);
         final Material material = ItemStack.getMaterial(readVarInt());
         ItemStack itemStack = new ItemStack(material != null ? material : Material.AIR, readByte());
-        itemStack.setNbtCompound((NBTCompound) readNBT());
+        NBTCompound compound = readNBT();
+        itemStack.setNbtCompound(compound);
         return itemStack;
     }
 
@@ -431,15 +435,15 @@ public class FriendlyByteBuf implements ServerBuffer {
         writeBoolean(true);
         writeVarInt(itemStack.getMaterial().getId());
         writeByte(itemStack.getAmount());
-        if(itemStack.getNbtCompound().getSize() != 0)
-            writeNBT("", itemStack.getNbtCompound());
+        if(itemStack.getNbtCompound().size() != 0)
+            writeNBT(itemStack.getNbtCompound());
         else
             writeBoolean(false);
         return this;
     }
 
     @Override
-    public @NotNull PublicKeyDataImpl readPublicKey() {
+    public @NotNull PublicKeyData readPublicKey() {
         final Instant instant = Instant.ofEpochMilli(readLong());
         return new PublicKeyDataImpl(Crypt.pubicKeyFrom(readByteArray()), readByteArray(), instant);
     }
@@ -453,7 +457,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public @Nullable PlayerTexturesImpl readTextures() {
+    public @Nullable PlayerTextures readTextures() {
         if (readVarInt() == 0)
             return null;
         readString(StandardCharsets.UTF_8);
@@ -484,7 +488,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public @NotNull MessageSignatureImpl readSignature() {
+    public @NotNull MessageSignature readSignature() {
         final Instant timestamp = readInstant();
         final long salt = readLong();
         final byte[] signature = readByteArray();

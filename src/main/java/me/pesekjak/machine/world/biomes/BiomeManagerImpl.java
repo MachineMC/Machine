@@ -4,9 +4,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.utils.NamespacedKey;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBT;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -100,7 +100,7 @@ public class BiomeManagerImpl implements BiomeManager {
     }
 
     @Override
-    public @NotNull List<NBT> getCodecElements() {
+    public @NotNull List<NBTCompound> getCodecElements() {
         return new ArrayList<>(biomes.stream()
                 .map(Biome::toNBT)
                 .toList());

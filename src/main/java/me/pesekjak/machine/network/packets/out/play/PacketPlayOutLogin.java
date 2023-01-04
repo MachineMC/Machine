@@ -10,9 +10,9 @@ import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.world.BlockPosition;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class PacketPlayOutLogin extends PacketOut {
         byte gamemodeId = buf.readByte();
         previousGamemode = gamemodeId == -1 ? null : Gamemode.fromID(gamemodeId);
         dimensions = buf.readStringList(StandardCharsets.UTF_8);
-        dimensionCodec = (NBTCompound) buf.readNBT();
+        this.dimensionCodec = buf.readNBT();
         spawnWorldType = buf.readNamespacedKey();
         spawnWorld = buf.readNamespacedKey();
         hashedSeed = buf.readLong();
@@ -94,7 +94,7 @@ public class PacketPlayOutLogin extends PacketOut {
                 .writeByte((byte) gamemode.getId())
                 .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getId()))
                 .writeStringList(new ArrayList<>(dimensions), StandardCharsets.UTF_8)
-                .writeNBT("", dimensionCodec)
+                .writeNBT(dimensionCodec)
                 .writeNamespacedKey(spawnWorldType)
                 .writeNamespacedKey(spawnWorld)
                 .writeLong(hashedSeed)

@@ -3,9 +3,11 @@ package me.pesekjak.machine.entities;
 import lombok.Getter;
 import lombok.Setter;
 import me.pesekjak.machine.Machine;
+import mx.kenzie.nbt.NBT;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -27,29 +29,32 @@ public abstract class ServerLivingEntity extends ServerEntity implements LivingE
 
     @Override
     public @NotNull NBTCompound toNBT() {
-        return super.toNBT().toMutableCompound().setFloat("Health", health)
-                .setShort("HurtTime", hurtTime)
-                .setInt("HurtByTimestamp", hurtByTimestamp)
-                .setShort("DeathTime", deathTime)
-                .setFloat("AbsorptionAmount", absorptionAmount)
+        NBTCompound compound = super.toNBT();
+        compound.putAll(Map.of(
+                "Health", NBT.convert(health),
+                "HurtTime", NBT.convert(hurtTime),
+                "HurtByTimestamp", NBT.convert(hurtByTimestamp),
+                "DeathTime", NBT.convert(deathTime),
+                "AbsorptionAmount", NBT.convert(absorptionAmount),
                 // Attributes
                 // Active Effects
-                .setByte("FallFlying", (byte) (fallFlying ? 1 : 0))
+                "FallFlying", NBT.convert((byte) (fallFlying ? 1 : 0))
                 // Sleeping Position
                 // Brain
-                .toCompound();
+        ));
+        return compound;
     }
 
     @Override
-    @SuppressWarnings("ConstantConditions")
     public void load(@NotNull NBTCompound nbtCompound) {
         super.load(nbtCompound);
-        health = nbtCompound.contains("Health") ? nbtCompound.getAsFloat("Health") : 0;
-        hurtTime = nbtCompound.contains("HurtTime") ? nbtCompound.getAsShort("HurtTime") : 0;
-        hurtByTimestamp = nbtCompound.contains("HurtByTimestamp") ? nbtCompound.getAsInt("HurtByTimestamp") : 0;
-        deathTime = nbtCompound.contains("DeathTime") ? nbtCompound.getAsShort("DeathTime") : 0;
-        absorptionAmount = nbtCompound.contains("AbsorptionAmount") ? nbtCompound.getAsFloat("AbsorptionAmount") : 0;
-        fallFlying = nbtCompound.contains("FallFlying") ? nbtCompound.getBoolean("FallFlying") : false;
+        Map<String, ?> map = nbtCompound.revert();
+        health = map.containsKey("Health") ? (float) map.get("Health") : 0;
+        hurtTime = map.containsKey("HurtTime") ? (short) map.get("HurtTime") : 0;
+        hurtByTimestamp = map.containsKey("HurtByTimestamp") ? (int) map.get("HurtByTimestamp") : 0;
+        deathTime = map.containsKey("DeathTime") ? (short) map.get("DeathTime") : 0;
+        absorptionAmount = map.containsKey("AbsorptionAmount") ? (float) map.get("AbsorptionAmount") : 0;
+        fallFlying = map.containsKey("FallFlying") && ((byte) map.get("FallFlying") == 1);
     }
 
 }

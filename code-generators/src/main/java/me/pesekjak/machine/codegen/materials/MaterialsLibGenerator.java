@@ -22,7 +22,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
     private final String path = MATERIAL_CLASS;
 
     public MaterialsLibGenerator(File outputDir) throws IOException {
-        super(outputDir, "Materials", "registries.json");
+        super(outputDir, "materials", "registries.json");
     }
 
     @Override

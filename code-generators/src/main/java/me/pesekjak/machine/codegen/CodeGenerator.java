@@ -17,7 +17,7 @@ import java.util.zip.ZipOutputStream;
 
 public class CodeGenerator {
 
-    public final static String prefix = "Machine";
+    public final static String prefix = "machine-";
     @Getter
     private final String libraryName;
 

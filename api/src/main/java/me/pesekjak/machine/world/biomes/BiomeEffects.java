@@ -69,7 +69,7 @@ public interface BiomeEffects extends NBTSerializable {
     /**
      * @return probability of biome particle playing
      */
-    @Nullable Integer getBiomeParticleProbability();
+    @Nullable Float getBiomeParticleProbability();
 
     /**
      * @return particle of the biome
@@ -80,7 +80,7 @@ public interface BiomeEffects extends NBTSerializable {
      * Modifier of the grass color.
      */
     enum GrassColorModifier {
-        NONE, DARK_FOREST, SWAMP;
+        NONE, DARK_FOREST, SWAMP
     }
 
     /**

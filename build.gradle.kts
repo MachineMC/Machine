@@ -21,10 +21,11 @@ dependencies {
     implementation(project(":api"))
 
     sequenceOf(
-        "Materials",
-        "BlockData"
+        "machine-materials",
+        "machine-blockdata",
+        "nbt"
     ).forEach {
-        implementation(files("libs/Machine$it.jar"))
+        implementation(files("libs/$it.jar"))
     }
 
     implementation(libs.google.guava)

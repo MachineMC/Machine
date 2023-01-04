@@ -264,13 +264,6 @@ public class ClientConnection extends Thread implements PlayerConnection {
         if(owner != null) owner.setLatency((int) (System.currentTimeMillis() - lastKeepAlive));
     }
 
-    /**
-     * Disconnects the client from the server.
-     */
-    public void disconnect() {
-        disconnect(Component.translatable("disconnect.disconnected"));
-    }
-
     @Override
     public @NotNull InetSocketAddress getAddress() {
         return ((InetSocketAddress) clientSocket.getRemoteSocketAddress());
@@ -290,6 +283,21 @@ public class ClientConnection extends Thread implements PlayerConnection {
                 sendPacket(new PacketPlayOutDisconnect(reason));
         } catch (Exception ignored) { }
         close();
+    }
+
+    /**
+     * Disconnects the client from the server.
+     */
+    public void disconnect() {
+        disconnect(Component.translatable("disconnect.disconnected"));
+    }
+
+    /**
+     * Checks whether the connection is closed.
+     * @return if the connection is closed
+     */
+    public boolean isDisconnected() {
+        return clientState == ClientState.DISCONNECTED;
     }
 
 }

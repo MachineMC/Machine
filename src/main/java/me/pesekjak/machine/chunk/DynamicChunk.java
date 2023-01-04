@@ -13,10 +13,10 @@ import me.pesekjak.machine.world.BlockPosition;
 import me.pesekjak.machine.world.World;
 import me.pesekjak.machine.world.biomes.Biome;
 import me.pesekjak.machine.world.blocks.*;
+import mx.kenzie.nbt.NBTCompound;
+import mx.kenzie.nbt.NBTLongArray;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBT;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -142,9 +142,9 @@ public class DynamicChunk extends WorldChunk {
         }
 
         final int bitsForHeight = MathUtils.bitsToRepresent(height);
-        final NBTCompound heightmaps = NBT.Compound(Map.of(
-                "MOTION_BLOCKING", NBT.LongArray(ChunkUtils.encodeBlocks(motionBlocking, bitsForHeight)),
-                "WORLD_SURFACE", NBT.LongArray(ChunkUtils.encodeBlocks(worldSurface, bitsForHeight))));
+        final NBTCompound heightmaps = new NBTCompound(Map.of(
+                "MOTION_BLOCKING", new NBTLongArray(ChunkUtils.encodeBlocks(motionBlocking, bitsForHeight)),
+                "WORLD_SURFACE", new NBTLongArray(ChunkUtils.encodeBlocks(worldSurface, bitsForHeight))));
 
         // Data
         FriendlyByteBuf buf = new FriendlyByteBuf();

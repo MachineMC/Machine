@@ -6,11 +6,11 @@ import lombok.Setter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.network.packets.out.play.PacketPlayOutSystemChatMessage;
+import mx.kenzie.nbt.NBTCompound;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
-import org.jglrxavpok.hephaistos.nbt.NBT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +51,7 @@ public class MessengerImpl implements Messenger {
     }
 
     @Override
-    public @NotNull List<NBT> getCodecElements() {
+    public @NotNull List<NBTCompound> getCodecElements() {
         return new ArrayList<>(Arrays.stream(ChatType.values())
                 .map(ChatType::toNBT)
                 .toList());

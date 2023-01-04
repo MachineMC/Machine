@@ -9,22 +9,23 @@ import me.pesekjak.machine.chat.ChatMode;
 import me.pesekjak.machine.chat.ChatUtils;
 import me.pesekjak.machine.entities.player.*;
 import me.pesekjak.machine.network.ClientConnection;
+import me.pesekjak.machine.network.packets.Packet;
 import me.pesekjak.machine.network.packets.out.play.*;
 import me.pesekjak.machine.network.packets.out.play.PacketPlayOutGameEvent.Event;
 import me.pesekjak.machine.server.PlayerManager;
 import me.pesekjak.machine.server.codec.Codec;
 import me.pesekjak.machine.world.*;
+import mx.kenzie.nbt.NBTCompound;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
-import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -92,12 +93,15 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
             throw new IllegalStateException("Session is already active");
         }
         ServerPlayer player = new ServerPlayer(server, profile, connection);
-        try {
-            final NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player.getUuid());
-            if(nbtCompound != null)
-                player.load(nbtCompound);
-        } catch (Exception ignored) {
-            server.getConsole().warning("Failed to load player data for " + player.getName() + " (" + player.getUuid() + ")");
+        if(server.getPlayerDataContainer().exist(player.getUuid())) {
+            try {
+                final NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player.getUuid());
+                if (nbtCompound != null)
+                    player.load(nbtCompound);
+            } catch (Exception exception) {
+                server.getConsole().warning("Failed to load player data for " + player.getName() + " (" + player.getUuid() + ")");
+                server.getExceptionHandler().handle(exception);
+            }
         }
         try {
             manager.addPlayer(player);
@@ -192,8 +196,8 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
             getServer().getConsole().info(ChatColor.YELLOW + ChatUtils.componentToString(getDisplayName()) + " left the game");
             save();
         }
-        catch (IOException e) {
-            throw new RuntimeException(e);
+        catch (IOException exception) {
+            throw new RuntimeException(exception);
         }
     }
 
@@ -258,19 +262,28 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public @NotNull NBTCompound toNBT() {
-        MutableNBTCompound nbtCompound = super.toNBT().toMutableCompound();
-        nbtCompound.setInt("playerGameType", gamemode.getId());
+        NBTCompound nbtCompound = super.toNBT();
+        nbtCompound.set("playerGameType", gamemode.getId());
         if (previousGamemode != null)
-            nbtCompound.setInt("previousPlayerGameType", previousGamemode.getId());
-        return nbtCompound.toCompound();
+            nbtCompound.set("previousPlayerGameType", previousGamemode.getId());
+        return nbtCompound;
     }
 
     @Override
-    @SuppressWarnings("ConstantConditions")
     public void load(@NotNull NBTCompound nbtCompound) {
         super.load(nbtCompound);
-        gamemode = Gamemode.fromID(nbtCompound.contains("playerGameType") ? nbtCompound.getInt("playerGameType") : Gamemode.SURVIVAL.getId()); // TODO replace with default gamemode from server.properties
-        previousGamemode = nbtCompound.contains("previousPlayerGameType") ? Gamemode.fromID(nbtCompound.getInt("previousPlayerGameType")) : null;
+        Map<String, ?> map = nbtCompound.revert();
+        gamemode = Gamemode.fromID(map.containsKey("playerGameType") ? (int) map.get("playerGameType") : Gamemode.SURVIVAL.getId()); // TODO replace with default gamemode from server.properties
+        previousGamemode = map.containsKey("previousPlayerGameType") ? Gamemode.fromID((Integer) map.get("previousPlayerGameType")) : null;
+    }
+
+    @Override
+    public void sendPacket(@NotNull Packet packet) {
+        try {
+            getConnection().sendPacket(packet);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     @Override

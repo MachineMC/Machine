@@ -17,7 +17,7 @@ public class BlockDataLibGenerator extends CodeGenerator {
     private final Map<String, Property> properties = new LinkedHashMap<>();
 
     public BlockDataLibGenerator(File outputDir) throws IOException {
-        super(outputDir, "BlockData", "blocks.json");
+        super(outputDir, "blockdata", "blocks.json");
     }
 
     @Override

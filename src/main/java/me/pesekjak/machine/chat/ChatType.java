@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.utils.NamespacedKey;
+import mx.kenzie.nbt.NBTCompound;
+import mx.kenzie.nbt.NBTList;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
@@ -14,10 +16,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
-import org.jglrxavpok.hephaistos.nbt.NBT;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
-import org.jglrxavpok.hephaistos.nbt.NBTString;
-import org.jglrxavpok.hephaistos.nbt.NBTType;
 
 import java.util.*;
 
@@ -135,16 +133,15 @@ public enum ChatType implements NBTSerializable {
 
     @Override
     public @NotNull NBTCompound toNBT() {
-        return NBT.Compound(chatType -> {
-            chatType.setString("name", name.toString());
-            chatType.setInt("id", ordinal());
-            chatType.set("element",
-                    NBT.Compound(element -> {
-                        element.set("chat", chatElement.toNBT());
-                        element.set("narration", narrationElement.toNBT());
-                    })
-            );
-        });
+        NBTCompound element = new NBTCompound(Map.of(
+                "chat", chatElement.toNBT(),
+                "narration", narrationElement.toNBT()
+        ));
+        return new NBTCompound(Map.of(
+                "name", name.toString(),
+                "id", ordinal(),
+                "element", element
+        ));
     }
 
     /**
@@ -184,9 +181,7 @@ public enum ChatType implements NBTSerializable {
 
         @Override
         public @NotNull NBTCompound toNBT() {
-            final List<NBTString> parameters = new ArrayList<>();
-            for(Parameter parameter : this.parameters)
-                parameters.add(new NBTString(parameter.getName()));
+            final NBTList parameters = new NBTList(this.parameters.stream().map(Parameter::getName).toList());
             final Map<String, String> styleMap = new HashMap<>();
             if(style != null) {
                 Map<TextDecoration, TextDecoration.State> decorations = style.decorations();
@@ -206,17 +201,14 @@ public enum ChatType implements NBTSerializable {
                 if (font != null)
                     styleMap.put("font", font.asString());
             }
-            return NBT.Compound(element -> {
-                element.setString("translation_key", translationKey);
-                element.set("parameters", NBT.List(
-                        NBTType.TAG_String,
-                        parameters
-                ));
-                element.set("style", NBT.Compound(style -> {
-                    for(String key : styleMap.keySet())
-                        style.setString(key, styleMap.get(key));
-                }));
-            });
+            NBTCompound style = new NBTCompound();
+            for(String key : styleMap.keySet())
+                style.set(key, styleMap.get(key));
+            return new NBTCompound(Map.of(
+                    "translation_key", translationKey,
+                    "parameters", parameters,
+                    "style", style
+            ));
         }
 
     }

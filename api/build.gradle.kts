@@ -13,10 +13,11 @@ repositories {
 dependencies {
 
     sequenceOf(
-        "Materials",
-        "BlockData"
+        "machine-materials",
+        "machine-blockdata",
+        "nbt"
     ).forEach {
-        implementation(files("../libs/Machine$it.jar"))
+        implementation(files("../libs/$it.jar"))
     }
 
     implementation(libs.jetbrains.annotations) // overrides default compileOnly
@@ -24,6 +25,5 @@ dependencies {
     implementation(libs.google.guava)
 
     implementation(libs.bundles.kyori.adventure)
-    implementation(libs.bundles.hephaistos)
     implementation(libs.mojang.brigadier)
 }

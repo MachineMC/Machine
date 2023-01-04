@@ -2,13 +2,11 @@ package me.pesekjak.machine.server.codec;
 
 import lombok.NoArgsConstructor;
 import me.pesekjak.machine.server.NBTSerializable;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Codec containing NBTCompound representing certain registries
@@ -25,10 +23,10 @@ public class Codec implements NBTSerializable {
 
     @Override
     public @NotNull NBTCompound toNBT() {
-        Map<String, NBTCompound> parts = new LinkedHashMap<>();
+        NBTCompound compound = new NBTCompound();
         for(CodecPart part : codecParts)
-            parts.put(part.getCodecType(), part.getCodecNBT());
-        return new NBTCompound(parts);
+            compound.set(part.getCodecType(), part.getCodecNBT());
+        return compound;
     }
 
 }

@@ -5,8 +5,8 @@ import lombok.Getter;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.utils.NBTUtils;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,27 +32,34 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
     }
 
     @Override
+    public boolean exist(@NotNull UUID uuid) {
+        return getPlayerDataFile(uuid, false).exists();
+    }
+
+    @Override
     public NBTCompound getPlayerData(@NotNull UUID uuid) {
-        File playerDataFile = getPlayerDataFile(uuid);
-        return NBTUtils.deserializeNBTFile(playerDataFile) instanceof NBTCompound nbtCompound ? nbtCompound : null;
+        File playerDataFile = getPlayerDataFile(uuid, true);
+        return NBTUtils.deserializeNBTFile(playerDataFile);
     }
 
     /**
      * Returns player data file for player with given uuid.
      * @param uuid uuid of the player
+     * @param create if the file should be created in case it doesn't exist
      * @return player's data file
      */
-    private @NotNull File getPlayerDataFile(@NotNull UUID uuid) {
+    private @NotNull File getPlayerDataFile(@NotNull UUID uuid, boolean create) {
         File playerDataFile = new File(new File(DEFAULT_PLAYER_DATA_FOLDER), uuid + ".dat");
+        if(!create) return playerDataFile;
         try {
             if(!playerDataFile.exists() && !playerDataFile.createNewFile()) {
                 throw new RuntimeException("Can't create the player data file for " + uuid);
             }
+            return playerDataFile;
         }
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return playerDataFile;
     }
 
     /**
@@ -61,7 +68,7 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
      */
     @Override
     public void savePlayerData(@NotNull Player player) {
-        player.serializeNBT(getPlayerDataFile(player.getUuid()));
+        player.serializeNBT(getPlayerDataFile(player.getUuid(), true));
     }
 
 }

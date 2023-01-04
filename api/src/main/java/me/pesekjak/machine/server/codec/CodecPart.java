@@ -1,10 +1,9 @@
 package me.pesekjak.machine.server.codec;
 
+import mx.kenzie.nbt.NBTCompound;
+import mx.kenzie.nbt.NBTList;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jglrxavpok.hephaistos.nbt.NBT;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
-import org.jglrxavpok.hephaistos.nbt.NBTType;
 
 import java.util.List;
 import java.util.Map;
@@ -22,16 +21,16 @@ public interface CodecPart {
     /**
      * @return NBT values of the codec
      */
-    @NotNull List<NBT> getCodecElements();
+    @NotNull List<NBTCompound> getCodecElements();
 
     /**
      * Builds the full NBTCompound of the codec type and its elements.
      * @return full NBTCompound of the codec part
      */
     default @NotNull NBTCompound getCodecNBT() {
-        return NBT.Compound(Map.of(
-                "type", NBT.String(getCodecType()),
-                "value", NBT.List(NBTType.TAG_Compound, getCodecElements())
+        return new NBTCompound(Map.of(
+                "type", getCodecType(),
+                "value", new NBTList(getCodecElements())
         ));
     }
 

@@ -2,13 +2,14 @@ package me.pesekjak.machine.utils;
 
 import lombok.Synchronized;
 import lombok.experimental.UtilityClass;
+import mx.kenzie.nbt.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jglrxavpok.hephaistos.nbt.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for NBT-related operations.
@@ -22,10 +23,8 @@ public class NBTUtils {
      * @return NBT double list
      */
     @Contract("_ -> new")
-    public static @NotNull NBTList<NBTDouble> doubleList(double @NotNull ... doubles) {
-        return new NBTList<>(NBTType.TAG_Double, Arrays.stream(doubles)
-                .mapToObj(NBTDouble::new)
-                .toList());
+    public static @NotNull NBTList doubleList(double @NotNull ... doubles) {
+        return new NBTList(Arrays.stream(doubles).boxed().collect(Collectors.toList()));
     }
 
     /**
@@ -34,13 +33,11 @@ public class NBTUtils {
      * @return NBT float list
      */
     @Contract("_ -> new")
-    public static @NotNull NBTList<NBTFloat> floatList(float @NotNull ... floats) {
+    public static @NotNull NBTList floatList(float @NotNull ... floats) {
         Float[] floatArray = new Float[floats.length];
         for (int i = 0; i < floats.length; i++)
             floatArray[i] = floats[i];
-        return new NBTList<>(NBTType.TAG_Float, Arrays.stream(floatArray)
-                .map(NBTFloat::new)
-                .toList());
+        return new NBTList(Arrays.stream(floatArray).toList());
     }
 
     /**
@@ -49,15 +46,13 @@ public class NBTUtils {
      * @param nbt The NBT to serialize
      */
     @Synchronized
-    public static void serializeNBT(@NotNull File file, @NotNull NBT nbt) {
+    public static void serializeNBT(@NotNull File file, @NotNull NBTCompound nbt) {
         try {
             if (!file.exists() && !file.createNewFile())
                 throw new IOException("Unable to create file at " + file.getAbsolutePath());
-            try (NBTWriter writer = new NBTWriter(file, CompressedProcesser.NONE)) {
-                writer.writeNamed("", nbt);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            nbt.write(file);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
         }
     }
 
@@ -67,13 +62,11 @@ public class NBTUtils {
      * @return The NBT stored in the file
      */
     @Synchronized
-    public static @NotNull NBT deserializeNBTFile(@NotNull File file) {
-        try (NBTReader reader = new NBTReader(file, CompressedProcesser.NONE)) {
-            try {
-                return reader.read();
-            } catch (NBTException e) {
-                throw new RuntimeException("File at " + file.getAbsolutePath() + " doesn't follow nbt format");
-            }
+    public static @NotNull NBTCompound deserializeNBTFile(@NotNull File file) {
+        try {
+            NBTCompound compound = new NBTCompound();
+            compound.read(file);
+            return compound;
         } catch (IOException e) {
             throw new RuntimeException("Couldn't read file at " + file.getAbsolutePath(), e);
         }

@@ -8,9 +8,10 @@ import me.pesekjak.machine.world.BlockData;
 import me.pesekjak.machine.world.BlockDataImpl;
 import me.pesekjak.machine.world.Material;
 import me.pesekjak.machine.world.particles.ParticleFactory;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
-import org.jglrxavpok.hephaistos.nbt.NBT;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+
+import java.util.Map;
 
 /**
  * Default block options implementation.
@@ -39,11 +40,11 @@ public class BlockOptionsImpl implements BlockOptions {
     @Override
     public @NotNull NBTCompound toNBT() {
         if(blockData.getMaterial() == null)
-            return NBT.Compound(nbtCompound -> nbtCompound.setString("Name", DEFAULT_LOOK.getName().toString()));
-        return NBT.Compound(nbtCompound ->
-                nbtCompound.setString("Name", blockData.getMaterial().getName().toString())
+            return new NBTCompound(Map.of("Name", DEFAULT_LOOK.getName().toString()));
+        return new NBTCompound(Map.of(
+                "Name", blockData.getMaterial().getName().toString()
                 // TODO Full block data support (properties)
-        );
+        ));
     }
 
     @Override
