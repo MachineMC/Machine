@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 
@@ -24,24 +26,29 @@ public class PacketStatusOutResponse extends PacketOut {
     @Getter @Setter
     private String json;
 
-    public PacketStatusOutResponse(FriendlyByteBuf buf) {
+    public PacketStatusOutResponse(@NotNull ServerBuffer buf) {
         json = buf.readString(StandardCharsets.UTF_8);
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.STATUS_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeString(json, StandardCharsets.UTF_8)
                 .bytes();
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketStatusOutResponse(new FriendlyByteBuf(serialize()));
     }
 

@@ -6,6 +6,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import me.pesekjak.machine.Machine;
 import me.pesekjak.machine.commands.CommandExecutor;
 import me.pesekjak.machine.server.ServerProperty;
+import org.jetbrains.annotations.NotNull;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
@@ -13,7 +14,11 @@ import org.jline.reader.ParsedLine;
 
 import java.util.List;
 
+/**
+ * Default console completer for Machine server.
+ */
 public record ConsoleCompleter(Machine server, ServerConsole console) implements Completer, ServerProperty {
+
     @Override
     public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
         final CommandDispatcher<CommandExecutor> dispatcher = server.getCommandDispatcher();
@@ -36,7 +41,7 @@ public record ConsoleCompleter(Machine server, ServerConsole console) implements
     }
 
     @Override
-    public Machine getServer() {
+    public @NotNull Machine getServer() {
         return server;
     }
 

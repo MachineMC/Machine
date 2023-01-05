@@ -8,6 +8,7 @@ import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.utils.NamespacedKey;
+import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.world.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,25 +20,20 @@ public class PacketPlayOutRespawn extends PacketOut {
 
     private static final int ID = 0x3E;
 
-    @NotNull
-    private NamespacedKey worldType, worldName;
+    private @NotNull NamespacedKey worldType, worldName;
     private long hashedSeed;
-    @NotNull
-    private Gamemode gamemode;
-    @Nullable
-    private Gamemode previousGamemode;
+    private @NotNull Gamemode gamemode;
+    private @Nullable Gamemode previousGamemode;
     private boolean isDebug, isFlat, copyMetadata, hasDeathLocation;
-    @Nullable
-    private NamespacedKey deathWorldName;
-    @Nullable
-    private BlockPosition deathLocation;
+    private @Nullable NamespacedKey deathWorldName;
+    private @Nullable BlockPosition deathLocation;
 
     static {
         register(PacketPlayOutRespawn.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutRespawn::new);
     }
 
-    public PacketPlayOutRespawn(FriendlyByteBuf buf) {
+    public PacketPlayOutRespawn(@NotNull ServerBuffer buf) {
         worldType = buf.readNamespacedKey();
         worldName = buf.readNamespacedKey();
         hashedSeed = buf.readLong();
@@ -54,12 +50,17 @@ public class PacketPlayOutRespawn extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeNamespacedKey(worldType)
                 .writeNamespacedKey(worldName)
@@ -80,7 +81,7 @@ public class PacketPlayOutRespawn extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutRespawn(new FriendlyByteBuf(serialize()));
     }
 

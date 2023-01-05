@@ -2,6 +2,7 @@ package me.pesekjak.machine.server.codec;
 
 import lombok.NoArgsConstructor;
 import me.pesekjak.machine.server.NBTSerializable;
+import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class Codec implements NBTSerializable {
     }
 
     @Override
-    public NBTCompound toNBT() {
+    public @NotNull NBTCompound toNBT() {
         Map<String, NBTCompound> parts = new LinkedHashMap<>();
         for(CodecPart part : codecParts)
             parts.put(part.getCodecType(), part.getCodecNBT());

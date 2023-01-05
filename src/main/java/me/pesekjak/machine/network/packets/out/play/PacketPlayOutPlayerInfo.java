@@ -10,6 +10,7 @@ import me.pesekjak.machine.entities.player.Gamemode;
 import me.pesekjak.machine.entities.player.PlayerTextures;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,29 +25,27 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
 
     private static final int ID = 0x37;
 
-    @NotNull
-    private Action action;
-    @NotNull
-    private PlayerInfoData[] playerInfoDataArray;
+    private @NotNull Action action;
+    private PlayerInfoData @NotNull [] playerInfoDataArray;
 
     static {
         register(PacketPlayOutPlayerInfo.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutPlayerInfo::new);
     }
 
-    public PacketPlayOutPlayerInfo(Action action, PlayerInfoData... playerInfoDataArray) {
+    public PacketPlayOutPlayerInfo(@NotNull Action action, PlayerInfoData @NotNull ... playerInfoDataArray) {
         this.action = action;
         this.playerInfoDataArray = playerInfoDataArray;
     }
 
-    public PacketPlayOutPlayerInfo(Action action, Player... players) {
+    public PacketPlayOutPlayerInfo(@NotNull Action action, Player @NotNull ... players) {
         this.action = action;
         playerInfoDataArray = new PlayerInfoData[players.length];
         for (int i = 0; i < players.length; i++)
             playerInfoDataArray[i] = new PlayerInfoData(players[i]);
     }
 
-    public PacketPlayOutPlayerInfo(FriendlyByteBuf buf) {
+    public PacketPlayOutPlayerInfo(@NotNull ServerBuffer buf) {
         action = Action.fromID(buf.readVarInt());
         int playerAmount = buf.readVarInt();
         playerInfoDataArray = new PlayerInfoData[playerAmount];
@@ -80,12 +79,17 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf();
         buf.writeVarInt(action.getId())
                 .writeVarInt(playerInfoDataArray.length);
@@ -95,7 +99,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutPlayerInfo(new FriendlyByteBuf(serialize()));
     }
 

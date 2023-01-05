@@ -1,5 +1,11 @@
 package me.pesekjak.machine.utils.math;
 
+import lombok.experimental.UtilityClass;
+
+/**
+ * Utility class for math operations.
+ */
+@UtilityClass
 public class MathUtils {
 
     /**

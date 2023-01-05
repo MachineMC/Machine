@@ -2,7 +2,9 @@ package me.pesekjak.machine.world.blocks;
 
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import me.pesekjak.machine.world.BlockData;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Visual of a block that can't be changed.
@@ -10,17 +12,18 @@ import me.pesekjak.machine.world.BlockData;
 @SuppressWarnings("ClassCanBeRecord")
 @RequiredArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class FixedVisual implements BlockVisual {
 
-    private final BlockData blockData;
+    private final @NotNull BlockData blockData;
 
     @Override
-    public BlockData getBlockData() {
-        return blockData;
+    public @NotNull BlockData getBlockData() {
+        return blockData.clone();
     }
 
     @Override
-    public void setBlockData(BlockData blockData) {
+    public void setBlockData(@NotNull BlockData blockData) {
         throw new UnsupportedOperationException();
     }
 

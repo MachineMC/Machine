@@ -12,8 +12,8 @@ import static me.pesekjak.machine.codegen.blockdata.BlockDataLibGenerator.toCame
 
 public class BlockData {
 
-    private final static String superClass = "me.pesekjak.machine.world.BlockData";
-    private final static String materialClass = "me.pesekjak.machine.world.Material";
+    public final static String BLOCKDATA_CLASS = "me.pesekjak.machine.world.BlockDataImpl";
+    public final static String I_BLOCKDATA_CLASS = "me.pesekjak.machine.world.BlockData";
 
     @Getter
     private final String name;
@@ -99,7 +99,7 @@ public class BlockData {
                 Opcodes.ACC_PUBLIC,
                 type(path).getInternalName(),
                 null,
-                type(superClass).getInternalName(),
+                type(BLOCKDATA_CLASS).getInternalName(),
                 interfaces.toArray(new String[0]));
 
         // Fields
@@ -190,7 +190,7 @@ public class BlockData {
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
-                type(superClass).getInternalName(),
+                type(BLOCKDATA_CLASS).getInternalName(),
                 "<init>",
                 "()V",
                 false);
@@ -236,7 +236,7 @@ public class BlockData {
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
-                type(superClass).getInternalName(),
+                type(BLOCKDATA_CLASS).getInternalName(),
                 "<init>",
                 "()V",
                 false);

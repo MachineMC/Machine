@@ -7,6 +7,7 @@ import lombok.ToString;
 import me.pesekjak.machine.chunk.data.LightData;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -17,27 +18,31 @@ public class PacketPlayOutUpdateLight extends PacketOut {
     private static final int ID = 0x24;
 
     private int chunkX, chunkZ;
-    @NotNull
-    private LightData lightData;
+    private @NotNull LightData lightData;
 
     static {
         register(PacketPlayOutUpdateLight.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutUpdateLight::new);
     }
 
-    public PacketPlayOutUpdateLight(FriendlyByteBuf buf) {
+    public PacketPlayOutUpdateLight(@NotNull ServerBuffer buf) {
         chunkX = buf.readVarInt();
         chunkZ = buf.readVarInt();
         lightData = new LightData(buf);
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(chunkX)
                 .writeVarInt(chunkZ)
@@ -46,7 +51,7 @@ public class PacketPlayOutUpdateLight extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutUpdateLight(new FriendlyByteBuf(serialize()));
     }
 

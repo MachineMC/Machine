@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketIn;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -22,24 +24,29 @@ public class PacketStatusInPing extends PacketIn {
         );
     }
 
-    public PacketStatusInPing(FriendlyByteBuf buf) {
+    public PacketStatusInPing(@NotNull ServerBuffer buf) {
         payload = buf.readLong();
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.STATUS_IN;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeLong(payload)
                 .bytes();
     }
 
     @Override
-    public PacketIn clone() {
+    public @NotNull PacketIn clone() {
         return new PacketStatusInPing(new FriendlyByteBuf(serialize()));
     }
 

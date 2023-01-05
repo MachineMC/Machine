@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -23,19 +25,24 @@ public class PacketPlayOutOpenHorseInventory extends PacketOut {
                 PacketPlayOutOpenHorseInventory::new);
     }
 
-    public PacketPlayOutOpenHorseInventory(FriendlyByteBuf buf) {
+    public PacketPlayOutOpenHorseInventory(@NotNull ServerBuffer buf) {
         windowId = buf.readByte();
         slotCount = buf.readVarInt();
         entityId = buf.readInt();
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeByte(windowId)
                 .writeVarInt(slotCount)
@@ -44,7 +51,7 @@ public class PacketPlayOutOpenHorseInventory extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutOpenHorseInventory(new FriendlyByteBuf(serialize()));
     }
 

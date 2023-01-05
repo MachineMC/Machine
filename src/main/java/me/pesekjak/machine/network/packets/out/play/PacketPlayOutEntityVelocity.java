@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -22,7 +24,7 @@ public class PacketPlayOutEntityVelocity extends PacketOut {
                 PacketPlayOutEntityVelocity::new);
     }
 
-    public PacketPlayOutEntityVelocity(FriendlyByteBuf buf) {
+    public PacketPlayOutEntityVelocity(@NotNull ServerBuffer buf) {
         entityId = buf.readVarInt();
         velocityX = buf.readShort();
         velocityY = buf.readShort();
@@ -30,12 +32,17 @@ public class PacketPlayOutEntityVelocity extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(entityId)
                 .writeShort(velocityX)
@@ -45,7 +52,7 @@ public class PacketPlayOutEntityVelocity extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutEntityVelocity(new FriendlyByteBuf(serialize()));
     }
 

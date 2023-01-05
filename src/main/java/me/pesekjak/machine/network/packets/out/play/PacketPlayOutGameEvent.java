@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -17,8 +18,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
 
     private static final int ID = 0x1D;
 
-    @NotNull
-    private Event event;
+    private @NotNull Event event;
     private float value;
 
     static {
@@ -26,18 +26,23 @@ public class PacketPlayOutGameEvent extends PacketOut {
                 PacketPlayOutGameEvent::new);
     }
 
-    public PacketPlayOutGameEvent(FriendlyByteBuf buf) {
+    public PacketPlayOutGameEvent(@NotNull ServerBuffer buf) {
         event = Event.fromID(buf.readByte());
         value = buf.readFloat();
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeByte(event.getId())
                 .writeFloat(value)
@@ -45,7 +50,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutGameEvent(new FriendlyByteBuf(serialize()));
     }
 

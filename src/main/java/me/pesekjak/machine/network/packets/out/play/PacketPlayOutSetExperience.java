@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -22,19 +24,24 @@ public class PacketPlayOutSetExperience extends PacketOut {
                 PacketPlayOutSetExperience::new);
     }
 
-    public PacketPlayOutSetExperience(FriendlyByteBuf buf) {
+    public PacketPlayOutSetExperience(@NotNull ServerBuffer buf) {
         experienceBar = buf.readFloat();
         level = buf.readVarInt();
         totalExperience = buf.readVarInt();
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeFloat(experienceBar)
                 .writeVarInt(level)
@@ -43,7 +50,7 @@ public class PacketPlayOutSetExperience extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutSetExperience(new FriendlyByteBuf(serialize()));
     }
 

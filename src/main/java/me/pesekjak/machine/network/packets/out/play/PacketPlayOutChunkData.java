@@ -8,6 +8,7 @@ import me.pesekjak.machine.chunk.data.ChunkData;
 import me.pesekjak.machine.chunk.data.LightData;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
@@ -19,17 +20,15 @@ public class PacketPlayOutChunkData extends PacketOut {
 
     private int chunkX;
     private int chunkZ;
-    @NotNull
-    private ChunkData chunkData;
-    @NotNull
-    private LightData lightData;
+    private @NotNull ChunkData chunkData;
+    private @NotNull LightData lightData;
 
     static {
         register(PacketPlayOutChunkData.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutChunkData::new);
     }
 
-    public PacketPlayOutChunkData(FriendlyByteBuf buf) {
+    public PacketPlayOutChunkData(@NotNull ServerBuffer buf) {
         chunkX = buf.readInt();
         chunkZ = buf.readInt();
         chunkData = new ChunkData(buf);
@@ -37,12 +36,17 @@ public class PacketPlayOutChunkData extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         return new FriendlyByteBuf()
                 .writeInt(chunkX)
                 .writeInt(chunkZ)
@@ -52,7 +56,7 @@ public class PacketPlayOutChunkData extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutChunkData(new FriendlyByteBuf(serialize()));
     }
 

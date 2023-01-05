@@ -5,34 +5,42 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
-import lombok.Setter;
 import me.pesekjak.machine.auth.OnlineServer;
+import me.pesekjak.machine.auth.OnlineServerImpl;
 import me.pesekjak.machine.chat.Messenger;
+import me.pesekjak.machine.chat.MessengerImpl;
 import me.pesekjak.machine.commands.CommandExecutor;
 import me.pesekjak.machine.commands.ServerCommands;
 import me.pesekjak.machine.entities.EntityManager;
+import me.pesekjak.machine.entities.EntityManagerImpl;
 import me.pesekjak.machine.entities.Player;
-import me.pesekjak.machine.events.translations.TranslatorDispatcher;
 import me.pesekjak.machine.exception.ExceptionHandler;
-import me.pesekjak.machine.file.DimensionsJson;
-import me.pesekjak.machine.file.PlayerDataContainer;
-import me.pesekjak.machine.file.ServerProperties;
-import me.pesekjak.machine.file.WorldJson;
-import me.pesekjak.machine.logging.FormattedOutputStream;
+import me.pesekjak.machine.file.*;
+import me.pesekjak.machine.inventory.ItemStack;
+import me.pesekjak.machine.network.ServerConnection;
+import me.pesekjak.machine.server.PlayerManager;
+import me.pesekjak.machine.translation.TranslatorDispatcher;
+import me.pesekjak.machine.exception.ExceptionHandlerImpl;
 import me.pesekjak.machine.logging.ServerConsole;
 import me.pesekjak.machine.logging.Console;
-import me.pesekjak.machine.network.ServerConnection;
+import me.pesekjak.machine.network.ServerConnectionImpl;
 import me.pesekjak.machine.network.packets.PacketFactory;
-import me.pesekjak.machine.server.PlayerManager;
+import me.pesekjak.machine.server.PlayerManagerImpl;
 import me.pesekjak.machine.server.schedule.Scheduler;
 import me.pesekjak.machine.utils.*;
 import me.pesekjak.machine.world.*;
 import me.pesekjak.machine.world.biomes.BiomeManager;
+import me.pesekjak.machine.world.biomes.BiomeManagerImpl;
 import me.pesekjak.machine.world.blocks.BlockManager;
+import me.pesekjak.machine.world.blocks.BlockManagerImpl;
 import me.pesekjak.machine.world.dimensions.DimensionType;
+import me.pesekjak.machine.world.dimensions.DimensionTypeImpl;
 import me.pesekjak.machine.world.dimensions.DimensionTypeManager;
+import me.pesekjak.machine.world.dimensions.DimensionTypeManagerImpl;
+import me.pesekjak.machine.world.particles.ParticleFactory;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -44,7 +52,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class Machine {
+public class Machine implements Server {
 
     public static final String SERVER_BRAND = "Machine";
     public static final String SERVER_IMPLEMENTATION_VERSION = "1.19.2";
@@ -57,21 +65,16 @@ public class Machine {
     public static final Path DIRECTORY = FileUtils.getMachineJar().getParentFile().toPath();
 
     @Getter
-    public final int TPS;
-    @Getter
-    public final int serverResponsiveness;
-
-    @Getter
     private boolean running;
 
-    @Getter @Setter
+    @Getter
     private Console console;
 
     @Getter
-    protected ExceptionHandler exceptionHandler;
+    protected @NotNull ExceptionHandler exceptionHandler;
 
-    @Getter @Nullable
-    private OnlineServer onlineServer;
+    @Getter
+    private @Nullable OnlineServer onlineServer;
 
     @Getter
     protected final Gson gson = new GsonBuilder()
@@ -84,28 +87,27 @@ public class Machine {
     protected TranslatorDispatcher translatorDispatcher;
 
     @Getter
-    protected Scheduler scheduler;
+    protected @NotNull Scheduler scheduler;
 
     @Getter
-    protected CommandDispatcher<CommandExecutor> commandDispatcher;
+    protected @NotNull CommandDispatcher<CommandExecutor> commandDispatcher;
 
     @Getter
-    protected DimensionTypeManager dimensionTypeManager;
+    protected @NotNull DimensionTypeManager dimensionTypeManager;
     @Getter
-    protected Messenger messenger;
+    protected @NotNull Messenger messenger;
     @Getter
-    protected WorldManager worldManager;
+    protected @NotNull WorldManager worldManager;
     @Getter
-    protected BiomeManager biomeManager;
+    protected @NotNull BiomeManager biomeManager;
     @Getter
-    protected EntityManager entityManager;
+    protected @NotNull EntityManager entityManager;
     @Getter
-    protected PlayerManager playerManager;
+    protected @NotNull PlayerManager playerManager;
     @Getter
-    protected BlockManager blockManager;
+    protected @NotNull BlockManager blockManager;
     @Getter
     private PlayerDataContainer playerDataContainer;
-
 
     @Getter
     protected ServerConnection connection;
@@ -113,14 +115,17 @@ public class Machine {
     @Getter
     protected World defaultWorld;
 
+    static {
+        Factories.BUFFER_FACTORY = FriendlyByteBuf::new;
+        Factories.ITEM_FACTORY = ItemStack::new;
+        Factories.PARTICLE_FACTORY = ParticleFactory::create;
+    }
+
     public static void main(String[] args) throws Exception {
         if(System.console() == null) return;
         new Machine(args);
     }
 
-    /**
-     * Start of new server.
-     */
     private Machine(String[] args) throws Exception {
 
         final Set<String> arguments = Set.of(args);
@@ -139,26 +144,22 @@ public class Machine {
             System.exit(2);
         }
         console.info("Loading Machine Server on Minecraft " + SERVER_IMPLEMENTATION_VERSION);
-
-        exceptionHandler = new ExceptionHandler(this);
+        scheduler = new Scheduler(4);
+        exceptionHandler = new ExceptionHandlerImpl(this);
 
         // Setting up server properties
-        File propertiesFile = new File(ServerProperties.PROPERTIES_FILE_NAME);
+        File propertiesFile = new File(ServerPropertiesImpl.PROPERTIES_FILE_NAME);
         if(!propertiesFile.exists()) {
             FileUtils.createFromDefault(propertiesFile);
-            FileUtils.createFromDefault(new File(ServerProperties.ICON_FILE_NAME));
+            FileUtils.createFromDefault(new File(ServerPropertiesImpl.ICON_FILE_NAME));
         }
         try {
-            properties = new ServerProperties(this, propertiesFile);
+            properties = new ServerPropertiesImpl(this, propertiesFile);
         } catch (IOException exception) {
             exceptionHandler.handle(exception, "Failed to load server properties");
             System.exit(2);
         }
         console.info("Loaded server properties");
-
-        TPS = properties.getTps();
-
-        serverResponsiveness = properties.getServerResponsiveness();
 
         // Checking if the port in the properties in empty
         if (!NetworkUtils.available(properties.getServerPort())) {
@@ -168,7 +169,7 @@ public class Machine {
         }
 
         if(properties.isOnline()) {
-            onlineServer = new OnlineServer(this);
+            onlineServer = new OnlineServerImpl(this);
         } else {
             console.warning("The server will make no attempt to authenticate usernames and encrypt packets. Beware. " +
                     "While this makes the game possible to play without internet access, it also opens up " +
@@ -179,12 +180,12 @@ public class Machine {
         ServerCommands.register(this, commandDispatcher);
 
         Arrays.stream(Material.values()).forEach(Material::createBlockData);
-        BlockData.finishRegistration();
-        blockManager = BlockManager.createDefault(this);
+        BlockDataImpl.finishRegistration();
+        blockManager = BlockManagerImpl.createDefault(this);
         console.info("Loaded materials and block data");
 
         // Loading dimensions json file
-        dimensionTypeManager = new DimensionTypeManager(this);
+        dimensionTypeManager = new DimensionTypeManagerImpl(this);
         File dimensionsFile = new File(DimensionsJson.DIMENSIONS_FILE_NAME);
         if(!dimensionsFile.exists())
             FileUtils.createFromDefault(dimensionsFile);
@@ -198,35 +199,35 @@ public class Machine {
         // Registering all dimensions from the file into the manager
         if(dimensions.size() == 0) {
             console.warning("There are no defined dimensions in the dimensions file, loading default dimension instead");
-            dimensionTypeManager.addDimension(DimensionType.createDefault());
+            dimensionTypeManager.addDimension(DimensionTypeImpl.createDefault());
         } else {
             for(DimensionType dimension : dimensions)
                 dimensionTypeManager.addDimension(dimension);
         }
         console.info("Registered " + dimensionTypeManager.getDimensions().size() + " dimension types");
 
-        messenger = new Messenger(this);
+        messenger = new MessengerImpl(this);
 
         try {
-            playerDataContainer = new PlayerDataContainer(this);
+            playerDataContainer = new PlayerDataContainerImpl(this);
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
             System.exit(2);
         }
 
-        worldManager = new WorldManager(this);
+        worldManager = new WorldManagerImpl(this);
         try {
             for (Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
                 if (!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;
                 if (path.getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
                 if (!path.getParent().getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
                 try {
-                    WorldJson worldJson = new WorldJson(this, path.toFile());
+                    final WorldJson worldJson = new WorldJson(this, path.toFile());
                     if (worldManager.isRegistered(worldJson.getWorldName())) {
                         console.severe("World with name '" + worldJson.getName() + "' is already registered");
                         continue;
                     }
-                    World world = worldJson.buildWorld();
+                    final World world = worldJson.buildWorld();
                     worldManager.addWorld(world);
                     console.info("Registered world '" + world.getName() + "'");
                 } catch (IOException exception) {
@@ -240,9 +241,9 @@ public class Machine {
         if(worldManager.getWorlds().size() == 0) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             try {
-                File worldJson = new File(WorldJson.WORLD_FILE_NAME);
+                final File worldJson = new File(WorldJson.WORLD_FILE_NAME);
                 FileUtils.createFromDefaultAndLocate(worldJson, ServerWorld.DEFAULT_WORLD_FOLDER + "/");
-                World world = ServerWorld.createDefault(this);
+                final World world = ServerWorld.createDefault(this);
                 worldManager.addWorld(world);
             } catch (Exception exception) {
                 exceptionHandler.handle(exception, "Failed to create the default world");
@@ -255,16 +256,21 @@ public class Machine {
             console.warning("Default world in the server properties doesn't exist, using '" + defaultWorld.getName() + "' instead");
         }
 
-        for(World world : worldManager.getWorlds())
-            world.load();
+        for(World world : worldManager.getWorlds()) {
+            try {
+                world.load();
+            } catch (Exception exception) {
+                exceptionHandler.handle(exception, "Failed to load world '" + world.getName() + "'");
+            }
+        }
         console.info("Loaded all server worlds");
 
         // TODO Implement biomes json
-        biomeManager = BiomeManager.createDefault(this);
+        biomeManager = BiomeManagerImpl.createDefault(this);
 
-        entityManager = EntityManager.createDefault(this);
+        entityManager = EntityManagerImpl.createDefault(this);
 
-        playerManager = new PlayerManager(this);
+        playerManager = new PlayerManagerImpl(this);
 
         ClassUtils.loadClass(PacketFactory.class);
         console.info("Loaded all packet mappings");
@@ -278,14 +284,13 @@ public class Machine {
         console.info("Loaded all packet translators");
 
         try {
-            connection = new ServerConnection(this);
+            connection = new ServerConnectionImpl(this);
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
             System.exit(2);
         }
 
         try {
-            scheduler = new Scheduler(4); // TODO add this to properties
             console.start();
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
@@ -299,27 +304,60 @@ public class Machine {
         shutdown();
     }
 
+    @Override
+    public @NotNull String getBrand() {
+        return SERVER_BRAND;
+    }
+
+    @Override
+    public @NotNull String getImplementationVersion() {
+        return SERVER_IMPLEMENTATION_VERSION;
+    }
+
+    @Override
+    public int getImplementationProtocol() {
+        return SERVER_IMPLEMENTATION_PROTOCOL;
+    }
+
+    @Override
+    public boolean isOnline() {
+        return onlineServer != null;
+    }
+
+    @Override
     public void shutdown() {
         running = false;
         console.stop();
         console.info("Shutting down...");
         console.info("Saving player data...");
         for(Player player : playerManager.getPlayers()) {
-            try { player.getConnection().disconnect(Component.translatable("disconnect.closed"));
-            } catch (Exception exception) { exceptionHandler.handle(exception); }
+            try {
+                player.getConnection().disconnect(Component.translatable("disconnect.closed"));
+            } catch (Exception exception) {
+                exceptionHandler.handle(exception);
+            }
         }
         console.info("Saved all player data");
         console.info("Closing the connection...");
-        try { connection.close();
+        try {
+            connection.close();
         } catch (Exception ignored) { }
         console.info("Connection has been closed");
         console.info("Saving worlds...");
         for(World world : worldManager.getWorlds()) {
-            try { world.save();
-            } catch (Exception exception) { exceptionHandler.handle(exception); }
+            try {
+                world.save();
+            } catch (Exception exception) {
+                exceptionHandler.handle(exception);
+            }
         }
         console.info("Server has been stopped");
         System.exit(0);
+    }
+
+    @Override
+    public String toString() {
+        return "Machine Server " + SERVER_IMPLEMENTATION_VERSION + " (" + SERVER_IMPLEMENTATION_PROTOCOL + ")";
     }
 
     /**
@@ -342,19 +380,6 @@ public class Machine {
         return gson
                 .toJson(json)
                 .replace("\"%MOTD%\"", GsonComponentSerializer.gson().serialize(properties.getMotd()));
-    }
-
-    /**
-     * Checks if server is in online mode.
-     * @return true if server is in online mode
-     */
-    public boolean isOnline() {
-        return onlineServer != null;
-    }
-
-    @Override
-    public String toString() {
-        return "Machine Server " + SERVER_IMPLEMENTATION_VERSION + " (" + SERVER_IMPLEMENTATION_PROTOCOL + ")";
     }
 
 }

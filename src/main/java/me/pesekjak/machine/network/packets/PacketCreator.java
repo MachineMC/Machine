@@ -1,6 +1,8 @@
 package me.pesekjak.machine.network.packets;
 
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Creates packet instance from given data.
@@ -16,6 +18,6 @@ public interface PacketCreator<T extends Packet> {
      * @param buf buffer with packet data
      * @return new packet instance
      */
-    T create(FriendlyByteBuf buf);
+    T create(@NotNull ServerBuffer buf);
 
 }

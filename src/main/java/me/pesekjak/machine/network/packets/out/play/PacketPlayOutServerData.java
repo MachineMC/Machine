@@ -6,7 +6,9 @@ import lombok.Setter;
 import lombok.ToString;
 import me.pesekjak.machine.network.packets.PacketOut;
 import me.pesekjak.machine.utils.FriendlyByteBuf;
+import me.pesekjak.machine.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
@@ -18,10 +20,8 @@ public class PacketPlayOutServerData extends PacketOut {
 
     private static final int ID = 0x42;
 
-    @Nullable
-    private Component motd;
-    @Nullable
-    private String icon;
+    private @Nullable Component motd;
+    private @Nullable String icon;
     private boolean previewsChat, enforcedSecureChat;
 
 
@@ -30,7 +30,7 @@ public class PacketPlayOutServerData extends PacketOut {
                 PacketPlayOutServerData::new);
     }
 
-    public PacketPlayOutServerData(FriendlyByteBuf buf) {
+    public PacketPlayOutServerData(@NotNull ServerBuffer buf) {
         if (buf.readBoolean())
             motd = buf.readComponent();
         if (buf.readBoolean())
@@ -40,12 +40,17 @@ public class PacketPlayOutServerData extends PacketOut {
     }
 
     @Override
-    public int getID() {
+    public int getId() {
         return ID;
     }
 
     @Override
-    public byte[] serialize() {
+    public @NotNull PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
+    }
+
+    @Override
+    public byte @NotNull [] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeBoolean(motd != null);
         if (motd != null)
@@ -59,7 +64,7 @@ public class PacketPlayOutServerData extends PacketOut {
     }
 
     @Override
-    public PacketOut clone() {
+    public @NotNull PacketOut clone() {
         return new PacketPlayOutServerData(new FriendlyByteBuf(serialize()));
     }
 
