@@ -39,7 +39,7 @@ public class ServerConsole implements Console {
     @Getter @Setter
     private boolean colors;
 
-    private final @NotNull Terminal terminal;
+    final @NotNull Terminal terminal;
     private volatile @Nullable LineReader reader;
 
     @Getter

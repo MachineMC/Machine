@@ -17,6 +17,7 @@ import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.exception.ExceptionHandler;
 import me.pesekjak.machine.file.*;
 import me.pesekjak.machine.inventory.ItemStack;
+import me.pesekjak.machine.logging.FormattedOutputStream;
 import me.pesekjak.machine.network.ServerConnection;
 import me.pesekjak.machine.server.PlayerManager;
 import me.pesekjak.machine.translation.TranslatorDispatcher;
@@ -45,9 +46,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class Machine implements Server {
@@ -134,6 +137,8 @@ public class Machine implements Server {
         // Setting up console
         try {
             console = new ServerConsole(this, colors);
+            System.setOut(new PrintStream(new FormattedOutputStream(((ServerConsole) console), Level.INFO, "[stdout] ")));
+            System.setErr(new PrintStream(new FormattedOutputStream(((ServerConsole) console), Level.SEVERE, "[stderr] ")));
         } catch (Exception e) {
             System.out.println("Failed to load server console");
             e.printStackTrace();
