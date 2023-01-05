@@ -17,6 +17,7 @@ import me.pesekjak.machine.entities.Player;
 import me.pesekjak.machine.exception.ExceptionHandler;
 import me.pesekjak.machine.file.*;
 import me.pesekjak.machine.inventory.ItemStack;
+import me.pesekjak.machine.logging.FormattedOutputStream;
 import me.pesekjak.machine.network.ServerConnection;
 import me.pesekjak.machine.server.PlayerManager;
 import me.pesekjak.machine.translation.TranslatorDispatcher;

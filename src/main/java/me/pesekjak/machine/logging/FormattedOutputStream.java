@@ -15,7 +15,7 @@ public class FormattedOutputStream extends FilterOutputStream {
     private EolTrackerByteArrayOutputStream buf = new EolTrackerByteArrayOutputStream();
 
     public FormattedOutputStream(ServerConsole console, Level level, String linePrefix) {
-        super(console.getTerminal().output());
+        super(console.terminal.output());
         this.level = level;
         this.console = console;
         this.linePrefix = linePrefix;
