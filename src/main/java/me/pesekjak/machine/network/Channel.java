@@ -186,6 +186,8 @@ public class Channel implements AutoCloseable {
         else
             buf.writeBytes(write.getPacket().rawSerialize());
         // Encryption
+        if(connection.isDisconnected())
+            return false;
         if(secretKey != null && encryptionContext != null)
             output.write(encryptionContext.encrypt.update(buf.bytes()));
         else

@@ -4,10 +4,9 @@ import lombok.Builder;
 import lombok.Getter;
 import me.pesekjak.machine.utils.NamespacedKey;
 import me.pesekjak.machine.world.particles.Particle;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBT;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.Map;
 
@@ -38,36 +37,36 @@ public class BiomeEffectsImpl implements BiomeEffects {
     private final @Nullable MoodSound moodSound;
     private final @Nullable AdditionsSound additionsSound;
     private final @Nullable Music music;
-    private final @Nullable Integer biomeParticleProbability;
+    private final @Nullable Float biomeParticleProbability;
     private final @Nullable Particle biomeParticle;
 
     @Override
     public @NotNull NBTCompound toNBT() {
-        return NBT.Compound(nbt -> {
-            nbt.setInt("fog_color", fogColor);
-            nbt.setInt("sky_color", skyColor);
-            nbt.setInt("water_color", waterColor);
-            nbt.setInt("water_fog_color", waterFogColor);
-            if (foliageColor != null)
-                nbt.setInt("foliage_color", foliageColor);
-            if (grassColor != null)
-                nbt.setInt("grass_color", grassColor);
-            if (grassColorModifier != null)
-                nbt.setString("grass_color_modifier", grassColorModifier.name().toLowerCase());
-            if (ambientSound != null)
-                nbt.setString("ambient_sound", ambientSound.toString());
-            if (moodSound != null)
-                nbt.set("mood_sound", moodSound.toNBT());
-            if (additionsSound != null)
-                nbt.set("additions_sound", additionsSound.toNBT());
-            if (music != null)
-                nbt.set("music", music.toNBT());
-            if(biomeParticle != null && biomeParticleProbability != null)
-                nbt.set("particle", NBT.Compound(Map.of(
-                        "probability", NBT.Float(biomeParticleProbability),
-                        "options", biomeParticle.toNBT()))
-                );
-        });
+        NBTCompound compound = new NBTCompound(Map.of(
+                "fog_color", fogColor,
+                "sky_color", skyColor,
+                "water_color", waterColor,
+                "water_fog_color", waterFogColor
+        ));
+        if (foliageColor != null)
+            compound.set("foliage_color", foliageColor);
+        if (grassColor != null)
+            compound.set("grass_color", grassColor);
+        if (grassColorModifier != null)
+            compound.set("grass_color_modifier", grassColorModifier.name().toLowerCase());
+        if (ambientSound != null)
+            compound.set("ambient_sound", ambientSound.toString());
+        if (moodSound != null)
+            compound.set("mood_sound", moodSound.toNBT());
+        if (additionsSound != null)
+            compound.set("additions_sound", additionsSound.toNBT());
+        if (music != null)
+            compound.set("music", music.toNBT());
+        if(biomeParticle != null && biomeParticleProbability != null)
+            compound.set("particle", new NBTCompound(Map.of(
+                    "probability", biomeParticleProbability,
+                    "options", biomeParticle.toNBT())));
+        return compound;
     }
 
     /**
@@ -76,11 +75,11 @@ public class BiomeEffectsImpl implements BiomeEffects {
     public record MoodSoundImpl(@NotNull NamespacedKey sound, int tickDelay, int blockSearchExtent, double offset) implements MoodSound {
         @Override
         public @NotNull NBTCompound toNBT() {
-            return NBT.Compound(Map.of(
-                    "sound", NBT.String(sound.toString()),
-                    "tick_delay", NBT.Int(tickDelay),
-                    "block_search_extent", NBT.Int(blockSearchExtent),
-                    "offset", NBT.Double(offset)));
+            return new NBTCompound(Map.of(
+                    "sound", sound.toString(),
+                    "tick_delay", tickDelay,
+                    "block_search_extent", blockSearchExtent,
+                    "offset", offset));
         }
     }
 
@@ -90,9 +89,9 @@ public class BiomeEffectsImpl implements BiomeEffects {
     public record AdditionsSoundImpl(@NotNull NamespacedKey sound, double tickChance) implements AdditionsSound {
         @Override
         public @NotNull NBTCompound toNBT() {
-            return NBT.Compound(Map.of(
-                    "sound", NBT.String(sound.toString()),
-                    "tick_chance", NBT.Double(tickChance)));
+            return new NBTCompound(Map.of(
+                    "sound", sound.toString(),
+                    "tick_chance", tickChance));
         }
     }
 
@@ -102,11 +101,11 @@ public class BiomeEffectsImpl implements BiomeEffects {
     public record MusicImpl(@NotNull NamespacedKey sound, int minDelay, int maxDelay, boolean replaceCurrentMusic) implements Music {
         @Override
         public @NotNull NBTCompound toNBT() {
-            return NBT.Compound(Map.of(
-                    "sound", NBT.String(sound.toString()),
-                    "min_delay", NBT.Int(minDelay),
-                    "max_delay", NBT.Int(maxDelay),
-                    "replace_current_music", NBT.Boolean(replaceCurrentMusic)));
+            return new NBTCompound(Map.of(
+                    "sound", sound.toString(),
+                    "min_delay", minDelay,
+                    "max_delay", maxDelay,
+                    "replace_current_music", replaceCurrentMusic));
         }
     }
 

@@ -1,8 +1,8 @@
 package me.pesekjak.machine.server;
 
 import me.pesekjak.machine.utils.NBTUtils;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.io.File;
 

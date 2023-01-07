@@ -4,11 +4,10 @@ import me.pesekjak.machine.Server;
 import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.Writable;
 import me.pesekjak.machine.world.Material;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
-import org.jglrxavpok.hephaistos.nbt.NBTException;
 
 /**
  * Represents an item in inventory.
@@ -124,13 +123,6 @@ public interface Item extends Writable, Cloneable {
      */
     @Contract(pure = true)
     @NotNull Item withType(Material type);
-
-    /**
-     * Writes additional nbt string to the item's nbt compound.
-     * @param nbtCompound nbt string to write
-     * @throws NBTException if string contains malformed NBT format
-     */
-    void writeNBT(@NotNull String nbtCompound) throws NBTException;
 
     /**
      * Clears the NBT Compound of the item.

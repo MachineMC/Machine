@@ -2,9 +2,8 @@ package me.pesekjak.machine.world.biomes;
 
 import lombok.*;
 import me.pesekjak.machine.utils.NamespacedKey;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
-import org.jglrxavpok.hephaistos.nbt.NBT;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.Locale;
 import java.util.Map;
@@ -44,20 +43,21 @@ public class BiomeImpl implements Biome {
 
     @Override
     public @NotNull NBTCompound toNBT() {
-        return NBT.Compound(Map.of(
-                "name", NBT.String(name.toString()),
-                "id", NBT.Int(idReference.get()),
-                "element", NBT.Compound(element -> {
-                    element.setFloat("depth", depth);
-                    element.setFloat("temperature", temperature);
-                    element.setFloat("scale", scale);
-                    element.setFloat("downfall", downfall);
-                    element.setString("category", category.name().toLowerCase(Locale.ROOT));
-                    element.setString("precipitation", precipitation.name().toLowerCase(Locale.ROOT));
-                    if (temperatureModifier != TemperatureModifier.NONE)
-                        element.setString("temperature_modifier", temperatureModifier.name().toLowerCase(Locale.ROOT));
-                    element.set("effects", effects.toNBT());
-                })
+        NBTCompound element = new NBTCompound(Map.of(
+                "depth", depth,
+                "temperature", temperature,
+                "scale", scale,
+                "downfall", downfall,
+                "category", category.name().toLowerCase(Locale.ROOT),
+                "precipitation", precipitation.name().toLowerCase(Locale.ROOT),
+                "effects", effects.toNBT()
+        ));
+        if (temperatureModifier != TemperatureModifier.NONE)
+            element.set("temperature_modifier", temperatureModifier.name().toLowerCase(Locale.ROOT));
+        return new NBTCompound(Map.of(
+                "name", name.toString(),
+                "id", idReference.get(),
+                "element", element
         ));
     }
 

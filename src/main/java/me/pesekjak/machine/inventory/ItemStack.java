@@ -1,14 +1,11 @@
 package me.pesekjak.machine.inventory;
 
 import lombok.Data;
+import me.pesekjak.machine.utils.FriendlyByteBuf;
 import me.pesekjak.machine.world.Material;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
-import org.jglrxavpok.hephaistos.nbt.NBTException;
-import org.jglrxavpok.hephaistos.parser.SNBTParser;
-
-import java.io.StringReader;
 
 /**
  * Default item implementation.
@@ -100,11 +97,6 @@ public class ItemStack implements Item {
     }
 
     @Override
-    public void writeNBT(@NotNull String nbtCompound) throws NBTException {
-        this.nbtCompound = (NBTCompound) new SNBTParser(new StringReader(nbtCompound)).parse();
-    }
-
-    @Override
     public void removeNBT() {
         nbtCompound = new NBTCompound();
     }
@@ -130,7 +122,7 @@ public class ItemStack implements Item {
     public ItemStack clone() {
         try {
             ItemStack itemStack = (ItemStack) super.clone();
-            itemStack.nbtCompound = nbtCompound.toMutableCompound().toCompound();
+            itemStack.setNbtCompound(new FriendlyByteBuf().writeNBT(nbtCompound).readNBT());
             return itemStack;
         } catch (CloneNotSupportedException e) {
             return null;
@@ -139,7 +131,7 @@ public class ItemStack implements Item {
 
     @Override
     public String toString() {
-        return amount + "x" + material + nbtCompound.toSNBT();
+        return amount + "x" + material + nbtCompound;
     }
 
 }

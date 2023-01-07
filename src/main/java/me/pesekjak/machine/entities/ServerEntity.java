@@ -8,15 +8,17 @@ import me.pesekjak.machine.utils.NBTUtils;
 import me.pesekjak.machine.utils.UUIDUtils;
 import me.pesekjak.machine.world.Location;
 import me.pesekjak.machine.world.World;
+import mx.kenzie.nbt.NBTCompound;
+import mx.kenzie.nbt.NBTList;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.*;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.Map.entry;
 
 /**
  * Default server entity implementation.
@@ -139,90 +141,82 @@ public abstract class ServerEntity implements Entity {
 
     @Override
     public @NotNull NBTCompound toNBT() {
-        return NBT.Compound(nbt -> {
-            nbt.set("Pos", NBTUtils.doubleList(location.getX(), location.getY(), location.getZ()));
-            nbt.set("Motion", NBTUtils.doubleList(0, 0, 0)); // TODO implement motion
-            nbt.set("Rotation", NBTUtils.floatList(location.getYaw(), location.getPitch()));
-            nbt.setFloat("FallDistance", fallDistance);
-            nbt.setShort("Fire", remainingFireTicks);
-            nbt.setShort("Air", (short) 0);
-            nbt.setByte("OnGround", (byte) (onGround ? 1 : 0));
-            nbt.setByte("Invulnerable", (byte) (invulnerable ? 1 : 0));
-            nbt.setInt("PortalCooldown", portalCooldown);
-            nbt.setIntArray("UUID", UUIDUtils.uuidToIntArray(uuid));
-            nbt.setLong("WorldUUIDLeast", getWorld().getUuid().getLeastSignificantBits());
-            nbt.setLong("WorldUUIDMost", getWorld().getUuid().getMostSignificantBits());
-
-            if (getCustomName() != null)
-                nbt.setString("CustomName", GsonComponentSerializer.gson().serialize(getCustomName()));
-
-            if (isCustomNameVisible())
-                nbt.setByte("CustomNameVisible", (byte) (isCustomNameVisible() ? 1 : 0));
-
-            if (silent)
-                nbt.setByte("Silent", (byte) 1);
-
-            if (noGravity)
-                nbt.setByte("NoGravity", (byte) 1);
-
-            if (glowing)
-                nbt.setByte("Glowing", (byte) 1);
-
-            if (ticksFrozen > 0)
-                nbt.setInt("TicksFrozen", (byte) ticksFrozen);
-
-            if (hasVisualFire)
-                nbt.setByte("HasVisualFire", (byte) 1);
-
-            if (!tags.isEmpty())
-                nbt.set("Tags", new NBTList<>(NBTType.TAG_String, tags.stream()
-                        .map(NBTString::new)
-                        .toList()));
-        });
+        NBTCompound compound = new NBTCompound(Map.ofEntries(
+                entry("Pos", NBTUtils.doubleList(location.getX(), location.getY(), location.getZ())),
+                entry("Motion", NBTUtils.doubleList(0, 0, 0)), // TODO implement motion
+                entry("Rotation", NBTUtils.floatList(location.getYaw(), location.getPitch())),
+                entry("FallDistance", fallDistance),
+                entry("Fire", remainingFireTicks),
+                entry("Air", (short) 0),
+                entry("OnGround", (byte) (onGround ? 1 : 0)),
+                entry("Invulnerable", (byte) (invulnerable ? 1 : 0)),
+                entry("PortalCooldown", portalCooldown),
+                entry("UUID", UUIDUtils.uuidToIntArray(uuid)),
+                entry("WorldUUIDLeast", getWorld().getUuid().getLeastSignificantBits()),
+                entry("WorldUUIDMost", getWorld().getUuid().getMostSignificantBits())
+        ));
+        if (getCustomName() != null)
+            compound.set("CustomName", GsonComponentSerializer.gson().serialize(getCustomName()));
+        if (isCustomNameVisible())
+            compound.set("CustomNameVisible", (byte) (isCustomNameVisible() ? 1 : 0));
+        if (silent)
+            compound.set("Silent", (byte) 1);
+        if (noGravity)
+            compound.set("NoGravity", (byte) 1);
+        if (glowing)
+            compound.set("Glowing", (byte) 1);
+        if (ticksFrozen > 0)
+            compound.set("TicksFrozen", (byte) ticksFrozen);
+        if (hasVisualFire)
+            compound.set("HasVisualFire", (byte) 1);
+        if (!tags.isEmpty())
+            compound.set("Tags", new NBTList(tags.stream().toList()));
+        return compound;
     }
 
-    @SuppressWarnings("ConstantConditions")
+    @Override
     public void load(@NotNull NBTCompound nbtCompound) {
-        NBTList<NBTDouble> pos = nbtCompound.getList("Pos");
-        NBTList<NBTDouble> motion = nbtCompound.getList("Motion");
-        NBTList<NBTFloat> rotation = nbtCompound.getList("Rotation");
+        Map<String, ?> map = nbtCompound.revert();
+        List<Double> pos = ((List<?>) map.get("Pos")).stream().map(o -> (double) o).collect(Collectors.toCollection(LinkedList::new));
+        List<Double> motion = ((List<?>) map.get("Motion")).stream().map(o -> (double) o).collect(Collectors.toCollection(LinkedList::new));
+        List<Float> rotation = ((List<?>) map.get("Rotation")).stream().map(o -> (float) o).collect(Collectors.toCollection(LinkedList::new));
 
-        if (pos == null)
-            pos = NBTUtils.doubleList(0, 0, 0);
-        if (motion == null)
-            motion = NBTUtils.doubleList(0, 0, 0);
-        if (rotation == null)
-            rotation = NBTUtils.floatList(0, 0);
+        if (pos.size() == 0)
+            pos = new LinkedList<>(List.of(0d, 0d, 0d));
+        if (motion.size() == 0)
+            motion = new LinkedList<>(List.of(0d, 0d, 0d));
+        if (rotation.size() == 0)
+            rotation = new LinkedList<>(List.of(0f, 0f));
 
-        getLocation().setX(pos.get(0).getValue());
-        getLocation().setY(pos.get(1).getValue());
-        getLocation().setZ(pos.get(2).getValue());
-        getLocation().setYaw(rotation.get(0).getValue());
-        getLocation().setPitch(rotation.get(1).getValue());
+        getLocation().setX(pos.get(0));
+        getLocation().setY(pos.get(1));
+        getLocation().setZ(pos.get(2));
+        getLocation().setYaw(rotation.get(0));
+        getLocation().setPitch(rotation.get(1));
 
-        fallDistance = nbtCompound.contains("FallDistance") ? nbtCompound.getAsFloat("FallDistance") : 0;
-        remainingFireTicks = nbtCompound.contains("Fire") ? nbtCompound.getAsShort("Fire") : 0;
-        onGround = nbtCompound.contains("OnGround") ? nbtCompound.getBoolean("OnGround") : false;
-        invulnerable = nbtCompound.contains("Invulnerable") ? nbtCompound.getBoolean("Invulnerable") : false;
-        portalCooldown = nbtCompound.contains("PortalCooldown") ? nbtCompound.getAsInt("PortalCooldown") : 0;
-        if (nbtCompound.contains("UUID"))
-            uuid = UUIDUtils.uuidFromIntArray(nbtCompound.getIntArray("UUID").copyArray());
-        if (nbtCompound.contains("CustomName")) {
-            String string = nbtCompound.getString("CustomName");
+        fallDistance = map.containsKey("FallDistance") ? (float) map.get("FallDistance") : 0;
+        remainingFireTicks = map.containsKey("Fire") ? (short) map.get("Fire") : 0;
+        onGround = map.containsKey("OnGround") && ((byte) map.get("OnGround")) == 1;
+        invulnerable = map.containsKey("Invulnerable") && ((byte) map.get("Invulnerable")) == 1;
+        portalCooldown = map.containsKey("PortalCooldown") ? (int) map.get("PortalCooldown") : 0;
+        if (map.containsKey("UUID"))
+            uuid = UUIDUtils.uuidFromIntArray((int[]) map.get("UUID"));
+        if (map.containsKey("CustomName")) {
+            String string = (String) map.get("CustomName");
             setCustomName(GsonComponentSerializer.gson().deserialize(string));
         }
-        setCustomNameVisible(nbtCompound.contains("CustomNameVisible") ? nbtCompound.getBoolean("CustomNameVisible") : false);
-        silent = nbtCompound.contains("Silent") ? nbtCompound.getBoolean("Silent") : false;
-        noGravity = nbtCompound.contains("NoGravity") ? nbtCompound.getBoolean("NoGravity") : false;
-        glowing = nbtCompound.contains("Glowing") ? nbtCompound.getBoolean("Glowing") : false;
-        ticksFrozen = nbtCompound.contains("TicksFrozen") ? nbtCompound.getInt("TicksFrozen") : 0;
-        hasVisualFire = (nbtCompound.contains("HasVisualFire") ? nbtCompound.getBoolean("HasVisualFire") : false);
-        if (nbtCompound.contains("Tags")) {
+        setCustomNameVisible(map.containsKey("CustomNameVisible") && ((byte) map.get("CustomNameVisible")) == 1);
+        silent = map.containsKey("Silent") && ((byte) map.get("Silent")) == 1;
+        noGravity = map.containsKey("NoGravity") && ((byte) map.get("NoGravity")) == 1;
+        glowing = map.containsKey("Glowing") && ((byte) map.get("Glowing")) == 1;
+        ticksFrozen = map.containsKey("TicksFrozen") ? (int) map.get("TicksFrozen") : 0;
+        hasVisualFire = map.containsKey("HasVisualFire") && ((byte) map.get("HasVisualFire")) == 1;
+        if (map.containsKey("Tags")) {
             tags.clear();
-            NBTList<NBTString> nbtStrings = nbtCompound.getList("Tags");
-            int i = Math.min(nbtStrings.getSize(), 1024);
+            List<String> nbtStrings =  ((Collection<?>) map.get("Tags")).stream().map(Object::toString).collect(Collectors.toCollection(LinkedList::new));
+            int i = Math.min(nbtStrings.size(), 1024);
             for (int j = 0; j < i; j++)
-                tags.add(nbtStrings.get(j).getValue());
+                tags.add(nbtStrings.get(j));
         }
     }
 

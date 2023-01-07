@@ -2,15 +2,16 @@ package me.pesekjak.machine.world.dimensions;
 
 import lombok.*;
 import me.pesekjak.machine.utils.NamespacedKey;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
-import org.jglrxavpok.hephaistos.nbt.NBT;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static java.util.Map.entry;
 
 /**
  * Default implementation of the dimension type.
@@ -54,30 +55,32 @@ public class DimensionTypeImpl implements DimensionType {
 
     @Override
     public @NotNull NBTCompound toNBT() {
-        return NBT.Compound(Map.of(
-                "name", NBT.String(name.toString()),
-                "id", NBT.Int(idReference.intValue()),
-                "element", NBT.Compound(element -> {
-                    element.setFloat("ambient_light", ambientLight);
-                    element.setInt("monster_spawn_block_light_limit", monsterSpawnBlockLightLimit);
-                    element.setInt("monster_spawn_light_level", monsterSpawnLightLevel);
-                    element.setString("infiniburn", "#" + infiniburn.toString());
-                    element.setByte("natural", (byte) (natural ? 0x01 : 0x00));
-                    element.setByte("has_ceiling", (byte) (ceilingEnabled ? 0x01 : 0x00));
-                    element.setByte("has_skylight", (byte) (skylightEnabled ? 0x01 : 0x00));
-                    element.setByte("ultrawarm", (byte) (ultrawarm ? 0x01 : 0x00));
-                    element.setByte("has_raids", (byte) (raidCapable ? 0x01 : 0x00));
-                    element.setByte("respawn_anchor_works", (byte) (respawnAnchorSafe ? 0x01 : 0x00));
-                    element.setByte("bed_works", (byte) (bedSafe ? 0x01 : 0x00));
-                    element.setString("effects", effects.toString());
-                    element.setByte("piglin_safe", (byte) (piglinSafe ? 0x01 : 0x00));
-                    element.setInt("min_y", minY);
-                    element.setInt("height", height);
-                    element.setInt("logical_height", logicalHeight);
-                    element.setInt("coordinate_scale", coordinateScale);
-                    element.setString("name", name.toString());
-                    if (fixedTime != null) element.setLong("fixed_time", fixedTime);
-                })
+        NBTCompound element = new NBTCompound(Map.ofEntries(
+                entry("ambient_light", ambientLight),
+                entry("monster_spawn_block_light_limit", monsterSpawnBlockLightLimit),
+                entry("monster_spawn_light_level", monsterSpawnLightLevel),
+                entry("infiniburn", "#" + infiniburn),
+                entry("natural", (byte) (natural ? 0x01 : 0x00)),
+                entry("has_ceiling", (byte) (ceilingEnabled ? 0x01 : 0x00)),
+                entry("has_skylight", (byte) (skylightEnabled ? 0x01 : 0x00)),
+                entry("ultrawarm", (byte) (ultrawarm ? 0x01 : 0x00)),
+                entry("has_raids", (byte) (raidCapable ? 0x01 : 0x00)),
+                entry("respawn_anchor_works", (byte) (respawnAnchorSafe ? 0x01 : 0x00)),
+                entry("bed_works", (byte) (bedSafe ? 0x01 : 0x00)),
+                entry("effects", effects.toString()),
+                entry("piglin_safe", (byte) (piglinSafe ? 0x01 : 0x00)),
+                entry("min_y", minY),
+                entry("height", height),
+                entry("logical_height", logicalHeight),
+                entry("coordinate_scale", coordinateScale),
+                entry("name", name.toString())
+        ));
+        if (fixedTime != null)
+            element.set("fixed_time", fixedTime);
+        return new NBTCompound(Map.of(
+                "name", name.toString(),
+                "id", idReference.intValue(),
+                "element", element
         ));
     }
 

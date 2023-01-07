@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.pesekjak.machine.utils.ServerBuffer;
 import me.pesekjak.machine.utils.Writable;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 /**
  * Data about chunk's blocks and biomes.
@@ -18,7 +18,8 @@ public class ChunkData implements Writable {
     private final byte @NotNull [] data;
 
     public ChunkData(@NotNull ServerBuffer buf) {
-        this((NBTCompound) buf.readNBT(), buf.readByteArray());
+        heightmaps = buf.readNBT();
+        data = buf.readByteArray();
         buf.readVarInt();
     }
 
@@ -28,7 +29,7 @@ public class ChunkData implements Writable {
      */
     @Override
     public void write(@NotNull ServerBuffer buf) {
-        buf.writeNBT("", this.heightmaps);
+        buf.writeNBT(this.heightmaps);
         buf.writeByteArray(data);
         buf.writeVarInt(0); // TODO Block entities
     }

@@ -6,11 +6,11 @@ import me.pesekjak.machine.auth.PublicKeyData;
 import me.pesekjak.machine.entities.player.PlayerTextures;
 import me.pesekjak.machine.inventory.Item;
 import me.pesekjak.machine.world.BlockPosition;
+import mx.kenzie.nbt.NBTCompound;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.*;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -295,15 +295,14 @@ public interface ServerBuffer extends Cloneable {
      * @return next nbt
      */
     @Contract("-> new")
-    @NotNull NBT readNBT();
+    @NotNull NBTCompound readNBT();
 
     /**
-     * @param name name of the NBT
      * @param tag NBT to write
      * @return this
      */
-    @Contract("_, _ -> this")
-    @NotNull ServerBuffer writeNBT(@NotNull String name, @NotNull NBT tag);
+    @Contract("_ -> this")
+    @NotNull ServerBuffer writeNBT(@NotNull NBTCompound tag);
 
     /**
      * @return next component
