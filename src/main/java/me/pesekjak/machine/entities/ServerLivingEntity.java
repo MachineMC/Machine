@@ -48,13 +48,12 @@ public abstract class ServerLivingEntity extends ServerEntity implements LivingE
     @Override
     public void load(@NotNull NBTCompound nbtCompound) {
         super.load(nbtCompound);
-        Map<String, ?> map = nbtCompound.revert();
-        health = map.containsKey("Health") ? (float) map.get("Health") : 0;
-        hurtTime = map.containsKey("HurtTime") ? (short) map.get("HurtTime") : 0;
-        hurtByTimestamp = map.containsKey("HurtByTimestamp") ? (int) map.get("HurtByTimestamp") : 0;
-        deathTime = map.containsKey("DeathTime") ? (short) map.get("DeathTime") : 0;
-        absorptionAmount = map.containsKey("AbsorptionAmount") ? (float) map.get("AbsorptionAmount") : 0;
-        fallFlying = map.containsKey("FallFlying") && ((byte) map.get("FallFlying") == 1);
+        setHealth(nbtCompound.get("Health", 0f));
+        setHurtTime(nbtCompound.get("HurtTime", (short) 0));
+        setHurtByTimestamp(nbtCompound.get("HurtByTimestamp", 0));
+        setDeathTime(nbtCompound.get("DeathTime", (short) 0));
+        setAbsorptionAmount(nbtCompound.get("AbsorptionAmount", 0f));
+        setFallFlying(nbtCompound.get("FallFlying", (byte) 0) == 1);
     }
 
 }

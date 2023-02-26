@@ -142,9 +142,9 @@ public abstract class ServerEntity implements Entity {
     @Override
     public @NotNull NBTCompound toNBT() {
         NBTCompound compound = new NBTCompound(Map.ofEntries(
-                entry("Pos", NBTUtils.doubleList(location.getX(), location.getY(), location.getZ())),
-                entry("Motion", NBTUtils.doubleList(0, 0, 0)), // TODO implement motion
-                entry("Rotation", NBTUtils.floatList(location.getYaw(), location.getPitch())),
+                entry("Pos", NBTUtils.list(location.getX(), location.getY(), location.getZ())),
+                entry("Motion", NBTUtils.list(0, 0, 0)), // TODO implement motion
+                entry("Rotation", NBTUtils.list(location.getYaw(), location.getPitch())),
                 entry("FallDistance", fallDistance),
                 entry("Fire", remainingFireTicks),
                 entry("Air", (short) 0),
@@ -176,10 +176,9 @@ public abstract class ServerEntity implements Entity {
 
     @Override
     public void load(@NotNull NBTCompound nbtCompound) {
-        Map<String, ?> map = nbtCompound.revert();
-        List<Double> pos = ((List<?>) map.get("Pos")).stream().map(o -> (double) o).collect(Collectors.toCollection(LinkedList::new));
-        List<Double> motion = ((List<?>) map.get("Motion")).stream().map(o -> (double) o).collect(Collectors.toCollection(LinkedList::new));
-        List<Float> rotation = ((List<?>) map.get("Rotation")).stream().map(o -> (float) o).collect(Collectors.toCollection(LinkedList::new));
+        List<Double> pos = ((List<?>) nbtCompound.get("Pos")).stream().map(o -> (double) o).collect(Collectors.toCollection(LinkedList::new));
+        List<Double> motion = ((List<?>) nbtCompound.get("Motion")).stream().map(o -> (double) o).collect(Collectors.toCollection(LinkedList::new));
+        List<Float> rotation = ((List<?>) nbtCompound.get("Rotation")).stream().map(o -> (float) o).collect(Collectors.toCollection(LinkedList::new));
 
         if (pos.size() == 0)
             pos = new LinkedList<>(List.of(0d, 0d, 0d));
@@ -194,26 +193,26 @@ public abstract class ServerEntity implements Entity {
         getLocation().setYaw(rotation.get(0));
         getLocation().setPitch(rotation.get(1));
 
-        fallDistance = map.containsKey("FallDistance") ? (float) map.get("FallDistance") : 0;
-        remainingFireTicks = map.containsKey("Fire") ? (short) map.get("Fire") : 0;
-        onGround = map.containsKey("OnGround") && ((byte) map.get("OnGround")) == 1;
-        invulnerable = map.containsKey("Invulnerable") && ((byte) map.get("Invulnerable")) == 1;
-        portalCooldown = map.containsKey("PortalCooldown") ? (int) map.get("PortalCooldown") : 0;
-        if (map.containsKey("UUID"))
-            uuid = UUIDUtils.uuidFromIntArray((int[]) map.get("UUID"));
-        if (map.containsKey("CustomName")) {
-            String string = (String) map.get("CustomName");
+        setFallDistance(nbtCompound.get("FallDistance", 0f));
+        setRemainingFireTicks(nbtCompound.get("Fire", (short) 0));
+        setOnGround(nbtCompound.get("OnGround", (byte) 0) == 1);
+        setInvulnerable(nbtCompound.get("Invulnerable", (byte) 0) == 1);
+        setPortalCooldown(nbtCompound.get("PortalCooldown", 0));
+        if (nbtCompound.containsKey("UUID"))
+            uuid = UUIDUtils.uuidFromIntArray(nbtCompound.get("UUID"));
+        if (nbtCompound.containsKey("CustomName")) {
+            String string = nbtCompound.get("CustomName");
             setCustomName(GsonComponentSerializer.gson().deserialize(string));
         }
-        setCustomNameVisible(map.containsKey("CustomNameVisible") && ((byte) map.get("CustomNameVisible")) == 1);
-        silent = map.containsKey("Silent") && ((byte) map.get("Silent")) == 1;
-        noGravity = map.containsKey("NoGravity") && ((byte) map.get("NoGravity")) == 1;
-        glowing = map.containsKey("Glowing") && ((byte) map.get("Glowing")) == 1;
-        ticksFrozen = map.containsKey("TicksFrozen") ? (int) map.get("TicksFrozen") : 0;
-        hasVisualFire = map.containsKey("HasVisualFire") && ((byte) map.get("HasVisualFire")) == 1;
-        if (map.containsKey("Tags")) {
+        setCustomNameVisible(nbtCompound.get("CustomNameVisible", (byte) 0) == 1);
+        setSilent(nbtCompound.get("Silent", (byte) 0) == 1);
+        setNoGravity(nbtCompound.get("NoGravity", (byte) 0) == 1);
+        setGlowing(nbtCompound.get("Glowing", (byte) 0) == 1);
+        setTicksFrozen(nbtCompound.get("TicksFrozen", 0));
+        setHasVisualFire(nbtCompound.get("HasVisualFire", (byte) 0) == 1);
+        if (nbtCompound.containsKey("Tags")) {
             tags.clear();
-            List<String> nbtStrings =  ((Collection<?>) map.get("Tags")).stream().map(Object::toString).collect(Collectors.toCollection(LinkedList::new));
+            List<String> nbtStrings =  ((Collection<?>) nbtCompound.get("Tags")).stream().map(Object::toString).collect(Collectors.toCollection(LinkedList::new));
             int i = Math.min(nbtStrings.size(), 1024);
             for (int j = 0; j < i; j++)
                 tags.add(nbtStrings.get(j));

@@ -8,8 +8,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * Utility class for NBT-related operations.
@@ -18,26 +16,14 @@ import java.util.stream.Collectors;
 public class NBTUtils {
 
     /**
-     * Creates an NBT double list from doubles.
-     * @param doubles The doubles to convert
+     * Creates an NBT list from objects.
+     * Note: the objects must all be of the same type
+     * @param objects The objects to use
      * @return NBT double list
      */
     @Contract("_ -> new")
-    public static @NotNull NBTList doubleList(double @NotNull ... doubles) {
-        return new NBTList(Arrays.stream(doubles).boxed().collect(Collectors.toList()));
-    }
-
-    /**
-     * Creates an NBT float list from floats.
-     * @param floats The floats to convert
-     * @return NBT float list
-     */
-    @Contract("_ -> new")
-    public static @NotNull NBTList floatList(float @NotNull ... floats) {
-        Float[] floatArray = new Float[floats.length];
-        for (int i = 0; i < floats.length; i++)
-            floatArray[i] = floats[i];
-        return new NBTList(Arrays.stream(floatArray).toList());
+    public static @NotNull NBTList list(Object @NotNull ... objects) {
+        return new NBTList(objects);
     }
 
     /**
