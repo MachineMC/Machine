@@ -74,7 +74,7 @@ public class ParticleImpl implements Particle {
 
     @Override
     public @NotNull NBTCompound toNBT() {
-        NBTCompound particle = new NBTCompound(Map.of("type", type.getName().key()));
+        NBTCompound particle = new NBTCompound(Map.of("type", type.getName().getKey()));
         if(options == null) return particle;
         particle.putAll(options.toNBT());
         return particle;

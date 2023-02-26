@@ -1,12 +1,10 @@
 package me.pesekjak.machine.utils;
 
 import net.kyori.adventure.key.Key;
-import org.intellij.lang.annotations.RegExp;
-import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.regex.Pattern;
+import java.util.Objects;
 
 /**
  * An identifying object used to fetch and/or store unique objects,
@@ -15,36 +13,26 @@ import java.util.regex.Pattern;
  * Valid characters for namespaces are [a-z0-9.-_].
  * <p>
  * Valid characters for keys are [a-z0-9.-_/].
- * @param namespace namespace of the namespace key
- * @param key key of the namespace key
  */
-public record NamespacedKey(
-        @org.intellij.lang.annotations.Pattern(NAMESPACE_REGEX) @NotNull String namespace,
-        @org.intellij.lang.annotations.Pattern(KEY_REGEX) @NotNull String key) {
+public class NamespacedKey {
 
     public static final String
             MINECRAFT_NAMESPACE = "minecraft",
             MACHINE_NAMESPACE = "machine";
 
-    @RegExp
-    public static final @NotNull String
-            NAMESPACE_REGEX = "[a-z0-9.-_]+",
-            KEY_REGEX = "[a-z0-9.-_/]+";
+    private final String namespace;
+    private final String key;
 
-    private static final @NotNull Pattern
-            NAMESPACE_PATTERN = Pattern.compile(NAMESPACE_REGEX),
-            KEY_PATTERN = Pattern.compile(KEY_REGEX);
-
-    @Contract("_, _ -> new")
-    public static @NotNull NamespacedKey of(@Subst("machine") @org.intellij.lang.annotations.Pattern(NAMESPACE_REGEX) String namespace, @Subst("server") @org.intellij.lang.annotations.Pattern(KEY_REGEX) String key) {
-        return new NamespacedKey(namespace, key);
-    }
-
-    public NamespacedKey(@org.intellij.lang.annotations.Pattern(NAMESPACE_REGEX) @NotNull String namespace, @org.intellij.lang.annotations.Pattern(KEY_REGEX) @NotNull String key) {
-        if (!(NAMESPACE_PATTERN.matcher(namespace).matches() && KEY_PATTERN.matcher(key).matches()))
-            throw new RuntimeException("The key '" + namespace + ":" + key + "' doesn't match the identifier format.");
+    protected NamespacedKey(String namespace, String key) {
         this.namespace = namespace;
         this.key = key;
+    }
+
+    @Contract("_, _ -> new")
+    public static NamespacedKey of(String namespace, String key) {
+        if (!isValidNamespacedKey(namespace, key))
+            throw new IllegalArgumentException("The key '" + namespace + ":" + key + "' doesn't match the identifier format.");
+        return new NamespacedKey(namespace, key);
     }
 
     /**
@@ -54,14 +42,12 @@ public record NamespacedKey(
      * @return parsed NamespacedKey
      */
     @Contract("_ -> new")
-    public static @NotNull NamespacedKey parse(@Subst("machine:server") @org.intellij.lang.annotations.Pattern("[a-z0-9.-_]+:[a-z0-9.-_/]+") @NotNull String namespacedKey) {
-        int index = namespacedKey.indexOf(":");
-        final @Subst("machine") String namespace = namespacedKey.substring(0, index);
-        final @Subst("server") String key = namespacedKey.substring(index + 1);
-        return new NamespacedKey(
-                namespace,
-                key
-        );
+    public static NamespacedKey parse(String namespacedKey) {
+        String[] key = parseNamespacedKey(namespacedKey);
+        if (key == null)
+            throw new IllegalArgumentException("The namespaced key '" + namespacedKey + "' does not have a separator character (':')");
+
+        return NamespacedKey.of(key[0], key[1]);
     }
 
     /**
@@ -70,8 +56,8 @@ public record NamespacedKey(
      * @return minecraft NamespacedKey
      */
     @Contract("_ -> new")
-    public static @NotNull NamespacedKey minecraft(@Subst("server") @org.intellij.lang.annotations.Pattern(KEY_REGEX) @NotNull String key) {
-        return new NamespacedKey(MINECRAFT_NAMESPACE, key);
+    public static NamespacedKey minecraft(String key) {
+        return NamespacedKey.of(MINECRAFT_NAMESPACE, key);
     }
 
     /**
@@ -80,8 +66,8 @@ public record NamespacedKey(
      * @return machine NamespacedKey
      */
     @Contract("_ -> new")
-    public static @NotNull NamespacedKey machine(@Subst("server") @org.intellij.lang.annotations.Pattern(KEY_REGEX) @NotNull String key) {
-        return new NamespacedKey(MACHINE_NAMESPACE, key);
+    public static NamespacedKey machine(String key) {
+        return NamespacedKey.of(MACHINE_NAMESPACE, key);
     }
 
     /**
@@ -89,9 +75,8 @@ public record NamespacedKey(
      * @param key key to convert
      * @return converted NamespacedKey
      */
-    @SuppressWarnings("PatternValidation")
     @Contract("_ -> new")
-    public static @NotNull NamespacedKey fromKey(@NotNull Key key) {
+    public static NamespacedKey fromKey(Key key) {
         return new NamespacedKey(key.namespace(), key.value());
     }
 
@@ -99,16 +84,108 @@ public record NamespacedKey(
      * Converts the NamespacedKey to adventure Key
      * @return converted adventure Key
      */
-    @SuppressWarnings("PatternValidation")
     @Contract(pure = true)
-    public @NotNull Key asKey() {
+    @SuppressWarnings("PatternValidation")
+    public Key asKey() {
         return Key.key(namespace, key);
     }
 
-    @Contract(pure = true)
     @Override
-    public @NotNull String toString() {
+    @Contract(pure = true)
+    public String toString() {
         return namespace + ":" + key;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        var that = (NamespacedKey) obj;
+        return Objects.equals(this.namespace, that.namespace) &&
+                Objects.equals(this.key, that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(namespace, key);
+    }
+
+    /**
+     * Parses a string into a key-value pair.
+     * <b>Note:</b> This doesn't check if the pair follows the namespaced key format, use {@link NamespacedKey#isValidNamespacedKey(String, String)} to check.
+     * @param input the input
+     * @return a string array where the first value is the namespace and the second value is the namespace,
+     * or null if that input doesn't have a separator character ':'
+     */
+    protected static String @Nullable [] parseNamespacedKey(String input) {
+        String[] namespacedKey = new String[2];
+        char[] chars = input.toCharArray();
+        StringBuilder builder = new StringBuilder();
+        boolean separator = false;
+        for (char c : chars) {
+            if (c == ':') {
+                separator = true;
+                namespacedKey[0] = builder.toString();
+                builder = new StringBuilder();
+                continue;
+            }
+
+            builder.append(c);
+        }
+        if (!separator)
+            return null;
+        namespacedKey[1] = builder.toString();
+        return namespacedKey;
+    }
+
+    /**
+     * Valid characters for namespaces are [a-z0-9.-_].
+     * <p>
+     * Valid characters for keys are [a-z0-9.-_/].
+     * @param namespace the namespace
+     * @param key the key
+     * @return whether the namespace and key follow their formats
+     */
+    protected static boolean isValidNamespacedKey(String namespace, String key) {
+        if (namespace.isEmpty())
+            return false;
+        for (char c : namespace.toCharArray()) {
+            if (!isValidNamespace(c))
+                return false;
+        }
+        if (key.isEmpty())
+            return false;
+        for (char c : key.toCharArray()) {
+            if (!isValidKey(c))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Valid characters for namespaces are [a-z0-9.-_].
+     * @param c the character
+     * @return whether character is allowed in a namespace
+     */
+    protected static boolean isValidNamespace(char c) {
+        return Character.isAlphabetic(c) || Character.isDigit(c) || c == '.' || c == '-' || c == '_';
+    }
+
+    /**
+     * Valid characters for keys are [a-z0-9.-_/].
+     * @param c the character
+     * @return whether character is allowed in a key
+     */
+    protected static boolean isValidKey(char c) {
+        return isValidNamespace(c) || c == '/';
     }
 
 }

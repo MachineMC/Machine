@@ -1,6 +1,7 @@
 package me.pesekjak.machine.world.dimensions;
 
 import lombok.*;
+import me.pesekjak.machine.utils.LazyNamespacedKey;
 import me.pesekjak.machine.utils.NamespacedKey;
 import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +50,7 @@ public class DimensionTypeImpl implements DimensionType {
      */
     public static @NotNull DimensionType createDefault() {
         return DimensionTypeImpl.builder()
-                .name(new NamespacedKey(NamespacedKey.MINECRAFT_NAMESPACE, "overworld"))
+                .name(LazyNamespacedKey.of(NamespacedKey.MINECRAFT_NAMESPACE, "overworld"))
                 .build();
     }
 
