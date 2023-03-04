@@ -40,8 +40,8 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Getter
     private @NotNull Gamemode gamemode = Gamemode.CREATIVE; // for now
-    @Getter @Nullable
-    private @NotNull Gamemode previousGamemode = null;
+    @Getter
+    private @Nullable Gamemode previousGamemode = null;
 
     @Getter @Setter
     private @NotNull String locale;
@@ -218,8 +218,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
         this.playerListName = playerListName;
         try {
             getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME, this));
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
     }
@@ -272,9 +271,8 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
     @Override
     public void load(@NotNull NBTCompound nbtCompound) {
         super.load(nbtCompound);
-        Map<String, ?> map = nbtCompound.revert();
-        gamemode = Gamemode.fromID(map.containsKey("playerGameType") ? (int) map.get("playerGameType") : Gamemode.SURVIVAL.getId()); // TODO replace with default gamemode from server.properties
-        previousGamemode = map.containsKey("previousPlayerGameType") ? Gamemode.fromID((Integer) map.get("previousPlayerGameType")) : null;
+        gamemode = Gamemode.fromID(nbtCompound.get("playerGameType", Gamemode.SURVIVAL.getId())); // TODO replace with default gamemode from server.properties
+        previousGamemode = nbtCompound.containsKey("previousPlayerGameType") ? Gamemode.fromID(nbtCompound.get("previousPlayerGameType")) : null;
     }
 
     @Override
