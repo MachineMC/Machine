@@ -76,7 +76,7 @@ public abstract class BlockData implements Cloneable {
     @Override
     public String toString() {
         if(getMaterial() != null)
-            return getMaterial().getName().key() + Arrays.toString(getData());
+            return getMaterial().getName().getKey() + Arrays.toString(getData());
         return "none" + Arrays.toString(getData());
     }
 

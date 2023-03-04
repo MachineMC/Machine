@@ -3,11 +3,8 @@ package me.pesekjak.machine.entities;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import me.pesekjak.machine.utils.NamespacedKey;
-import org.intellij.lang.annotations.Pattern;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import static me.pesekjak.machine.utils.NamespacedKey.KEY_REGEX;
 
 /**
  * Represents entity type (model) of the entity.
@@ -23,7 +20,7 @@ public enum EntityType {
     private final @NotNull NamespacedKey identifier;
     private final @NotNull String typeName;
 
-    EntityType(int id, double width, double height, @NotNull @Pattern(KEY_REGEX) String name) {
+    EntityType(int id, double width, double height, String name) {
         this.id = id;
         this.width = width;
         this.height = height;
@@ -49,7 +46,7 @@ public enum EntityType {
     public static @Nullable EntityType getByName(@NotNull String name) {
         for (EntityType value : values()) {
             if (value.name().equalsIgnoreCase(name) ||
-                    value.identifier.key().equalsIgnoreCase(name) ||
+                    value.identifier.getKey().equalsIgnoreCase(name) ||
                     value.typeName.equalsIgnoreCase(name))
                 return value;
         }

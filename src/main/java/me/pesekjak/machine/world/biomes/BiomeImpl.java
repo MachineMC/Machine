@@ -1,6 +1,7 @@
 package me.pesekjak.machine.world.biomes;
 
 import lombok.*;
+import me.pesekjak.machine.utils.LazyNamespacedKey;
 import me.pesekjak.machine.utils.NamespacedKey;
 import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +37,7 @@ public class BiomeImpl implements Biome {
      */
     public static @NotNull Biome createDefault() {
         return BiomeImpl.builder()
-                .name(new NamespacedKey(NamespacedKey.MINECRAFT_NAMESPACE, "plains"))
+                .name(LazyNamespacedKey.of(NamespacedKey.MINECRAFT_NAMESPACE, "plains"))
                 .build();
     }
 
