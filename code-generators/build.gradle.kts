@@ -3,6 +3,9 @@ plugins {
     id("machine.java-conventions-library")
 }
 
+group = "org.machinemc"
+version = "1.0.0"
+
 dependencies {
     implementation(libs.jetbrains.kotlin.gradle)
     implementation(libs.google.gson)
