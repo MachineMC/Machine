@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.math.Vector2;
 import org.machinemc.api.utils.math.Vector3;
-import org.jetbrains.annotations.NotNull;
+import org.machinemc.server.network.packets.PacketOut;
+import org.machinemc.server.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
 @ToString
@@ -19,8 +18,8 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     private static final int ID = 0x66;
 
     private int entityId;
-    private @NotNull Vector3 position;
-    private @NotNull Vector2 rotation;
+    private Vector3 position;
+    private Vector2 rotation;
     private boolean onGround;
 
     static {
@@ -28,7 +27,7 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
                 PacketPlayOutTeleportEntity::new);
     }
 
-    public PacketPlayOutTeleportEntity(@NotNull ServerBuffer buf) {
+    public PacketPlayOutTeleportEntity(ServerBuffer buf) {
         entityId = buf.readVarInt();
         position = Vector3.of(buf.readDouble(), buf.readDouble(), buf.readDouble());
         rotation = Vector2.of(buf.readAngle(), buf.readAngle());
@@ -41,12 +40,12 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(entityId)
                 .writeDouble(position.getX()).writeDouble(position.getY()).writeDouble(position.getZ())
@@ -56,7 +55,7 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutTeleportEntity(new FriendlyByteBuf(serialize()));
     }
 

@@ -10,7 +10,6 @@ import org.machinemc.api.entities.player.SkinPart;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
@@ -22,12 +21,12 @@ public class PacketPlayInClientInformation extends PacketIn {
 
     private static final int ID = 0x08;
 
-    private @NotNull String locale;
+    private String locale;
     private byte viewDistance;
-    private @NotNull ChatMode chatMode;
+    private ChatMode chatMode;
     private boolean chatColor;
-    private @NotNull Set<SkinPart> displayedSkinParts;
-    private @NotNull Hand mainHand;
+    private Set<SkinPart> displayedSkinParts;
+    private Hand mainHand;
     private boolean enableTextFiltering;
     private boolean allowServerListings;
 
@@ -36,7 +35,7 @@ public class PacketPlayInClientInformation extends PacketIn {
                 PacketPlayInClientInformation::new);
     }
 
-    public PacketPlayInClientInformation(@NotNull ServerBuffer buf) {
+    public PacketPlayInClientInformation(ServerBuffer buf) {
         locale = buf.readString(StandardCharsets.UTF_8);
         viewDistance = buf.readByte();
         chatMode = ChatMode.fromID(buf.readVarInt());
@@ -53,12 +52,12 @@ public class PacketPlayInClientInformation extends PacketIn {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_IN;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeString(locale, StandardCharsets.UTF_8)
                 .writeByte(viewDistance)
@@ -72,7 +71,7 @@ public class PacketPlayInClientInformation extends PacketIn {
     }
 
     @Override
-    public @NotNull PacketIn clone() {
+    public PacketIn clone() {
         return new PacketPlayInClientInformation(new FriendlyByteBuf(serialize()));
     }
 

@@ -5,10 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.api.network.packets.Packet;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -25,7 +24,7 @@ public class PacketPlayOutHeadRotation extends PacketOut {
                 PacketPlayOutHeadRotation::new);
     }
 
-    public PacketPlayOutHeadRotation(@NotNull ServerBuffer buf) {
+    public PacketPlayOutHeadRotation(ServerBuffer buf) {
         entityId = buf.readVarInt();
         angle = buf.readAngle();
     }
@@ -36,12 +35,12 @@ public class PacketPlayOutHeadRotation extends PacketOut {
     }
 
     @Override
-    public @NotNull Packet.PacketState getPacketState() {
+    public Packet.PacketState getPacketState() {
         return Packet.PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(entityId)
                 .writeAngle(angle)
@@ -49,7 +48,7 @@ public class PacketPlayOutHeadRotation extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutHeadRotation(new FriendlyByteBuf(serialize()));
     }
 

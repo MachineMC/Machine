@@ -9,7 +9,6 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockData;
 import org.machinemc.api.world.BlockDataImpl;
 import org.machinemc.server.world.particles.ParticleFactory;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.api.world.particles.options.BlockOptions;
 
 import java.util.Map;
@@ -23,7 +22,7 @@ public class BlockOptionsImpl implements BlockOptions {
 
     private static final Material DEFAULT_LOOK = Material.STONE;
 
-    private @NotNull BlockData blockData;
+    private BlockData blockData;
 
     static {
         ParticleFactory.registerOption(BlockOptions.class, BlockOptionsImpl::new);
@@ -33,13 +32,13 @@ public class BlockOptionsImpl implements BlockOptions {
         this.blockData = Material.STONE.createBlockData();
     }
 
-    public BlockOptionsImpl(@NotNull ServerBuffer buf) {
+    public BlockOptionsImpl(ServerBuffer buf) {
         final BlockData blockData = BlockDataImpl.getBlockData(buf.readVarInt());
         this.blockData = blockData != null ? blockData : DEFAULT_LOOK.createBlockData();
     }
 
     @Override
-    public @NotNull NBTCompound toNBT() {
+    public NBTCompound toNBT() {
         if(blockData.getMaterial() == null)
             return new NBTCompound(Map.of("Name", DEFAULT_LOOK.getName().toString()));
         return new NBTCompound(Map.of(
@@ -49,7 +48,7 @@ public class BlockOptionsImpl implements BlockOptions {
     }
 
     @Override
-    public void write(@NotNull ServerBuffer buf) {
+    public void write(ServerBuffer buf) {
         buf.writeVarInt(blockData.getId());
     }
 

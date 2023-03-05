@@ -7,7 +7,6 @@ import lombok.ToString;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @AllArgsConstructor
@@ -17,7 +16,7 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
 
     private static final int ID = 0x01;
 
-    private byte @NotNull [] secret;
+    private byte[] secret;
     private byte @Nullable [] verifyToken;
     private long salt;
     private byte @Nullable [] messageSignature;
@@ -27,7 +26,7 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
                 PacketLoginInEncryptionResponse::new);
     }
 
-    public PacketLoginInEncryptionResponse(@NotNull ServerBuffer buf) {
+    public PacketLoginInEncryptionResponse(ServerBuffer buf) {
         secret = buf.readByteArray();
         if(buf.readBoolean()) {
             verifyToken = buf.readByteArray();
@@ -43,12 +42,12 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.LOGIN_IN;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeByteArray(secret);
         if(verifyToken != null)
@@ -62,7 +61,7 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
     }
 
     @Override
-    public @NotNull PacketIn clone() {
+    public PacketIn clone() {
         return new PacketLoginInEncryptionResponse(new FriendlyByteBuf(serialize()));
     }
 

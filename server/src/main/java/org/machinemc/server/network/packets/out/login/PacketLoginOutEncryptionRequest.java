@@ -7,7 +7,6 @@ import lombok.ToString;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 
@@ -19,15 +18,15 @@ public class PacketLoginOutEncryptionRequest extends PacketOut {
     private static final int ID = 0x01;
 
     private final String serverID = SERVER_ID; // always same
-    private byte @NotNull [] publicKey;
-    private byte @NotNull [] verifyToken;
+    private byte[] publicKey;
+    private byte[] verifyToken;
 
     static {
         register(PacketLoginOutEncryptionRequest.class, ID, PacketState.LOGIN_OUT,
                 PacketLoginOutEncryptionRequest::new);
     }
 
-    public PacketLoginOutEncryptionRequest(@NotNull ServerBuffer buf) {
+    public PacketLoginOutEncryptionRequest(ServerBuffer buf) {
         buf.readString(StandardCharsets.UTF_8); // reading serverID
         publicKey = buf.readByteArray();
         verifyToken = buf.readByteArray();
@@ -39,12 +38,12 @@ public class PacketLoginOutEncryptionRequest extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.LOGIN_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeString(serverID, StandardCharsets.UTF_8)
                 .writeByteArray(publicKey)
@@ -53,7 +52,7 @@ public class PacketLoginOutEncryptionRequest extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketLoginOutEncryptionRequest(new FriendlyByteBuf(serialize()));
     }
 

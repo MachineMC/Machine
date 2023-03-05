@@ -1,10 +1,8 @@
 package org.machinemc.server.network.packets;
 
-import lombok.experimental.UtilityClass;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.server.utils.ClassUtils;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -14,8 +12,7 @@ import java.util.Map;
 /**
  * Handles the creation of Packet instances.
  */
-@UtilityClass
-public class PacketFactory {
+public final class PacketFactory {
 
     final static Map<Class<? extends Packet>, PacketCreator<? extends Packet>> CREATORS = new HashMap<>();
 
@@ -28,13 +25,17 @@ public class PacketFactory {
         } catch (IOException ignored) { }
     }
 
+    private PacketFactory() {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Creates new instance of a packet of provided class using the {@link FriendlyByteBuf}.
      * @param packetClass class reference of the packet
      * @param buf buffer containing the packet data
      * @return instance of the packet
      */
-    public static @Nullable Packet produce(final @NotNull Class<? extends Packet> packetClass, @NotNull FriendlyByteBuf buf) {
+    public static @Nullable Packet produce(final Class<? extends Packet> packetClass, FriendlyByteBuf buf) {
         PacketCreator<? extends Packet> creator = CREATORS.get(packetClass);
         if (creator == null) return null;
         return creator.create(buf);
@@ -61,7 +62,7 @@ public class PacketFactory {
      * @param state state of the packet
      * @return class of the packet
      */
-    public static @Nullable Class<? extends Packet> getPacketByRawId(int id, @NotNull PacketImpl.PacketState state) {
+    public static @Nullable Class<? extends Packet> getPacketByRawId(int id, PacketImpl.PacketState state) {
         Class<? extends Packet> in = IN_MAPPING.get(id | state.getMask());
         if(in != null) return in;
         for(Map.Entry<Class<? extends Packet>, Integer> entry : OUT_MAPPING.entrySet()) {
@@ -76,7 +77,7 @@ public class PacketFactory {
      * @param packetClass class of the packet
      * @return id of the packet, -1 if it doesn't exist
      */
-    public static int getIdByPacket(@NotNull Class<? extends Packet> packetClass) {
+    public static int getIdByPacket(Class<? extends Packet> packetClass) {
         Integer out = OUT_MAPPING.get(packetClass);
         if(out != null) return out;
         for(Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
@@ -92,7 +93,7 @@ public class PacketFactory {
      * @param state state of the packet
      * @return id of the packet, -1 if it doesn't exist
      */
-    public static int getRawIdByPacket(@NotNull Class<? extends Packet> packetClass, @NotNull PacketImpl.PacketState state) {
+    public static int getRawIdByPacket(Class<? extends Packet> packetClass, PacketImpl.PacketState state) {
         Integer out = OUT_MAPPING.get(packetClass);
         if(out != null) return out & ~state.getMask();
         for(Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
@@ -107,7 +108,7 @@ public class PacketFactory {
      * @param packetClass class of the packet
      * @return state of the packets of given class
      */
-    public static @Nullable Packet.PacketState getRegisteredState(@NotNull Class<? extends Packet> packetClass) {
+    public static @Nullable Packet.PacketState getRegisteredState(Class<? extends Packet> packetClass) {
         Integer out = OUT_MAPPING.get(packetClass);
         if(out != null)
             return Packet.PacketState.fromMask(out >> Packet.PacketState.OFFSET);

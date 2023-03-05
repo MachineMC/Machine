@@ -5,7 +5,6 @@ import lombok.Getter;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.biomes.BiomeEffects;
 import org.machinemc.api.world.particles.Particle;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.nbt.NBTCompound;
 
@@ -22,7 +21,7 @@ public class BiomeEffectsImpl implements BiomeEffects {
      * Creates the default biome effects.
      * @return newly created biome effects
      */
-    public static @NotNull BiomeEffects createDefault() {
+    public static BiomeEffects createDefault() {
         return BiomeEffectsImpl.builder()
                 .build();
     }
@@ -42,7 +41,7 @@ public class BiomeEffectsImpl implements BiomeEffects {
     private final @Nullable Particle biomeParticle;
 
     @Override
-    public @NotNull NBTCompound toNBT() {
+    public NBTCompound toNBT() {
         NBTCompound compound = new NBTCompound(Map.of(
                 "fog_color", fogColor,
                 "sky_color", skyColor,
@@ -73,9 +72,9 @@ public class BiomeEffectsImpl implements BiomeEffects {
     /**
      * Sound playing in a biome
      */
-    public record MoodSoundImpl(@NotNull NamespacedKey sound, int tickDelay, int blockSearchExtent, double offset) implements MoodSound {
+    public record MoodSoundImpl(NamespacedKey sound, int tickDelay, int blockSearchExtent, double offset) implements MoodSound {
         @Override
-        public @NotNull NBTCompound toNBT() {
+        public NBTCompound toNBT() {
             return new NBTCompound(Map.of(
                     "sound", sound.toString(),
                     "tick_delay", tickDelay,
@@ -87,9 +86,9 @@ public class BiomeEffectsImpl implements BiomeEffects {
     /**
      * Additional sound playing in a biome
      */
-    public record AdditionsSoundImpl(@NotNull NamespacedKey sound, double tickChance) implements AdditionsSound {
+    public record AdditionsSoundImpl(NamespacedKey sound, double tickChance) implements AdditionsSound {
         @Override
-        public @NotNull NBTCompound toNBT() {
+        public NBTCompound toNBT() {
             return new NBTCompound(Map.of(
                     "sound", sound.toString(),
                     "tick_chance", tickChance));
@@ -99,9 +98,9 @@ public class BiomeEffectsImpl implements BiomeEffects {
     /**
      * Music playing in a biome
      */
-    public record MusicImpl(@NotNull NamespacedKey sound, int minDelay, int maxDelay, boolean replaceCurrentMusic) implements Music {
+    public record MusicImpl(NamespacedKey sound, int minDelay, int maxDelay, boolean replaceCurrentMusic) implements Music {
         @Override
-        public @NotNull NBTCompound toNBT() {
+        public NBTCompound toNBT() {
             return new NBTCompound(Map.of(
                     "sound", sound.toString(),
                     "min_delay", minDelay,

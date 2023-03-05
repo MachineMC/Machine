@@ -11,7 +11,6 @@ import org.machinemc.server.network.packets.out.play.PacketPlayOutSystemChatMess
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,14 +25,14 @@ public class MessengerImpl implements Messenger {
     private static final String CODEC_TYPE = "minecraft:chat_type";
 
     @Getter
-    private final @NotNull Machine server;
+    private final Machine server;
 
     @Getter @Setter
-    private @NotNull Component cannotSendMessage = Component.translatable("chat.cannotSend", NamedTextColor.RED);
+    private Component cannotSendMessage = Component.translatable("chat.cannotSend", NamedTextColor.RED);
 
     // TODO Player Message impl once it's done
     @Override
-    public boolean sendMessage(@NotNull Player player, @NotNull Component message, @NotNull MessageType messageType) {
+    public boolean sendMessage(Player player, Component message, MessageType messageType) {
         if(Messenger.accepts(player, messageType)) {
             player.sendPacket(new PacketPlayOutSystemChatMessage(message, false));
             return true;
@@ -42,17 +41,17 @@ public class MessengerImpl implements Messenger {
     }
 
     @Override
-    public void sendRejectionMessage(@NotNull Player player) {
+    public void sendRejectionMessage(Player player) {
         player.sendPacket(new PacketPlayOutSystemChatMessage(cannotSendMessage, false));
     }
 
     @Override
-    public @NotNull String getCodecType() {
+    public String getCodecType() {
         return CODEC_TYPE;
     }
 
     @Override
-    public @NotNull List<NBTCompound> getCodecElements() {
+    public List<NBTCompound> getCodecElements() {
         return new ArrayList<>(Arrays.stream(ChatType.values())
                 .map(ChatType::toNBT)
                 .toList());

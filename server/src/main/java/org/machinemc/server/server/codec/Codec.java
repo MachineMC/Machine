@@ -2,7 +2,6 @@ package org.machinemc.server.server.codec;
 
 import lombok.NoArgsConstructor;
 import org.machinemc.api.server.NBTSerializable;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.api.server.codec.CodecPart;
 import org.machinemc.nbt.NBTCompound;
 
@@ -23,7 +22,7 @@ public class Codec implements NBTSerializable {
     }
 
     @Override
-    public @NotNull NBTCompound toNBT() {
+    public NBTCompound toNBT() {
         NBTCompound compound = new NBTCompound();
         for(CodecPart part : codecParts)
             compound.set(part.getCodecType(), part.getCodecNBT());

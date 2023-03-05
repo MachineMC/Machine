@@ -1,9 +1,7 @@
 package org.machinemc.server.utils;
 
 import lombok.Cleanup;
-import lombok.experimental.UtilityClass;
 import org.machinemc.server.Machine;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,14 +13,17 @@ import java.util.jar.JarFile;
 /**
  * Utility class for operations related to classes.
  */
-@UtilityClass
-public class ClassUtils {
+public final class ClassUtils {
+
+    private ClassUtils() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Loads a class.
      * @param classObject class to load
      */
-    public static void loadClass(@NotNull Class<?> classObject) {
+    public static void loadClass(Class<?> classObject) {
         try {
             Class.forName(classObject.getName(), true, Machine.CLASS_LOADER);
         } catch (ClassNotFoundException ignored) { }
@@ -33,7 +34,7 @@ public class ClassUtils {
      * @param basePackage base package of the classes
      * @throws IOException if jar is invalid
      */
-    public static void loadClasses(@NotNull String basePackage) throws IOException {
+    public static void loadClasses(String basePackage) throws IOException {
         List<String> classNames = getClasses(basePackage);
         for (String className : classNames) {
             try {
@@ -48,7 +49,7 @@ public class ClassUtils {
      * @return list of the class inside
      * @throws IOException if jar is invalid
      */
-    public static @NotNull List<String> getClasses(@NotNull String basePackage) throws IOException {
+    public static List<String> getClasses(String basePackage) throws IOException {
         @Cleanup JarFile jar = new JarFile(FileUtils.getMachineJar());
         basePackage = basePackage.replace('.', '/') + "/";
         List<String> classNames = new ArrayList<>();

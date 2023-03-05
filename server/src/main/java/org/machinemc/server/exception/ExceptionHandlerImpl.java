@@ -6,7 +6,6 @@ import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.logging.Console;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.api.server.ServerProperty;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -17,21 +16,21 @@ import java.util.Arrays;
 public class ExceptionHandlerImpl implements ExceptionHandler, ServerProperty {
 
     @Getter
-    private final @NotNull Machine server;
-    private final @NotNull Console console;
+    private final Machine server;
+    private final Console console;
 
-    public ExceptionHandlerImpl(@NotNull Machine server) {
+    public ExceptionHandlerImpl(Machine server) {
         this.server = server;
         this.console = server.getConsole();
     }
 
     @Override
-    public void handle(@NotNull Throwable throwable) {
+    public void handle(Throwable throwable) {
         handle(throwable, null);
     }
 
     @Override
-    public void handle(@NotNull Throwable throwable, @Nullable String reason) {
+    public void handle(Throwable throwable, @Nullable String reason) {
         if(throwable instanceof ClientException clientException) {
             handle(clientException);
             return;
@@ -48,7 +47,7 @@ public class ExceptionHandlerImpl implements ExceptionHandler, ServerProperty {
      * Handles client exception specifically.
      * @param exception client exception to handle
      */
-    protected void handle(@NotNull ClientException exception) {
+    protected void handle(ClientException exception) {
         final ClientConnection connection = exception.getConnection();
         Throwable throwable = exception;
         while(throwable.getCause() != null)

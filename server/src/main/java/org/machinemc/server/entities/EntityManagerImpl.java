@@ -7,7 +7,6 @@ import org.machinemc.api.entities.EntityManager;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldManager;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EntityManagerImpl implements EntityManager {
 
-    private final @NotNull WorldManager worldManager;
+    private final WorldManager worldManager;
 
     private final Map<UUID, Entity> entityMap = new ConcurrentHashMap<>();
 
@@ -30,19 +29,19 @@ public class EntityManagerImpl implements EntityManager {
      * @param server server
      * @return new manager
      */
-    public static @NotNull EntityManagerImpl createDefault(@NotNull Machine server) {
+    public static EntityManagerImpl createDefault(Machine server) {
         return new EntityManagerImpl(server.getWorldManager());
     }
 
     @Override
-    public @NotNull Set<Entity> getEntitiesOfType(@NotNull EntityType entityType) {
+    public Set<Entity> getEntitiesOfType(EntityType entityType) {
         return getEntities().stream()
                 .filter(entity -> entity.getEntityType() == entityType)
                 .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
-    public @NotNull Set<Entity> getEntitiesOfType(@NotNull EntityType entityType, @NotNull World world) {
+    public Set<Entity> getEntitiesOfType(EntityType entityType, World world) {
         return getEntities(world).stream()
                 .filter(entity -> entity.getEntityType() == entityType)
                 .collect(Collectors.toUnmodifiableSet());
@@ -50,7 +49,7 @@ public class EntityManagerImpl implements EntityManager {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <E extends Entity> @NotNull Set<E> getEntitiesOfClass(@NotNull Class<E> entityClass) {
+    public <E extends Entity> Set<E> getEntitiesOfClass(Class<E> entityClass) {
         return getEntities().stream()
                 .filter(entity -> entityClass.isAssignableFrom(entity.getClass()))
                 .map(entity -> (E) entity)
@@ -59,7 +58,7 @@ public class EntityManagerImpl implements EntityManager {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <E extends Entity> @NotNull Set<E> getEntitiesOfClass(@NotNull Class<E> entityClass, @NotNull World world) {
+    public <E extends Entity> Set<E> getEntitiesOfClass(Class<E> entityClass, World world) {
         return getEntities(world).stream()
                 .filter(entity -> entityClass.isAssignableFrom(entity.getClass()))
                 .map(entity -> (E) entity)
@@ -67,7 +66,7 @@ public class EntityManagerImpl implements EntityManager {
     }
 
     @Override
-    public @NotNull Set<Entity> getEntities() {
+    public Set<Entity> getEntities() {
         Set<ServerEntity> entities = new LinkedHashSet<>();
         for(World world : worldManager.getWorlds()) {
             for(Entity entity : world.getEntities()) {
@@ -78,24 +77,24 @@ public class EntityManagerImpl implements EntityManager {
     }
 
     @Override
-    public @NotNull Set<Entity> getEntities(@NotNull World world) {
+    public Set<Entity> getEntities(World world) {
         if(world.getManager() != worldManager)
             throw new IllegalStateException();
         return new LinkedHashSet<>(world.getEntities());
     }
 
     @Override
-    public @NotNull Set<Entity> getEntities(@NotNull Predicate<Entity> predicate) {
+    public Set<Entity> getEntities(Predicate<Entity> predicate) {
         return getEntities().stream().filter(predicate).collect(Collectors.toSet());
     }
 
     @Override
-    public @Nullable Entity getEntity(@NotNull UUID uuid) {
+    public @Nullable Entity getEntity(UUID uuid) {
         return entityMap.get(uuid);
     }
 
     @Override
-    public void addEntity(@NotNull Entity entity) {
+    public void addEntity(Entity entity) {
         if(entity.getWorld().getManager() != worldManager || entityMap.containsKey(entity.getUuid()))
             throw new IllegalStateException();
         entity.getWorld().spawn(entity, entity.getLocation());
@@ -103,7 +102,7 @@ public class EntityManagerImpl implements EntityManager {
     }
 
     @Override
-    public void removeEntity(@NotNull Entity entity) {
+    public void removeEntity(Entity entity) {
         if(entity.getWorld().getManager() != worldManager || !entityMap.containsKey(entity.getUuid()))
             throw new IllegalStateException();
         entity.getWorld().remove(entity);

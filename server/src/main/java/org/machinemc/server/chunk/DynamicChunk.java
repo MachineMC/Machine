@@ -16,7 +16,6 @@ import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.server.world.blocks.*;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.BlockVisual;
@@ -36,7 +35,7 @@ public class DynamicChunk extends WorldChunk {
     private final int bottom;
     private final int height;
 
-    public DynamicChunk(@NotNull World world, int chunkX, int chunkZ) {
+    public DynamicChunk(World world, int chunkX, int chunkZ) {
         super(world, chunkX, chunkZ);
         if(world.getManager() == null) throw new IllegalStateException("The world has to have a manager");
         bottom = world.getDimensionType().getMinY();
@@ -46,12 +45,12 @@ public class DynamicChunk extends WorldChunk {
     }
 
     @Override
-    public @NotNull WorldBlock getBlock(int x, int y, int z) {
+    public WorldBlock getBlock(int x, int y, int z) {
         return blocks.get(ChunkUtils.getBlockIndex(x, y, z));
     }
 
     @Override
-    public @NotNull WorldBlock setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
+    public WorldBlock setBlock(int x, int y, int z, BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
         final WorldBlock previous = getBlock(x, y, z);
         if(previous != null) // TODO this can happen but shouldn't, fix
             previous.getBlockType().destroy(previous, replaceReason != null ? replaceReason : BlockTypeImpl.DestroyReason.OTHER, null);
@@ -66,7 +65,7 @@ public class DynamicChunk extends WorldChunk {
     }
 
     @Override
-    public void setVisual(int x, int y, int z, @NotNull BlockVisual visual) {
+    public void setVisual(int x, int y, int z, BlockVisual visual) {
         getSectionAt(y).getBlockPalette().set(
                 ChunkUtils.getSectionRelativeCoordinate(x),
                 ChunkUtils.getSectionRelativeCoordinate(y),
@@ -75,7 +74,7 @@ public class DynamicChunk extends WorldChunk {
     }
 
     @Override
-    public @NotNull Biome getBiome(int x, int y, int z) {
+    public Biome getBiome(int x, int y, int z) {
         final Section section = getSectionAt(y);
         final int id = section.getBiomePalette().get(
                 ChunkUtils.getSectionRelativeCoordinate(x) / 4,
@@ -88,34 +87,34 @@ public class DynamicChunk extends WorldChunk {
     }
 
     @Override
-    public void setBiome(int x, int y, int z, @NotNull Biome biome) {
+    public void setBiome(int x, int y, int z, Biome biome) {
         final Section section = getSectionAt(y);
         section.getBiomePalette().set(x / 4, y / 4, z / 4, biome.getId());
     }
 
     @Override
-    public @NotNull List<Section> getSections() {
+    public List<Section> getSections() {
         return Collections.unmodifiableList(sections);
     }
 
     @Override
-    public @NotNull Section getSection(int section) {
+    public Section getSection(int section) {
         if(sections.get(section) == null) throw new IllegalStateException();
         return sections.get(section);
     }
 
     @Override
-    public void sendChunk(@NotNull Player player) {
+    public void sendChunk(Player player) {
         player.sendPacket(createChunkPacket());
     }
 
     @Override
-    public void unloadChunk(@NotNull Player player) {
+    public void unloadChunk(Player player) {
         player.sendPacket(new PacketPlayOutUnloadChunk(chunkX, chunkZ));
     }
 
     @Override
-    public @NotNull WorldChunk copy(@NotNull World world, int chunkX, int chunkZ) {
+    public WorldChunk copy(World world, int chunkX, int chunkZ) {
         DynamicChunk copy = new DynamicChunk(world, chunkX, chunkZ);
         for(int i : blocks.keySet())
             copy.blocks.put(i, blocks.get(i));
@@ -135,7 +134,7 @@ public class DynamicChunk extends WorldChunk {
     /**
      * @return chunk data of this chunk
      */
-    private @NotNull ChunkData createChunkData() {
+    private ChunkData createChunkData() {
         int[] motionBlocking = new int[16 * 16];
         int[] worldSurface = new int[16 * 16];
         for (int x = 0; x < 16; x++) {
@@ -161,7 +160,7 @@ public class DynamicChunk extends WorldChunk {
     /**
      * @return light data of this chunk
      */
-    private @NotNull LightData createLightData() {
+    private LightData createLightData() {
         BitSet skyMask = new BitSet();
         BitSet blockMask = new BitSet();
         BitSet emptySkyMask = new BitSet();
@@ -195,7 +194,7 @@ public class DynamicChunk extends WorldChunk {
     /**
      * @return chunk packet of this chunk
      */
-    private @NotNull PacketPlayOutChunkData createChunkPacket() {
+    private PacketPlayOutChunkData createChunkPacket() {
         return new PacketPlayOutChunkData(chunkX, chunkZ,
                 createChunkData(),
                 createLightData());
@@ -204,7 +203,7 @@ public class DynamicChunk extends WorldChunk {
     /**
      * @return light packet of this chunk
      */
-    private @NotNull PacketPlayOutUpdateLight createLightPacket() {
+    private PacketPlayOutUpdateLight createLightPacket() {
         return new PacketPlayOutUpdateLight(chunkX, chunkZ, createLightData());
     }
 

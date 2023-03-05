@@ -5,7 +5,6 @@ import com.google.gson.JsonParser;
 import lombok.experimental.UtilityClass;
 import org.machinemc.server.entities.player.PlayerTexturesImpl;
 import org.machinemc.server.utils.UUIDUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -35,7 +34,7 @@ public class MojangAuth {
      * @param username player's username
      * @return obtained json
      */
-    public static @NotNull CompletableFuture<JsonObject> getAuthData(@NotNull String serverId, @NotNull String username) {
+    public static CompletableFuture<JsonObject> getAuthData(String serverId, String username) {
         final String url = String.format(MojangAuth.AUTH_URL, username, serverId);
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -55,7 +54,7 @@ public class MojangAuth {
      * @param username player's nickname
      * @return offline mode uuid
      */
-    public static @NotNull UUID getOfflineUUID(@NotNull String username) {
+    public static UUID getOfflineUUID(String username) {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + username).getBytes(StandardCharsets.UTF_8));
     }
 
@@ -64,7 +63,7 @@ public class MojangAuth {
      * @param username username of the account
      * @return online UUID of account, null if the account doesn't exist
      */
-    public static @NotNull CompletableFuture<UUID> getUUID(@NotNull String username) {
+    public static CompletableFuture<UUID> getUUID(String username) {
         final String url = String.format(USER_PROFILE_URL, username);
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -86,7 +85,7 @@ public class MojangAuth {
      * @param uuid online uuid of the account
      * @return skin of the registered account, null if the account doesn't exist
      */
-    public static @NotNull CompletableFuture<PlayerTexturesImpl> getSkin(@NotNull UUID uuid) {
+    public static CompletableFuture<PlayerTexturesImpl> getSkin(UUID uuid) {
         final String url = String.format(MINECRAFT_PROFILE_URL, uuid);
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -109,7 +108,7 @@ public class MojangAuth {
      * @param username username of the account
      * @return skin of the registered account, null if the account doesn't exist
      */
-    public static @NotNull CompletableFuture<PlayerTexturesImpl> getSkin(@NotNull String username) {
+    public static CompletableFuture<PlayerTexturesImpl> getSkin(String username) {
         return CompletableFuture.supplyAsync(() -> getSkin(getUUID(username).join()).join());
     }
 

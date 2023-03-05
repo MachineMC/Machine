@@ -4,10 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -17,14 +16,14 @@ public class PacketPlayOutSetPassengers extends PacketOut {
     private static final int ID = 0x57;
 
     private int entityId;
-    private int @NotNull [] passengers;
+    private int[] passengers;
 
     static {
         register(PacketPlayOutSetPassengers.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutSetPassengers::new);
     }
 
-    public PacketPlayOutSetPassengers(@NotNull ServerBuffer buf) {
+    public PacketPlayOutSetPassengers(ServerBuffer buf) {
         entityId = buf.readVarInt();
         passengers = buf.readVarIntArray();
     }
@@ -35,12 +34,12 @@ public class PacketPlayOutSetPassengers extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(entityId)
                 .writeVarIntArray(passengers)
@@ -48,7 +47,7 @@ public class PacketPlayOutSetPassengers extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutSetPassengers(new FriendlyByteBuf(serialize()));
     }
 

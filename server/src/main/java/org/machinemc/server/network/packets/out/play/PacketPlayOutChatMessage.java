@@ -1,14 +1,16 @@
 package org.machinemc.server.network.packets.out.play;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.auth.MessageSignature;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.chat.ChatType;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -19,20 +21,20 @@ public class PacketPlayOutChatMessage extends PacketOut {
 
     private static final int ID = 0x33;
 
-    private @NotNull Component signedMessage;
+    private Component signedMessage;
     private @Nullable Component unsignedMessage;
-    private @NotNull ChatType chatType;
-    private @NotNull UUID uuid;
-    private @NotNull Component displayName;
+    private ChatType chatType;
+    private UUID uuid;
+    private Component displayName;
     private @Nullable Component teamName;
-    private @NotNull MessageSignature messageSignature;
+    private MessageSignature messageSignature;
 
     static {
         register(PacketPlayOutChatMessage.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutChatMessage::new);
     }
 
-    public PacketPlayOutChatMessage(@NotNull ServerBuffer buf) {
+    public PacketPlayOutChatMessage(ServerBuffer buf) {
         signedMessage = buf.readComponent();
         if(buf.readBoolean()) // has unsigned content
             unsignedMessage = buf.readComponent();
@@ -50,12 +52,12 @@ public class PacketPlayOutChatMessage extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeComponent(signedMessage)
                 .writeBoolean(unsignedMessage != null);
@@ -72,7 +74,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutChatMessage(new FriendlyByteBuf(serialize()));
     }
 

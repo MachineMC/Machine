@@ -4,10 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -23,7 +22,7 @@ public class PacketPlayOutUnloadChunk extends PacketOut {
                 PacketPlayOutUnloadChunk::new);
     }
 
-    public PacketPlayOutUnloadChunk(@NotNull ServerBuffer buf) {
+    public PacketPlayOutUnloadChunk(ServerBuffer buf) {
         chunkX = buf.readInt();
         chunkZ = buf.readInt();
     }
@@ -34,12 +33,12 @@ public class PacketPlayOutUnloadChunk extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeInt(chunkX)
                 .writeInt(chunkZ)
@@ -47,7 +46,7 @@ public class PacketPlayOutUnloadChunk extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutUnloadChunk(new FriendlyByteBuf(serialize()));
     }
 

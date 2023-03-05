@@ -4,7 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.machinemc.api.world.BlockData;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.api.world.blocks.BlockVisual;
 
 /**
@@ -16,15 +15,15 @@ import org.machinemc.api.world.blocks.BlockVisual;
 @ToString
 public class FixedVisual implements BlockVisual {
 
-    private final @NotNull BlockData blockData;
+    private final BlockData blockData;
 
     @Override
-    public @NotNull BlockData getBlockData() {
+    public BlockData getBlockData() {
         return blockData.clone();
     }
 
     @Override
-    public void setBlockData(@NotNull BlockData blockData) {
+    public void setBlockData(BlockData blockData) {
         throw new UnsupportedOperationException();
     }
 

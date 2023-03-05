@@ -6,7 +6,6 @@ import com.mojang.brigadier.tree.CommandNode;
 import org.machinemc.server.Machine;
 import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.server.ServerProperty;
-import org.jetbrains.annotations.NotNull;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
@@ -41,7 +40,7 @@ public record ConsoleCompleter(Machine server, ServerConsole console) implements
     }
 
     @Override
-    public @NotNull Machine getServer() {
+    public Machine getServer() {
         return server;
     }
 

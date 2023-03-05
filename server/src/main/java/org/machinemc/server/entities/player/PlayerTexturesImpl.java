@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.entities.player.SkinModel;
@@ -16,7 +15,7 @@ import java.util.Base64;
 /**
  * Default implementation of player textures.
  */
-public record PlayerTexturesImpl(@NotNull String value, @Nullable String signature, @NotNull URL skinUrl, @Nullable URL capeUrl, @NotNull SkinModel skinModel) implements PlayerTextures {
+public record PlayerTexturesImpl(String value, @Nullable String signature, URL skinUrl, @Nullable URL capeUrl, SkinModel skinModel) implements PlayerTextures {
 
     /**
      * Creates the player textures from given skin's texture value and signature.
@@ -26,7 +25,7 @@ public record PlayerTexturesImpl(@NotNull String value, @Nullable String signatu
      * @throws JsonSyntaxException if texture value contains malformed JSON format
      * @return player textures
      */
-    public static @NotNull PlayerTexturesImpl buildSkin(@NotNull String value, @Nullable String signature) throws MalformedURLException {
+    public static PlayerTexturesImpl buildSkin(String value, @Nullable String signature) throws MalformedURLException {
         JsonElement decoded = new JsonParser().parse(new String(Base64.getDecoder().decode(value)));
         if (!decoded.isJsonObject()) throw new JsonSyntaxException("Texture value of the skin contains malformed JSON format");
         JsonObject textures = decoded.getAsJsonObject().getAsJsonObject("textures");
@@ -43,7 +42,7 @@ public record PlayerTexturesImpl(@NotNull String value, @Nullable String signatu
      * @param jsonElement json of the player textures
      * @return player textures from the json
      */
-    public static @Nullable PlayerTexturesImpl buildSkin(@NotNull JsonElement jsonElement) {
+    public static @Nullable PlayerTexturesImpl buildSkin(JsonElement jsonElement) {
         if (!jsonElement.isJsonObject())
             return null;
         JsonObject texturesJson = jsonElement.getAsJsonObject();

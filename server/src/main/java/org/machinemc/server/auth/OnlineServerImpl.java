@@ -2,7 +2,6 @@ package org.machinemc.server.auth;
 
 import lombok.Getter;
 import org.machinemc.server.Machine;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.api.auth.Crypt;
 import org.machinemc.api.auth.OnlineServer;
 
@@ -14,10 +13,10 @@ import java.security.KeyPair;
 @Getter
 public class OnlineServerImpl implements OnlineServer {
 
-    private final @NotNull Machine server;
-    protected final @NotNull KeyPair key;
+    private final Machine server;
+    protected final KeyPair key;
 
-    public OnlineServerImpl(@NotNull Machine server) {
+    public OnlineServerImpl(Machine server) {
         this.server = server;
         key = Crypt.generateKeyPair();
     }

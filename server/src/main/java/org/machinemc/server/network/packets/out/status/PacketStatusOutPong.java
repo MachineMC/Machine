@@ -8,7 +8,6 @@ import org.machinemc.api.network.packets.Packet;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -25,7 +24,7 @@ public class PacketStatusOutPong extends PacketOut {
         );
     }
 
-    public PacketStatusOutPong(@NotNull ServerBuffer buf) {
+    public PacketStatusOutPong(ServerBuffer buf) {
         payload = buf.readLong();
     }
 
@@ -35,19 +34,19 @@ public class PacketStatusOutPong extends PacketOut {
     }
 
     @Override
-    public @NotNull Packet.PacketState getPacketState() {
+    public Packet.PacketState getPacketState() {
         return Packet.PacketState.STATUS_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeLong(payload)
                 .bytes();
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketStatusOutPong(new FriendlyByteBuf(serialize()));
     }
 

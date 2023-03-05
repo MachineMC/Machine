@@ -6,7 +6,6 @@ import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.ServerConnection;
 import org.machinemc.api.network.packets.Packet;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -28,17 +27,17 @@ public class ServerConnectionImpl extends Thread implements ServerConnection {
     public final static int KEEP_ALIVE_FREQ = 20000;
 
     @Getter
-    private final @NotNull Machine server;
+    private final Machine server;
     private final Set<PlayerConnection> clients = new CopyOnWriteArraySet<>();
     @Getter
-    private final @NotNull String ip;
+    private final String ip;
     @Getter
     private final int port;
     @Getter
     private @Nullable ServerSocket socket;
     private boolean running;
 
-    public ServerConnectionImpl(@NotNull Machine server) {
+    public ServerConnectionImpl(Machine server) {
         if(server.isRunning())
             throw new IllegalStateException();
         this.server = server;
@@ -90,7 +89,7 @@ public class ServerConnectionImpl extends Thread implements ServerConnection {
      * @return list of all connected clients
      */
     @Override
-    public @NotNull Set<PlayerConnection> getClients() {
+    public Set<PlayerConnection> getClients() {
         return Collections.unmodifiableSet(clients);
     }
 
@@ -99,7 +98,7 @@ public class ServerConnectionImpl extends Thread implements ServerConnection {
      * @param packet packet that will be sent
      */
     @Override
-    public void broadcastPacket(@NotNull Packet packet) throws IOException {
+    public void broadcastPacket(Packet packet) throws IOException {
         final Set<ClientConnection.ClientState> states = Arrays.stream(PlayerConnection.ClientState.fromState(packet.getPacketState()))
                 .collect(Collectors.toSet());
         for(PlayerConnection client : clients) {
@@ -111,7 +110,7 @@ public class ServerConnectionImpl extends Thread implements ServerConnection {
      * Disconnects the client connection.
      * @param connection client connection to disconnect
      */
-    public void disconnect(@NotNull PlayerConnection connection) {
+    public void disconnect(PlayerConnection connection) {
         if(connection.getClientState() != ClientConnection.ClientState.DISCONNECTED)
             connection.disconnect(Component.translatable("disconnect.disconnected"));
         clients.remove(connection);

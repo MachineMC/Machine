@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import net.kyori.adventure.text.Component;
 import org.machinemc.api.network.packets.Packet;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -20,14 +19,14 @@ public class PacketPlayOutCombatDeath extends PacketOut {
 
     private int playerId;
     private int entityId;
-    private @NotNull Component deathMessage;
+    private Component deathMessage;
 
     static {
         register(PacketPlayOutCombatDeath.class, ID, Packet.PacketState.PLAY_OUT,
                 PacketPlayOutCombatDeath::new);
     }
 
-    public PacketPlayOutCombatDeath(@NotNull ServerBuffer buf) {
+    public PacketPlayOutCombatDeath(ServerBuffer buf) {
         playerId = buf.readVarInt();
         entityId = buf.readInt();
         deathMessage = buf.readComponent();
@@ -39,12 +38,12 @@ public class PacketPlayOutCombatDeath extends PacketOut {
     }
 
     @Override
-    public @NotNull Packet.PacketState getPacketState() {
+    public Packet.PacketState getPacketState() {
         return Packet.PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(playerId)
                 .writeInt(entityId)
@@ -53,7 +52,7 @@ public class PacketPlayOutCombatDeath extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutCombatDeath(new FriendlyByteBuf(serialize()));
     }
 

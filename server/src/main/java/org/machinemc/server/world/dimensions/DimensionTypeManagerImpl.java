@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.Machine;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
@@ -25,19 +24,19 @@ import static org.machinemc.api.chunk.Chunk.CHUNK_SECTION_SIZE;
 @RequiredArgsConstructor
 public class DimensionTypeManagerImpl implements DimensionTypeManager {
 
-    protected final @NotNull AtomicInteger ID_COUNTER = new AtomicInteger(0);
+    protected final AtomicInteger ID_COUNTER = new AtomicInteger(0);
     private final static String CODEC_TYPE = "minecraft:dimension_type";
 
-    private final @NotNull Set<DimensionType> dimensionTypes = new CopyOnWriteArraySet<>();
+    private final Set<DimensionType> dimensionTypes = new CopyOnWriteArraySet<>();
     @Getter
-    private final @NotNull Machine server;
+    private final Machine server;
 
     /**
      * Creates dimension manager with default values.
      * @param server server
      * @return new manager
      */
-    public static @NotNull DimensionTypeManager createDefault(@NotNull Machine server) {
+    public static DimensionTypeManager createDefault(Machine server) {
         DimensionTypeManagerImpl manager = new DimensionTypeManagerImpl(server);
         manager.addDimension(DimensionTypeImpl.createDefault());
         return manager;
@@ -45,7 +44,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void addDimension(@NotNull DimensionType dimensionType) {
+    public void addDimension(DimensionType dimensionType) {
         if(dimensionType.getManagerReference().get() != null && dimensionType.getManagerReference().get() != this)
             throw new IllegalStateException("Dimension type '" + dimensionType.getName() + "' is already registered in a different DimensionManager");
         if(dimensionType.getMinY() % CHUNK_SECTION_SIZE != 0 || dimensionType.getHeight() % CHUNK_SECTION_SIZE != 0 || dimensionType.getLogicalHeight() % CHUNK_SECTION_SIZE != 0)
@@ -62,7 +61,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
     }
 
     @Override
-    public boolean removeDimension(@NotNull DimensionType dimensionType) {
+    public boolean removeDimension(DimensionType dimensionType) {
         if(dimensionType.getManagerReference().get() != this) return false;
         if(dimensionTypes.remove(dimensionType)) {
             dimensionType.getManagerReference().set(null);
@@ -73,14 +72,14 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
     }
 
     @Override
-    public boolean isRegistered(@NotNull NamespacedKey name) {
+    public boolean isRegistered(NamespacedKey name) {
         final DimensionType dimension = getDimension(name);
         if(dimension == null) return false;
         return isRegistered(dimension);
     }
 
     @Override
-    public DimensionType getDimension(@NotNull NamespacedKey name) {
+    public DimensionType getDimension(NamespacedKey name) {
         for(DimensionType dimensionType : getDimensions()) {
             if(!(dimensionType.getName().equals(name))) continue;
             return dimensionType;
@@ -98,17 +97,17 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
     }
 
     @Override
-    public @NotNull Set<DimensionType> getDimensions() {
+    public Set<DimensionType> getDimensions() {
         return Collections.unmodifiableSet(dimensionTypes);
     }
 
     @Override
-    public @NotNull String getCodecType() {
+    public String getCodecType() {
         return CODEC_TYPE;
     }
 
     @Override
-    public @NotNull List<NBTCompound> getCodecElements() {
+    public List<NBTCompound> getCodecElements() {
         return new ArrayList<>(dimensionTypes.stream()
                 .map(DimensionType::toNBT)
                 .toList());

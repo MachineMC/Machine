@@ -1,8 +1,5 @@
 package org.machinemc.server.utils;
 
-import lombok.experimental.UtilityClass;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.DeflaterOutputStream;
@@ -11,8 +8,11 @@ import java.util.zip.InflaterOutputStream;
 /**
  * Utility class used for ZLib compression.
  */
-@UtilityClass
-public class ZLib {
+public final class ZLib {
+
+    private ZLib() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Compresses an array of bytes using ZLib.
@@ -20,7 +20,7 @@ public class ZLib {
      * @return The compressed bytes
      * @throws IOException if an I/O error occurs
      */
-    public static byte @NotNull [] compress(byte @NotNull [] data) throws IOException {
+    public static byte[] compress(byte[] data) throws IOException {
         final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         final DeflaterOutputStream outputStream = new DeflaterOutputStream(bytes);
         outputStream.write(data);
@@ -34,7 +34,7 @@ public class ZLib {
      * @return The decompressed bytes
      * @throws IOException if an I/O error occurs
      */
-    public static byte @NotNull [] decompress(byte @NotNull [] data) throws IOException {
+    public static byte[] decompress(byte[] data) throws IOException {
         final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         final InflaterOutputStream outputStream = new InflaterOutputStream(bytes);
         outputStream.write(data);

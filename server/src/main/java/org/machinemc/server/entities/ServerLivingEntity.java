@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.Machine;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.entities.LivingEntity;
 
@@ -30,7 +29,7 @@ public abstract class ServerLivingEntity extends ServerEntity implements LivingE
     }
 
     @Override
-    public @NotNull NBTCompound toNBT() {
+    public NBTCompound toNBT() {
         NBTCompound compound = super.toNBT();
         compound.putAll(Map.of(
                 "Health", NBT.convert(health),
@@ -48,7 +47,7 @@ public abstract class ServerLivingEntity extends ServerEntity implements LivingE
     }
 
     @Override
-    public void load(@NotNull NBTCompound nbtCompound) {
+    public void load(NBTCompound nbtCompound) {
         super.load(nbtCompound);
         setHealth(nbtCompound.getValue("Health", 0f));
         setHurtTime(nbtCompound.getValue("HurtTime", (short) 0));

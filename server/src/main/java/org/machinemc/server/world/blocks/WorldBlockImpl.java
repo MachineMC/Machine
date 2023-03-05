@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.ToString;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.BlockVisual;
 import org.machinemc.api.world.blocks.WorldBlock;
@@ -13,17 +12,20 @@ import org.machinemc.api.world.blocks.WorldBlock;
 /**
  * Default world block implementation.
  */
+// TODO Equals should check just location and world
+//  and the block instance should be synced and only
+//  one per world block
 @EqualsAndHashCode
 @ToString
 @Getter
 public class WorldBlockImpl implements WorldBlock {
 
-    private final @NotNull BlockType blockType;
-    private final @NotNull BlockPosition position;
-    private final @NotNull World world;
-    private final @NotNull BlockVisual visual;
+    private final BlockType blockType;
+    private final BlockPosition position;
+    private final World world;
+    private final BlockVisual visual;
 
-    public WorldBlockImpl(@NotNull BlockType blockType, @NotNull BlockPosition position, @NotNull World world) {
+    public WorldBlockImpl(BlockType blockType, BlockPosition position, World world) {
         this.blockType = blockType;
         this.position = position;
         this.world = world;

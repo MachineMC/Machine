@@ -9,19 +9,18 @@ import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.login.PacketLoginInStart;
 import org.machinemc.server.network.packets.out.login.PacketLoginOutEncryptionRequest;
 import org.machinemc.server.network.packets.out.login.PacketLoginOutSuccess;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
 public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart> {
 
     @Override
-    public boolean translate(@NotNull ClientConnection connection, @NotNull PacketLoginInStart packet) {
+    public boolean translate(ClientConnection connection, PacketLoginInStart packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(@NotNull ClientConnection connection, @NotNull PacketLoginInStart packet) {
+    public void translateAfter(ClientConnection connection, PacketLoginInStart packet) {
         connection.setLoginUsername(packet.getUsername());
         if(!connection.getServer().isOnline()) {
             final PlayerProfile profile = PlayerProfileImpl.offline(packet.getUsername());
@@ -53,7 +52,7 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
     }
 
     @Override
-    public @NotNull Class<PacketLoginInStart> packetClass() {
+    public Class<PacketLoginInStart> packetClass() {
         return PacketLoginInStart.class;
     }
 

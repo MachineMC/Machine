@@ -15,7 +15,6 @@ import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jline.reader.*;
 import org.jline.reader.impl.history.DefaultHistory;
@@ -36,25 +35,25 @@ import static org.machinemc.api.chat.ChatUtils.asciiColor;
 public class ServerConsole implements Console {
 
     @Getter
-    private final @NotNull Machine server;
+    private final Machine server;
     @Getter @Setter
     private boolean colors;
 
-    final @NotNull Terminal terminal;
+    final Terminal terminal;
     private volatile @Nullable LineReader reader;
 
     @Getter
-    private final @NotNull Completer completer;
+    private final Completer completer;
     @Getter
-    private final @NotNull Highlighter highlighter;
+    private final Highlighter highlighter;
     @Getter
-    private final @NotNull History history;
+    private final History history;
 
     private volatile boolean running = false;
 
     @Getter @Setter
     private @Nullable DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-    @Getter @Setter @NotNull
+    @Getter @Setter
     private String
             configPrefix = "CONFIG",
             infoPrefix = "INFO",
@@ -68,12 +67,12 @@ public class ServerConsole implements Console {
             severeColor = ChatColor.RED.asStyle().color();
 
     @Getter @Setter
-    private @NotNull String prompt = "> ";
+    private String prompt = "> ";
 
     public static final String RESET = "\033[0m";
     public static final String EMPTY = "";
 
-    public ServerConsole(@NotNull Machine server, boolean colors) {
+    public ServerConsole(Machine server, boolean colors) {
         this.server = server;
         this.colors = colors;
         try {
@@ -87,7 +86,7 @@ public class ServerConsole implements Console {
     }
 
     @Override
-    public void log(@NotNull Level level, String @NotNull ... messages) {
+    public void log(Level level, String... messages) {
         final String prefix = switch (level.intValue()) {
             case 700 -> (colors && configColor != null ? asciiColor(configColor) : EMPTY) + configPrefix + ": "; // Config value
             case 800 -> (colors && infoColor != null ? asciiColor(infoColor) : EMPTY) + infoPrefix + ": "; // Info value
@@ -108,7 +107,7 @@ public class ServerConsole implements Console {
     }
 
     @Override
-    public void sendMessage(final @NotNull Identity source, final @NotNull Component message, final @NotNull MessageType type) {
+    public void sendMessage(final Identity source, final Component message, final MessageType type) {
         if(colors)
             info(ChatUtils.consoleFormatted(message));
         else
@@ -144,7 +143,7 @@ public class ServerConsole implements Console {
     }
 
     @Override
-    public int execute(@NotNull String input) {
+    public int execute(String input) {
         input = CommandExecutor.formatCommandInput(input);
         if(input.length() == 0) return 0;
         final ParseResults<CommandExecutor> parse = server.getCommandDispatcher().parse(input, this);
@@ -168,7 +167,7 @@ public class ServerConsole implements Console {
      * Returns a current date using console's date formatter.
      * @return formatted date
      */
-    private @NotNull String now() {
+    private String now() {
         return dateFormatter != null ? dateFormatter.format(LocalDateTime.now()) : EMPTY;
     }
 

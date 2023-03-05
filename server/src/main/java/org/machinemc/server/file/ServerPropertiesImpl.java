@@ -8,8 +8,6 @@ import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.WorldType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import org.intellij.lang.annotations.Subst;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -30,25 +28,25 @@ public class ServerPropertiesImpl implements ServerProperties {
     public static final String PROPERTIES_FILE_NAME = "server.properties";
     public static final String ICON_FILE_NAME = "icon.png";
 
-    private final @NotNull Machine server;
+    private final Machine server;
 
-    private final @NotNull String serverIp;
+    private final String serverIp;
     private final @Range(from = 0, to = 65536) int serverPort;
     private final boolean online;
     private final int maxPlayers;
-    private final @NotNull Component motd;
-    private final @NotNull NamespacedKey defaultWorld;
-    private final @NotNull Difficulty defaultDifficulty;
-    private final @NotNull WorldType defaultWorldType;
+    private final Component motd;
+    private final NamespacedKey defaultWorld;
+    private final Difficulty defaultDifficulty;
+    private final WorldType defaultWorldType;
     private final boolean reducedDebugScreen;
     private final int viewDistance, simulationDistance, tps, serverResponsiveness;
-    private final @NotNull String serverBrand;
+    private final String serverBrand;
     private final @Nullable BufferedImage icon;
     private final @Nullable String encodedIcon;
 
     private final static int ICON_SIZE = 64;
 
-    public ServerPropertiesImpl(@NotNull Machine server, File file) throws IOException {
+    public ServerPropertiesImpl(Machine server, File file) throws IOException {
         this.server = server;
         final Properties original = new Properties();
 
@@ -81,8 +79,7 @@ public class ServerPropertiesImpl implements ServerProperties {
 
         NamespacedKey defaultWorldParsed = null;
         try {
-            @Subst("machine:server") String unparsed = properties.getProperty("default-world");
-            defaultWorldParsed = NamespacedKey.parse(unparsed);
+            defaultWorldParsed = NamespacedKey.parse(properties.getProperty("default-world"));
         } catch (Exception ignored) { }
         defaultWorld = defaultWorldParsed != null ? defaultWorldParsed : NamespacedKey.machine("main");
 
@@ -135,7 +132,7 @@ public class ServerPropertiesImpl implements ServerProperties {
     }
 
     @Override
-    public @NotNull String getName() {
+    public String getName() {
         return PROPERTIES_FILE_NAME;
     }
 

@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.Difficulty;
-import org.jetbrains.annotations.NotNull;
+import org.machinemc.server.network.packets.PacketOut;
+import org.machinemc.server.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
 @ToString
@@ -18,7 +17,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
     private static final int ID = 0x0B;
 
     @Setter
-    private @NotNull Difficulty difficulty;
+    private Difficulty difficulty;
     // Always locked in multiplayer
     private final boolean isLocked = true;
 
@@ -27,7 +26,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
                 PacketPlayOutChangeDifficulty::new);
     }
 
-    public PacketPlayOutChangeDifficulty(@NotNull ServerBuffer buf) {
+    public PacketPlayOutChangeDifficulty(ServerBuffer buf) {
         difficulty = Difficulty.fromID(buf.readByte());
         buf.readBoolean();
     }
@@ -38,12 +37,12 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeByte((byte) difficulty.getId())
                 .writeBoolean(isLocked)
@@ -51,7 +50,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutChangeDifficulty(new FriendlyByteBuf(serialize()));
     }
 }

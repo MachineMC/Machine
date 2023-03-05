@@ -9,12 +9,11 @@ import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.play.PacketPlayInChatMessage;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 
 public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInChatMessage> {
 
     @Override
-    public boolean translate(@NotNull ClientConnection connection, @NotNull PacketPlayInChatMessage packet) {
+    public boolean translate(ClientConnection connection, PacketPlayInChatMessage packet) {
         ServerPlayer player = connection.getOwner();
         if (player == null)
             return false;
@@ -26,7 +25,7 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
     }
 
     @Override
-    public void translateAfter(@NotNull ClientConnection connection, @NotNull PacketPlayInChatMessage packet) {
+    public void translateAfter(ClientConnection connection, PacketPlayInChatMessage packet) {
         ServerPlayer player = connection.getOwner();
         if (player == null)
             return;
@@ -39,7 +38,7 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
     }
 
     @Override
-    public @NotNull Class<PacketPlayInChatMessage> packetClass() {
+    public Class<PacketPlayInChatMessage> packetClass() {
         return PacketPlayInChatMessage.class;
     }
 

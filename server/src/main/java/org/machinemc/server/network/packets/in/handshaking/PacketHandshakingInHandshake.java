@@ -7,7 +7,6 @@ import lombok.ToString;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 import java.nio.charset.StandardCharsets;
@@ -20,9 +19,9 @@ public class PacketHandshakingInHandshake extends PacketIn {
     private static final int ID = 0x00;
 
     private int protocolVersion;
-    private @NotNull String serverAddress;
+    private String serverAddress;
     private int serverPort;
-    private @NotNull HandshakeType handshakeType;
+    private HandshakeType handshakeType;
 
     static {
         register(PacketHandshakingInHandshake.class, ID, PacketState.HANDSHAKING_IN,
@@ -30,7 +29,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
         );
     }
 
-    public PacketHandshakingInHandshake(@NotNull ServerBuffer buf) {
+    public PacketHandshakingInHandshake(ServerBuffer buf) {
         protocolVersion = buf.readVarInt();
         serverAddress = buf.readString(StandardCharsets.UTF_8);
         serverPort = buf.readShort() & 0xFFFF;
@@ -43,12 +42,12 @@ public class PacketHandshakingInHandshake extends PacketIn {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.HANDSHAKING_IN;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(protocolVersion)
                 .writeString(serverAddress, StandardCharsets.UTF_8)
@@ -58,7 +57,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
     }
 
     @Override
-    public @NotNull PacketIn clone() {
+    public PacketIn clone() {
         return new PacketHandshakingInHandshake(new FriendlyByteBuf(serialize()));
     }
 
@@ -70,7 +69,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
         @Getter
         private final int ID;
 
-        public static @NotNull HandshakeType fromID(@Range(from = 1, to = 2) int ID) {
+        public static HandshakeType fromID(@Range(from = 1, to = 2) int ID) {
             for (HandshakeType type : HandshakeType.values()) {
                 if (type.getID() == ID) return type;
             }

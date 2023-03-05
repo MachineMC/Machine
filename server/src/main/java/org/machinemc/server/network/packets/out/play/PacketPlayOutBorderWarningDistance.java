@@ -4,10 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -23,7 +22,7 @@ public class PacketPlayOutBorderWarningDistance extends PacketOut {
                 PacketPlayOutBorderWarningDistance::new);
     }
 
-    public PacketPlayOutBorderWarningDistance(@NotNull ServerBuffer buf) {
+    public PacketPlayOutBorderWarningDistance(ServerBuffer buf) {
         warningBlocks = buf.readVarInt();
     }
 
@@ -33,19 +32,19 @@ public class PacketPlayOutBorderWarningDistance extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(warningBlocks)
                 .bytes();
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutBorderWarningDistance(new FriendlyByteBuf(serialize()));
     }
 

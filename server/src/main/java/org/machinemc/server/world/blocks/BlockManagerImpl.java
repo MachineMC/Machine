@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.machinemc.api.world.Material;
 import org.machinemc.server.Machine;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
@@ -18,11 +17,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class BlockManagerImpl implements BlockManager {
 
-    private final @NotNull Map<NamespacedKey, BlockType> blocks = new ConcurrentHashMap<>();
+    private final Map<NamespacedKey, BlockType> blocks = new ConcurrentHashMap<>();
     @Getter
-    private final @NotNull Machine server;
+    private final Machine server;
 
-    public BlockManagerImpl(@NotNull Machine server) {
+    public BlockManagerImpl(Machine server) {
         this.server = server;
     }
 
@@ -31,7 +30,7 @@ public class BlockManagerImpl implements BlockManager {
      * @param server server to create manager for
      * @return newly created manager
      */
-    public static @NotNull BlockManager createDefault(@NotNull Machine server) {
+    public static BlockManager createDefault(Machine server) {
         final BlockManagerImpl manager = new BlockManagerImpl(server);
         manager.addBlocks(
                 new BlockTypeImpl(NamespacedKey.minecraft("air"), BlockTypeImpl.BlockProperties.builder()
@@ -45,34 +44,34 @@ public class BlockManagerImpl implements BlockManager {
     }
 
     @Override
-    public void addBlock(@NotNull BlockType blockType) {
+    public void addBlock(BlockType blockType) {
         if(blocks.containsKey(blockType.getName()))
             throw new IllegalStateException("Block '" + blockType.getName() + "' is already registered");
         blocks.put(blockType.getName(), blockType);
     }
 
     @Override
-    public void removeBlock(@NotNull BlockType blockType) {
+    public void removeBlock(BlockType blockType) {
         blocks.remove(blockType.getName());
     }
 
     @Override
-    public boolean isRegistered(@NotNull NamespacedKey name) {
+    public boolean isRegistered(NamespacedKey name) {
         return blocks.containsKey(name);
     }
 
     @Override
-    public boolean isRegistered(@NotNull BlockType blockType) {
+    public boolean isRegistered(BlockType blockType) {
         return blocks.containsValue(blockType);
     }
 
     @Override
-    public @Nullable BlockType getBlockType(@NotNull NamespacedKey name) {
+    public @Nullable BlockType getBlockType(NamespacedKey name) {
         return blocks.get(name);
     }
 
     @Override
-    public @NotNull Set<BlockType> getBlocks() {
+    public Set<BlockType> getBlocks() {
         return Set.copyOf(blocks.values());
     }
 

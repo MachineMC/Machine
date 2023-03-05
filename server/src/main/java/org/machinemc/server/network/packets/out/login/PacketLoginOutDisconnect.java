@@ -8,7 +8,6 @@ import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -22,10 +21,10 @@ public class PacketLoginOutDisconnect extends PacketOut {
         );
     }
 
-    @Getter @Setter @NotNull
+    @Getter @Setter
     private Component message;
 
-    public PacketLoginOutDisconnect(@NotNull ServerBuffer buf) {
+    public PacketLoginOutDisconnect(ServerBuffer buf) {
         message = buf.readComponent();
     }
 
@@ -35,19 +34,19 @@ public class PacketLoginOutDisconnect extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.LOGIN_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeComponent(message)
                 .bytes();
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketLoginOutDisconnect(new FriendlyByteBuf(serialize()));
     }
 

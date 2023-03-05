@@ -1,7 +1,6 @@
 package org.machinemc.server.utils;
 
 import lombok.Cleanup;
-import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Range;
 
 import java.io.IOException;
@@ -11,8 +10,11 @@ import java.net.ServerSocket;
 /**
  * Utility class for networking related operations.
  */
-@UtilityClass
-public class NetworkUtils {
+public final class NetworkUtils {
+
+    private NetworkUtils() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Checks if provided port is available for use or not.

@@ -5,7 +5,6 @@ import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.utils.math.MathUtils;
 import org.antlr.v4.runtime.misc.IntegerList;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,13 +19,13 @@ public class FlexiblePalette implements Palette {
     protected byte bitsPerEntry;
     protected int count;
 
-    protected final @NotNull AdaptivePalette adaptivePalette;
-    protected long @NotNull [] values;
+    protected final AdaptivePalette adaptivePalette;
+    protected long[] values;
 
-    protected @NotNull IntegerList paletteToValueList;
-    protected @NotNull IntObjectHashMap<Integer> valueToPaletteMap;
+    protected IntegerList paletteToValueList;
+    protected IntObjectHashMap<Integer> valueToPaletteMap;
 
-    protected FlexiblePalette(@NotNull AdaptivePalette adaptivePalette, byte bitsPerEntry) {
+    protected FlexiblePalette(AdaptivePalette adaptivePalette, byte bitsPerEntry) {
         this.adaptivePalette = adaptivePalette;
         this.bitsPerEntry = bitsPerEntry;
         this.paletteToValueList = new IntegerList(1);
@@ -38,7 +37,7 @@ public class FlexiblePalette implements Palette {
         values = new long[(maxSize() + valuesPerLong - 1) / valuesPerLong];
     }
 
-    protected FlexiblePalette(@NotNull AdaptivePalette adaptivePalette) {
+    protected FlexiblePalette(AdaptivePalette adaptivePalette) {
         this(adaptivePalette, adaptivePalette.defaultBitsPerEntry);
     }
 
@@ -54,12 +53,12 @@ public class FlexiblePalette implements Palette {
     }
 
     @Override
-    public void getAll(@NotNull EntryConsumer consumer) {
+    public void getAll(EntryConsumer consumer) {
         retrieveAll(consumer, true);
     }
 
     @Override
-    public void getAllPresent(@NotNull EntryConsumer consumer) {
+    public void getAllPresent(EntryConsumer consumer) {
         retrieveAll(consumer, false);
     }
 
@@ -102,7 +101,7 @@ public class FlexiblePalette implements Palette {
     }
 
     @Override
-    public void setAll(@NotNull EntrySupplier supplier) {
+    public void setAll(EntrySupplier supplier) {
         int[] cache = WRITE_CACHE.get();
         final int dimension = dimension();
         int fillValue = -1;
@@ -148,7 +147,7 @@ public class FlexiblePalette implements Palette {
     }
 
     @Override
-    public void replaceAll(@NotNull EntryFunction function) {
+    public void replaceAll(EntryFunction function) {
         int[] cache = WRITE_CACHE.get();
         AtomicInteger arrayIndex = new AtomicInteger();
         AtomicInteger count = new AtomicInteger();
@@ -205,7 +204,7 @@ public class FlexiblePalette implements Palette {
     }
 
     @Override
-    public void write(@NotNull ServerBuffer buf) {
+    public void write(ServerBuffer buf) {
         buf.writeByte(bitsPerEntry);
         if (bitsPerEntry <= maxBitsPerEntry()) {
             buf.writeVarInt(paletteToValueList.size());
@@ -222,7 +221,7 @@ public class FlexiblePalette implements Palette {
      * @param consumer consumer
      * @param consumeEmpty if empty (zero) values should be accepted
      */
-    private void retrieveAll(@NotNull EntryConsumer consumer, boolean consumeEmpty) {
+    private void retrieveAll(EntryConsumer consumer, boolean consumeEmpty) {
         if (!consumeEmpty && count == 0) return;
 
         final long[] values = this.values;
@@ -260,7 +259,7 @@ public class FlexiblePalette implements Palette {
      * Updates all palette values.
      * @param paletteValues new palette values
      */
-    private void updateAll(int @NotNull [] paletteValues) {
+    private void updateAll(int[] paletteValues) {
         final int size = maxSize();
         assert paletteValues.length >= size;
 

@@ -15,7 +15,6 @@ import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.server.world.region.Region;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -29,21 +28,21 @@ import java.util.concurrent.atomic.AtomicReference;
 @Getter
 public abstract class WorldImpl implements World {
 
-    private final @NotNull Machine server;
+    private final Machine server;
 
-    protected final @NotNull AtomicReference<WorldManager> managerReference = new AtomicReference<>();
+    protected final AtomicReference<WorldManager> managerReference = new AtomicReference<>();
 
-    private final @NotNull NamespacedKey name;
-    private final @NotNull UUID uuid;
-    private final @NotNull DimensionType dimensionType;
-    private final @NotNull WorldType worldType;
+    private final NamespacedKey name;
+    private final UUID uuid;
+    private final DimensionType dimensionType;
+    private final WorldType worldType;
     private final long seed;
-    private @NotNull Difficulty difficulty = Difficulty.DEFAULT_DIFFICULTY;
-    private @NotNull Location worldSpawn = Location.of(0, 0, 0, this);
+    private Difficulty difficulty = Difficulty.DEFAULT_DIFFICULTY;
+    private Location worldSpawn = Location.of(0, 0, 0, this);
     protected boolean loaded = false;
 
     @Override
-    public void setBlock(@NotNull BlockType blockType, @NotNull BlockPosition position, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
+    public void setBlock(BlockType blockType, BlockPosition position, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
         getChunk(position).setBlock(
                 ChunkUtils.getSectionRelativeCoordinate(position.getX()),
                 position.getY() - dimensionType.getMinY(),
@@ -52,7 +51,7 @@ public abstract class WorldImpl implements World {
     }
 
     @Override
-    public @NotNull WorldBlock getBlock(@NotNull BlockPosition position) {
+    public WorldBlock getBlock(BlockPosition position) {
         return getChunk(position).getBlock(
                 ChunkUtils.getSectionRelativeCoordinate(position.getX()),
                 position.getY() - dimensionType.getMinY(),
@@ -60,7 +59,7 @@ public abstract class WorldImpl implements World {
     }
 
     @Override
-    public void setDifficulty(@NotNull Difficulty difficulty) {
+    public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
         PacketOut packet = new PacketPlayOutChangeDifficulty(difficulty);
         for(Entity entity : getEntities()) {
@@ -70,7 +69,7 @@ public abstract class WorldImpl implements World {
     }
 
     @Override
-    public void setWorldSpawn(@NotNull Location location) {
+    public void setWorldSpawn(Location location) {
         this.worldSpawn = location;
         PacketOut packet = new PacketPlayOutWorldSpawnPosition(location);
         for(Entity entity : getEntities()) {
@@ -84,7 +83,7 @@ public abstract class WorldImpl implements World {
      * @param regionZ z coordinate of the region
      * @return region at given coordinates
      */
-    public abstract @NotNull Region getRegion(int regionX, int regionZ);
+    public abstract Region getRegion(int regionX, int regionZ);
 
     /**
      * Saves region at given coordinates.
@@ -99,7 +98,7 @@ public abstract class WorldImpl implements World {
      * @param region region to save
      * @throws IOException if an I/O error occurs during unloading
      */
-    public void saveRegion(@NotNull Region region) throws IOException {
+    public void saveRegion(Region region) throws IOException {
         if(region.getWorld() != this) throw new IllegalStateException();
         saveRegion(region.getX(), region.getZ());
     }

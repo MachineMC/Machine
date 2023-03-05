@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import net.kyori.adventure.text.Component;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -17,7 +16,7 @@ public class PacketPlayOutSystemChatMessage extends PacketOut {
 
     private static final int ID = 0x62;
 
-    private @NotNull Component message;
+    private Component message;
     private boolean overlay;
 
     static {
@@ -25,7 +24,7 @@ public class PacketPlayOutSystemChatMessage extends PacketOut {
                 PacketPlayOutSystemChatMessage::new);
     }
 
-    public PacketPlayOutSystemChatMessage(@NotNull ServerBuffer buf) {
+    public PacketPlayOutSystemChatMessage(ServerBuffer buf) {
         message = buf.readComponent();
         overlay = buf.readBoolean();
     }
@@ -36,12 +35,12 @@ public class PacketPlayOutSystemChatMessage extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeComponent(message)
                 .writeBoolean(overlay)
@@ -49,7 +48,7 @@ public class PacketPlayOutSystemChatMessage extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutSystemChatMessage(new FriendlyByteBuf(serialize()));
     }
 

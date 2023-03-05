@@ -9,7 +9,6 @@ import org.machinemc.api.chat.ChatColor;
 import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.server.ServerProperty;
 import net.kyori.adventure.text.format.TextColor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jline.reader.Highlighter;
 import org.jline.reader.LineReader;
@@ -26,9 +25,9 @@ import java.util.regex.Pattern;
 public class ConsoleHighlighter implements Highlighter, ServerProperty {
 
     @Getter
-    private final @NotNull Machine server;
+    private final Machine server;
     @Getter
-    private final @NotNull ServerConsole console;
+    private final ServerConsole console;
 
     @Getter @Setter
     private @Nullable TextColor

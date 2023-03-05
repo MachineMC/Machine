@@ -4,7 +4,6 @@ import lombok.*;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.utils.LazyNamespacedKey;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.biomes.BiomeEffects;
 import org.machinemc.api.world.biomes.BiomeManager;
@@ -21,24 +20,24 @@ import java.util.concurrent.atomic.AtomicReference;
 @Getter
 public class BiomeImpl implements Biome {
 
-    protected final @NotNull AtomicReference<BiomeManager> managerReference = new AtomicReference<>();
-    protected final @NotNull AtomicInteger idReference = new AtomicInteger(-1);
+    protected final AtomicReference<BiomeManager> managerReference = new AtomicReference<>();
+    protected final AtomicInteger idReference = new AtomicInteger(-1);
 
-    private final @NotNull NamespacedKey name;
+    private final NamespacedKey name;
     @Builder.Default private final float depth = 0.125F;
     @Builder.Default private final float temperature = 0.8F;
     @Builder.Default private final float scale = 0.05F;
     @Builder.Default private final float downfall = 0.4F;
-    @Builder.Default private final @NotNull Category category = Category.NONE;
-    @Builder.Default private final @NotNull BiomeEffects effects = BiomeEffectsImpl.createDefault();
-    @Builder.Default private final @NotNull Precipitation precipitation = Precipitation.RAIN;
-    @Builder.Default private final @NotNull TemperatureModifier temperatureModifier = TemperatureModifier.NONE;
+    @Builder.Default private final Category category = Category.NONE;
+    @Builder.Default private final BiomeEffects effects = BiomeEffectsImpl.createDefault();
+    @Builder.Default private final Precipitation precipitation = Precipitation.RAIN;
+    @Builder.Default private final TemperatureModifier temperatureModifier = TemperatureModifier.NONE;
 
     /**
      * Creates the default biome.
      * @return newly created biome
      */
-    public static @NotNull Biome createDefault() {
+    public static Biome createDefault() {
         return BiomeImpl.builder()
                 .name(LazyNamespacedKey.of(NamespacedKey.MINECRAFT_NAMESPACE, "plains"))
                 .build();
@@ -46,7 +45,7 @@ public class BiomeImpl implements Biome {
 
 
     @Override
-    public @NotNull NBTCompound toNBT() {
+    public NBTCompound toNBT() {
         NBTCompound element = new NBTCompound(Map.of(
                 "depth", depth,
                 "temperature", temperature,

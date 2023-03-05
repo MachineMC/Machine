@@ -3,7 +3,6 @@ package org.machinemc.server.network.packets;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.server.utils.ZLib;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -21,15 +20,15 @@ public abstract class PacketImpl implements Packet {
      * Serializes the packet data, doesn't contain packet size and ID.
      * @return serialized packet data
      */
-    public abstract byte @NotNull [] serialize();
+    public abstract byte[] serialize();
 
-    public abstract @NotNull PacketImpl clone();
+    public abstract PacketImpl clone();
 
     /**
      * Serializes the full packet.
      * @return serialized packet
      */
-    public byte @NotNull [] rawSerialize() {
+    public byte[] rawSerialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(getSize())
                 .writeVarInt(getId())
@@ -53,7 +52,7 @@ public abstract class PacketImpl implements Packet {
      * @param threshold threshold
      * @return serialized compressed packet
      */
-    public byte @NotNull [] rawCompressedSerialize(int threshold) {
+    public byte[] rawCompressedSerialize(int threshold) {
         int size = getSize();
         if(size < threshold) { // Packet is too small to be compressed
             byte[] data = new FriendlyByteBuf().writeVarInt(0) // Empty Data length
@@ -87,7 +86,7 @@ public abstract class PacketImpl implements Packet {
     /**
      * @return compressed packet data, id included
      */
-    private byte @NotNull [] getCompressedPacketData() {
+    private byte[] getCompressedPacketData() {
         try {
             return ZLib.compress(new FriendlyByteBuf()
                     .writeVarInt(getId())

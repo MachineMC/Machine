@@ -1,6 +1,5 @@
 package org.machinemc.server.auth;
 
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.api.auth.PublicKeyData;
 
 import java.security.PublicKey;
@@ -10,7 +9,7 @@ import java.util.Arrays;
 /**
  * Default implementation of public key data.
  */
-public record PublicKeyDataImpl(@NotNull PublicKey publicKey, byte @NotNull [] signature, @NotNull Instant timestamp) implements PublicKeyData {
+public record PublicKeyDataImpl(PublicKey publicKey, byte[] signature, Instant timestamp) implements PublicKeyData {
 
     /**
      * @return true if data are expired
@@ -20,7 +19,7 @@ public record PublicKeyDataImpl(@NotNull PublicKey publicKey, byte @NotNull [] s
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return "PublicKeyData(" +
                 "publicKey=" + publicKey +
                 ", signature=" + Arrays.toString(signature) +

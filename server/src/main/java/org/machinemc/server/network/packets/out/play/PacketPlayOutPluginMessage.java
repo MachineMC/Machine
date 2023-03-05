@@ -5,11 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.api.network.packets.Packet;
-import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
+import org.machinemc.server.network.packets.PacketOut;
+import org.machinemc.server.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 
@@ -20,8 +19,8 @@ public class PacketPlayOutPluginMessage extends PacketOut {
 
     private static final int ID = 0x16;
 
-    private @NotNull NamespacedKey channel;
-    private @NotNull ServerBuffer data;
+    private NamespacedKey channel;
+    private ServerBuffer data;
 
     static {
         register(PacketPlayOutPluginMessage.class, ID, Packet.PacketState.PLAY_OUT,
@@ -29,7 +28,7 @@ public class PacketPlayOutPluginMessage extends PacketOut {
         );
     }
 
-    public PacketPlayOutPluginMessage(@NotNull ServerBuffer buf) {
+    public PacketPlayOutPluginMessage(ServerBuffer buf) {
         channel = buf.readNamespacedKey();
         data = new FriendlyByteBuf(buf.finish());
     }
@@ -40,12 +39,12 @@ public class PacketPlayOutPluginMessage extends PacketOut {
     }
 
     @Override
-    public @NotNull Packet.PacketState getPacketState() {
+    public Packet.PacketState getPacketState() {
         return Packet.PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeNamespacedKey(channel)
                 .writeBytes(data.bytes())
@@ -53,7 +52,7 @@ public class PacketPlayOutPluginMessage extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutPluginMessage(new FriendlyByteBuf(serialize()));
     }
 

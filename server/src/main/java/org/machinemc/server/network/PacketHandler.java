@@ -1,7 +1,6 @@
 package org.machinemc.server.network;
 
 import org.machinemc.api.network.packets.Packet;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Reads and writes from and to the {@link Channel}, can be used
@@ -15,7 +14,7 @@ public class PacketHandler {
      * @param read Previous reader
      * @return Next reader
      */
-    public @NotNull PacketReader read(@NotNull Channel channel, @NotNull PacketReader read) {
+    public PacketReader read(Channel channel, PacketReader read) {
         return read;
     }
 
@@ -25,7 +24,7 @@ public class PacketHandler {
      * @param write Previous writer
      * @return Next writer
      */
-    public @NotNull PacketWriter write(@NotNull Channel channel, @NotNull PacketWriter write) {
+    public PacketWriter write(Channel channel, PacketWriter write) {
         return write;
     }
 
@@ -34,7 +33,7 @@ public class PacketHandler {
      * @param channel Channel the packet has been read from
      * @param packet Packet that has been read
      */
-    public void afterRead(@NotNull Channel channel, @NotNull Packet packet) {
+    public void afterRead(Channel channel, Packet packet) {
 
     }
 
@@ -43,7 +42,7 @@ public class PacketHandler {
      * @param channel Channel the packet has been write in
      * @param packet Packet that has been written
      */
-    public void afterWrite(@NotNull Channel channel, @NotNull Packet packet) {
+    public void afterWrite(Channel channel, Packet packet) {
 
     }
 

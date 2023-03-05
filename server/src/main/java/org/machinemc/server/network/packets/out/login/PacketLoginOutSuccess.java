@@ -9,7 +9,6 @@ import org.machinemc.api.network.packets.Packet;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
@@ -22,8 +21,8 @@ public class PacketLoginOutSuccess extends PacketOut {
 
     private static final int ID = 0x02;
 
-    private @NotNull UUID uuid;
-    private @NotNull String userName;
+    private UUID uuid;
+    private String userName;
     private @Nullable PlayerTextures textures;
 
     static {
@@ -32,7 +31,7 @@ public class PacketLoginOutSuccess extends PacketOut {
         );
     }
 
-    public PacketLoginOutSuccess(@NotNull ServerBuffer buf) {
+    public PacketLoginOutSuccess(ServerBuffer buf) {
         uuid = buf.readUUID();
         userName = buf.readString(StandardCharsets.UTF_8);
         textures = buf.readTextures();
@@ -44,12 +43,12 @@ public class PacketLoginOutSuccess extends PacketOut {
     }
 
     @Override
-    public @NotNull Packet.PacketState getPacketState() {
+    public Packet.PacketState getPacketState() {
         return Packet.PacketState.LOGIN_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeUUID(uuid)
                 .writeString(userName, StandardCharsets.UTF_8)
@@ -58,7 +57,7 @@ public class PacketLoginOutSuccess extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketLoginOutSuccess(new FriendlyByteBuf(serialize()));
     }
 

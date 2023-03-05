@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.machinemc.server.Machine;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldManager;
 
@@ -18,12 +17,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @RequiredArgsConstructor
 public class WorldManagerImpl implements WorldManager {
 
-    private final @NotNull Set<World> worlds = new CopyOnWriteArraySet<>();
+    private final Set<World> worlds = new CopyOnWriteArraySet<>();
     @Getter
-    private final @NotNull Machine server;
+    private final Machine server;
 
     @Override
-    public void addWorld(@NotNull World world) {
+    public void addWorld(World world) {
         if(world.getManagerReference().get() != null && world.getManagerReference().get() != this)
             throw new IllegalStateException("World '" + world.getName() + "' is already registered in a different WorldManager");
         world.getManagerReference().set(this);
@@ -31,7 +30,7 @@ public class WorldManagerImpl implements WorldManager {
     }
 
     @Override
-    public boolean removeWorld(@NotNull World world) {
+    public boolean removeWorld(World world) {
         if(world.getManagerReference().get() != this) return false;
         if(worlds.remove(world)) {
             world.getManagerReference().set(null);
@@ -41,19 +40,19 @@ public class WorldManagerImpl implements WorldManager {
     }
 
     @Override
-    public boolean isRegistered(@NotNull NamespacedKey name) {
+    public boolean isRegistered(NamespacedKey name) {
         final World world = getWorld(name);
         if(world == null) return false;
         return isRegistered(world);
     }
 
     @Override
-    public boolean isRegistered(@NotNull World world) {
+    public boolean isRegistered(World world) {
         return worlds.contains(world);
     }
 
     @Override
-    public World getWorld(@NotNull NamespacedKey name) {
+    public World getWorld(NamespacedKey name) {
         for(World world : getWorlds()) {
             if(!(world.getName().equals(name))) continue;
             return world;
@@ -62,7 +61,7 @@ public class WorldManagerImpl implements WorldManager {
     }
 
     @Override
-    public @NotNull Set<World> getWorlds() {
+    public Set<World> getWorlds() {
         return Collections.unmodifiableSet(worlds);
     }
 

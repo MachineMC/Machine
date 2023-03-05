@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockPosition;
-import org.jetbrains.annotations.NotNull;
+import org.machinemc.server.network.packets.PacketOut;
+import org.machinemc.server.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
 @ToString
@@ -18,7 +17,6 @@ public class PacketPlayOutWorldEvent extends PacketOut {
     private static final int ID = 0x22;
 
     private int event, data;
-    @NotNull
     private BlockPosition position;
     private boolean disableRelativeVolume;
 
@@ -27,7 +25,7 @@ public class PacketPlayOutWorldEvent extends PacketOut {
                 PacketPlayOutWorldEvent::new);
     }
 
-    public PacketPlayOutWorldEvent(@NotNull ServerBuffer buf) {
+    public PacketPlayOutWorldEvent(ServerBuffer buf) {
         event = buf.readInt();
         position = buf.readBlockPos();
         data = buf.readInt();
@@ -40,12 +38,12 @@ public class PacketPlayOutWorldEvent extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeInt(event)
                 .writeBlockPos(position)
@@ -55,7 +53,7 @@ public class PacketPlayOutWorldEvent extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutWorldEvent(new FriendlyByteBuf(serialize()));
     }
 

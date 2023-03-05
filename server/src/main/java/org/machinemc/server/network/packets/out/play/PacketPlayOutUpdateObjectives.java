@@ -5,13 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.server.network.packets.PacketOut;
+import org.machinemc.server.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 
@@ -22,8 +21,8 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
 
     private static final int ID = 0x56;
 
-    private @NotNull String objectiveName;
-    private @NotNull Action action;
+    private String objectiveName;
+    private Action action;
     private @Nullable Component objectiveValue;
     private @Nullable DisplayType type;
 
@@ -32,7 +31,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
                 PacketPlayOutUpdateObjectives::new);
     }
 
-    public PacketPlayOutUpdateObjectives(@NotNull ServerBuffer buf) {
+    public PacketPlayOutUpdateObjectives(ServerBuffer buf) {
         objectiveName = buf.readString(StandardCharsets.UTF_8);
         action = Action.fromID(buf.readByte());
         if (action != Action.REMOVE) {
@@ -47,12 +46,12 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(objectiveName, StandardCharsets.UTF_8)
                 .writeByte((byte) action.getId());
@@ -66,7 +65,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutUpdateObjectives(new FriendlyByteBuf(serialize()));
     }
 
@@ -79,7 +78,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
             return ordinal();
         }
 
-        public static @NotNull Action fromID(@Range(from = 0, to = 2) int id) {
+        public static Action fromID(@Range(from = 0, to = 2) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Action type");
             return values()[id];
         }
@@ -94,7 +93,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
             return ordinal();
         }
 
-        public static @NotNull DisplayType fromID(@Range(from = 0, to = 1) int id) {
+        public static DisplayType fromID(@Range(from = 0, to = 1) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Display type");
             return values()[id];
         }

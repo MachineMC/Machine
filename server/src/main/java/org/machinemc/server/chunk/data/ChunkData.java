@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.nbt.NBTCompound;
 
 /**
@@ -14,10 +13,10 @@ import org.machinemc.nbt.NBTCompound;
 @Getter
 public class ChunkData implements Writable {
 
-    private final @NotNull NBTCompound heightmaps;
-    private final byte @NotNull [] data;
+    private final NBTCompound heightmaps;
+    private final byte[] data;
 
-    public ChunkData(@NotNull ServerBuffer buf) {
+    public ChunkData(ServerBuffer buf) {
         heightmaps = buf.readNBT();
         data = buf.readByteArray();
         buf.readVarInt();
@@ -28,7 +27,7 @@ public class ChunkData implements Writable {
      * @param buf buffer to write into
      */
     @Override
-    public void write(@NotNull ServerBuffer buf) {
+    public void write(ServerBuffer buf) {
         buf.writeNBT(this.heightmaps);
         buf.writeByteArray(data);
         buf.writeVarInt(0); // TODO Block entities

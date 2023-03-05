@@ -3,7 +3,6 @@ package org.machinemc.server.network.packets;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Creates packet instance from given data.
@@ -19,6 +18,6 @@ public interface PacketCreator<T extends Packet> {
      * @param buf buffer with packet data
      * @return new packet instance
      */
-    T create(@NotNull ServerBuffer buf);
+    T create(ServerBuffer buf);
 
 }

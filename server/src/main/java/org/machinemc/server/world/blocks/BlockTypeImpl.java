@@ -3,7 +3,6 @@ package org.machinemc.server.world.blocks;
 import lombok.*;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.BlockVisualizer;
@@ -18,22 +17,22 @@ import java.awt.*;
 @Getter
 public class BlockTypeImpl implements BlockType {
 
-    private final @NotNull NamespacedKey name;
-    private final @NotNull BlockProperties properties;
-    protected @NotNull BlockVisualizer visualizer;
+    private final NamespacedKey name;
+    private final BlockProperties properties;
+    protected BlockVisualizer visualizer;
 
     @Override
-    public void create(@NotNull WorldBlock block, @NotNull CreateReason reason, @Nullable Entity source) {
+    public void create(WorldBlock block, CreateReason reason, @Nullable Entity source) {
 
     }
 
     @Override
-    public void destroy(@NotNull WorldBlock block, @NotNull DestroyReason reason, @Nullable Entity source) {
+    public void destroy(WorldBlock block, DestroyReason reason, @Nullable Entity source) {
 
     }
 
     @Override
-    public void update(@NotNull WorldBlock block) {
+    public void update(WorldBlock block) {
 
     }
 
@@ -44,7 +43,7 @@ public class BlockTypeImpl implements BlockType {
     @Builder
     public static class BlockProperties implements BlockType.BlockProperties {
 
-        @Builder.Default private @NotNull Color color = Color.BLACK;
+        @Builder.Default private Color color = Color.BLACK;
         @Builder.Default private boolean hasCollision = true;
         private float resistance;
         private boolean isAir;

@@ -16,7 +16,6 @@ import org.machinemc.server.network.packets.out.play.PacketPlayOutKeepAlive;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.NamespacedKey;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.crypto.SecretKey;
@@ -35,13 +34,13 @@ public class ClientConnection extends Thread implements PlayerConnection {
     private static final NamespacedKey DEFAULT_HANDLER_NAMESPACE = NamespacedKey.minecraft("default");
 
     @Getter
-    private final @NotNull Machine server;
+    private final Machine server;
     @Getter
-    private final @NotNull Socket clientSocket;
+    private final Socket clientSocket;
     @Getter
     protected @Nullable Channel channel;
     @Getter
-    private @NotNull ClientState clientState = ClientState.DISCONNECTED;
+    private ClientState clientState = ClientState.DISCONNECTED;
 
     @Getter
     private long lastSendTimestamp = System.currentTimeMillis();
@@ -60,7 +59,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
     private long keepAliveKey = -1;
     private long lastKeepAlive;
 
-    public ClientConnection(@NotNull Machine server, @NotNull Socket clientSocket) {
+    public ClientConnection(Machine server, Socket clientSocket) {
         this.server = server;
         this.clientSocket = clientSocket;
     }
@@ -71,7 +70,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
      */
     @Synchronized
     @Override
-    public boolean sendPacket(@NotNull Packet packet) throws IOException {
+    public boolean sendPacket(Packet packet) throws IOException {
         if(channel == null)
             throw new IllegalStateException();
         if(clientState == ClientState.DISCONNECTED)
@@ -103,7 +102,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * @param input input of the client socket
      * @param output output of the client socket
      */
-    private void setChannel(@NotNull DataInputStream input, @NotNull DataOutputStream output) {
+    private void setChannel(DataInputStream input, DataOutputStream output) {
         this.channel = new Channel(this, input, output);
         this.channel.addHandlerBefore(DEFAULT_HANDLER_NAMESPACE, new PacketHandler());
     }
@@ -209,7 +208,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * the encryption.
      * @param key new secret key
      */
-    public void setSecretKey(@NotNull SecretKey key) {
+    public void setSecretKey(SecretKey key) {
         if(channel == null) return;
         channel.setSecretKey(key);
     }
@@ -218,7 +217,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * Sets the owner of the connection, can't be changed once it's set.
      * @param player owner of the connection
      */
-    public void setOwner(@NotNull ServerPlayer player) {
+    public void setOwner(ServerPlayer player) {
         if(owner != null)
             throw new IllegalStateException("Connection has been already initialized");
         if(!player.getName().equals(loginUsername))
@@ -266,7 +265,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
     }
 
     @Override
-    public @NotNull InetSocketAddress getAddress() {
+    public InetSocketAddress getAddress() {
         return ((InetSocketAddress) clientSocket.getRemoteSocketAddress());
     }
 
@@ -276,7 +275,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * @param reason disconnect reason
      */
     @Override
-    public void disconnect(@NotNull Component reason) {
+    public void disconnect(Component reason) {
         try {
             if(clientState == ClientState.LOGIN)
                 sendPacket(new PacketLoginOutDisconnect(reason));

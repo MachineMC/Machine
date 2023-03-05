@@ -11,7 +11,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.machinemc.nbt.NBTCompound;
@@ -116,23 +115,23 @@ public enum ChatType implements NBTSerializable {
     );
 
     @Getter
-    private final @NotNull NamespacedKey name;
+    private final NamespacedKey name;
     @Getter(AccessLevel.PROTECTED)
-    protected final @NotNull Element chatElement;
+    protected final Element chatElement;
     @Getter(AccessLevel.PROTECTED)
-    protected final @NotNull Element narrationElement;
+    protected final Element narrationElement;
 
     public int getId() {
         return ordinal();
     }
 
-    public static @NotNull ChatType fromID(@Range(from = 0, to = 7) int id) {
+    public static ChatType fromID(@Range(from = 0, to = 7) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported Chat type");
         return values()[id];
     }
 
     @Override
-    public @NotNull NBTCompound toNBT() {
+    public NBTCompound toNBT() {
         NBTCompound element = new NBTCompound(Map.of(
                 "chat", chatElement.toNBT(),
                 "narration", narrationElement.toNBT()
@@ -148,12 +147,12 @@ public enum ChatType implements NBTSerializable {
      * Chat and Narration types of chat types, contain information
      * about their parameters, translation key and chat style.
      */
-    protected record Element(@NotNull ElementType type,
-                             @NotNull Set<Parameter> parameters,
-                             @NotNull String translationKey,
+    protected record Element(ElementType type,
+                             Set<Parameter> parameters,
+                             String translationKey,
                              @Nullable Style style) implements NBTSerializable {
 
-        static final @NotNull Element DEFAULT_NARRATION_ELEMENT = Element.narration(
+        static final Element DEFAULT_NARRATION_ELEMENT = Element.narration(
                 Set.of(Parameter.SENDER, Parameter.CONTENT),
                 "chat.type.text.narrate",
                 null);
@@ -165,7 +164,7 @@ public enum ChatType implements NBTSerializable {
          * @param style chat style of the element
          * @return created chat type element
          */
-        public static @NotNull Element chat(Set<Parameter> parameters, String translationKey, @Nullable Style style) {
+        public static Element chat(Set<Parameter> parameters, String translationKey, @Nullable Style style) {
             return new Element(ElementType.CHAT, parameters, translationKey, style);
         }
         /**
@@ -175,12 +174,12 @@ public enum ChatType implements NBTSerializable {
          * @param style chat style of the element
          * @return created chat type element
          */
-        public static @NotNull Element narration(Set<Parameter> parameters, String translationKey, @Nullable Style style) {
+        public static Element narration(Set<Parameter> parameters, String translationKey, @Nullable Style style) {
             return new Element(ElementType.NARRATION, parameters, translationKey, style);
         }
 
         @Override
-        public @NotNull NBTCompound toNBT() {
+        public NBTCompound toNBT() {
             final NBTList parameters = new NBTList(this.parameters.stream().map(Parameter::getName).toList());
             final Map<String, String> styleMap = new HashMap<>();
             if(style != null) {
@@ -221,7 +220,7 @@ public enum ChatType implements NBTSerializable {
         CHAT("chat"),
         NARRATION("narration");
         @Getter
-        private final @NotNull String name;
+        private final String name;
     }
 
     /**
@@ -233,7 +232,7 @@ public enum ChatType implements NBTSerializable {
         TARGET("target"),
         CONTENT("content");
         @Getter
-        private final @NotNull String name;
+        private final String name;
     }
 
 }

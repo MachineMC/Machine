@@ -3,7 +3,6 @@ package org.machinemc.server.chunk.data;
 import lombok.AllArgsConstructor;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -16,14 +15,14 @@ import java.util.List;
 public class LightData implements Writable {
 
     private final boolean trustEdges;
-    private final @NotNull BitSet
+    private final BitSet
             skyMask,
             blockMask,
             emptySkyMask,
             emptyBlockMask;
-    private final @NotNull List<byte[]> skyLight, blockLight;
+    private final List<byte[]> skyLight, blockLight;
 
-    public LightData(@NotNull ServerBuffer buf) {
+    public LightData(ServerBuffer buf) {
         trustEdges = buf.readBoolean();
         skyMask = BitSet.valueOf(buf.readLongArray());
         blockMask = BitSet.valueOf(buf.readLongArray());
@@ -46,7 +45,7 @@ public class LightData implements Writable {
      * @param buf buffer to write into
      */
     @Override
-    public void write(@NotNull ServerBuffer buf) {
+    public void write(ServerBuffer buf) {
         buf.writeBoolean(trustEdges);
 
         buf.writeLongArray(skyMask.toLongArray());

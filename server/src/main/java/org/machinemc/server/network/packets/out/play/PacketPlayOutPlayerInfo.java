@@ -4,17 +4,16 @@ import com.google.common.base.Preconditions;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.entities.player.PlayerTextures;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -25,27 +24,27 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
 
     private static final int ID = 0x37;
 
-    private @NotNull Action action;
-    private PlayerInfoData @NotNull [] playerInfoDataArray;
+    private Action action;
+    private PlayerInfoData[] playerInfoDataArray;
 
     static {
         register(PacketPlayOutPlayerInfo.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutPlayerInfo::new);
     }
 
-    public PacketPlayOutPlayerInfo(@NotNull Action action, PlayerInfoData @NotNull ... playerInfoDataArray) {
+    public PacketPlayOutPlayerInfo(Action action, PlayerInfoData ... playerInfoDataArray) {
         this.action = action;
         this.playerInfoDataArray = playerInfoDataArray;
     }
 
-    public PacketPlayOutPlayerInfo(@NotNull Action action, Player @NotNull ... players) {
+    public PacketPlayOutPlayerInfo(Action action, Player ... players) {
         this.action = action;
         playerInfoDataArray = new PlayerInfoData[players.length];
         for (int i = 0; i < players.length; i++)
             playerInfoDataArray[i] = new PlayerInfoData(players[i]);
     }
 
-    public PacketPlayOutPlayerInfo(@NotNull ServerBuffer buf) {
+    public PacketPlayOutPlayerInfo(ServerBuffer buf) {
         action = Action.fromID(buf.readVarInt());
         int playerAmount = buf.readVarInt();
         playerInfoDataArray = new PlayerInfoData[playerAmount];
@@ -84,12 +83,12 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf();
         buf.writeVarInt(action.getId())
                 .writeVarInt(playerInfoDataArray.length);
@@ -99,7 +98,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutPlayerInfo(new FriendlyByteBuf(serialize()));
     }
 
@@ -114,7 +113,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
             return ordinal();
         }
 
-        public static @NotNull Action fromID(@Range(from = 0, to = 4) int id) {
+        public static Action fromID(@Range(from = 0, to = 4) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Action type");
             return values()[id];
         }

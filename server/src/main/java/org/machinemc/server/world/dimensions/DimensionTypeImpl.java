@@ -4,7 +4,6 @@ import lombok.*;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.utils.LazyNamespacedKey;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.world.dimensions.DimensionType;
@@ -23,10 +22,10 @@ import static java.util.Map.entry;
 @Getter
 public class DimensionTypeImpl implements DimensionType {
 
-    protected final @NotNull AtomicReference<DimensionTypeManager> managerReference = new AtomicReference<>();
-    protected final @NotNull AtomicInteger idReference = new AtomicInteger(-1);
+    protected final AtomicReference<DimensionTypeManager> managerReference = new AtomicReference<>();
+    protected final AtomicInteger idReference = new AtomicInteger(-1);
 
-    private final @NotNull NamespacedKey name;
+    private final NamespacedKey name;
     @Builder.Default private final boolean natural = true;
     private final float ambientLight;
     private final boolean ceilingEnabled;
@@ -36,13 +35,13 @@ public class DimensionTypeImpl implements DimensionType {
     private final boolean respawnAnchorSafe;
     private final boolean ultrawarm;
     @Builder.Default private final boolean bedSafe = true;
-    @Builder.Default private final @NotNull NamespacedKey effects = NamespacedKey.minecraft("overworld");
+    @Builder.Default private final NamespacedKey effects = NamespacedKey.minecraft("overworld");
     private final boolean piglinSafe;
     @Builder.Default private final @Range(from = -2032, to = 2016) int minY = -64;
     @Builder.Default private final @Range(from = 0, to = 4064) int height = 384;
     @Builder.Default private final @Range(from = 0, to = 4064) int logicalHeight = 384;
     @Builder.Default private final int coordinateScale = 1;
-    @Builder.Default private final @NotNull NamespacedKey infiniburn = NamespacedKey.minecraft("infiniburn_overworld");
+    @Builder.Default private final NamespacedKey infiniburn = NamespacedKey.minecraft("infiniburn_overworld");
     @Builder.Default private final int monsterSpawnBlockLightLimit = 5;
     @Builder.Default private final int monsterSpawnLightLevel = 1;
 
@@ -50,14 +49,14 @@ public class DimensionTypeImpl implements DimensionType {
      * Creates the default dimension type.
      * @return default dimension type
      */
-    public static @NotNull DimensionType createDefault() {
+    public static DimensionType createDefault() {
         return DimensionTypeImpl.builder()
                 .name(LazyNamespacedKey.of(NamespacedKey.MINECRAFT_NAMESPACE, "overworld"))
                 .build();
     }
 
     @Override
-    public @NotNull NBTCompound toNBT() {
+    public NBTCompound toNBT() {
         NBTCompound element = new NBTCompound(Map.ofEntries(
                 entry("ambient_light", ambientLight),
                 entry("monster_spawn_block_light_limit", monsterSpawnBlockLightLimit),

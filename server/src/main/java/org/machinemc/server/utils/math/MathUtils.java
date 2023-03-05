@@ -1,12 +1,13 @@
 package org.machinemc.server.utils.math;
 
-import lombok.experimental.UtilityClass;
-
 /**
  * Utility class for math operations.
  */
-@UtilityClass
-public class MathUtils {
+public final class MathUtils {
+
+    private MathUtils() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @param n number to check

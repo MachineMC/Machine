@@ -1,7 +1,5 @@
 package org.machinemc.server.network.packets;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Packet sent from client to server.
  */
@@ -13,12 +11,12 @@ public abstract class PacketIn extends PacketImpl {
      * @param id mapped id by Mojang
      * @param creator PacketCreator
      */
-    protected static void register(@NotNull Class<? extends PacketIn> packetClass, int id, @NotNull PacketState state, @NotNull PacketCreator<? extends PacketIn> creator) {
+    protected static void register(Class<? extends PacketIn> packetClass, int id, PacketState state, PacketCreator<? extends PacketIn> creator) {
         id = id | state.getMask();
         PacketFactory.IN_MAPPING.put(id, packetClass);
         PacketFactory.CREATORS.put(packetClass, creator);
     }
 
-    public abstract @NotNull PacketIn clone();
+    public abstract PacketIn clone();
 
 }

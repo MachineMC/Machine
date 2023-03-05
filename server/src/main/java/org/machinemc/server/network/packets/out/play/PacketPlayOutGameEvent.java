@@ -5,11 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.Range;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Range;
 
 @AllArgsConstructor
 @ToString
@@ -18,7 +17,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
 
     private static final int ID = 0x1D;
 
-    private @NotNull Event event;
+    private Event event;
     private float value;
 
     static {
@@ -26,7 +25,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
                 PacketPlayOutGameEvent::new);
     }
 
-    public PacketPlayOutGameEvent(@NotNull ServerBuffer buf) {
+    public PacketPlayOutGameEvent(ServerBuffer buf) {
         event = Event.fromID(buf.readByte());
         value = buf.readFloat();
     }
@@ -37,12 +36,12 @@ public class PacketPlayOutGameEvent extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeByte(event.getId())
                 .writeFloat(value)
@@ -50,7 +49,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutGameEvent(new FriendlyByteBuf(serialize()));
     }
 

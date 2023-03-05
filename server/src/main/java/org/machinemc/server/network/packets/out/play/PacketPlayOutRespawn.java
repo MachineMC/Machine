@@ -4,14 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.entities.player.Gamemode;
-import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockPosition;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.server.network.packets.PacketOut;
+import org.machinemc.server.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
 @ToString
@@ -20,9 +19,9 @@ public class PacketPlayOutRespawn extends PacketOut {
 
     private static final int ID = 0x3E;
 
-    private @NotNull NamespacedKey worldType, worldName;
+    private NamespacedKey worldType, worldName;
     private long hashedSeed;
-    private @NotNull Gamemode gamemode;
+    private Gamemode gamemode;
     private @Nullable Gamemode previousGamemode;
     private boolean isDebug, isFlat, copyMetadata, hasDeathLocation;
     private @Nullable NamespacedKey deathWorldName;
@@ -33,7 +32,7 @@ public class PacketPlayOutRespawn extends PacketOut {
                 PacketPlayOutRespawn::new);
     }
 
-    public PacketPlayOutRespawn(@NotNull ServerBuffer buf) {
+    public PacketPlayOutRespawn(ServerBuffer buf) {
         worldType = buf.readNamespacedKey();
         worldName = buf.readNamespacedKey();
         hashedSeed = buf.readLong();
@@ -55,12 +54,12 @@ public class PacketPlayOutRespawn extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeNamespacedKey(worldType)
                 .writeNamespacedKey(worldName)
@@ -81,7 +80,7 @@ public class PacketPlayOutRespawn extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutRespawn(new FriendlyByteBuf(serialize()));
     }
 

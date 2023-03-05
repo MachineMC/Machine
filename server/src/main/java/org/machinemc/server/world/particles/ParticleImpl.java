@@ -6,7 +6,6 @@ import lombok.ToString;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.particles.Particle;
 import org.machinemc.api.world.particles.ParticleOptions;
@@ -22,11 +21,11 @@ import java.util.Optional;
 public class ParticleImpl implements Particle {
 
     @Getter @Setter
-    private @NotNull ParticleType type;
+    private ParticleType type;
     @Setter
-    private @Nullable ParticleOptions options;
+    private ParticleOptions options;
 
-    private ParticleImpl(@NotNull ParticleType type) {
+    private ParticleImpl(ParticleType type) {
         this.type = type;
     }
 
@@ -35,7 +34,7 @@ public class ParticleImpl implements Particle {
      * @param type type of the particle
      * @return particle created from the given type
      */
-    public static @NotNull Particle of(@NotNull ParticleType type) {
+    public static Particle of(ParticleType type) {
         return ParticleFactory.create(type);
     }
 
@@ -45,7 +44,7 @@ public class ParticleImpl implements Particle {
      * @param options options of the particle
      * @return particle created from the given type and options
      */
-    public static @NotNull Particle of(@NotNull ParticleType type, @Nullable ParticleOptions options) {
+    public static Particle of(ParticleType type, @Nullable ParticleOptions options) {
         ParticleImpl particle = new ParticleImpl(type);
         particle.options = options;
         return particle;
@@ -56,7 +55,7 @@ public class ParticleImpl implements Particle {
      * @param buf buffer with particle id and options
      * @return particle created from the buffer
      */
-    public static @NotNull Particle fromBuffer(@NotNull FriendlyByteBuf buf) {
+    public static Particle fromBuffer(FriendlyByteBuf buf) {
         ParticleType type = ParticleType.fromID(buf.readVarInt());
         return ParticleFactory.create(type, buf);
     }
@@ -64,19 +63,19 @@ public class ParticleImpl implements Particle {
     /**
      * @return options of the particle
      */
-    public @NotNull Optional<ParticleOptions> getOptions() {
+    public Optional<ParticleOptions> getOptions() {
         return Optional.ofNullable(options);
     }
 
     @Override
-    public void write(@NotNull ServerBuffer buf) {
+    public void write(ServerBuffer buf) {
         buf.writeVarInt(type.getId());
         if(options != null)
             buf.write(options);
     }
 
     @Override
-    public @NotNull NBTCompound toNBT() {
+    public NBTCompound toNBT() {
         NBTCompound particle = new NBTCompound(Map.of("type", type.getName().getKey()));
         if(options == null) return particle;
         particle.putAll(options.toNBT());

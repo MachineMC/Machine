@@ -1,10 +1,10 @@
 package org.machinemc.server.inventory;
 
 import lombok.Data;
+import lombok.Synchronized;
 import org.machinemc.api.inventory.Item;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.Material;
 
@@ -14,11 +14,11 @@ import org.machinemc.api.world.Material;
 @Data
 public class ItemStack implements Item {
 
-    private final static Material @NotNull [] REGISTRY;
+    private final static Material[] REGISTRY;
 
-    private @NotNull Material material;
+    private Material material;
     private byte amount = 1;
-    private @NotNull NBTCompound nbtCompound = new NBTCompound();
+    private NBTCompound nbtCompound = new NBTCompound();
 
     static {
         Material[] materials = Material.values();
@@ -33,6 +33,7 @@ public class ItemStack implements Item {
      * @param id id of the material
      * @return material with the id
      */
+    @Synchronized
     public static @Nullable Material getMaterial(int id) {
         if(id == -1) return null;
         if(REGISTRY.length <= id) return null;
@@ -44,54 +45,54 @@ public class ItemStack implements Item {
      * @param material material to get id from
      * @return id of the material
      */
-    public static int getId(@NotNull Material material) {
+    public static int getId(Material material) {
         return material.getId();
     }
 
-    public ItemStack(@NotNull Material material) {
+    public ItemStack(Material material) {
         if(material.getId() == -1)
             throw new IllegalStateException("Material " + material + " can't have item form");
         this.material = material;
     }
 
-    public ItemStack(@NotNull Material material, byte amount) {
+    public ItemStack(Material material, byte amount) {
         this(material);
         this.amount = amount;
     }
 
     @Override
-    public @NotNull ItemStack withMaterial(@NotNull Material material) {
+    public ItemStack withMaterial(Material material) {
         final ItemStack itemStack = clone();
         itemStack.setMaterial(material);
         return itemStack;
     }
 
     @Override
-    public @NotNull ItemStack withAmount(byte amount) {
+    public ItemStack withAmount(byte amount) {
         final ItemStack itemStack = clone();
         itemStack.setAmount(amount);
         return itemStack;
     }
 
     @Override
-    public @NotNull ItemStack withNbtCompound(NBTCompound compound) {
+    public ItemStack withNbtCompound(NBTCompound compound) {
         final ItemStack itemStack = clone();
         itemStack.setNbtCompound(compound);
         return itemStack;
     }
 
     @Override
-    public @NotNull Material getType() {
+    public Material getType() {
         return material;
     }
 
     @Override
-    public void setType(@NotNull Material material) {
+    public void setType(Material material) {
         this.material = material;
     }
 
     @Override
-    public @NotNull ItemStack withType(Material type) {
+    public ItemStack withType(Material type) {
         final ItemStack itemStack = clone();
         itemStack.setMaterial(type);
         return itemStack;
@@ -113,7 +114,7 @@ public class ItemStack implements Item {
     }
 
     @Override
-    public @NotNull ItemStack single() {
+    public ItemStack single() {
         ItemStack single = clone();
         single.amount = 1;
         return single;

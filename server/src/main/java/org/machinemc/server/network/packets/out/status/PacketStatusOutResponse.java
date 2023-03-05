@@ -7,7 +7,6 @@ import lombok.ToString;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 
@@ -26,7 +25,7 @@ public class PacketStatusOutResponse extends PacketOut {
     @Getter @Setter
     private String json;
 
-    public PacketStatusOutResponse(@NotNull ServerBuffer buf) {
+    public PacketStatusOutResponse(ServerBuffer buf) {
         json = buf.readString(StandardCharsets.UTF_8);
     }
 
@@ -36,19 +35,19 @@ public class PacketStatusOutResponse extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.STATUS_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeString(json, StandardCharsets.UTF_8)
                 .bytes();
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketStatusOutResponse(new FriendlyByteBuf(serialize()));
     }
 

@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import net.kyori.adventure.text.Component;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -17,14 +16,14 @@ public class PacketPlayOutSetTablistHeaderAndFooter extends PacketOut {
     private static final int ID = 0x63;
 
     @Getter @Setter
-    private @NotNull Component header, footer;
+    private Component header, footer;
 
     static {
         register(PacketPlayOutSetTablistHeaderAndFooter.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutSetTablistHeaderAndFooter::new);
     }
 
-    public PacketPlayOutSetTablistHeaderAndFooter(@NotNull ServerBuffer buf) {
+    public PacketPlayOutSetTablistHeaderAndFooter(ServerBuffer buf) {
         header = buf.readComponent();
         footer = buf.readComponent();
     }
@@ -35,12 +34,12 @@ public class PacketPlayOutSetTablistHeaderAndFooter extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeComponent(header)
                 .writeComponent(footer)
@@ -48,7 +47,7 @@ public class PacketPlayOutSetTablistHeaderAndFooter extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutSetTablistHeaderAndFooter(new FriendlyByteBuf(serialize()));
     }
 

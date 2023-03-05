@@ -1,7 +1,6 @@
 package org.machinemc.server.world.particles;
 
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.api.world.particles.Particle;
 import org.machinemc.api.world.particles.ParticleType;
 
@@ -19,6 +18,6 @@ public interface ParticleCreator {
      * @param buf buffer with data of the particle options
      * @return created Particle
      */
-    @NotNull Particle create(@NotNull ParticleType type, @NotNull ServerBuffer buf);
+    Particle create(ParticleType type, ServerBuffer buf);
 
 }

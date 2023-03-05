@@ -8,7 +8,6 @@ import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
@@ -21,7 +20,7 @@ public class PacketLoginInStart extends PacketIn {
 
     private static final int ID = 0x00;
 
-    private @NotNull String username;
+    private String username;
     private @Nullable PublicKeyData publicKeyData;
     private @Nullable UUID uuid;
 
@@ -31,7 +30,7 @@ public class PacketLoginInStart extends PacketIn {
         );
     }
 
-    public PacketLoginInStart(@NotNull ServerBuffer buf) {
+    public PacketLoginInStart(ServerBuffer buf) {
         username = buf.readString(StandardCharsets.UTF_8);
         if (buf.readBoolean())
             publicKeyData = buf.readPublicKey();
@@ -45,12 +44,12 @@ public class PacketLoginInStart extends PacketIn {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.LOGIN_IN;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(username, StandardCharsets.UTF_8)
                 .writeBoolean(publicKeyData != null);
@@ -63,7 +62,7 @@ public class PacketLoginInStart extends PacketIn {
     }
 
     @Override
-    public @NotNull PacketIn clone() {
+    public PacketIn clone() {
         return new PacketLoginInStart(new FriendlyByteBuf(serialize()));
     }
 

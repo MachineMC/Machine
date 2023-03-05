@@ -7,7 +7,6 @@ import org.machinemc.server.Machine;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.file.PlayerDataContainer;
 import org.machinemc.api.utils.NBTUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,11 +20,11 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
     public final static String DEFAULT_PLAYER_DATA_FOLDER = "playerdata";
 
     @Getter(AccessLevel.PRIVATE)
-    private final @NotNull File playerDataFolder;
+    private final File playerDataFolder;
     @Getter
-    private final @NotNull Machine server;
+    private final Machine server;
 
-    public PlayerDataContainerImpl(@NotNull Machine server) {
+    public PlayerDataContainerImpl(Machine server) {
         this.server = server;
         playerDataFolder = new File(DEFAULT_PLAYER_DATA_FOLDER);
         if(!playerDataFolder.exists() && !playerDataFolder.mkdirs())
@@ -33,12 +32,12 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
     }
 
     @Override
-    public boolean exist(@NotNull UUID uuid) {
+    public boolean exist(UUID uuid) {
         return getPlayerDataFile(uuid, false).exists();
     }
 
     @Override
-    public NBTCompound getPlayerData(@NotNull UUID uuid) {
+    public NBTCompound getPlayerData(UUID uuid) {
         File playerDataFile = getPlayerDataFile(uuid, true);
         return NBTUtils.deserializeNBTFile(playerDataFile);
     }
@@ -49,7 +48,7 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
      * @param create if the file should be created in case it doesn't exist
      * @return player's data file
      */
-    private @NotNull File getPlayerDataFile(@NotNull UUID uuid, boolean create) {
+    private File getPlayerDataFile(UUID uuid, boolean create) {
         File playerDataFile = new File(new File(DEFAULT_PLAYER_DATA_FOLDER), uuid + ".dat");
         if(!create) return playerDataFile;
         try {
@@ -69,7 +68,7 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
      * @param player player to save data for
      */
     @Override
-    public void savePlayerData(@NotNull Player player) {
+    public void savePlayerData(Player player) {
         player.serializeNBT(getPlayerDataFile(player.getUuid(), true));
     }
 

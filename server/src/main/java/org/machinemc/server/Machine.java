@@ -48,7 +48,6 @@ import org.machinemc.server.world.dimensions.DimensionTypeManagerImpl;
 import org.machinemc.server.world.particles.ParticleFactory;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.server.utils.ClassUtils;
 import org.machinemc.server.utils.FileUtils;
@@ -84,7 +83,7 @@ public class Machine implements Server {
     private Console console;
 
     @Getter
-    protected @NotNull ExceptionHandler exceptionHandler;
+    protected ExceptionHandler exceptionHandler;
 
     @Getter
     private @Nullable OnlineServer onlineServer;
@@ -100,25 +99,25 @@ public class Machine implements Server {
     protected TranslatorDispatcher translatorDispatcher;
 
     @Getter
-    protected @NotNull Scheduler scheduler;
+    protected Scheduler scheduler;
 
     @Getter
-    protected @NotNull CommandDispatcher<CommandExecutor> commandDispatcher;
+    protected CommandDispatcher<CommandExecutor> commandDispatcher;
 
     @Getter
-    protected @NotNull DimensionTypeManager dimensionTypeManager;
+    protected DimensionTypeManager dimensionTypeManager;
     @Getter
-    protected @NotNull Messenger messenger;
+    protected Messenger messenger;
     @Getter
-    protected @NotNull WorldManager worldManager;
+    protected WorldManager worldManager;
     @Getter
-    protected @NotNull BiomeManager biomeManager;
+    protected BiomeManager biomeManager;
     @Getter
-    protected @NotNull EntityManager entityManager;
+    protected EntityManager entityManager;
     @Getter
-    protected @NotNull PlayerManager playerManager;
+    protected PlayerManager playerManager;
     @Getter
-    protected @NotNull BlockManager blockManager;
+    protected BlockManager blockManager;
     @Getter
     private PlayerDataContainer playerDataContainer;
 
@@ -318,12 +317,12 @@ public class Machine implements Server {
     }
 
     @Override
-    public @NotNull String getBrand() {
+    public String getBrand() {
         return SERVER_BRAND;
     }
 
     @Override
-    public @NotNull String getImplementationVersion() {
+    public String getImplementationVersion() {
         return SERVER_IMPLEMENTATION_VERSION;
     }
 

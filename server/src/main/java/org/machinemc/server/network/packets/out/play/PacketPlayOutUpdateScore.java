@@ -5,12 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.server.network.packets.PacketOut;
+import org.machinemc.server.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 
@@ -21,9 +20,9 @@ public class PacketPlayOutUpdateScore extends PacketOut {
 
     private static final int ID = 0x59;
 
-    private @NotNull String entityName;
-    private @NotNull Action action;
-    private @NotNull String objectiveName;
+    private String entityName;
+    private Action action;
+    private String objectiveName;
     private @Nullable Integer value;
 
     static {
@@ -31,7 +30,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
                 PacketPlayOutUpdateScore::new);
     }
 
-    public PacketPlayOutUpdateScore(@NotNull ServerBuffer buf) {
+    public PacketPlayOutUpdateScore(ServerBuffer buf) {
         entityName = buf.readString(StandardCharsets.UTF_8);
         action = Action.fromID(buf.readByte());
         objectiveName = buf.readString(StandardCharsets.UTF_8);
@@ -45,12 +44,12 @@ public class PacketPlayOutUpdateScore extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(entityName, StandardCharsets.UTF_8)
                 .writeVarInt(action.getId())
@@ -63,7 +62,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutUpdateScore(new FriendlyByteBuf(serialize()));
     }
 
@@ -75,7 +74,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
             return ordinal();
         }
 
-        public static @NotNull Action fromID(@Range(from = 0, to = 1) int id) {
+        public static Action fromID(@Range(from = 0, to = 1) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Action type");
             return values()[id];
         }

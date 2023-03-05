@@ -7,7 +7,6 @@ import lombok.ToString;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -23,7 +22,7 @@ public class PacketPlayInKeepAlive extends PacketIn {
                 PacketPlayInKeepAlive::new);
     }
 
-    public PacketPlayInKeepAlive(@NotNull ServerBuffer buf) {
+    public PacketPlayInKeepAlive(ServerBuffer buf) {
         keepAliveId = buf.readLong();
     }
 
@@ -33,19 +32,19 @@ public class PacketPlayInKeepAlive extends PacketIn {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_IN;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeLong(keepAliveId)
                 .bytes();
     }
 
     @Override
-    public @NotNull PacketIn clone() {
+    public PacketIn clone() {
         return new PacketPlayInKeepAlive(new FriendlyByteBuf(serialize()));
     }
 

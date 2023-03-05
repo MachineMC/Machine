@@ -13,7 +13,6 @@ import org.machinemc.server.network.packets.in.login.PacketLoginInEncryptionResp
 import org.machinemc.server.network.packets.out.login.PacketLoginOutSuccess;
 import org.machinemc.server.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
@@ -27,12 +26,12 @@ import static org.machinemc.server.network.packets.out.login.PacketLoginOutEncry
 public class TranslatorLoginInEncryptionResponse extends PacketTranslator<PacketLoginInEncryptionResponse> {
 
     @Override
-    public boolean translate(@NotNull ClientConnection connection, @NotNull PacketLoginInEncryptionResponse packet) {
+    public boolean translate(ClientConnection connection, PacketLoginInEncryptionResponse packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(@NotNull ClientConnection connection, @NotNull PacketLoginInEncryptionResponse packet) {
+    public void translateAfter(ClientConnection connection, PacketLoginInEncryptionResponse packet) {
         OnlineServer onlineServer = connection.getServer().getOnlineServer();
         if(onlineServer == null) {
             connection.disconnect();
@@ -82,7 +81,7 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
     }
 
     @Override
-    public @NotNull Class<PacketLoginInEncryptionResponse> packetClass() {
+    public Class<PacketLoginInEncryptionResponse> packetClass() {
         return PacketLoginInEncryptionResponse.class;
     }
 

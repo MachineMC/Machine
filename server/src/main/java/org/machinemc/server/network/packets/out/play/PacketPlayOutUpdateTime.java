@@ -4,10 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -23,7 +22,7 @@ public class PacketPlayOutUpdateTime extends PacketOut {
                 PacketPlayOutUpdateTime::new);
     }
 
-    public PacketPlayOutUpdateTime(@NotNull ServerBuffer buf) {
+    public PacketPlayOutUpdateTime(ServerBuffer buf) {
         worldAge = buf.readLong();
         timeOfDay = buf.readLong();
     }
@@ -34,12 +33,12 @@ public class PacketPlayOutUpdateTime extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeLong(worldAge)
                 .writeLong(timeOfDay)
@@ -47,7 +46,7 @@ public class PacketPlayOutUpdateTime extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutUpdateTime(new FriendlyByteBuf(serialize()));
     }
 

@@ -5,10 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.api.network.packets.Packet;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -24,7 +23,7 @@ public class PacketPlayOutBorderWarningDelay extends PacketOut {
                 PacketPlayOutBorderWarningDelay::new);
     }
 
-    public PacketPlayOutBorderWarningDelay(@NotNull ServerBuffer buf) {
+    public PacketPlayOutBorderWarningDelay(ServerBuffer buf) {
         warningTime = buf.readVarInt();
     }
 
@@ -34,19 +33,19 @@ public class PacketPlayOutBorderWarningDelay extends PacketOut {
     }
 
     @Override
-    public @NotNull Packet.PacketState getPacketState() {
+    public Packet.PacketState getPacketState() {
         return Packet.PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(warningTime)
                 .bytes();
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutBorderWarningDelay(new FriendlyByteBuf(serialize()));
     }
 

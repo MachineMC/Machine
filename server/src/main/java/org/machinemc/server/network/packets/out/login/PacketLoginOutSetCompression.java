@@ -7,7 +7,6 @@ import lombok.ToString;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -24,7 +23,7 @@ public class PacketLoginOutSetCompression extends PacketOut {
         );
     }
 
-    public PacketLoginOutSetCompression(@NotNull ServerBuffer buf) {
+    public PacketLoginOutSetCompression(ServerBuffer buf) {
         threshold = buf.readVarInt();
     }
 
@@ -34,19 +33,19 @@ public class PacketLoginOutSetCompression extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.LOGIN_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(threshold)
                 .bytes();
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketLoginOutSetCompression(new FriendlyByteBuf(serialize()));
     }
 

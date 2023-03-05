@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.world.World;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -17,7 +16,7 @@ import java.io.IOException;
 @Getter
 public abstract class Region {
 
-    protected final @NotNull World world;
+    protected final World world;
     protected final int x;
     protected final int z;
     protected final @Nullable Chunk[][] grid = new Chunk[32][32];
@@ -34,7 +33,7 @@ public abstract class Region {
      * @param z z coordinate of the chunk in the region
      * @return chunk at given coordinates
      */
-    public abstract @NotNull Chunk getChunk(@Range(from = 0, to = 31) int x, @Range(from = 0, to = 31) int z);
+    public abstract Chunk getChunk(@Range(from = 0, to = 31) int x, @Range(from = 0, to = 31) int z);
 
     /**
      * Returns true if the chunk at given coordinates has not yet been generated - its

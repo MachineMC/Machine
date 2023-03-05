@@ -7,7 +7,6 @@ import lombok.ToString;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -24,7 +23,7 @@ public class PacketStatusInPing extends PacketIn {
         );
     }
 
-    public PacketStatusInPing(@NotNull ServerBuffer buf) {
+    public PacketStatusInPing(ServerBuffer buf) {
         payload = buf.readLong();
     }
 
@@ -34,19 +33,19 @@ public class PacketStatusInPing extends PacketIn {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.STATUS_IN;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeLong(payload)
                 .bytes();
     }
 
     @Override
-    public @NotNull PacketIn clone() {
+    public PacketIn clone() {
         return new PacketStatusInPing(new FriendlyByteBuf(serialize()));
     }
 

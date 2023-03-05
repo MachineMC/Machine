@@ -10,8 +10,6 @@ import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.server.world.dimensions.DimensionTypeImpl;
-import org.intellij.lang.annotations.Subst;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -28,10 +26,10 @@ public class DimensionsJson implements ServerFile, ServerProperty {
     public final static String DIMENSIONS_FILE_NAME = "dimensions.json";
 
     @Getter
-    private final @NotNull Machine server;
-    private final @NotNull Set<DimensionType> dimensions = new LinkedHashSet<>();
+    private final Machine server;
+    private final Set<DimensionType> dimensions = new LinkedHashSet<>();
 
-    public DimensionsJson(@NotNull Machine server, @NotNull File file) throws IOException {
+    public DimensionsJson(Machine server, File file) throws IOException {
         this.server = server;
         final JsonParser parser = new JsonParser();
         final JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
@@ -40,12 +38,11 @@ public class DimensionsJson implements ServerFile, ServerProperty {
         final DimensionType original = DimensionTypeImpl.createDefault();
 
         for(Map.Entry<String, JsonElement> dimensionKey : dimensions.entrySet()) {
-            @Subst("machine:server") String unparsed = dimensionKey.getKey();
             final NamespacedKey key;
             try {
-                key = NamespacedKey.parse(unparsed);
+                key = NamespacedKey.parse(dimensionKey.getKey());
             } catch (Exception ignored) {
-                server.getConsole().severe("Dimension '" + unparsed + "' uses illegal identifier and can't be registered");
+                server.getConsole().severe("Dimension '" + dimensionKey.getKey() + "' uses illegal identifier and can't be registered");
                 continue;
             }
 
@@ -55,17 +52,15 @@ public class DimensionsJson implements ServerFile, ServerProperty {
             if (fixedTime != null && fixedTime.intValue() == -1) fixedTime = null; // nullable option
 
             NamespacedKey effects;
-            unparsed = dimension.get("effects").getAsString();
             try {
-                effects = NamespacedKey.parse(unparsed);
+                effects = NamespacedKey.parse(dimension.get("effects").getAsString());
             } catch (Exception ignored) {
                 effects = original.getEffects();
             }
 
             NamespacedKey infiniburn;
-            unparsed = dimension.get("infiniburn").getAsString();
             try {
-                infiniburn = NamespacedKey.minecraft(unparsed);
+                infiniburn = NamespacedKey.minecraft(dimension.get("infiniburn").getAsString());
             } catch (Exception ignored) {
                 infiniburn = original.getInfiniburn();
             }
@@ -97,12 +92,12 @@ public class DimensionsJson implements ServerFile, ServerProperty {
     /**
      * @return set of all dimensions in the json file
      */
-    public @NotNull Set<DimensionType> dimensions() {
+    public Set<DimensionType> dimensions() {
         return Collections.unmodifiableSet(dimensions);
     }
 
     @Override
-    public @NotNull String getName() {
+    public String getName() {
         return DIMENSIONS_FILE_NAME;
     }
 

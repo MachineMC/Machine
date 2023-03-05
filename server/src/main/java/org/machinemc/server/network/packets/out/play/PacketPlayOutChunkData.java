@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.chunk.data.ChunkData;
 import org.machinemc.server.chunk.data.LightData;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -20,15 +19,15 @@ public class PacketPlayOutChunkData extends PacketOut {
 
     private int chunkX;
     private int chunkZ;
-    private @NotNull ChunkData chunkData;
-    private @NotNull LightData lightData;
+    private ChunkData chunkData;
+    private LightData lightData;
 
     static {
         register(PacketPlayOutChunkData.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutChunkData::new);
     }
 
-    public PacketPlayOutChunkData(@NotNull ServerBuffer buf) {
+    public PacketPlayOutChunkData(ServerBuffer buf) {
         chunkX = buf.readInt();
         chunkZ = buf.readInt();
         chunkData = new ChunkData(buf);
@@ -41,12 +40,12 @@ public class PacketPlayOutChunkData extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeInt(chunkX)
                 .writeInt(chunkZ)
@@ -56,7 +55,7 @@ public class PacketPlayOutChunkData extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutChunkData(new FriendlyByteBuf(serialize()));
     }
 

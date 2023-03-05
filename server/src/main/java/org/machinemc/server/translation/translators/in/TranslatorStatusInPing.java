@@ -4,19 +4,18 @@ import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.status.PacketStatusInPing;
 import org.machinemc.server.network.packets.out.status.PacketStatusOutPong;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
 public class TranslatorStatusInPing extends PacketTranslator<PacketStatusInPing> {
 
     @Override
-    public boolean translate(@NotNull ClientConnection connection, @NotNull PacketStatusInPing packet) {
+    public boolean translate(ClientConnection connection, PacketStatusInPing packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(@NotNull ClientConnection connection, @NotNull PacketStatusInPing packet) {
+    public void translateAfter(ClientConnection connection, PacketStatusInPing packet) {
         try {
             connection.sendPacket(new PacketStatusOutPong(packet.getPayload()));
         } catch (IOException ignored) { }
@@ -24,7 +23,7 @@ public class TranslatorStatusInPing extends PacketTranslator<PacketStatusInPing>
     }
 
     @Override
-    public @NotNull Class<PacketStatusInPing> packetClass() {
+    public Class<PacketStatusInPing> packetClass() {
         return PacketStatusInPing.class;
     }
 

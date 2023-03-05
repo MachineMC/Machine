@@ -8,7 +8,6 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.server.utils.Pair;
 import org.machinemc.server.utils.ZLib;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.crypto.*;
@@ -28,9 +27,9 @@ public class Channel implements AutoCloseable {
     private final List<Pair<NamespacedKey, PacketHandler>> handlers = new CopyOnWriteArrayList<>();
 
     @Getter
-    private final @NotNull ClientConnection connection;
-    protected final @NotNull DataInputStream input;
-    protected final @NotNull DataOutputStream output;
+    private final ClientConnection connection;
+    protected final DataInputStream input;
+    protected final DataOutputStream output;
 
     @Getter
     private boolean open = true;
@@ -42,7 +41,7 @@ public class Channel implements AutoCloseable {
 
     @Getter
     private @Nullable SecretKey secretKey;
-    private @Nullable EncryptionContext encryptionContext;
+    private EncryptionContext encryptionContext;
 
     private FriendlyByteBuf preReadBytes = new FriendlyByteBuf();
 
@@ -51,7 +50,7 @@ public class Channel implements AutoCloseable {
      * @param key namespaced key of the handler
      * @param handler new handler
      */
-    public void addHandlerBefore(@NotNull NamespacedKey key, @NotNull PacketHandler handler) {
+    public void addHandlerBefore(NamespacedKey key, PacketHandler handler) {
         handlers.add(0, new Pair<>(key, handler));
     }
 
@@ -60,7 +59,7 @@ public class Channel implements AutoCloseable {
      * @param key namespaced key of the handler
      * @param handler new handler
      */
-    public void addHandlerAfter(@NotNull NamespacedKey key, @NotNull PacketHandler handler) {
+    public void addHandlerAfter(NamespacedKey key, PacketHandler handler) {
         handlers.add(new Pair<>(key, handler));
     }
 
@@ -68,7 +67,7 @@ public class Channel implements AutoCloseable {
      * Removes the handler from the channel
      * @param key key of the handler to remove
      */
-    public void removeHandler(@NotNull NamespacedKey key) {
+    public void removeHandler(NamespacedKey key) {
         handlers.removeIf(pair -> pair.first().equals(key));
     }
 
@@ -102,7 +101,7 @@ public class Channel implements AutoCloseable {
      * @return handled packets
      */
     @Synchronized
-    protected Packet @NotNull [] readPackets() throws IOException {
+    protected Packet[] readPackets() throws IOException {
         if(!open) return new Packet[0];
         if(input.available() == 0) {
             /*
@@ -171,7 +170,7 @@ public class Channel implements AutoCloseable {
      * @return true if packet wasn't cancelled
      */
     @Synchronized
-    protected boolean writePacket(@NotNull Packet packet) throws IOException {
+    protected boolean writePacket(Packet packet) throws IOException {
         if(!open) return false;
         if(!Packet.PacketState.out().contains(packet.getPacketState()))
             throw new UnsupportedOperationException();

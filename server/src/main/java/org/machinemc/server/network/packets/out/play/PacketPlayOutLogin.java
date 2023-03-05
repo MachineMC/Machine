@@ -4,15 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockPosition;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.nbt.NBTCompound;
+import org.machinemc.server.network.packets.PacketOut;
+import org.machinemc.server.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -27,12 +26,12 @@ public class PacketPlayOutLogin extends PacketOut {
 
     private int entityID;
     private boolean isHardcore;
-    private @NotNull Gamemode gamemode;
+    private Gamemode gamemode;
     private @Nullable Gamemode previousGamemode;
-    private @NotNull List<String> dimensions;
-    private @NotNull NBTCompound dimensionCodec;
-    private @NotNull NamespacedKey spawnWorldType;
-    private @NotNull NamespacedKey spawnWorld;
+    private List<String> dimensions;
+    private NBTCompound dimensionCodec;
+    private NamespacedKey spawnWorldType;
+    private NamespacedKey spawnWorld;
     private long hashedSeed;
     private int maxPlayers,
             viewDistance,
@@ -51,7 +50,7 @@ public class PacketPlayOutLogin extends PacketOut {
         );
     }
 
-    public PacketPlayOutLogin(@NotNull ServerBuffer buf) {
+    public PacketPlayOutLogin(ServerBuffer buf) {
         entityID = buf.readInt();
         isHardcore = buf.readBoolean();
         gamemode = Gamemode.fromID(buf.readByte());
@@ -82,12 +81,12 @@ public class PacketPlayOutLogin extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeInt(entityID)
                 .writeBoolean(isHardcore)
@@ -116,7 +115,7 @@ public class PacketPlayOutLogin extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutLogin(new FriendlyByteBuf(serialize()));
     }
 

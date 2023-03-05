@@ -5,10 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.api.network.packets.Packet;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -24,7 +23,7 @@ public class PacketPlayOutLinkEntities extends PacketOut {
                 PacketPlayOutLinkEntities::new);
     }
 
-    public PacketPlayOutLinkEntities(@NotNull ServerBuffer buf) {
+    public PacketPlayOutLinkEntities(ServerBuffer buf) {
         attachedEntityId = buf.readInt();
         holdingEntityId = buf.readInt();
     }
@@ -35,12 +34,12 @@ public class PacketPlayOutLinkEntities extends PacketOut {
     }
 
     @Override
-    public @NotNull Packet.PacketState getPacketState() {
+    public Packet.PacketState getPacketState() {
         return Packet.PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeInt(attachedEntityId)
                 .writeInt(holdingEntityId)
@@ -48,7 +47,7 @@ public class PacketPlayOutLinkEntities extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutLinkEntities(new FriendlyByteBuf(serialize()));
     }
 

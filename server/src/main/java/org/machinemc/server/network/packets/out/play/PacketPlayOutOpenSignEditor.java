@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockPosition;
-import org.jetbrains.annotations.NotNull;
+import org.machinemc.server.network.packets.PacketOut;
+import org.machinemc.server.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
 @ToString
@@ -17,14 +16,14 @@ public class PacketPlayOutOpenSignEditor extends PacketOut {
     private static final int ID = 0x2E;
 
     @Getter @Setter
-    private @NotNull BlockPosition position;
+    private BlockPosition position;
 
     static {
         register(PacketPlayOutOpenSignEditor.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutOpenSignEditor::new);
     }
 
-    public PacketPlayOutOpenSignEditor(@NotNull ServerBuffer buf) {
+    public PacketPlayOutOpenSignEditor(ServerBuffer buf) {
         position = buf.readBlockPos();
     }
 
@@ -34,19 +33,19 @@ public class PacketPlayOutOpenSignEditor extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeBlockPos(position)
                 .bytes();
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutOpenSignEditor(new FriendlyByteBuf(serialize()));
     }
 

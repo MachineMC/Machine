@@ -8,7 +8,6 @@ import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 
@@ -19,15 +18,15 @@ public class PacketPlayInChatMessage extends PacketIn {
 
     private static final int ID = 0x05;
 
-    private @NotNull String message;
-    private @NotNull MessageSignature messageSignature;
+    private String message;
+    private MessageSignature messageSignature;
 
     static {
         register(PacketPlayInChatMessage.class, ID, PacketState.PLAY_IN,
                 PacketPlayInChatMessage::new);
     }
 
-    public PacketPlayInChatMessage(@NotNull ServerBuffer buf) {
+    public PacketPlayInChatMessage(ServerBuffer buf) {
         message = buf.readString(StandardCharsets.UTF_8);
         messageSignature = buf.readSignature();
     }
@@ -38,12 +37,12 @@ public class PacketPlayInChatMessage extends PacketIn {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_IN;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeString(message, StandardCharsets.UTF_8)
                 .writeSignature(messageSignature)
@@ -51,7 +50,7 @@ public class PacketPlayInChatMessage extends PacketIn {
     }
 
     @Override
-    public @NotNull PacketIn clone() {
+    public PacketIn clone() {
         return new PacketPlayInChatMessage(new FriendlyByteBuf(serialize()));
     }
 }

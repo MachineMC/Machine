@@ -3,7 +3,6 @@ package org.machinemc.server.chunk.palette;
 import lombok.RequiredArgsConstructor;
 import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Palette fully filled with one single value, can be used
@@ -21,7 +20,7 @@ public class FilledPalette implements Palette {
     }
 
     @Override
-    public void getAll(@NotNull EntryConsumer consumer) {
+    public void getAll(EntryConsumer consumer) {
         final byte dimension = this.dimension;
         final int value = this.value;
         for (byte x = 0; x < dimension; x++)
@@ -31,7 +30,7 @@ public class FilledPalette implements Palette {
     }
 
     @Override
-    public void getAllPresent(@NotNull EntryConsumer consumer) {
+    public void getAllPresent(EntryConsumer consumer) {
         if (value != 0) getAll(consumer);
     }
 
@@ -46,7 +45,7 @@ public class FilledPalette implements Palette {
     }
 
     @Override
-    public void setAll(@NotNull EntrySupplier supplier) {
+    public void setAll(EntrySupplier supplier) {
         throw new UnsupportedOperationException();
     }
 
@@ -56,7 +55,7 @@ public class FilledPalette implements Palette {
     }
 
     @Override
-    public void replaceAll(@NotNull EntryFunction function) {
+    public void replaceAll(EntryFunction function) {
         throw new UnsupportedOperationException();
     }
 
@@ -90,7 +89,7 @@ public class FilledPalette implements Palette {
     }
 
     @Override
-    public void write(@NotNull ServerBuffer buf) {
+    public void write(ServerBuffer buf) {
         buf.writeByte((byte) 0);
         buf.writeVarInt(value);
         buf.writeVarInt(0);

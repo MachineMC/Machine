@@ -19,7 +19,6 @@ import org.machinemc.server.server.codec.Codec;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.Location;
@@ -37,33 +36,33 @@ import java.util.Set;
 public class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Getter
-    private final @NotNull ClientConnection connection;
+    private final ClientConnection connection;
     @Getter @Setter
-    private @NotNull PlayerProfile profile;
+    private PlayerProfile profile;
 
     @Getter
-    private @NotNull Gamemode gamemode = Gamemode.CREATIVE; // for now
+    private Gamemode gamemode = Gamemode.CREATIVE; // for now
     @Getter
     private @Nullable Gamemode previousGamemode = null;
 
     @Getter @Setter
-    private @NotNull String locale;
+    private String locale;
     @Getter @Setter
     private byte viewDistance;
     @Getter @Setter
-    private @NotNull ChatMode chatMode;
+    private ChatMode chatMode;
     @Getter @Setter
-    private @NotNull Set<SkinPart> displayedSkinParts;
+    private Set<SkinPart> displayedSkinParts;
     @Getter @Setter
-    private @NotNull Hand mainHand;
+    private Hand mainHand;
     @Getter @Setter
     private int latency = 0;
     @Getter
-    private @NotNull Component displayName;
+    private Component displayName;
     @Getter
-    private @NotNull Component playerListName;
+    private Component playerListName;
 
-    private ServerPlayer(@NotNull Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
+    private ServerPlayer(Machine server, PlayerProfile profile, ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUuid());
         this.profile = profile;
         if(connection.getOwner() != null)
@@ -86,7 +85,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
      * @param connection connection of the player
      * @return created player instance
      */
-    public static @NotNull ServerPlayer spawn(@NotNull Machine server, @NotNull PlayerProfile profile, @NotNull ClientConnection connection) {
+    public static ServerPlayer spawn(Machine server, PlayerProfile profile, ClientConnection connection) {
         final PlayerManager manager = server.getPlayerManager();
         if(connection.getClientState() != ClientConnection.ClientState.PLAY) {
             throw new IllegalStateException("Player can't be initialized if their connection isn't in play state");
@@ -205,7 +204,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
     }
 
     @Override
-    public @NotNull String getName() {
+    public String getName() {
         return profile.getUsername();
     }
 
@@ -227,14 +226,14 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
     }
 
     @Override
-    public void setGamemode(@NotNull Gamemode gamemode) {
+    public void setGamemode(Gamemode gamemode) {
         previousGamemode = this.gamemode;
         this.gamemode = gamemode;
         sendGamemodeChange(gamemode);
     }
 
     @Override
-    public void sendMessage(final @NotNull Identity source, final @NotNull Component message, final @NotNull MessageType type) {
+    public void sendMessage(final Identity source, final Component message, final MessageType type) {
         getServer().getMessenger().sendMessage(this, message, type);
     }
 
@@ -242,7 +241,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
      * Sends packet to change difficulty
      * @param difficulty new difficulty
      */
-    private void sendDifficultyChange(@NotNull Difficulty difficulty) {
+    private void sendDifficultyChange(Difficulty difficulty) {
         sendPacket(new PacketPlayOutChangeDifficulty(difficulty));
     }
 
@@ -250,7 +249,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
      * Sends packet to change world spawn
      * @param location new world spawn
      */
-    private void sendWorldSpawnChange(@NotNull Location location) {
+    private void sendWorldSpawnChange(Location location) {
         sendPacket(new PacketPlayOutWorldSpawnPosition(location));
     }
 
@@ -258,12 +257,12 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
      * Sends packet to change gamemode
      * @param gamemode new gamemode
      */
-    private void sendGamemodeChange(@NotNull Gamemode gamemode) {
+    private void sendGamemodeChange(Gamemode gamemode) {
         sendPacket(new PacketPlayOutGameEvent(PacketPlayOutGameEvent.Event.CHANGE_GAMEMODE, gamemode.getId()));
     }
 
     @Override
-    public @NotNull NBTCompound toNBT() {
+    public NBTCompound toNBT() {
         NBTCompound nbtCompound = super.toNBT();
         nbtCompound.set("playerGameType", gamemode.getId());
         if (previousGamemode != null)
@@ -272,14 +271,14 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
     }
 
     @Override
-    public void load(@NotNull NBTCompound nbtCompound) {
+    public void load(NBTCompound nbtCompound) {
         super.load(nbtCompound);
         gamemode = Gamemode.fromID(nbtCompound.getValue("playerGameType", Gamemode.SURVIVAL.getId())); // TODO replace with default gamemode from server.properties
         previousGamemode = nbtCompound.containsKey("previousPlayerGameType") ? Gamemode.fromID(nbtCompound.getValue("previousPlayerGameType")) : null;
     }
 
     @Override
-    public void sendPacket(@NotNull Packet packet) {
+    public void sendPacket(Packet packet) {
         try {
             getConnection().sendPacket(packet);
         } catch (IOException exception) {

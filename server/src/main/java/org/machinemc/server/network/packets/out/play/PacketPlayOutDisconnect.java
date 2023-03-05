@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import net.kyori.adventure.text.Component;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -17,14 +16,14 @@ public class PacketPlayOutDisconnect extends PacketOut {
     private static final int ID = 0x19;
 
     @Getter @Setter
-    private @NotNull Component reason;
+    private Component reason;
 
     static {
         register(PacketPlayOutDisconnect.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutDisconnect::new);
     }
 
-    public PacketPlayOutDisconnect(@NotNull ServerBuffer buf) {
+    public PacketPlayOutDisconnect(ServerBuffer buf) {
         reason = buf.readComponent();
     }
 
@@ -34,19 +33,19 @@ public class PacketPlayOutDisconnect extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeComponent(reason)
                 .bytes();
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutDisconnect(new FriendlyByteBuf(serialize()));
     }
 

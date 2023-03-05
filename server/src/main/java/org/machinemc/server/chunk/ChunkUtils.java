@@ -1,14 +1,11 @@
 package org.machinemc.server.chunk;
 
-import lombok.experimental.UtilityClass;
 import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.world.BlockPosition;
-import org.jetbrains.annotations.NotNull;
 
 import static org.machinemc.api.chunk.Chunk.CHUNK_SIZE_BITS;
 
-@UtilityClass
-public class ChunkUtils {
+public final class ChunkUtils {
 
     /**
      * Magic number for MOTION_BLOCKING encoding.
@@ -36,6 +33,10 @@ public class ChunkUtils {
             0, 74051160, 74051160, 0, 72796055, 72796055, 0, 71582788, 71582788, 0,
             70409299, 70409299, 0, 69273666, 69273666, 0, 68174084, 68174084, 0, Integer.MIN_VALUE,
             0, 5};
+
+    private ChunkUtils() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Converts a global coordinate to a coordinate of
@@ -89,7 +90,7 @@ public class ChunkUtils {
      * @param chunkZ the chunk Z
      * @return the position of the block
      */
-    public static @NotNull BlockPosition getBlockPosition(int index, int chunkX, int chunkZ) {
+    public static BlockPosition getBlockPosition(int index, int chunkX, int chunkZ) {
         final int x = (index & 0xF) + Chunk.CHUNK_SIZE_X * chunkX;
         final int y = index >> 8;
         final int z = (index & 0xF0) + Chunk.CHUNK_SIZE_Z * chunkZ;
@@ -102,7 +103,7 @@ public class ChunkUtils {
      * @param bitsPerEntry bits per entry
      * @return encoded blocks
      */
-    public static long @NotNull [] encodeBlocks(int @NotNull [] blocks, int bitsPerEntry) {
+    public static long[] encodeBlocks(int[] blocks, int bitsPerEntry) {
         final long maxEntryValue = (1L << bitsPerEntry) - 1;
         final int valuesPerLong = (64 / bitsPerEntry);
         final int magicIndex = 3 * (valuesPerLong - 1);

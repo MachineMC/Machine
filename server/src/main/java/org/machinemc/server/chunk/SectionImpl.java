@@ -7,7 +7,6 @@ import org.machinemc.api.chunk.Section;
 import org.machinemc.server.chunk.palette.AdaptivePalette;
 import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Default implementation of the section.
@@ -16,12 +15,12 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 public class SectionImpl implements Section {
 
-    private final @NotNull Palette blockPalette;
-    private final @NotNull Palette biomePalette;
+    private final Palette blockPalette;
+    private final Palette biomePalette;
     @Setter
-    private byte @NotNull [] skyLight;
+    private byte[] skyLight;
     @Setter
-    private byte @NotNull [] blockLight;
+    private byte[] blockLight;
 
     public SectionImpl() {
         this(AdaptivePalette.blocks(), AdaptivePalette.biomes(),
@@ -38,12 +37,12 @@ public class SectionImpl implements Section {
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
-    public @NotNull SectionImpl clone() {
+    public SectionImpl clone() {
         return new SectionImpl(blockPalette.clone(), biomePalette.clone(), skyLight.clone(), blockLight.clone());
     }
 
     @Override
-    public void write(@NotNull ServerBuffer buf) {
+    public void write(ServerBuffer buf) {
         buf.writeShort((short) blockPalette.count());
         blockPalette.write(buf);
         biomePalette.write(buf);

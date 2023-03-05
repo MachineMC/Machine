@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.machinemc.server.Machine;
 import org.machinemc.api.entities.Player;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.api.server.PlayerManager;
 
 import java.util.Map;
@@ -25,33 +24,33 @@ public class PlayerManagerImpl implements PlayerManager {
     private final Machine server;
 
     @Override
-    public void addPlayer(@NotNull Player player) {
+    public void addPlayer(Player player) {
         playerMap.putIfAbsent(player.getUuid(), player);
     }
 
     @Override
-    public void removePlayer(@NotNull Player player) {
+    public void removePlayer(Player player) {
         playerMap.remove(player.getUuid());
     }
 
     @Override
-    public Player getPlayer(@NotNull UUID uuid) {
+    public Player getPlayer(UUID uuid) {
         return playerMap.get(uuid);
     }
 
     @Override
-    public Player getPlayer(@NotNull String name) {
+    public Player getPlayer(String name) {
         return playerMap.values().stream().filter(player -> player.getName().equals(name))
                 .findFirst().orElse(null);
     }
 
     @Override
-    public @NotNull Set<Player> getPlayers() {
+    public Set<Player> getPlayers() {
         return Set.of(playerMap.values().toArray(new Player[0]));
     }
 
     @Override
-    public @NotNull Set<Player> getPlayers(@NotNull Predicate<Player> predicate) {
+    public Set<Player> getPlayers(Predicate<Player> predicate) {
         return getPlayers().stream().filter(predicate).collect(Collectors.toSet());
     }
 

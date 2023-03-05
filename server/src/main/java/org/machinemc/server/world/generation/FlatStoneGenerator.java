@@ -6,7 +6,6 @@ import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.api.world.generation.Generator;
 
 /**
@@ -15,13 +14,13 @@ import org.machinemc.api.world.generation.Generator;
 @Getter
 public class FlatStoneGenerator implements Generator {
 
-    private final @NotNull Machine server;
+    private final Machine server;
     private final long seed;
 
-    private final @NotNull BlockType air;
-    private final @NotNull BlockType stone;
+    private final BlockType air;
+    private final BlockType stone;
 
-    public FlatStoneGenerator(@NotNull Machine server, long seed) {
+    public FlatStoneGenerator(Machine server, long seed) {
         this.server = server;
         this.seed = seed;
         final BlockManager manager = server.getBlockManager();
@@ -33,7 +32,7 @@ public class FlatStoneGenerator implements Generator {
     }
 
     @Override
-    public @NotNull BlockType generate(@NotNull BlockPosition position) {
+    public BlockType generate(BlockPosition position) {
         if(position.getY() > 1) return air;
         return stone;
     }

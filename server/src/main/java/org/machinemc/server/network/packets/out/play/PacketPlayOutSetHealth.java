@@ -4,10 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 @ToString
@@ -25,7 +24,7 @@ public class PacketPlayOutSetHealth extends PacketOut {
                 PacketPlayOutSetHealth::new);
     }
 
-    public PacketPlayOutSetHealth(@NotNull ServerBuffer buf) {
+    public PacketPlayOutSetHealth(ServerBuffer buf) {
         health = buf.readFloat();
         food = buf.readVarInt();
         saturation = buf.readFloat();
@@ -37,12 +36,12 @@ public class PacketPlayOutSetHealth extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeFloat(health)
                 .writeVarInt(food)
@@ -51,7 +50,7 @@ public class PacketPlayOutSetHealth extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutSetHealth(new FriendlyByteBuf(serialize()));
     }
 

@@ -5,11 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.Range;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Range;
 
 @AllArgsConstructor
 @ToString
@@ -19,14 +18,14 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
     private static final int ID = 0x03;
 
     private int entityId;
-    private @NotNull Animation animation;
+    private Animation animation;
 
     static {
         register(PacketPlayOutEntityAnimation.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutEntityAnimation::new);
     }
 
-    public PacketPlayOutEntityAnimation(@NotNull ServerBuffer buf) {
+    public PacketPlayOutEntityAnimation(ServerBuffer buf) {
         entityId = buf.readVarInt();
         animation = Animation.fromID(buf.readByte());
     }
@@ -37,12 +36,12 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(entityId)
                 .writeByte((byte) animation.getId())
@@ -50,7 +49,7 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutEntityAnimation(new FriendlyByteBuf(serialize()));
     }
 
@@ -66,7 +65,7 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
             return ordinal();
         }
 
-        public static @NotNull Animation fromID(@Range(from = 0, to = 5) int id) {
+        public static Animation fromID(@Range(from = 0, to = 5) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Animation type");
             return values()[id];
         }

@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockPosition;
-import org.jetbrains.annotations.NotNull;
+import org.machinemc.server.network.packets.PacketOut;
+import org.machinemc.server.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
 @ToString
@@ -18,7 +17,7 @@ public class PacketPlayOutBlockDestroyStage extends PacketOut {
     private static final int ID = 0x06;
 
     private int entityId;
-    private @NotNull BlockPosition position;
+    private BlockPosition position;
     private byte destroyStage;
 
     static {
@@ -26,7 +25,7 @@ public class PacketPlayOutBlockDestroyStage extends PacketOut {
                 PacketPlayOutBlockDestroyStage::new);
     }
 
-    public PacketPlayOutBlockDestroyStage(@NotNull ServerBuffer buf) {
+    public PacketPlayOutBlockDestroyStage(ServerBuffer buf) {
         entityId = buf.readVarInt();
         position = buf.readBlockPos();
         destroyStage = buf.readByte();
@@ -38,12 +37,12 @@ public class PacketPlayOutBlockDestroyStage extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketState getPacketState() {
+    public PacketState getPacketState() {
         return PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(entityId)
                 .writeBlockPos(position)
@@ -52,7 +51,7 @@ public class PacketPlayOutBlockDestroyStage extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutBlockDestroyStage(new FriendlyByteBuf(serialize()));
     }
 

@@ -4,17 +4,16 @@ import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.play.PacketPlayInClientInformation;
-import org.jetbrains.annotations.NotNull;
 
 public class TranslatorPlayInClientInformation extends PacketTranslator<PacketPlayInClientInformation> {
 
     @Override
-    public boolean translate(@NotNull ClientConnection connection, @NotNull PacketPlayInClientInformation packet) {
+    public boolean translate(ClientConnection connection, PacketPlayInClientInformation packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(@NotNull ClientConnection connection, @NotNull PacketPlayInClientInformation packet) {
+    public void translateAfter(ClientConnection connection, PacketPlayInClientInformation packet) {
         ServerPlayer player = connection.getOwner();
         if(player == null)
             return;
@@ -26,7 +25,7 @@ public class TranslatorPlayInClientInformation extends PacketTranslator<PacketPl
     }
 
     @Override
-    public @NotNull Class<PacketPlayInClientInformation> packetClass() {
+    public Class<PacketPlayInClientInformation> packetClass() {
         return PacketPlayInClientInformation.class;
     }
 

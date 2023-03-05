@@ -4,13 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.network.packets.Packet;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 @AllArgsConstructor
 @ToString
@@ -27,7 +26,7 @@ public class PacketPlayOutChatPreview extends PacketOut {
                 PacketPlayOutChatPreview::new);
     }
 
-    public PacketPlayOutChatPreview(@NotNull ServerBuffer buf) {
+    public PacketPlayOutChatPreview(ServerBuffer buf) {
         queryId = buf.readVarInt();
         if (buf.readBoolean())
             preview = buf.readComponent();
@@ -39,12 +38,12 @@ public class PacketPlayOutChatPreview extends PacketOut {
     }
 
     @Override
-    public @NotNull Packet.PacketState getPacketState() {
+    public Packet.PacketState getPacketState() {
         return Packet.PacketState.PLAY_OUT;
     }
 
     @Override
-    public byte @NotNull [] serialize() {
+    public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeInt(queryId)
                 .writeBoolean(preview != null);
@@ -55,7 +54,7 @@ public class PacketPlayOutChatPreview extends PacketOut {
     }
 
     @Override
-    public @NotNull PacketOut clone() {
+    public PacketOut clone() {
         return new PacketPlayOutChatPreview(new FriendlyByteBuf(serialize()));
     }
 

@@ -3,6 +3,7 @@ package org.machinemc.server.file;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Getter;
+import org.machinemc.api.world.World;
 import org.machinemc.server.Machine;
 import org.machinemc.api.file.ServerFile;
 import org.machinemc.api.server.ServerProperty;
@@ -12,8 +13,6 @@ import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.Location;
 import org.machinemc.api.world.WorldType;
 import org.machinemc.api.world.dimensions.DimensionType;
-import org.intellij.lang.annotations.Subst;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -26,35 +25,33 @@ public class WorldJson implements ServerFile, ServerProperty {
 
     public final static String WORLD_FILE_NAME = "world.json";
 
-    private final @NotNull Machine server;
+    private final Machine server;
 
-    private final @NotNull NamespacedKey name;
-    private final @NotNull DimensionType dimensionType;
+    private final NamespacedKey name;
+    private final DimensionType dimensionType;
     private final long seed;
-    private final @NotNull Difficulty difficulty;
-    private final @NotNull WorldType worldType;
+    private final Difficulty difficulty;
+    private final WorldType worldType;
 
     private final File folder;
 
-    public WorldJson(@NotNull Machine server, @NotNull File file) throws IOException {
+    public WorldJson(Machine server, File file) throws IOException {
         this.server = server;
         folder = file.getParentFile();
         final JsonParser parser = new JsonParser();
-        @Subst("machine:server") JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
+        JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
 
-        final @Subst("machine:server") String unparsedName = json.get("name").getAsString();
         NamespacedKey name;
         try {
-            name = NamespacedKey.parse(unparsedName);
+            name = NamespacedKey.parse(json.get("name").getAsString());
         } catch (Exception ignored) {
             throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal name identifier and can't be registered");
         }
         this.name = name;
 
-        final @Subst("machine:server") String unparsedDimensionType = json.get("dimension").getAsString();
         NamespacedKey dimensionKey;
         try {
-            dimensionKey = NamespacedKey.parse(unparsedDimensionType);
+            dimensionKey = NamespacedKey.parse(json.get("dimension").getAsString());
         } catch (Exception ignored) {
             throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal dimension identifier and can't be registered");
         }
@@ -91,7 +88,7 @@ public class WorldJson implements ServerFile, ServerProperty {
     }
 
     @Override
-    public @NotNull String getName() {
+    public String getName() {
         return WORLD_FILE_NAME;
     }
 
@@ -103,7 +100,7 @@ public class WorldJson implements ServerFile, ServerProperty {
     /**
      * @return name of the world
      */
-    public @NotNull NamespacedKey getWorldName() {
+    public NamespacedKey getWorldName() {
         return name;
     }
 
@@ -111,7 +108,7 @@ public class WorldJson implements ServerFile, ServerProperty {
      * Creates and registers the world to the server's WorldManager.
      * @return newly created and registered world
      */
-    public @NotNull WorldImpl buildWorld() {
+    public World buildWorld() {
         WorldImpl world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
         world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
         world.setDifficulty(server.getProperties().getDefaultDifficulty());

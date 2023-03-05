@@ -1,9 +1,7 @@
 package org.machinemc.server.utils;
 
 import lombok.Cleanup;
-import lombok.experimental.UtilityClass;
 import org.machinemc.server.Machine;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -15,10 +13,9 @@ import java.util.UUID;
 /**
  * Class for file related operations.
  */
-@UtilityClass
-public class FileUtils {
+public final class FileUtils {
 
-    private static @NotNull File MACHINE_JAR;
+    private static File MACHINE_JAR;
 
     static {
         final URL location = Machine.class
@@ -32,12 +29,16 @@ public class FileUtils {
         }
     }
 
+    private FileUtils() {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Creates file from resources at same location.
      * @param file file to create
      * @return true if creation was successful
      */
-    public static boolean createFromDefault(@NotNull File file) {
+    public static boolean createFromDefault(File file) {
         return createFromDefaultAndLocate(file, file.getPath());
     }
 
@@ -47,7 +48,7 @@ public class FileUtils {
      * @param path new path for the file
      * @return true if creation was successful
      */
-    public static boolean createFromDefaultAndLocate(@NotNull File file, @NotNull String path) {
+    public static boolean createFromDefaultAndLocate(File file, String path) {
         if(path.endsWith("/")) {
             final File pathFile = new File(path);
             if(!pathFile.mkdirs() && !pathFile.exists())
@@ -67,7 +68,7 @@ public class FileUtils {
     /**
      * @return jar file of the server
      */
-    public static @NotNull File getMachineJar() {
+    public static File getMachineJar() {
         return MACHINE_JAR;
     }
 
@@ -76,7 +77,7 @@ public class FileUtils {
      * @param folder folder to create uid file at
      * @return uuid saved in the file
      */
-    public static @NotNull UUID getOrCreateUUID(@NotNull File folder) {
+    public static UUID getOrCreateUUID(File folder) {
         final File uidFile = new File(folder, "uid.dat");
         if (uidFile.exists()) {
             try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(uidFile))) {

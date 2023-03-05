@@ -7,8 +7,6 @@ import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.server.world.WorldImpl;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.server.world.blocks.BlockTypeImpl;
-import org.intellij.lang.annotations.Subst;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 import org.jglrxavpok.hephaistos.data.RandomAccessFileSource;
 import org.jglrxavpok.hephaistos.mca.AnvilException;
@@ -29,9 +27,9 @@ public class AnvilRegion extends Region {
 
     private static final String MODE = "rw";
 
-    private final @NotNull RegionFile regionFile;
+    private final RegionFile regionFile;
 
-    public AnvilRegion(@NotNull WorldImpl world, @NotNull File file, int x, int z) throws IOException, AnvilException {
+    public AnvilRegion(WorldImpl world, File file, int x, int z) throws IOException, AnvilException {
         super(world, x, z);
         regionFile = new RegionFile(new RandomAccessFileSource(new RandomAccessFile(file, MODE)), x, z, 0, world.getDimensionType().getHeight());
     }
@@ -54,9 +52,8 @@ public class AnvilRegion extends Region {
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
-    public @NotNull Chunk getChunk(@Range(from = 0, to = 31) int x, @Range(from = 0, to = 31) int z) {
+    public Chunk getChunk(@Range(from = 0, to = 31) int x, @Range(from = 0, to = 31) int z) {
         if(grid[x][z] == null) {
             try {
                 loadChunk(x, z);
@@ -105,7 +102,7 @@ public class AnvilRegion extends Region {
      * @param chunkColumn chunk column to fill
      * @param state new state
      */
-    private void fillColumn(@NotNull ChunkColumn chunkColumn, @NotNull BlockState state) {
+    private void fillColumn(ChunkColumn chunkColumn, BlockState state) {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 for (int y = 0; y < chunkColumn.getMaxY(); y++) {
@@ -120,7 +117,7 @@ public class AnvilRegion extends Region {
      * @param column column to fill
      * @param chunk chunk with the data
      */
-    private void fillColumn(@NotNull ChunkColumn column, @NotNull Chunk chunk) {
+    private void fillColumn(ChunkColumn column, Chunk chunk) {
         if(column.getMaxY() != chunk.getWorld().getDimensionType().getHeight())
             throw new IllegalStateException();
         for (int x = 0; x < 16; x++) {
@@ -142,14 +139,14 @@ public class AnvilRegion extends Region {
      * @param chunk chunk to fill
      * @param column column with the data
      */
-    private void fillChunk(@NotNull Chunk chunk, @NotNull ChunkColumn column) {
+    private void fillChunk(Chunk chunk, ChunkColumn column) {
         if(column.getMaxY() != chunk.getWorld().getDimensionType().getHeight())
             throw new IllegalStateException();
         final Map<String, BlockType> blockMap = new HashMap<>();
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 for (int y = 0; y < column.getMaxY(); y++) {
-                    final @Subst("machine:server") String name = column.getBlockState(x, y, z).getName();
+                    final String name = column.getBlockState(x, y, z).getName();
                     if(blockMap.get(name) == null)
                         blockMap.put(name, world.getServer().getBlockManager().getBlockType(NamespacedKey.parse(name)));
                     chunk.setBlock(x, y, z, blockMap.get(name), BlockTypeImpl.CreateReason.SET, BlockTypeImpl.DestroyReason.REMOVED, null);
@@ -163,7 +160,7 @@ public class AnvilRegion extends Region {
      * @param blockType block type to convert
      * @return converted block state
      */
-    private static @NotNull BlockState createBlockState(@NotNull BlockType blockType) {
+    private static BlockState createBlockState(BlockType blockType) {
         return new BlockState(blockType.getName().toString());
     }
 

@@ -3,7 +3,6 @@ package org.machinemc.server.chunk.palette;
 import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.utils.math.MathUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -13,14 +12,14 @@ public class AdaptivePalette implements Palette {
     /**
      * @return default palette for blocks
      */
-    public static @NotNull Palette blocks() {
+    public static Palette blocks() {
         return newPalette(16, 8, 4);
     }
 
     /**
      * @return default palette for biomes
      */
-    public static @NotNull Palette biomes() {
+    public static Palette biomes() {
         return newPalette(4, 3, 1);
     }
 
@@ -31,7 +30,7 @@ public class AdaptivePalette implements Palette {
      * @param bitsPerEntry min bits per entry
      * @return created palette
      */
-    public static @NotNull Palette newPalette(int dimension, int maxBitsPerEntry, int bitsPerEntry) {
+    public static Palette newPalette(int dimension, int maxBitsPerEntry, int bitsPerEntry) {
         return new AdaptivePalette((byte) dimension, (byte) maxBitsPerEntry, (byte) bitsPerEntry);
     }
 
@@ -57,12 +56,12 @@ public class AdaptivePalette implements Palette {
     }
 
     @Override
-    public void getAll(@NotNull EntryConsumer consumer) {
+    public void getAll(EntryConsumer consumer) {
         palette.getAll(consumer);
     }
 
     @Override
-    public void getAllPresent(@NotNull EntryConsumer consumer) {
+    public void getAllPresent(EntryConsumer consumer) {
         palette.getAllPresent(consumer);
     }
 
@@ -79,7 +78,7 @@ public class AdaptivePalette implements Palette {
     }
 
     @Override
-    public void setAll(@NotNull EntrySupplier supplier) {
+    public void setAll(EntrySupplier supplier) {
         Palette newPalette = new FlexiblePalette(this);
         newPalette.setAll(supplier);
         palette = newPalette;
@@ -93,7 +92,7 @@ public class AdaptivePalette implements Palette {
     }
 
     @Override
-    public void replaceAll(@NotNull EntryFunction function) {
+    public void replaceAll(EntryFunction function) {
         flexiblePalette().replaceAll(function);
     }
 
@@ -129,7 +128,7 @@ public class AdaptivePalette implements Palette {
     }
 
     @Override
-    public void write(@NotNull ServerBuffer buf) {
+    public void write(ServerBuffer buf) {
         final Palette optimized = optimizedPalette();
         this.palette = optimized;
         optimized.write(buf);
@@ -141,7 +140,7 @@ public class AdaptivePalette implements Palette {
      * if possible.
      * @return optimized palette
      */
-    @NotNull Palette optimizedPalette() {
+    Palette optimizedPalette() {
         final Palette currentPalette = palette;
 
         if(!(currentPalette instanceof FlexiblePalette flexiblePalette))
@@ -173,7 +172,7 @@ public class AdaptivePalette implements Palette {
      * FlexiblePalette in case it's FilledPalette.
      * @return converted flexible palette
      */
-    @NotNull Palette flexiblePalette() {
+    Palette flexiblePalette() {
         Palette currentPalette = palette;
         if (currentPalette instanceof FilledPalette filledPalette) {
             currentPalette = new FlexiblePalette(this);
