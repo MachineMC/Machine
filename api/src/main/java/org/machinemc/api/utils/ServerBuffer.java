@@ -9,7 +9,6 @@ import org.machinemc.api.inventory.Item;
 import org.machinemc.api.world.BlockPosition;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.DataOutputStream;
@@ -29,7 +28,7 @@ public interface ServerBuffer extends Cloneable {
      * @return new default server buffer
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      */
-    static @NotNull ServerBuffer create() {
+    static ServerBuffer create() {
         return Server.createServerBuffer();
     }
 
@@ -38,21 +37,21 @@ public interface ServerBuffer extends Cloneable {
      * reader index and starts from byte 0.
      * @return all bytes of the buffer
      */
-    byte @NotNull [] bytes();
+    byte[] bytes();
 
     /**
      * Reads all remaining bytes of the buffer, moves
      * reader index at the end.
      * @return all remaining bytes of the buffer to read
      */
-    byte @NotNull [] finish();
+    byte[] finish();
 
     /**
      * @return data output stream with all bytes of this buffer
      * @throws IOException if an I/O error occurs during writing the bytes
      */
     @Contract(pure = true)
-    @NotNull DataOutputStream stream() throws IOException;
+    DataOutputStream stream() throws IOException;
 
     /**
      * Writes the bytes of this buffer in a data output stream
@@ -61,7 +60,7 @@ public interface ServerBuffer extends Cloneable {
      * @throws IOException if an I/O error occurs during writing the bytes
      */
     @Contract("_ -> param1")
-    @NotNull DataOutputStream writeToStream(@NotNull DataOutputStream stream) throws IOException;
+    DataOutputStream writeToStream(DataOutputStream stream) throws IOException;
 
     /**
      * Writes a writable object into this buffer
@@ -69,7 +68,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer write(@NotNull Writable writable);
+    ServerBuffer write(Writable writable);
 
     /**
      * @return next boolean
@@ -81,7 +80,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeBoolean(boolean value);
+    ServerBuffer writeBoolean(boolean value);
 
     /**
      * @return next byte
@@ -93,14 +92,14 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeByte(byte value);
+    ServerBuffer writeByte(byte value);
 
     /**
      * Reads multiple bytes in a row and returns an array.
      * @param length how many bytes to read
      * @return array of the bytes
      */
-    byte @NotNull [] readBytes(int length);
+    byte[] readBytes(int length);
 
     /**
      * Writes multiple bytes in the buffer.
@@ -108,19 +107,19 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeBytes(byte @NotNull ... bytes);
+    ServerBuffer writeBytes(byte... bytes);
 
     /**
      * @return next byte array
      */
-    byte @NotNull [] readByteArray();
+    byte[] readByteArray();
 
     /**
      * @param bytes byte array to write
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeByteArray(byte @NotNull [] bytes);
+    ServerBuffer writeByteArray(byte[] bytes);
 
     /**
      * @return next short
@@ -132,7 +131,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeShort(short value);
+    ServerBuffer writeShort(short value);
 
     /**
      * @return next integer
@@ -144,7 +143,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeInt(int value);
+    ServerBuffer writeInt(int value);
 
     /**
      * @return next long
@@ -156,7 +155,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeLong(long value);
+    ServerBuffer writeLong(long value);
 
     /**
      * @return next long array
@@ -168,7 +167,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeLongArray(long @NotNull [] longs);
+    ServerBuffer writeLongArray(long[] longs);
 
     /**
      * @return next float
@@ -180,7 +179,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeFloat(float value);
+    ServerBuffer writeFloat(float value);
 
     /**
      * @return next double
@@ -192,7 +191,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeDouble(double value);
+    ServerBuffer writeDouble(double value);
 
     /**
      * @return next VarInt
@@ -206,19 +205,19 @@ public interface ServerBuffer extends Cloneable {
      * @see <a href="https://wiki.vg/Protocol#VarInt_and_VarLong">VatInt and VarLong</a>
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeVarInt(int value);
+    ServerBuffer writeVarInt(int value);
 
     /**
      * @return next VarInt array
      */
-    int @NotNull [] readVarIntArray();
+    int[] readVarIntArray();
 
     /**
      * @param ints VarInt array to write
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeVarIntArray(int @NotNull [] ints);
+    ServerBuffer writeVarIntArray(int[] ints);
 
     /**
      * @return next VarLong
@@ -232,14 +231,14 @@ public interface ServerBuffer extends Cloneable {
      * @see <a href="https://wiki.vg/Protocol#VarInt_and_VarLong">VatInt and VarLong</a>
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeVarLong(long value);
+    ServerBuffer writeVarLong(long value);
 
     /**
      * @param charset charset used by the string
      * @return next string
      */
     @Contract("_ -> new")
-    @NotNull String readString(@NotNull Charset charset);
+    String readString(Charset charset);
 
     /**
      * @param value string to write
@@ -247,14 +246,14 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_, _, -> this")
-    @NotNull ServerBuffer writeString(@NotNull String value, @NotNull Charset charset);
+    ServerBuffer writeString(String value, Charset charset);
 
     /**
      * @param charset charset used by the strings in the list
      * @return next string list
      */
     @Contract("_ -> new")
-    @NotNull List<String> readStringList(@NotNull Charset charset);
+    List<String> readStringList(Charset charset);
 
     /**
      *
@@ -263,111 +262,111 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_, _ -> new")
-    @NotNull ServerBuffer writeStringList(@NotNull List<String> strings, @NotNull Charset charset);
+    ServerBuffer writeStringList(List<String> strings, Charset charset);
 
     /**
      * @return next uuid
      */
     @Contract("-> new")
-    @NotNull UUID readUUID();
+    UUID readUUID();
 
     /**
      * @param uuid uuid to write
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeUUID(@NotNull UUID uuid);
+    ServerBuffer writeUUID(UUID uuid);
 
     /**
      * @return next block position
      */
     @Contract("-> new")
-    @NotNull BlockPosition readBlockPos();
+    BlockPosition readBlockPos();
 
     /**
      * @param position block position to write
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeBlockPos(@NotNull BlockPosition position);
+    ServerBuffer writeBlockPos(BlockPosition position);
 
     /**
      * @return next nbt
      */
     @Contract("-> new")
-    @NotNull NBTCompound readNBT();
+    NBTCompound readNBT();
 
     /**
      * @param tag NBT to write
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeNBT(@NotNull NBTCompound tag);
+    ServerBuffer writeNBT(NBTCompound tag);
 
     /**
      * @return next component
      */
     @Contract("-> new")
-    @NotNull Component readComponent();
+    Component readComponent();
 
     /**
      * @param component component to write
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeComponent(@NotNull Component component);
+    ServerBuffer writeComponent(Component component);
 
     /**
      * @return next namespaced key
      */
     @Contract("-> new")
-    @NotNull NamespacedKey readNamespacedKey();
+    NamespacedKey readNamespacedKey();
 
     /**
      * @param namespacedKey namespaced key to write
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeNamespacedKey(@NotNull NamespacedKey namespacedKey);
+    ServerBuffer writeNamespacedKey(NamespacedKey namespacedKey);
 
     /**
      * @return next instant
      */
     @Contract("-> new")
-    @NotNull Instant readInstant();
+    Instant readInstant();
 
     /**
      * @param instant instant to write
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeInstant(@NotNull Instant instant);
+    ServerBuffer writeInstant(Instant instant);
 
     /**
      * @return next item
      */
     @Contract("-> new")
-    @NotNull Item readSlot();
+    Item readSlot();
 
     /**
      * @param itemStack item to write
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeSlot(@NotNull Item itemStack);
+    ServerBuffer writeSlot(Item itemStack);
 
     /**
      * @return next public key data
      */
     @Contract("-> new")
-    @NotNull PublicKeyData readPublicKey();
+    PublicKeyData readPublicKey();
 
     /**
      * @param publicKeyData public key data to write
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writePublicKey(@NotNull PublicKeyData publicKeyData);
+    ServerBuffer writePublicKey(PublicKeyData publicKeyData);
 
     /**
      * @return next player textures
@@ -380,20 +379,20 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeTextures(@Nullable PlayerTextures playerSkin);
+    ServerBuffer writeTextures(@Nullable PlayerTextures playerSkin);
 
     /**
      * @return next message signature
      */
     @Contract("-> new")
-    @NotNull MessageSignature readSignature();
+    MessageSignature readSignature();
 
     /**
      * @param messageSignature message signature to write
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeSignature(@NotNull MessageSignature messageSignature);
+    ServerBuffer writeSignature(MessageSignature messageSignature);
 
     /**
      * @return next angle
@@ -405,7 +404,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer writeAngle(float angle);
+    ServerBuffer writeAngle(float angle);
 
     /**
      * @return number of readable bytes (difference between reader and writer index)
@@ -423,7 +422,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer setReaderIndex(int index);
+    ServerBuffer setReaderIndex(int index);
 
     /**
      * @return index of the writer
@@ -436,8 +435,8 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    @NotNull ServerBuffer setWriterIndex(int index);
+    ServerBuffer setWriterIndex(int index);
 
-    @NotNull ServerBuffer clone();
+    ServerBuffer clone();
 
 }

@@ -5,7 +5,6 @@ import lombok.experimental.Accessors;
 import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -32,7 +31,7 @@ public class Vector3 implements Cloneable {
      * Create a new 3D vector from another the other vector.
      * @param other the 3D vector
      */
-    public Vector3(@NotNull Vector3 other) {
+    public Vector3(Vector3 other) {
         this(other.x, other.y, other.z);
     }
 
@@ -41,7 +40,7 @@ public class Vector3 implements Cloneable {
      * Create a new 3D vector from a 2D vector.
      * @param other the 2D vector
      */
-    public Vector3(@NotNull Vector2 other) {
+    public Vector3(Vector2 other) {
         this(other.getX(), other.getY(), 0);
     }
 
@@ -51,7 +50,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 add(@NotNull Vector3 other) {
+    public Vector3 add(Vector3 other) {
         x += other.x;
         y += other.y;
         z += other.z;
@@ -64,7 +63,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 subtract(@NotNull Vector3 other) {
+    public Vector3 subtract(Vector3 other) {
         x -= other.x;
         y -= other.y;
         z -= other.z;
@@ -77,7 +76,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 multiply(@NotNull Vector3 other) {
+    public Vector3 multiply(Vector3 other) {
         x *= other.x;
         y *= other.y;
         z *= other.z;
@@ -100,7 +99,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 divide(@NotNull Vector3 other) {
+    public Vector3 divide(Vector3 other) {
         x /= other.x;
         y /= other.y;
         z /= other.z;
@@ -133,11 +132,11 @@ public class Vector3 implements Cloneable {
         return Math.sqrt(lengthSquared());
     }
 
-    public double distanceSquared(@NotNull Vector3 other) {
+    public double distanceSquared(Vector3 other) {
         return Math.pow(x, other.x) - Math.pow(y, other.y) - Math.pow(z, other.z);
     }
 
-    public double distance(@NotNull Vector3 other) {
+    public double distance(Vector3 other) {
         return Math.sqrt(distanceSquared(other));
     }
 
@@ -146,7 +145,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("-> this")
-    public @NotNull Vector3 normalize() {
+    public Vector3 normalize() {
         return multiply(1 / length());
     }
 
@@ -155,7 +154,7 @@ public class Vector3 implements Cloneable {
      * @param other the other vector
      * @return the dot product
      */
-    public double dot(@NotNull Vector3 other) {
+    public double dot(Vector3 other) {
         return x * other.x * y * other.y * z * other.z;
     }
 
@@ -165,7 +164,7 @@ public class Vector3 implements Cloneable {
      * @return the cross product
      */
     @Contract("_ -> this")
-    public @NotNull Vector3 crossProduct(@NotNull Vector3 other) {
+    public Vector3 crossProduct(Vector3 other) {
         double x = this.y * other.z - other.y * this.z;
         double y = this.z * other.x - other.z * this.x;
         double z = this.x * other.y - other.x * this.y;
@@ -180,7 +179,7 @@ public class Vector3 implements Cloneable {
      * @param other the other vector
      * @return the angle
      */
-    public double angle(@NotNull Vector3 other) {
+    public double angle(Vector3 other) {
         return Math.acos(dot(other) / Math.sqrt(lengthSquared() * other.lengthSquared()));
     }
 
@@ -190,7 +189,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public @NotNull Vector3 midpoint(@NotNull Vector3 other) {
+    public Vector3 midpoint(Vector3 other) {
         this.x = (x + other.x) / 2;
         this.y = (y + other.y) / 2;
         this.z = (z + other.z) / 2;
@@ -202,7 +201,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("-> this")
-    public @NotNull Vector3 zero() {
+    public Vector3 zero() {
         x = 0;
         y = 0;
         z = 0;
@@ -218,7 +217,7 @@ public class Vector3 implements Cloneable {
      * @param max Maximum vector
      * @return whether this vector is in the AABB
      */
-    public boolean isInAABB(@NotNull Vector3 min, @NotNull Vector3 max) {
+    public boolean isInAABB(Vector3 min, Vector3 max) {
         return x >= min.x && x <= max.x && y >= min.y && y <= max.y && z >= min.z && z <= max.z;
     }
 
@@ -228,7 +227,7 @@ public class Vector3 implements Cloneable {
      * @param radius Sphere radius
      * @return whether this vector is in the sphere
      */
-    public boolean isInSphere(@NotNull Vector3 origin, double radius) {
+    public boolean isInSphere(Vector3 origin, double radius) {
         return (Math.pow(origin.x - x, 2) + Math.pow(origin.y - y, 2) + Math.pow(origin.z - z, 2)) <= Math.pow(radius, 2);
     }
 
@@ -246,7 +245,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public @NotNull Vector3 rotateAroundX(double angle) {
+    public Vector3 rotateAroundX(double angle) {
         double angleCos = Math.cos(angle);
         double angleSin = Math.sin(angle);
 
@@ -263,7 +262,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public @NotNull Vector3 rotateAroundY(double angle) {
+    public Vector3 rotateAroundY(double angle) {
         double angleCos = Math.cos(angle);
         double angleSin = Math.sin(angle);
 
@@ -280,7 +279,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public @NotNull Vector3 rotateAroundZ(double angle) {
+    public Vector3 rotateAroundZ(double angle) {
         double angleCos = Math.cos(angle);
         double angleSin = Math.sin(angle);
 
@@ -308,7 +307,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_, _ -> this")
-    public @NotNull Vector3 rotateAroundAxis(@NotNull Vector3 axis, double angle) {
+    public Vector3 rotateAroundAxis(Vector3 axis, double angle) {
         return rotateAroundNonUnitAxis(axis.isNormalized() ? axis : axis.clone().normalize(), angle);
     }
 
@@ -328,7 +327,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_, _ -> this")
-    public @NotNull Vector3 rotateAroundNonUnitAxis(@NotNull Vector3 axis, double angle) throws IllegalArgumentException {
+    public Vector3 rotateAroundNonUnitAxis(Vector3 axis, double angle) throws IllegalArgumentException {
         double x = getX(), y = getY(), z = getZ();
         double x2 = axis.getX(), y2 = axis.getY(), z2 = axis.getZ();
 
@@ -377,7 +376,7 @@ public class Vector3 implements Cloneable {
      * @param world The world to link the location to
      * @return the location
      */
-    public @NotNull Location toLocation(@NotNull World world) {
+    public Location toLocation(World world) {
         return new Location(x, y, z, world);
     }
 
@@ -388,7 +387,7 @@ public class Vector3 implements Cloneable {
      * @param pitch The desired pitch
      * @return the location
      */
-    public @NotNull Location toLocation(@NotNull World world, float yaw, float pitch) {
+    public Location toLocation(World world, float yaw, float pitch) {
         return Location.of(x, y, z, yaw, pitch, world);
     }
 
@@ -397,7 +396,7 @@ public class Vector3 implements Cloneable {
      * and 1
      * @return A random vector
      */
-    public static @NotNull Vector3 getRandom() {
+    public static Vector3 getRandom() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         return new Vector3(random.nextDouble(), random.nextDouble(), random.nextDouble());
     }

@@ -1,6 +1,5 @@
 package org.machinemc.api.chat;
 
-import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
@@ -8,15 +7,13 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
 /**
  * Utils for chat operations.
  */
-@UtilityClass
-public class ChatUtils {
+public final class ChatUtils {
 
     private static final LegacyComponentSerializer legacyComponentSerializer = LegacyComponentSerializer.builder().build();
     public static final char COLOR_CHAR = 167; // §
@@ -27,12 +24,16 @@ public class ChatUtils {
 
     public static final String DEFAULT_CHAT_FORMAT = "<%name%> %message%";
 
+    private ChatUtils() {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Translates the '&' color symbol to Minecraft's color symbol
      * @param string string to translate colors for
      * @return string with translated color codes
      */
-    public static @NotNull String colored(@NotNull String string) {
+    public static String colored(String string) {
         return AMP_COLOR_CODE_PATTERN.matcher(string).replaceAll(COLOR_CHAR + "$1");
     }
 
@@ -41,7 +42,7 @@ public class ChatUtils {
      * @param string serialized chat component to deserialize
      * @return chat component from given string
      */
-    public static @NotNull TextComponent stringToComponent(@NotNull String string) {
+    public static TextComponent stringToComponent(String string) {
         return legacyComponentSerializer.deserialize(string);
     }
 
@@ -50,7 +51,7 @@ public class ChatUtils {
      * @param component component to serialize
      * @return serialized component
      */
-    public static @NotNull String componentToString(@NotNull Component component) {
+    public static String componentToString(Component component) {
         return legacyComponentSerializer.serialize(component);
     }
 
@@ -60,7 +61,7 @@ public class ChatUtils {
      * @param string string to format
      * @return formatted string for console
      */
-    public static @NotNull String consoleFormatted(@NotNull String string) {
+    public static String consoleFormatted(String string) {
         return COLOR_CODE_PATTERN.matcher(colored(string)).replaceAll(matchResult -> {
             final ChatColor color = ChatColor.byChar(matchResult.group(1));
             if (color == null || color.consoleCode < 0)
@@ -74,12 +75,12 @@ public class ChatUtils {
      * @param component component to format
      * @return formatted component as string for console
      */
-    public static @NotNull String consoleFormatted(@NotNull Component component) {
+    public static String consoleFormatted(Component component) {
         return appendComponent(new StringBuilder(), component).toString();
     }
 
     @Contract("_, _ -> param1")
-    private static @NotNull StringBuilder appendComponent(@NotNull StringBuilder builder, @NotNull Component component) {
+    private static StringBuilder appendComponent(StringBuilder builder, Component component) {
         if(component instanceof TextComponent textComponent) {
             builder.append(CONSOLE_COLOR_CHAR + "[").append(ChatColor.RESET.consoleCode).append("m");
             final Style style = textComponent.style();
@@ -110,7 +111,7 @@ public class ChatUtils {
      * @param color color to convert
      * @return color converted to ascii color format
      */
-    public static @NotNull String asciiColor(@NotNull TextColor color) {
+    public static String asciiColor(TextColor color) {
         return "\u001B[38;2;" + color.red() + ";" + color.green() + ";" + color.blue() + "m";
     }
 

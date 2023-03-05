@@ -3,7 +3,6 @@ package org.machinemc.api.entities;
 import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -21,7 +20,7 @@ public interface EntityManager {
      * @param entityType entity type of the entities
      * @return entities of the given type
      */
-    @Unmodifiable @NotNull Set<Entity> getEntitiesOfType(@NotNull EntityType entityType);
+    @Unmodifiable Set<Entity> getEntitiesOfType(EntityType entityType);
 
     /**
      * Returns set of entities of certain entity type in given world.
@@ -29,7 +28,7 @@ public interface EntityManager {
      * @param world world to search in
      * @return entities of the given type in given world
      */
-    @Unmodifiable @NotNull Set<Entity> getEntitiesOfType(@NotNull EntityType entityType, @NotNull World world);
+    @Unmodifiable Set<Entity> getEntitiesOfType(EntityType entityType, World world);
 
     /**
      * Returns set of entities of certain class.
@@ -37,7 +36,7 @@ public interface EntityManager {
      * @param <E> entity class
      * @return entities of the given class
      */
-    <E extends Entity> @Unmodifiable @NotNull Set<E> getEntitiesOfClass(@NotNull Class<E> entityClass);
+    <E extends Entity> @Unmodifiable Set<E> getEntitiesOfClass(Class<E> entityClass);
 
     /**
      * Returns set of entities of certain class in given world.
@@ -46,32 +45,32 @@ public interface EntityManager {
      * @param <E> entity class
      * @return entities of the given class in given world
      */
-    <E extends Entity> @Unmodifiable @NotNull Set<E> getEntitiesOfClass(@NotNull Class<E> entityClass, @NotNull World world);
+    <E extends Entity> @Unmodifiable Set<E> getEntitiesOfClass(Class<E> entityClass, World world);
 
     /**
      * @return all entities managed by this manager
      */
-    @Unmodifiable @NotNull Set<Entity> getEntities();
+    @Unmodifiable Set<Entity> getEntities();
 
     /**
      * Returns entities managed by this manager in given world.
      * @param world world to search in
      * @return all entities in given world
      */
-    @Unmodifiable @NotNull Set<Entity> getEntities(@NotNull World world);
+    @Unmodifiable Set<Entity> getEntities(World world);
 
     /**
      * @param predicate predicate function
      * @return entities managed by this manager where the test was successful
      */
-    @Unmodifiable @NotNull Set<Entity> getEntities(@NotNull Predicate<Entity> predicate);
+    @Unmodifiable Set<Entity> getEntities(Predicate<Entity> predicate);
 
     /**
      * Searches for entity with given uuid.
      * @param uuid uuid of the entity
      * @return entity with given uuid
      */
-    @Nullable Entity getEntity(@NotNull UUID uuid);
+    @Nullable Entity getEntity(UUID uuid);
 
     /**
      * Adds entity into the manager.
@@ -79,7 +78,7 @@ public interface EntityManager {
      * @param entity entity to add
      */
     @ApiStatus.Internal
-    void addEntity(@NotNull Entity entity);
+    void addEntity(Entity entity);
 
     /**
      * Removes an entity from the manager.
@@ -87,6 +86,6 @@ public interface EntityManager {
      * @param entity entity to remove
      */
     @ApiStatus.Internal
-    void removeEntity(@NotNull Entity entity);
+    void removeEntity(Entity entity);
 
 }

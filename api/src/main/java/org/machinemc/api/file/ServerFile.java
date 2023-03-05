@@ -1,7 +1,5 @@
 package org.machinemc.api.file;
 
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
@@ -14,7 +12,7 @@ public interface ServerFile {
     /**
      * @return name of the file
      */
-    @NotNull @NonNls String getName();
+    String getName();
 
     /**
      * @return stream of the file from the resources if

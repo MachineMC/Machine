@@ -2,7 +2,6 @@ package org.machinemc.api.file;
 
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.nbt.NBTCompound;
 
@@ -18,19 +17,19 @@ public interface PlayerDataContainer extends ServerProperty {
      * @param uuid uuid of the player
      * @return if data file for the player exists
      */
-    boolean exist(@NotNull UUID uuid);
+    boolean exist(UUID uuid);
 
     /**
      * Returns data of a player as nbt compound.
      * @param uuid uuid of the player
      * @return player's data
      */
-    @Nullable NBTCompound getPlayerData(@NotNull UUID uuid);
+    @Nullable NBTCompound getPlayerData(UUID uuid);
 
     /**
      * Saves data of a player.
      * @param player player to save data for
      */
-    void savePlayerData(@NotNull Player player);
+    void savePlayerData(Player player);
 
 }

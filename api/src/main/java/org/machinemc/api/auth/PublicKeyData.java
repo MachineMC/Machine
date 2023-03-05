@@ -2,7 +2,6 @@ package org.machinemc.api.auth;
 
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
-import org.jetbrains.annotations.NotNull;
 
 import java.security.PublicKey;
 import java.time.Instant;
@@ -15,19 +14,19 @@ public interface PublicKeyData extends Writable {
     /**
      * @return public key the client received from Mojang
      */
-    @NotNull PublicKey publicKey();
+    PublicKey publicKey();
 
     /**
      * @return bytes of the public key signature the client received from Mojang
      */
-    byte @NotNull [] signature();
+    byte[] signature();
 
     /**
      * @return when the key data will expire
      */
-    @NotNull Instant timestamp();
+    Instant timestamp();
 
-    default void write(@NotNull ServerBuffer buf) {
+    default void write(ServerBuffer buf) {
         buf.writePublicKey(this);
     }
 

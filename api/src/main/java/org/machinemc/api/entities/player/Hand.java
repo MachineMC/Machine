@@ -1,7 +1,6 @@
 package org.machinemc.api.entities.player;
 
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -25,7 +24,7 @@ public enum Hand {
      * @param id id of the hand
      * @return hand for given id
      */
-    public static @NotNull Hand fromID(@Range(from = 0, to = 1) int id) {
+    public static Hand fromID(@Range(from = 0, to = 1) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported Hand type");
         return values()[id];
     }
@@ -36,7 +35,7 @@ public enum Hand {
      * @param name name of the hand
      * @return hand with given name
      */
-    public static @Nullable Hand getByName(@NotNull String name) {
+    public static @Nullable Hand getByName(String name) {
         for (Hand value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }

@@ -2,7 +2,6 @@ package org.machinemc.api.chunk;
 
 import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.Writable;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a 16 blocks tall section of a chunk.
@@ -12,22 +11,22 @@ public interface Section extends Writable, Cloneable {
     /**
      * @return block palette used by this section
      */
-    @NotNull Palette getBlockPalette();
+    Palette getBlockPalette();
 
     /**
      * @return biome palette used by this section
      */
-    @NotNull Palette getBiomePalette();
+    Palette getBiomePalette();
 
     /**
      * @return sky light data of this section
      */
-    byte @NotNull [] getSkyLight();
+    byte[] getSkyLight();
 
     /**
      * @return block light data of this section
      */
-    byte @NotNull [] getBlockLight();
+    byte[] getBlockLight();
 
     /**
      * Clears the section.

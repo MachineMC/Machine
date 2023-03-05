@@ -15,7 +15,7 @@ public interface ServerConnection extends ServerProperty, AutoCloseable {
     /**
      * @return server's ip
      */
-    @NotNull @NonNls String getIp();
+    String getIp();
 
     /**
      * @return server's port
@@ -25,7 +25,7 @@ public interface ServerConnection extends ServerProperty, AutoCloseable {
     /**
      * @return all player connections connected to the server
      */
-    @Unmodifiable @NotNull Set<PlayerConnection> getClients();
+    @Unmodifiable Set<PlayerConnection> getClients();
 
     /**
      * Starts accepting client connections.
@@ -43,12 +43,12 @@ public interface ServerConnection extends ServerProperty, AutoCloseable {
      * @param packet packet to send
      * @throws IOException if an I/O error occurs during writing the bytes
      */
-    void broadcastPacket(@NotNull Packet packet) throws IOException;
+    void broadcastPacket(Packet packet) throws IOException;
 
     /**
      * Disconnects a player connection from the server.
      * @param connection connection to disconnect
      */
-    void disconnect(@NotNull PlayerConnection connection);
+    void disconnect(PlayerConnection connection);
 
 }

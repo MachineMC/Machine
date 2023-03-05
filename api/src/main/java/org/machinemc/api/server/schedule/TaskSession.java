@@ -2,9 +2,7 @@ package org.machinemc.api.server.schedule;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -20,12 +18,12 @@ public class TaskSession {
     private Scheduler scheduler;
     private boolean running = false;
 
-    private final @NotNull TaskRunnable<?> runnable;
-    protected @NotNull Execution execution = Execution.SYNC;
+    private final TaskRunnable<?> runnable;
+    protected Execution execution = Execution.SYNC;
     protected boolean repeating = false;
-    protected @Range(from = 0, to = Long.MAX_VALUE) long delay = 0;
-    protected @Range(from = 0, to = Long.MAX_VALUE) long period = 1000;
-    protected @NotNull TimeUnit unit = TimeUnit.MILLISECONDS;
+    protected long delay = 0;
+    protected long period = 1000;
+    protected TimeUnit unit = TimeUnit.MILLISECONDS;
 
     protected @Nullable TaskSession previous;
     protected @Nullable TaskSession future;
@@ -41,7 +39,7 @@ public class TaskSession {
      * Runs the task.
      * @param scheduler scheduler to run the task on
      */
-    protected void run(@NotNull Scheduler scheduler) {
+    protected void run(Scheduler scheduler) {
         if(running)
             throw new IllegalStateException("You can't run the same task twice");
         running = true;

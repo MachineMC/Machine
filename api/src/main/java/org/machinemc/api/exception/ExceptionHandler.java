@@ -1,7 +1,6 @@
 package org.machinemc.api.exception;
 
 import org.machinemc.api.server.ServerProperty;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface ExceptionHandler extends ServerProperty {
@@ -11,7 +10,7 @@ public interface ExceptionHandler extends ServerProperty {
      * @param throwable throwable thrown by server that
      *                  should be handled
      */
-    void handle(@NotNull Throwable throwable);
+    void handle(Throwable throwable);
 
     /**
      * Handles a throwable thrown by server.
@@ -19,6 +18,6 @@ public interface ExceptionHandler extends ServerProperty {
      *                  should be handled
      * @param reason reason why the throwable was thrown
      */
-    void handle(@NotNull Throwable throwable, @Nullable String reason);
+    void handle(Throwable throwable, @Nullable String reason);
 
 }

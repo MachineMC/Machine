@@ -2,7 +2,6 @@ package org.machinemc.api.world;
 
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -18,14 +17,14 @@ public interface WorldManager extends ServerProperty {
      * in a different one.
      * @param world world to register
      */
-    void addWorld(@NotNull World world);
+    void addWorld(World world);
 
     /**
      * Removes the world from the manager if it's registered in this manager.
      * @param world world to remove
      * @return if the world was successfully removed
      */
-    boolean removeWorld(@NotNull World world);
+    boolean removeWorld(World world);
 
     /**
      * Checks if world with given name is registered in
@@ -33,14 +32,14 @@ public interface WorldManager extends ServerProperty {
      * @param name name of the world
      * @return if the world with given name is registered in this manager
      */
-    boolean isRegistered(@NotNull NamespacedKey name);
+    boolean isRegistered(NamespacedKey name);
 
     /**
      * Checks if the world is registered in this manager.
      * @param world world to check
      * @return if the world is registered in this manager
      */
-    default boolean isRegistered(@NotNull World world) {
+    default boolean isRegistered(World world) {
         return this.equals(world.getManager()) && isRegistered(world.getName());
     }
 
@@ -49,11 +48,11 @@ public interface WorldManager extends ServerProperty {
      * @param name name of the world
      * @return world with given name in this manager
      */
-    @Nullable World getWorld(@NotNull NamespacedKey name);
+    @Nullable World getWorld(NamespacedKey name);
 
     /**
      * @return unmodifiable set of all worlds registered in this manager
      */
-    @Unmodifiable @NotNull Set<World> getWorlds();
+    @Unmodifiable Set<World> getWorlds();
 
 }

@@ -5,7 +5,6 @@ import org.machinemc.server.Server;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.world.Material;
 
@@ -22,7 +21,7 @@ public interface Item extends Writable, Cloneable {
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      * @throws IllegalStateException if the material can't have item form
      */
-    static @NotNull Item of(@NotNull Material material, byte amount) {
+    static Item of(Material material, byte amount) {
         return Server.createItem(material, amount);
     }
 
@@ -34,7 +33,7 @@ public interface Item extends Writable, Cloneable {
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      * @throws IllegalStateException if the material can't have item form
      */
-    static @NotNull Item of(@NotNull Material material, @Range(from = Byte.MIN_VALUE, to = Byte.MAX_VALUE) int amount) {
+    static Item of(Material material, @Range(from = Byte.MIN_VALUE, to = Byte.MAX_VALUE) int amount) {
         return of(material, (byte) amount);
     }
 
@@ -46,7 +45,7 @@ public interface Item extends Writable, Cloneable {
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      * @throws IllegalStateException if the material can't have item form
      */
-    static @NotNull Item of(@NotNull Material material) {
+    static Item of(Material material) {
         return Server.createItem(material);
     }
 
@@ -54,12 +53,12 @@ public interface Item extends Writable, Cloneable {
      * @return material of the item
      */
     @Contract(pure = true)
-    @NotNull Material getMaterial();
+    Material getMaterial();
 
     /**
      * @param material new material
      */
-    void setMaterial(@NotNull Material material);
+    void setMaterial(Material material);
 
     /**
      * Creates copy of this item with new material
@@ -67,7 +66,7 @@ public interface Item extends Writable, Cloneable {
      * @return new item
      */
     @Contract(pure = true)
-    @NotNull Item withMaterial(@NotNull Material material);
+    Item withMaterial(Material material);
 
     /**
      * @return amount of the item
@@ -85,17 +84,17 @@ public interface Item extends Writable, Cloneable {
      * @return new item
      */
     @Contract(pure = true)
-    @NotNull Item withAmount(byte amount);
+    Item withAmount(byte amount);
 
     /**
      * @return NBT Compound of the item
      */
-    @NotNull NBTCompound getNbtCompound();
+    NBTCompound getNbtCompound();
 
     /**
      * @param compound new nbt compound of the item
      */
-    void setNbtCompound(@NotNull NBTCompound compound);
+    void setNbtCompound(NBTCompound compound);
 
     /**
      * Creates copy of this item with new nbt compound
@@ -103,18 +102,18 @@ public interface Item extends Writable, Cloneable {
      * @return new item
      */
     @Contract(pure = true)
-    @NotNull Item withNbtCompound(NBTCompound compound);
+    Item withNbtCompound(NBTCompound compound);
 
     /**
      * @return material of the item
      */
     @Contract(pure = true)
-    @NotNull Material getType();
+    Material getType();
 
     /**
      * @param material new material
      */
-    void setType(@NotNull Material material);
+    void setType(Material material);
 
     /**
      * Creates copy of this item with new material
@@ -122,7 +121,7 @@ public interface Item extends Writable, Cloneable {
      * @return new item
      */
     @Contract(pure = true)
-    @NotNull Item withType(Material type);
+    Item withType(Material type);
 
     /**
      * Clears the NBT Compound of the item.
@@ -159,9 +158,9 @@ public interface Item extends Writable, Cloneable {
      * @return copy of this item with amount of 1
      */
     @Contract(pure = true)
-    @NotNull Item single();
+    Item single();
 
-    default void write(@NotNull ServerBuffer buf) {
+    default void write(ServerBuffer buf) {
         buf.writeSlot(this);
     }
 

@@ -1,11 +1,12 @@
 package org.machinemc.api.entities;
 
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.entities.player.Hand;
 import org.machinemc.api.entities.player.PlayerProfile;
 import org.machinemc.api.entities.player.SkinPart;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.*;
 
 import java.util.Set;
 
@@ -17,40 +18,40 @@ public interface HumanEntity extends LivingEntity {
     /**
      * @return profile of the human
      */
-    @NotNull PlayerProfile getProfile();
+    PlayerProfile getProfile();
 
     /**
      * @return username of the profile of the human
      */
-    default @NonNls @NotNull String getUsername() {
+    default String getUsername() {
         return getProfile().getUsername();
     }
 
     /**
      * @return gamemode of the human
      */
-    @NotNull Gamemode getGamemode();
+    Gamemode getGamemode();
 
     /**
      * Changes gamemode of the human.
      * @param gamemode new gamemode
      */
-    void setGamemode(@NotNull Gamemode gamemode);
+    void setGamemode(Gamemode gamemode);
 
     /**
      * @return unmodifiable set of enabled skin parts of the human's skin
      */
-    @Unmodifiable @NotNull Set<SkinPart> getDisplayedSkinParts();
+    @Unmodifiable Set<SkinPart> getDisplayedSkinParts();
 
     /**
      * @return main hand of the human
      */
-    @NotNull Hand getMainHand();
+    Hand getMainHand();
 
     /**
      * @return display name of the human
      */
-    @NotNull Component getDisplayName();
+    Component getDisplayName();
 
     /**
      * Changes the display name of the human.
@@ -61,7 +62,7 @@ public interface HumanEntity extends LivingEntity {
     /**
      * @return name of the human in the player list
      */
-    @NotNull Component getPlayerListName();
+    Component getPlayerListName();
 
     /**
      * Changes the player list name of the human.

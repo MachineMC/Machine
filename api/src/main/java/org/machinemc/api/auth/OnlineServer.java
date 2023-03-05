@@ -1,7 +1,6 @@
 package org.machinemc.api.auth;
 
 import org.machinemc.api.server.ServerProperty;
-import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.SecretKey;
 import java.security.KeyPair;
@@ -16,12 +15,12 @@ public interface OnlineServer extends ServerProperty {
     /**
      * @return server's key
      */
-    @NotNull KeyPair getKey();
+    KeyPair getKey();
 
     /**
      * @return sequence of random 4 bytes used for verification
      */
-    default byte @NotNull [] nextVerifyToken() {
+    default byte[] nextVerifyToken() {
         return Crypt.nextVerifyToken();
     }
 
@@ -31,7 +30,7 @@ public interface OnlineServer extends ServerProperty {
      * @param keyBytes encrypted secret key
      * @return secret key
      */
-    default @NotNull SecretKey getSecretKey(@NotNull PrivateKey privateKey, byte @NotNull [] keyBytes) {
+    default SecretKey getSecretKey(PrivateKey privateKey, byte[] keyBytes) {
         return Crypt.decryptByteToSecretKey(privateKey, keyBytes);
     }
 
@@ -42,7 +41,7 @@ public interface OnlineServer extends ServerProperty {
      * @param secretKey secret key shared between server and client
      * @return digested data
      */
-    default byte @NotNull [] digestData(@NotNull String baseServerId, @NotNull PublicKey publicKey, @NotNull SecretKey secretKey) {
+    default byte[] digestData(String baseServerId, PublicKey publicKey, SecretKey secretKey) {
         return Crypt.digestData(baseServerId, publicKey, secretKey);
     }
 

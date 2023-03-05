@@ -7,7 +7,6 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
 import org.machinemc.api.utils.math.Vector3;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the location in the world
@@ -19,7 +18,7 @@ public class Location implements Cloneable, Writable {
 
     private double x, y, z;
     private float yaw, pitch;
-    private @NotNull World world;
+    private World world;
 
     /**
      * Creates new location.
@@ -30,7 +29,7 @@ public class Location implements Cloneable, Writable {
      * @return new location
      */
     @Contract("_, _, _, _ -> new")
-    public static @NotNull Location of(double x, double y, double z, @NotNull World world) {
+    public static Location of(double x, double y, double z, World world) {
         return new Location(x, y, z, world);
     }
 
@@ -41,7 +40,7 @@ public class Location implements Cloneable, Writable {
      * @return new location
      */
     @Contract("_, _ -> new")
-    public static @NotNull Location of(BlockPosition blockPosition, @NotNull World world) {
+    public static Location of(BlockPosition blockPosition, World world) {
         return new Location(blockPosition, world);
     }
 
@@ -52,7 +51,7 @@ public class Location implements Cloneable, Writable {
      * @return decoded location
      */
     @Contract("_, _ -> new")
-    public static @NotNull Location from(@NotNull ServerBuffer buf, @NotNull World world) {
+    public static Location from(ServerBuffer buf, World world) {
         return new Location(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readAngle(), buf.readAngle(), world);
     }
 
@@ -63,7 +62,7 @@ public class Location implements Cloneable, Writable {
      * @param z z-coordinate of the location
      * @param world world of the location
      */
-    public Location(double x, double y, double z, @NotNull World world) {
+    public Location(double x, double y, double z, World world) {
         this(x, y, z, 0, 0, world);
     }
 
@@ -72,7 +71,7 @@ public class Location implements Cloneable, Writable {
      * @param blockPosition block position of the location
      * @param world world of the location
      */
-    public Location(@NotNull BlockPosition blockPosition, @NotNull World world) {
+    public Location(BlockPosition blockPosition, World world) {
         this(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), world);
     }
 
@@ -81,7 +80,7 @@ public class Location implements Cloneable, Writable {
      * facing.
      * @return a vector pointing the direction of this location's {@link Location#getPitch()} and {@link Location#getYaw()}
      */
-    public @NotNull Vector3 getDirection() {
+    public Vector3 getDirection() {
         final Vector3 vector = new Vector3();
         final double rotX = this.getYaw();
         final double rotY = this.getPitch();
@@ -101,7 +100,7 @@ public class Location implements Cloneable, Writable {
      * @return the same location
      */
     @Contract("_ -> this")
-    public @NotNull Location setDirection(@NotNull Vector3 vector) {
+    public Location setDirection(Vector3 vector) {
         final double PII = 2 * Math.PI;
         final double x = vector.getX();
         final double z = vector.getZ();
@@ -128,7 +127,7 @@ public class Location implements Cloneable, Writable {
      * @return this.
      */
      @Contract("_ -> this")
-    public @NotNull Location offset(@NotNull Vector3 vector) {
+    public Location offset(Vector3 vector) {
         x += vector.getX();
         y += vector.getY();
         z += vector.getZ();
@@ -162,7 +161,7 @@ public class Location implements Cloneable, Writable {
      * @return block position of this location
      */
     @Contract(pure = true)
-    public @NotNull BlockPosition toBlockPosition() {
+    public BlockPosition toBlockPosition() {
         return new BlockPosition(getBlockX(), getBlockY(), getBlockZ());
     }
 
@@ -170,7 +169,7 @@ public class Location implements Cloneable, Writable {
      * Writes the coordinates of the location to the buffer.
      * @param buf buffer to write into
      */
-    public void writePos(@NotNull ServerBuffer buf) {
+    public void writePos(ServerBuffer buf) {
         buf.writeDouble(x).writeDouble(y).writeDouble(z);
     }
 
@@ -178,7 +177,7 @@ public class Location implements Cloneable, Writable {
      * Writes the rotation of the location to the buffer.
      * @param buf buffer to write into
      */
-    public void writeRot(@NotNull ServerBuffer buf) {
+    public void writeRot(ServerBuffer buf) {
         buf.writeAngle(yaw).writeAngle(pitch);
     }
 
@@ -187,7 +186,7 @@ public class Location implements Cloneable, Writable {
      * @param buf buffer to write into
      */
     @Override
-    public void write(@NotNull ServerBuffer buf) {
+    public void write(ServerBuffer buf) {
         writePos(buf);
         writeRot(buf);
     }

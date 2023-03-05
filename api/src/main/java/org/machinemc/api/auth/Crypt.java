@@ -1,8 +1,6 @@
 package org.machinemc.api.auth;
 
-import lombok.experimental.UtilityClass;
 import org.intellij.lang.annotations.MagicConstant;
-import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
@@ -16,8 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Utility class handling cryptography part of
  * Minecraft's auth system.
  */
-@UtilityClass
-public class Crypt {
+public final class Crypt {
 
     public static final String ASYMMETRIC_ALGORITHM = "RSA";
     public static final int ASYMMETRIC_BITS = 1024;
@@ -29,11 +26,15 @@ public class Crypt {
 
     public static final String ENCRYPTION = "AES/CFB8/NoPadding";
 
+    private Crypt() {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Generates new key for the server.
      * @return newly generated key
      */
-    public static @NotNull KeyPair generateKeyPair() {
+    public static KeyPair generateKeyPair() {
         try {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ASYMMETRIC_ALGORITHM);
             keyPairGenerator.initialize(ASYMMETRIC_BITS);
@@ -46,7 +47,7 @@ public class Crypt {
     /**
      * @return sequence of random 4 bytes used for verification
      */
-    public static byte @NotNull [] nextVerifyToken() {
+    public static byte[] nextVerifyToken() {
         byte[] verifyToken = new byte[4];
         ThreadLocalRandom.current().nextBytes(verifyToken);
         return verifyToken;
@@ -58,7 +59,7 @@ public class Crypt {
      * @param encryptedSecretKey encrypted secret key
      * @return secret key
      */
-    public static @NotNull SecretKey decryptByteToSecretKey(@NotNull PrivateKey privateKey, byte @NotNull [] encryptedSecretKey) {
+    public static SecretKey decryptByteToSecretKey(PrivateKey privateKey, byte[] encryptedSecretKey) {
         try {
             Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
@@ -75,7 +76,7 @@ public class Crypt {
      * @param secretKey secret key shared between server and client
      * @return digested data
      */
-    public static byte @NotNull [] digestData(@NotNull String baseServerId, @NotNull PublicKey publicKey, @NotNull SecretKey secretKey) {
+    public static byte[] digestData(String baseServerId, PublicKey publicKey, SecretKey secretKey) {
         try {
             return digestData(baseServerId.getBytes(BYTE_ENCODING), secretKey.getEncoded(), publicKey.getEncoded());
         } catch (Exception exception) {
@@ -88,7 +89,7 @@ public class Crypt {
      * @param bytes encoded key
      * @return public key
      */
-    public static @NotNull PublicKey pubicKeyFrom(byte @NotNull [] bytes) {
+    public static PublicKey pubicKeyFrom(byte[] bytes) {
         X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(ASYMMETRIC_ALGORITHM);
@@ -106,7 +107,7 @@ public class Crypt {
      * @param key server's secret key
      * @return created cipher
      */
-    public static @NotNull Cipher getCipher(@MagicConstant(intValues = {Cipher.ENCRYPT_MODE, Cipher.DECRYPT_MODE, Cipher.WRAP_MODE, Cipher.UNWRAP_MODE}) int mode, @NotNull Key key) {
+    public static Cipher getCipher(@MagicConstant(intValues = {Cipher.ENCRYPT_MODE, Cipher.DECRYPT_MODE, Cipher.WRAP_MODE, Cipher.UNWRAP_MODE}) int mode, Key key) {
         try {
             Cipher cipher = Cipher.getInstance(ENCRYPTION);
             cipher.init(mode, key, new IvParameterSpec(key.getEncoded()));
@@ -116,7 +117,7 @@ public class Crypt {
         }
     }
 
-    private static byte @NotNull [] digestData(byte @NotNull []... bytes) {
+    private static byte[] digestData(byte[]... bytes) {
         MessageDigest messageDigest;
         try {
             messageDigest = MessageDigest.getInstance(HASH_ALGORITHM);

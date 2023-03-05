@@ -3,7 +3,6 @@ package org.machinemc.api.entities;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -17,8 +16,8 @@ public enum EntityType {
     private final int id;
     private final double width;
     private final double height;
-    private final @NotNull NamespacedKey identifier;
-    private final @NotNull String typeName;
+    private final NamespacedKey identifier;
+    private final String typeName;
 
     EntityType(int id, double width, double height, String name) {
         this.id = id;
@@ -33,7 +32,7 @@ public enum EntityType {
      * @param id id of the entity type
      * @return entity type for given id
      */
-    public static @NotNull EntityType fromID(int id) {
+    public static EntityType fromID(int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported Entity type");
         return values()[id];
     }
@@ -43,7 +42,7 @@ public enum EntityType {
      * @param name name of the entity type
      * @return entity type with given name
      */
-    public static @Nullable EntityType getByName(@NotNull String name) {
+    public static @Nullable EntityType getByName(String name) {
         for (EntityType value : values()) {
             if (value.name().equalsIgnoreCase(name) ||
                     value.identifier.getKey().equalsIgnoreCase(name) ||

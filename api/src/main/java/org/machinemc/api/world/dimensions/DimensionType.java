@@ -3,7 +3,6 @@ package org.machinemc.api.world.dimensions;
 import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.utils.NamespacedKey;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -19,7 +18,7 @@ public interface DimensionType extends NBTSerializable {
      * @return atomic reference of the manager
      */
     @ApiStatus.Internal
-    @NotNull AtomicReference<DimensionTypeManager> getManagerReference();
+    AtomicReference<DimensionTypeManager> getManagerReference();
 
     /**
      * @return manager of the dimension
@@ -32,7 +31,7 @@ public interface DimensionType extends NBTSerializable {
      * @return atomic reference of the id
      */
     @ApiStatus.Internal
-    @NotNull AtomicInteger getIdReference();
+    AtomicInteger getIdReference();
 
     /**
      * @return id of the dimension
@@ -45,7 +44,7 @@ public interface DimensionType extends NBTSerializable {
     /**
      * @return name of the dimension
      */
-    @NotNull NamespacedKey getName();
+    NamespacedKey getName();
 
     /**
      * @return if the dimension is natural
@@ -95,7 +94,7 @@ public interface DimensionType extends NBTSerializable {
     /**
      * @return effects of the dimension
      */
-    @NotNull NamespacedKey getEffects();
+    NamespacedKey getEffects();
 
     /**
      * @return if the dimension is piglin safe
@@ -125,7 +124,7 @@ public interface DimensionType extends NBTSerializable {
     /**
      * @return infiniburn id of the dimension
      */
-    @NotNull NamespacedKey getInfiniburn();
+    NamespacedKey getInfiniburn();
 
     /**
      * @return monster spawn block light limit of the dimension

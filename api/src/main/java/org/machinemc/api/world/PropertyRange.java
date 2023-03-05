@@ -1,7 +1,5 @@
 package org.machinemc.api.world;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -19,6 +17,6 @@ public @interface PropertyRange {
     /**
      * @return available states of property for this block data
      */
-    String @NotNull [] available() default {};
+    String[] available() default {};
 
 }

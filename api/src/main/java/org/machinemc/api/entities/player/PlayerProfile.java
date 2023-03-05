@@ -1,7 +1,5 @@
 package org.machinemc.api.entities.player;
 
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -15,12 +13,12 @@ public interface PlayerProfile {
     /**
      * @return player's username
      */
-    @NotNull @NonNls String getUsername();
+    String getUsername();
 
     /**
      * @return player's uuid
      */
-    @NotNull UUID getUuid();
+    UUID getUuid();
 
     /**
      * @return player's skin textures

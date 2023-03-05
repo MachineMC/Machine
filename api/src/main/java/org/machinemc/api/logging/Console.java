@@ -8,7 +8,6 @@ import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Async;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -23,13 +22,13 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      * @param level logging level of the message
      * @param messages messages to send
      */
-    void log(@NotNull Level level, String @NotNull ... messages);
+    void log(Level level, String... messages);
 
     /**
      * Sends multiple messages at INFO logging level
      * @param messages messages to send
      */
-    default void info(String @NotNull ... messages) {
+    default void info(String... messages) {
         log(Level.INFO, messages);
     }
 
@@ -37,7 +36,7 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      * Sends multiple objects at INFO logging level
      * @param objects objects to send
      */
-    default void info(Object @NotNull ... objects) {
+    default void info(Object... objects) {
         info(Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
     }
 
@@ -45,7 +44,7 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      * Sends multiple messages at WARNING logging level
      * @param messages messages to send
      */
-    default void warning(String @NotNull ... messages) {
+    default void warning(String... messages) {
         log(Level.WARNING, messages);
     }
 
@@ -53,7 +52,7 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      * Sends multiple objects at WARNING logging level
      * @param objects objects to send
      */
-    default void warning(Object @NotNull ... objects) {
+    default void warning(Object... objects) {
         warning(Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
     }
 
@@ -61,7 +60,7 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      * Sends multiple messages at SEVERE logging level
      * @param messages messages to send
      */
-    default void severe(String @NotNull ... messages) {
+    default void severe(String... messages) {
         log(Level.SEVERE, messages);
     }
 
@@ -69,7 +68,7 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      * Sends multiple objects at SEVERE logging level
      * @param objects objects to send
      */
-    default void severe(Object @NotNull ... objects) {
+    default void severe(Object... objects) {
         severe(Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
     }
 
@@ -77,7 +76,7 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      * Sends multiple messages at CONFIG logging level
      * @param messages messages to send
      */
-    default void config(String @NotNull ... messages) {
+    default void config(String... messages) {
         log(Level.CONFIG, messages);
     }
 
@@ -85,7 +84,7 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      * Sends multiple objects at CONFIG logging level
      * @param objects objects to send
      */
-    default void config(Object @NotNull ... objects) {
+    default void config(Object... objects) {
         config(Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
     }
 
@@ -100,7 +99,7 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      */
     void stop();
 
-    default void sendMessage(final @NotNull Identity source, final @NotNull Component message, final @NotNull MessageType type) {
+    default void sendMessage(final Identity source, final Component message, final MessageType type) {
         info(ChatUtils.componentToString(message));
     }
 

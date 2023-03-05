@@ -1,7 +1,5 @@
 package org.machinemc.api.utils;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Represents objects that are serializable and can
  * be written to the server buffer.
@@ -15,7 +13,7 @@ public interface Writable {
      * @apiNote Classes that have own methods for writing in the buffer
      * shouldn't add own way of serialization, but rather call buffer's method.
      */
-    void write(@NotNull ServerBuffer buf);
+    void write(ServerBuffer buf);
 
     /**
      * Serializes the object using a buffer implementation.
@@ -23,7 +21,7 @@ public interface Writable {
      * @param write if the object should be written into the buffer
      * @return serialized object
      */
-    default byte @NotNull [] serialize(@NotNull ServerBuffer buf, boolean write) {
+    default byte[] serialize(ServerBuffer buf, boolean write) {
         final ServerBuffer target = write ? buf : buf.clone();
         final int reader = target.readerIndex();
         target.setReaderIndex(target.writerIndex());

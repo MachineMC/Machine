@@ -1,6 +1,5 @@
 package org.machinemc.api.world;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -17,7 +16,7 @@ public enum WorldType {
      * @param name name of the world type
      * @return world type with given name
      */
-    public static @Nullable WorldType getByName(@NotNull String name) {
+    public static @Nullable WorldType getByName(String name) {
         for (WorldType value : values()) {
             if (value.name().equalsIgnoreCase(name))
                 return value;

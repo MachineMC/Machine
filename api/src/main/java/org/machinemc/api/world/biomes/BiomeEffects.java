@@ -3,7 +3,6 @@ package org.machinemc.api.world.biomes;
 import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.particles.Particle;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -91,7 +90,7 @@ public interface BiomeEffects extends NBTSerializable {
         /**
          * @return name of the sound
          */
-        @NotNull NamespacedKey sound();
+        NamespacedKey sound();
 
         /**
          * @return the minimum delay in two plays

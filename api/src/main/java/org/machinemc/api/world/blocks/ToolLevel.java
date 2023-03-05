@@ -1,7 +1,6 @@
 package org.machinemc.api.world.blocks;
 
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.Material;
 
@@ -34,14 +33,14 @@ public enum ToolLevel {
 
     @Getter
     private final double speed;
-    private final Material @NotNull [] materials;
+    private final Material[] materials;
 
-    ToolLevel(double speed, Material @NotNull ... materials) {
+    ToolLevel(double speed, Material... materials) {
         this.speed = speed;
         this.materials = materials;
     }
 
-    public Material @NotNull [] getMaterials() {
+    public Material[] getMaterials() {
         return materials.clone();
     }
 
@@ -50,7 +49,7 @@ public enum ToolLevel {
      * @param material material to check for
      * @return tool level of given material
      */
-    public static @Nullable ToolLevel fromMaterial(@NotNull Material material) {
+    public static @Nullable ToolLevel fromMaterial(Material material) {
         for(ToolLevel level : values()) {
             for(Material tool : level.materials) {
                 if(material == tool) return level;
@@ -76,7 +75,7 @@ public enum ToolLevel {
      * @param material material to check for
      * @return mining speed of the material as shears
      */
-    public static double shearsSpeed(@NotNull Material material) {
+    public static double shearsSpeed(Material material) {
         return switch (material) {
             case VINE, GLOW_LICHEN -> 1;
             case WHITE_WOOL, ORANGE_WOOL, MAGENTA_WOOL,
@@ -99,7 +98,7 @@ public enum ToolLevel {
      * @param material material to check for
      * @return mining speed of the material as sword
      */
-    public static double swordSpeed(@NotNull Material material) {
+    public static double swordSpeed(Material material) {
         return material == Material.COBWEB ? 15 : 1.5;
     }
 

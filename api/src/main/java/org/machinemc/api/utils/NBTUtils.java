@@ -1,9 +1,6 @@
 package org.machinemc.api.utils;
 
-import lombok.Synchronized;
-import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTList;
 
@@ -13,8 +10,11 @@ import java.io.IOException;
 /**
  * Utility class for NBT-related operations.
  */
-@UtilityClass
-public class NBTUtils {
+public final class NBTUtils {
+
+    private NBTUtils() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Creates an NBT list from objects.
@@ -23,7 +23,7 @@ public class NBTUtils {
      * @return NBT double list
      */
     @Contract("_ -> new")
-    public static @NotNull NBTList list(Object @NotNull ... objects) {
+    public static NBTList list(Object... objects) {
         return new NBTList(objects);
     }
 
@@ -32,8 +32,7 @@ public class NBTUtils {
      * @param file The file to serialize to
      * @param nbt The NBT to serialize
      */
-    @Synchronized
-    public static void serializeNBT(@NotNull File file, @NotNull NBTCompound nbt) {
+    public static void serializeNBT(File file, NBTCompound nbt) {
         try {
             if (!file.exists() && !file.createNewFile())
                 throw new IOException("Unable to create file at " + file.getAbsolutePath());
@@ -48,8 +47,7 @@ public class NBTUtils {
      * @param file The file to deserialize from
      * @return The NBT stored in the file
      */
-    @Synchronized
-    public static @NotNull NBTCompound deserializeNBTFile(@NotNull File file) {
+    public static NBTCompound deserializeNBTFile(File file) {
         try {
             NBTCompound compound = new NBTCompound();
             compound.read(file);

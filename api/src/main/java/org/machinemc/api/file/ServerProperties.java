@@ -5,8 +5,6 @@ import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.WorldType;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -17,7 +15,7 @@ public interface ServerProperties extends ServerFile, ServerProperty {
     /**
      * @return server ip defined in the server's properties
      */
-    @NotNull @NonNls String getServerIp();
+    String getServerIp();
 
     /**
      * @return server port defined in the server's properties
@@ -37,22 +35,22 @@ public interface ServerProperties extends ServerFile, ServerProperty {
     /**
      * @return server's motd defined in the server's properties
      */
-    @NotNull Component getMotd();
+    Component getMotd();
 
     /**
      * @return name of the default world defined in server's properties
      */
-    @NotNull NamespacedKey getDefaultWorld();
+    NamespacedKey getDefaultWorld();
 
     /**
      * @return default difficulty used by the server defined in server's properties
      */
-    @NotNull Difficulty getDefaultDifficulty();
+    Difficulty getDefaultDifficulty();
 
     /**
      * @return default world type used by the server defined in server's properties
      */
-    @NotNull WorldType getDefaultWorldType();
+    WorldType getDefaultWorldType();
 
     /**
      * @return reduced-debug-screen option in server properties
@@ -82,7 +80,7 @@ public interface ServerProperties extends ServerFile, ServerProperty {
     /**
      * @return server's brand defined in the server's properties
      */
-    @NotNull @NonNls String getServerBrand();
+    String getServerBrand();
 
     /**
      * @return server's icon
@@ -92,6 +90,6 @@ public interface ServerProperties extends ServerFile, ServerProperty {
     /**
      * @return encoded server icon
      */
-    @Nullable @NonNls String getEncodedIcon();
+    @Nullable String getEncodedIcon();
 
 }

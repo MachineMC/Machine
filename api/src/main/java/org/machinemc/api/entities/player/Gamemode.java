@@ -1,7 +1,6 @@
 package org.machinemc.api.entities.player;
 
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -27,7 +26,7 @@ public enum Gamemode {
      * @param id id of the gamemode
      * @return gamemode for given id
      */
-    public static @NotNull Gamemode fromID(@Range(from = 0, to = 3) int id) {
+    public static Gamemode fromID(@Range(from = 0, to = 3) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported Gamemode type");
         return values()[id];
     }
@@ -50,7 +49,7 @@ public enum Gamemode {
      * @param name name of the gamemode
      * @return gamemode with given name
      */
-    public static @Nullable Gamemode getByName(@NotNull String name) {
+    public static @Nullable Gamemode getByName(String name) {
         for (Gamemode value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }

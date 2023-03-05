@@ -24,7 +24,7 @@ public interface PlayerConnection extends ServerProperty, AutoCloseable {
     /**
      * @return client state of the connection
      */
-    @NotNull ClientState getClientState();
+    ClientState getClientState();
 
     /**
      * @return public key data of the connection
@@ -34,17 +34,17 @@ public interface PlayerConnection extends ServerProperty, AutoCloseable {
     /**
      * @return login username of the connection
      */
-    @NotNull @NonNls String getLoginUsername();
+    String getLoginUsername();
 
     /**
      * @return address with which the client connected
      */
-    @NotNull InetSocketAddress getAddress();
+    InetSocketAddress getAddress();
 
     /**
      * @return owner of the connection
      */
-    @NotNull Player getOwner();
+    Player getOwner();
 
     /**
      * Starts listening to incoming the packets.
@@ -56,7 +56,7 @@ public interface PlayerConnection extends ServerProperty, AutoCloseable {
      * Disconnects the client and closes the connection.
      * @param reason reason for the disconnection
      */
-    void disconnect(@NotNull Component reason);
+    void disconnect(Component reason);
 
     /**
      * Sends packet to the connection.
@@ -64,7 +64,7 @@ public interface PlayerConnection extends ServerProperty, AutoCloseable {
      * @return if the operation was successful
      * @throws IOException if an I/O error occurs during writing the bytes
      */
-    boolean sendPacket(@NotNull Packet packet) throws IOException;
+    boolean sendPacket(Packet packet) throws IOException;
 
     /**
      * Client state of the connection, use to determinate the correct
@@ -88,7 +88,7 @@ public interface PlayerConnection extends ServerProperty, AutoCloseable {
          * @return client states
          */
         @Contract(pure = true)
-        public static ClientState @NotNull [] fromState(@NotNull Packet.PacketState state) {
+        public static ClientState[] fromState(Packet.PacketState state) {
             final Set<ClientState> clientStates = new LinkedHashSet<>();
             for(ClientState clientState : values()) {
                 if(clientState.in == state || clientState.out == state)

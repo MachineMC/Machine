@@ -2,7 +2,6 @@ package org.machinemc.api.world.blocks;
 
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -18,13 +17,13 @@ public interface BlockManager extends ServerProperty {
      * Registers new block type to the manager.
      * @param blockType block type to register
      */
-    void addBlock(@NotNull BlockType blockType);
+    void addBlock(BlockType blockType);
 
     /**
      * Registers multiple block types to the manager.
      * @param blockTypes block types to register
      */
-    default void addBlocks(BlockType @NotNull ... blockTypes) {
+    default void addBlocks(BlockType... blockTypes) {
         Arrays.stream(blockTypes).forEach(this::addBlock);
     }
 
@@ -32,13 +31,13 @@ public interface BlockManager extends ServerProperty {
      * Removes a block type from the manager.
      * @param blockType block type to remove
      */
-    void removeBlock(@NotNull BlockType blockType);
+    void removeBlock(BlockType blockType);
 
     /**
      * Removes multiple block types from the manager.
      * @param blockTypes block type to remove
      */
-    default void removeBlocks(BlockType @NotNull ... blockTypes) {
+    default void removeBlocks(BlockType... blockTypes) {
         Arrays.stream(blockTypes).forEach(this::removeBlock);
     }
 
@@ -47,25 +46,25 @@ public interface BlockManager extends ServerProperty {
      * @param name name of the block type
      * @return if the block with given name is registered
      */
-    boolean isRegistered(@NotNull NamespacedKey name);
+    boolean isRegistered(NamespacedKey name);
 
     /**
      * Checks if the block type is registered in this manager.
      * @param blockType block type to check
      * @return if the given block type is registered in this manager
      */
-    boolean isRegistered(@NotNull BlockType blockType);
+    boolean isRegistered(BlockType blockType);
 
     /**
      * Returns block type with given name registered in this manager.
      * @param name name of the block type
      * @return block type with given name in this manager
      */
-    @Nullable BlockType getBlockType(@NotNull NamespacedKey name);
+    @Nullable BlockType getBlockType(NamespacedKey name);
 
     /**
      * @return unmodifiable set of all block types registered in this manager
      */
-    @Unmodifiable @NotNull Set<BlockType> getBlocks();
+    @Unmodifiable Set<BlockType> getBlocks();
 
 }

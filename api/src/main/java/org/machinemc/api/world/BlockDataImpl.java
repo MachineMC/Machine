@@ -4,8 +4,6 @@ import com.google.common.collect.Iterables;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -16,14 +14,14 @@ import java.util.*;
  * properties.
  */
 // This class is used by the code generators, edit with caution.
-@ApiStatus.Internal
-@Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BlockDataImpl extends BlockData {
 
     private static final Map<Integer, BlockDataImpl> REGISTRY = new TreeMap<>();
     private static BlockDataImpl[] REGISTRY_ARRAY = new BlockDataImpl[0];
 
-    private @Nullable Material material;
+    private Material material;
     private int id;
 
     /**
@@ -54,7 +52,7 @@ public class BlockDataImpl extends BlockData {
      * @param blockData block data to get id from
      * @return id of the given block data
      */
-    public static int getId(@NotNull BlockData blockData) {
+    public static int getId(BlockData blockData) {
         return blockData.getId();
     }
 
@@ -63,7 +61,7 @@ public class BlockDataImpl extends BlockData {
     }
 
     @Override
-    protected @NotNull BlockDataImpl setMaterial(@NotNull Material material) {
+    protected BlockDataImpl setMaterial(Material material) {
         this.material = material;
         Map<Integer, BlockData> stateMap = getIdMap();
         for (Integer stateId : stateMap.keySet()) {
@@ -77,14 +75,14 @@ public class BlockDataImpl extends BlockData {
     }
 
     @Override
-    protected Object @NotNull [] getData() {
+    protected Object[] getData() {
         return new Object[0];
     }
 
     /**
      * @return all block data states for material of this block data mapped to ids
      */
-    protected @Unmodifiable @NotNull Map<Integer, BlockData> getIdMap() {
+    protected @Unmodifiable Map<Integer, BlockData> getIdMap() {
         return Map.of(id, this);
     }
 

@@ -5,7 +5,6 @@ import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.server.codec.CodecPart;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 
 public interface Messenger extends CodecPart, ServerProperty {
 
@@ -14,7 +13,7 @@ public interface Messenger extends CodecPart, ServerProperty {
      * @param player player to check
      * @return if player can receive a message
      */
-    static boolean canReceiveMessage(@NotNull Player player) {
+    static boolean canReceiveMessage(Player player) {
         return player.getChatMode() == ChatMode.ENABLED;
     }
 
@@ -23,7 +22,7 @@ public interface Messenger extends CodecPart, ServerProperty {
      * @param player player to check
      * @return if player can receive a command
      */
-    static boolean canReceiveCommand(@NotNull Player player) {
+    static boolean canReceiveCommand(Player player) {
         return player.getChatMode() != ChatMode.HIDDEN;
     }
 
@@ -33,7 +32,7 @@ public interface Messenger extends CodecPart, ServerProperty {
      * @param messageType message type to check
      * @return if player accepts given message type
      */
-    static boolean accepts(@NotNull Player player, @NotNull MessageType messageType) {
+    static boolean accepts(Player player, MessageType messageType) {
         if(messageType == MessageType.CHAT && canReceiveMessage(player))
             return true;
         return messageType == MessageType.SYSTEM && canReceiveCommand(player);
@@ -46,12 +45,12 @@ public interface Messenger extends CodecPart, ServerProperty {
      * @param messageType type of the message
      * @return if the message has been successfully received
      */
-    boolean sendMessage(@NotNull Player player, @NotNull Component message, @NotNull MessageType messageType);
+    boolean sendMessage(Player player, Component message, MessageType messageType);
 
     /**
      * Sends default message send rejection message to player.
      * @param player the player
      */
-    void sendRejectionMessage(@NotNull Player player);
+    void sendRejectionMessage(Player player);
 
 }

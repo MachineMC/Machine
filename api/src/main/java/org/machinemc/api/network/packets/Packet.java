@@ -18,19 +18,19 @@ public interface Packet extends Cloneable {
     /**
      * @return packet state used by the packet
      */
-    @NotNull PacketState getPacketState();
+    PacketState getPacketState();
 
     /**
      * Serializes the packet data, doesn't contain packet size and id.
      * @return serialized packet data
      */
-    byte @NotNull [] serialize();
+    byte[] serialize();
 
     /**
      * Serializes the full packet including size and id.
      * @return serialized packet
      */
-    byte @NotNull [] rawSerialize();
+    byte[] rawSerialize();
 
     /**
      * Returns the size of the packet, including both id and data.
@@ -43,7 +43,7 @@ public interface Packet extends Cloneable {
      * @param threshold threshold
      * @return serialized compressed packet
      */
-    byte @NotNull [] rawCompressedSerialize(int threshold);
+    byte[] rawCompressedSerialize(int threshold);
 
     /**
      * Returns the size of compressed packet, including both id and data.
@@ -51,7 +51,7 @@ public interface Packet extends Cloneable {
      */
     int getCompressedSize();
 
-    @NotNull Packet clone();
+    Packet clone();
 
     /**
      * Represents different groups of packets.
@@ -91,14 +91,14 @@ public interface Packet extends Cloneable {
         /**
          * @return unmodifiable set of packet states for packets from client to server
          */
-        public static @Unmodifiable @NotNull Set<PacketState> in() {
+        public static @Unmodifiable Set<PacketState> in() {
             return Set.of(HANDSHAKING_IN, STATUS_IN, LOGIN_IN, PLAY_IN);
         }
 
         /**
          * @return unmodifiable set of packet states for packets from server to client
          */
-        public static @Unmodifiable @NotNull Set<PacketState> out() {
+        public static @Unmodifiable Set<PacketState> out() {
             return Set.of(HANDSHAKING_OUT, STATUS_OUT, LOGIN_OUT, PLAY_OUT);
         }
 

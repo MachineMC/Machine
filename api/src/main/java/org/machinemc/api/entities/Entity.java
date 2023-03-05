@@ -6,8 +6,6 @@ import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
 import net.kyori.adventure.identity.Identity;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.nbt.NBTCompound;
 
@@ -22,12 +20,12 @@ public interface Entity extends Identity, ServerProperty, NBTSerializable, Namea
     /**
      * @return entity type of the entity
      */
-    @NotNull EntityType getEntityType();
+    EntityType getEntityType();
 
     /**
      * @return uuid of the entity
      */
-    @NotNull UUID getUuid();
+    UUID getUuid();
 
     /**
      * @return id of the entity
@@ -42,7 +40,7 @@ public interface Entity extends Identity, ServerProperty, NBTSerializable, Namea
     /**
      * @return set of entity's tags
      */
-    @Unmodifiable @NotNull Set<String> getTags();
+    @Unmodifiable Set<String> getTags();
 
     /**
      * Adds new tag to the entity if number of active tags is less
@@ -50,14 +48,14 @@ public interface Entity extends Identity, ServerProperty, NBTSerializable, Namea
      * @param tag tag to add
      * @return if the operation was successful
      */
-    boolean addTag(@NotNull String tag);
+    boolean addTag(String tag);
 
     /**
      * Removes a tag from the entity.
      * @param tag tag to remove
      * @return if the operation was successful
      */
-    boolean removeTag(@NotNull String tag);
+    boolean removeTag(String tag);
 
     /**
      * @return if the entity is silent
@@ -112,12 +110,12 @@ public interface Entity extends Identity, ServerProperty, NBTSerializable, Namea
     /**
      * @return location of the entity
      */
-    @NotNull Location getLocation();
+    Location getLocation();
 
     /**
      * @param location new location
      */
-    void setLocation(@NotNull Location location);
+    void setLocation(Location location);
 
     /**
      * @return fall distance of the entity
@@ -182,12 +180,12 @@ public interface Entity extends Identity, ServerProperty, NBTSerializable, Namea
     /**
      * @return name of the entity
      */
-    @NotNull @NonNls String getName();
+    String getName();
 
     /**
      * @return world the entity is in
      */
-    @NotNull World getWorld();
+    World getWorld();
 
     /**
      * Initializes the entity.
@@ -200,7 +198,7 @@ public interface Entity extends Identity, ServerProperty, NBTSerializable, Namea
      * @param nbtCompound nbt compound with entity data
      */
     @ApiStatus.Internal
-    void load(@NotNull NBTCompound nbtCompound);
+    void load(NBTCompound nbtCompound);
 
     /**
      * Removes the entity from the world.

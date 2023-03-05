@@ -10,7 +10,6 @@ import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.api.world.generation.Generator;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -30,7 +29,7 @@ public interface World extends ServerProperty {
      * @return atomic reference of the manager
      */
     @ApiStatus.Internal
-    @NotNull AtomicReference<WorldManager> getManagerReference();
+    AtomicReference<WorldManager> getManagerReference();
 
     /**
      * @return manager of the world
@@ -42,22 +41,22 @@ public interface World extends ServerProperty {
     /**
      * @return name of the world
      */
-    @NotNull NamespacedKey getName();
+    NamespacedKey getName();
 
     /**
      * @return uuid of the world
      */
-    @NotNull UUID getUuid();
+    UUID getUuid();
 
     /**
      * @return dimension of the world
      */
-    @NotNull DimensionType getDimensionType();
+    DimensionType getDimensionType();
 
     /**
      * @return world type of the world
      */
-    @NotNull WorldType getWorldType();
+    WorldType getWorldType();
 
     /**
      * @return seed of the world
@@ -67,12 +66,12 @@ public interface World extends ServerProperty {
     /**
      * @return difficulty of the world
      */
-    @NotNull Difficulty getDifficulty();
+    Difficulty getDifficulty();
 
     /**
      * @return location of the world spawn of the world
      */
-    @NotNull Location getWorldSpawn();
+    Location getWorldSpawn();
 
     /**
      * @return if the world is loaded
@@ -82,12 +81,12 @@ public interface World extends ServerProperty {
     /**
      * @return set of all active entities in the world
      */
-    @Unmodifiable @NotNull Set<Entity> getEntities();
+    @Unmodifiable Set<Entity> getEntities();
 
     /**
      * @return generator used by the world
      */
-     @NotNull Generator getGenerator();
+     Generator getGenerator();
 
     /**
      * Loads the world.
@@ -111,13 +110,13 @@ public interface World extends ServerProperty {
      * Loads player into the world.
      * @param player player to load
      */
-    void loadPlayer(@NotNull Player player);
+    void loadPlayer(Player player);
 
     /**
      * Unloads player from the world.
      * @param player player to unload
      */
-    void unloadPlayer(@NotNull Player player);
+    void unloadPlayer(Player player);
 
     /**
      * Spawns an entity to the world at given location.
@@ -125,14 +124,14 @@ public interface World extends ServerProperty {
      * @param location location to spawn
      * @return if the operation was successful
      */
-    boolean spawn(@NotNull Entity entity, @NotNull Location location);
+    boolean spawn(Entity entity, Location location);
 
     /**
      * Removes an entity from the world.
      * @param entity entity to remove
      * @return if the operation was successful
      */
-    boolean remove(@NotNull Entity entity);
+    boolean remove(Entity entity);
 
     /**
      * Returns chunk with given chunk coordinates
@@ -140,13 +139,13 @@ public interface World extends ServerProperty {
      * @param chunkZ z coordinate of the chunk
      * @return chunk with given coordinates
      */
-    @NotNull Chunk getChunk(int chunkX, int chunkZ);
+    Chunk getChunk(int chunkX, int chunkZ);
 
     /**
      * @param position position
      * @return chunk at given position
      */
-    default @NotNull Chunk getChunk(@NotNull BlockPosition position) {
+    default Chunk getChunk(BlockPosition position) {
         return getChunk(position.getX() >> CHUNK_SIZE_BITS, position.getZ() >> CHUNK_SIZE_BITS);
     }
 
@@ -154,7 +153,7 @@ public interface World extends ServerProperty {
      * @param location location
      * @return chunk at given location
      */
-    default @NotNull Chunk getChunk(@NotNull Location location) {
+    default Chunk getChunk(Location location) {
         return getChunk(location.toBlockPosition());
     }
 
@@ -166,7 +165,7 @@ public interface World extends ServerProperty {
      * @param replaceReason reason why the previous block type was removed
      * @param source source of the change
      */
-    void setBlock(@NotNull BlockType blockType, @NotNull BlockPosition position, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source);
+    void setBlock(BlockType blockType, BlockPosition position, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source);
 
     /**
      * Sets a world block at given location to a different block type.
@@ -176,7 +175,7 @@ public interface World extends ServerProperty {
      * @param replaceReason reason why the previous block type was removed
      * @param source source of the change
      */
-    default void setBlock(@NotNull BlockType blockType, @NotNull Location location, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
+    default void setBlock(BlockType blockType, Location location, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
         setBlock(blockType, location.toBlockPosition(), reason, replaceReason, source);
     }
 
@@ -185,7 +184,7 @@ public interface World extends ServerProperty {
      * @param blockType new block type
      * @param position position of the block
      */
-    default void setBlock(@NotNull BlockType blockType, @NotNull BlockPosition position) {
+    default void setBlock(BlockType blockType, BlockPosition position) {
         setBlock(blockType, position, BlockType.CreateReason.SET, BlockType.DestroyReason.REMOVED, null);
     }
 
@@ -194,7 +193,7 @@ public interface World extends ServerProperty {
      * @param blockType new block type
      * @param location location of the block
      */
-    default void setBlock(@NotNull BlockType blockType, @NotNull Location location) {
+    default void setBlock(BlockType blockType, Location location) {
         setBlock(blockType, location, BlockType.CreateReason.SET, BlockType.DestroyReason.REMOVED, null);
     }
 
@@ -205,7 +204,7 @@ public interface World extends ServerProperty {
      * @param position position of the block
      * @return world block at given position
      */
-    @NotNull WorldBlock getBlock(@NotNull BlockPosition position);
+    WorldBlock getBlock(BlockPosition position);
 
     /**
      * Returns block from the world at given position,
@@ -214,7 +213,7 @@ public interface World extends ServerProperty {
      * @param location location of the block
      * @return world block at given location
      */
-    default @NotNull WorldBlock getBlock(@NotNull Location location) {
+    default WorldBlock getBlock(Location location) {
         return getBlock(location.toBlockPosition());
     }
 
@@ -224,12 +223,12 @@ public interface World extends ServerProperty {
      * Changes the world difficulty.
      * @param difficulty new difficulty
      */
-    void setDifficulty(@NotNull Difficulty difficulty);
+    void setDifficulty(Difficulty difficulty);
 
     /**
      * Changes the world spawn location of the world.
      * @param location new location
      */
-    void setWorldSpawn(@NotNull Location location);
+    void setWorldSpawn(Location location);
 
 }

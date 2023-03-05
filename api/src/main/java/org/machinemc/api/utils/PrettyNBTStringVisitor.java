@@ -11,6 +11,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * NBT String visitor for pretty formatted NBT.
+ */
 public class PrettyNBTStringVisitor implements NBTVisitor {
 
     private static final Pattern SIMPLE_VALUE = Pattern.compile("[\\dA-Za-z_\\-.+]+");
@@ -33,6 +36,11 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
         this.depth = depth;
     }
 
+    /**
+     * Visits NBT and returns formatted component of this nbt.
+     * @param nbt nbt
+     * @return formatted nbt component
+     */
     public Component visitNBT(NBT nbt) {
         nbt.accept(this);
         return result;
@@ -191,27 +199,59 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
         return "uilder.toString();";
     }
 
+    /**
+     * Returns text component with provided object as its content.
+     * @param string component content
+     * @return component
+     */
     private Component text(Object string) {
-        return Component.text(string + "");
+        return Component.text(String.valueOf(string));
     }
 
+    /**
+     * Returns colored text component with provided object as its content.
+     * @param string component content
+     * @param color color
+     * @return component
+     */
     private Component text(Object string, ChatColor color) {
         return Component.text(string + "", color.asStyle());
     }
 
+    /**
+     * Appends string to the result component of this visitor.
+     * @param string string to append
+     * @return new result component
+     */
     private Component append(Object string) {
         return append(text(string));
     }
 
+    /**
+     * Appends colored string to the result component of this visitor.
+     * @param string string to append
+     * @param color color
+     * @return new result component
+     */
     private Component append(Object string, ChatColor color) {
         return append(text(string, color));
     }
 
+    /**
+     * Appends component to the result component of this visitor.
+     * @param component component to append
+     * @return new result component
+     */
     private Component append(Component component) {
         result = result.append(component);
         return result;
     }
 
+    /**
+     * Returns colored component out of value string.
+     * @param string value
+     * @return component
+     */
     private static Component handleEscape(String string) {
         if (SIMPLE_VALUE.matcher(string).matches()) {
             return Component.text(string, KEY_COLOR.asStyle());

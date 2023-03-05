@@ -3,7 +3,6 @@ package org.machinemc.api.world.biomes;
 import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.utils.NamespacedKey;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,7 +14,7 @@ public interface Biome extends NBTSerializable {
      * @return atomic reference of the manager
      */
     @ApiStatus.Internal
-    @NotNull AtomicReference<BiomeManager> getManagerReference();
+    AtomicReference<BiomeManager> getManagerReference();
 
     /**
      * @return manager of the biome
@@ -28,7 +27,7 @@ public interface Biome extends NBTSerializable {
      * @return atomic reference of the id
      */
     @ApiStatus.Internal
-    @NotNull AtomicInteger getIdReference();
+    AtomicInteger getIdReference();
 
     /**
      * @return id of the biome
@@ -41,7 +40,7 @@ public interface Biome extends NBTSerializable {
     /**
      * @return name of the biome
      */
-    @NotNull NamespacedKey getName();
+    NamespacedKey getName();
 
     /**
      * @return depth of the biome
@@ -66,22 +65,22 @@ public interface Biome extends NBTSerializable {
     /**
      * @return category of the biome
      */
-    @NotNull Category getCategory();
+    Category getCategory();
 
     /**
      * @return biome effects of the biome
      */
-    @NotNull BiomeEffects getEffects();
+    BiomeEffects getEffects();
 
     /**
      * @return precipitation of the biome
      */
-    @NotNull Precipitation getPrecipitation();
+    Precipitation getPrecipitation();
 
     /**
      * @return temperature modifier of the biome
      */
-    @NotNull TemperatureModifier getTemperatureModifier();
+    TemperatureModifier getTemperatureModifier();
 
     /**
      * Represents the raining type in the biome.

@@ -1,7 +1,6 @@
 package org.machinemc.api.world;
 
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -29,7 +28,7 @@ public enum Difficulty {
      * @param id id of the difficulty
      * @return difficulty for given id
      */
-    public static @NotNull Difficulty fromID(@Range(from = 0, to = 3) int id) {
+    public static Difficulty fromID(@Range(from = 0, to = 3) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported difficulty type");
         return values()[id];
     }
@@ -39,7 +38,7 @@ public enum Difficulty {
      * @param name name of the difficulty
      * @return difficulty with given name
      */
-    public static @Nullable Difficulty getByName(@NotNull String name) {
+    public static @Nullable Difficulty getByName(String name) {
         for (Difficulty value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }

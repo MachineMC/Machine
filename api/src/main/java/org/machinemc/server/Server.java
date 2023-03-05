@@ -44,7 +44,7 @@ public interface Server {
      * @return new default server buffer
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      */
-    static @NotNull ServerBuffer createServerBuffer() {
+    static ServerBuffer createServerBuffer() {
         if(Factories.BUFFER_FACTORY == null)
             throw new UnsupportedOperationException();
         return Factories.BUFFER_FACTORY.create();
@@ -58,7 +58,7 @@ public interface Server {
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      * @throws IllegalStateException if the material can't have item form
      */
-    static @NotNull Item createItem(@NotNull Material material, byte amount) {
+    static Item createItem(Material material, byte amount) {
         if(Factories.ITEM_FACTORY == null)
             throw new UnsupportedOperationException();
         return Factories.ITEM_FACTORY.create(material, amount);
@@ -72,7 +72,7 @@ public interface Server {
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      * @throws IllegalStateException if the material can't have item form
      */
-    static @NotNull Item createItem(@NotNull Material material) {
+    static Item createItem(Material material) {
         return createItem(material, (byte) 1);
     }
 
@@ -82,7 +82,7 @@ public interface Server {
      * @return new particle
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      */
-    static @NotNull Particle createParticle(@NotNull ParticleType type) {
+    static Particle createParticle(ParticleType type) {
         if(Factories.PARTICLE_FACTORY == null)
             throw new UnsupportedOperationException();
         return Factories.PARTICLE_FACTORY.create(type);
@@ -91,12 +91,12 @@ public interface Server {
     /**
      * @return server's brand
      */
-    @NotNull @NonNls String getBrand();
+    String getBrand();
 
     /**
      * @return server's implementation version
      */
-    @NotNull @NonNls String getImplementationVersion();
+    String getImplementationVersion();
 
     /**
      * @return server's implementation protocol version
@@ -116,87 +116,87 @@ public interface Server {
     /**
      * @return console implementation used by the server
      */
-    @NotNull Console getConsole();
+    Console getConsole();
 
     /**
      * @return exception handler used by the server
      */
-    @NotNull ExceptionHandler getExceptionHandler();
+    ExceptionHandler getExceptionHandler();
 
     /**
      * @return server's online module if it's in online mode
      */
-    @Nullable OnlineServer getOnlineServer();
+    OnlineServer getOnlineServer();
 
     /**
      * @return gson formatter used by the server.
      */
-    @NotNull Gson getGson();
+    Gson getGson();
 
     /**
      * @return server's properties
      */
-    @NotNull ServerProperties getProperties();
+    ServerProperties getProperties();
 
     /**
      * @return server's schedule on the main thread
      */
-    @NotNull Scheduler getScheduler();
+    Scheduler getScheduler();
 
     /**
      * @return server's command dispatcher
      */
-    @NotNull CommandDispatcher<CommandExecutor> getCommandDispatcher();
+    CommandDispatcher<CommandExecutor> getCommandDispatcher();
 
     /**
      * @return server's dimension type manager
      */
-    @NotNull DimensionTypeManager getDimensionTypeManager();
+    DimensionTypeManager getDimensionTypeManager();
 
     /**
      * @return server's messenger
      */
-    @NotNull Messenger getMessenger();
+    Messenger getMessenger();
 
     /**
      * @return server's world manager
      */
-    @NotNull WorldManager getWorldManager();
+    WorldManager getWorldManager();
 
     /**
      * @return server's biome manager
      */
-    @NotNull BiomeManager getBiomeManager();
+    BiomeManager getBiomeManager();
 
     /**
      * @return server's entity manager
      */
-    @NotNull EntityManager getEntityManager();
+    EntityManager getEntityManager();
 
     /**
      * @return server's player manager
      */
-    @NotNull PlayerManager getPlayerManager();
+    PlayerManager getPlayerManager();
 
     /**
      * @return server's block manager
      */
-    @NotNull BlockManager getBlockManager();
+    BlockManager getBlockManager();
 
     /**
      * @return server's player data container
      */
-    @NotNull PlayerDataContainer getPlayerDataContainer();
+    PlayerDataContainer getPlayerDataContainer();
 
     /**
      * @return server's connection
      */
-    @NotNull ServerConnection getConnection();
+    ServerConnection getConnection();
 
     /**
      * @return server's default world
      */
-    @NotNull World getDefaultWorld();
+    World getDefaultWorld();
 
     /**
      * Shuts the server down.
@@ -208,7 +208,7 @@ public interface Server {
      * @param level logging level of the message
      * @param messages message to send
      */
-    default void log(@NotNull Level level, String @NotNull ... messages) {
+    default void log(Level level, String... messages) {
         getConsole().log(level, messages);
     }
 
@@ -224,7 +224,7 @@ public interface Server {
     /**
      * @return server's ip adress
      */
-    default @NotNull @NonNls String getIp() {
+    default String getIp() {
         return getProperties().getServerIp();
     }
 
@@ -273,7 +273,7 @@ public interface Server {
     /**
      * @return all worlds registered by the server's world manager
      */
-    default @Unmodifiable @NotNull Set<World> getWorlds() {
+    default @Unmodifiable Set<World> getWorlds() {
         return getWorldManager().getWorlds();
     }
 
@@ -281,14 +281,14 @@ public interface Server {
      * @param name name of the world
      * @return world with given name
      */
-    default @Nullable World getWorld(@NotNull NamespacedKey name) {
+    default @Nullable World getWorld(NamespacedKey name) {
         return getWorldManager().getWorld(name);
     }
 
     /**
      * @return all players on the server
      */
-    default @Unmodifiable @NotNull Set<Player> getPlayers() {
+    default @Unmodifiable Set<Player> getPlayers() {
         return getPlayerManager().getPlayers();
     }
 
@@ -296,7 +296,7 @@ public interface Server {
      * @param name name of the player
      * @return player with given name
      */
-    default @Nullable Player getPlayer(@NotNull String name) {
+    default @Nullable Player getPlayer(String name) {
         return getPlayerManager().getPlayer(name);
     }
 
@@ -304,14 +304,14 @@ public interface Server {
      * @param uuid uuid of the player
      * @return player with given uuid
      */
-    default @Nullable Player getPlayer(@NotNull UUID uuid) {
+    default @Nullable Player getPlayer(UUID uuid) {
         return getPlayerManager().getPlayer(uuid);
     }
 
     /**
      * @return all entities registered in server's entity manager
      */
-    default @Unmodifiable @NotNull Set<Entity> getEntities() {
+    default @Unmodifiable Set<Entity> getEntities() {
         return getEntityManager().getEntities();
     }
 
@@ -319,7 +319,7 @@ public interface Server {
      * @param uuid uuid of the entity
      * @return entity with given uuid in server's entity manager
      */
-    default @Nullable Entity getEntity(@NotNull UUID uuid) {
+    default @Nullable Entity getEntity(UUID uuid) {
         return getEntityManager().getEntity(uuid);
     }
 
@@ -327,7 +327,7 @@ public interface Server {
      * @param name name of the block type
      * @return block type with given name registered in server's block type manager
      */
-    default @Nullable BlockType getBlockType(@NotNull NamespacedKey name) {
+    default @Nullable BlockType getBlockType(NamespacedKey name) {
         return getBlockManager().getBlockType(name);
     }
 

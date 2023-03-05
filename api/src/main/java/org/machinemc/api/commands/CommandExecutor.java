@@ -1,8 +1,5 @@
 package org.machinemc.api.commands;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Range;
-
 /**
  * Represents a class which contains a single method for executing commands.
  */
@@ -15,7 +12,7 @@ public interface CommandExecutor {
      * @param input command to execute
      * @return numeric result from the command
      */
-    @Range(from = -1, to = Integer.MAX_VALUE) int execute(@NotNull String input);
+    int execute(String input);
 
     /**
      * Formats the input as a Minecraft command - removes all leading,
@@ -23,7 +20,7 @@ public interface CommandExecutor {
      * @param input command input
      * @return formatted command input
      */
-    static @NotNull String formatCommandInput(@NotNull String input) {
+    static String formatCommandInput(String input) {
         if(input.isBlank()) return "";
         input = input.trim();
         while(input.contains("  "))

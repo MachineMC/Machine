@@ -20,13 +20,12 @@ import java.util.concurrent.*;
  * @see Scheduler#task(TaskRunnable)
  * @see TaskBuilder#run(Scheduler)
  */
-@BlockingExecutor
 public class Scheduler {
 
     @Getter(AccessLevel.PROTECTED)
-    private final @NotNull BlockingQueue<TaskSession> syncQueue;
+    private final BlockingQueue<TaskSession> syncQueue;
     @Getter(AccessLevel.PROTECTED)
-    private final @NotNull ScheduledExecutorService threadPoolExecutor;
+    private final ScheduledExecutorService threadPoolExecutor;
 
     protected final HashSet<TaskSession> sessions = new HashSet<>();
 
@@ -74,7 +73,7 @@ public class Scheduler {
     }
 
     @Contract("_ -> new")
-    public static @NotNull TaskBuilder task(@NotNull TaskRunnable<?> task) {
+    public static TaskBuilder task(TaskRunnable<?> task) {
         return new TaskBuilder(new TaskSession(task));
     }
 
@@ -83,11 +82,11 @@ public class Scheduler {
      */
     public static class TaskBuilder {
 
-        private final @NotNull TaskSession startPoint;
+        private final TaskSession startPoint;
         private TaskSession current;
         private final List<TaskSession> tasks = new ArrayList<>();
 
-        protected TaskBuilder(@NotNull TaskSession startPoint) {
+        protected TaskBuilder(TaskSession startPoint) {
             this.startPoint = startPoint;
             current = startPoint;
         }
@@ -96,7 +95,7 @@ public class Scheduler {
          * Makes the task run synchronized on the scheduler's main thread.
          */
         @Contract("-> this")
-        public @NotNull TaskBuilder sync() {
+        public TaskBuilder sync() {
             return execution(TaskSession.Execution.SYNC);
         }
 
@@ -104,12 +103,12 @@ public class Scheduler {
          * Makes the task run asynchronously.
          */
         @Contract("-> this")
-        public @NotNull TaskBuilder async() {
+        public TaskBuilder async() {
             return execution(TaskSession.Execution.ASYNC);
         }
 
         @Contract("_ -> this")
-        private @NotNull TaskBuilder execution(@NotNull TaskSession.Execution execution) {
+        private TaskBuilder execution(TaskSession.Execution execution) {
             current.execution = execution;
             return this;
         }
@@ -118,7 +117,7 @@ public class Scheduler {
          * @param repeat true if the task should repeat itself until it's cancel from inside
          */
         @Contract("_ -> this")
-        public @NotNull TaskBuilder repeat(boolean repeat) {
+        public TaskBuilder repeat(boolean repeat) {
             current.repeating = repeat;
             return this;
         }
@@ -127,7 +126,7 @@ public class Scheduler {
          * @param delay delay the task should have before the first execution
          */
         @Contract("_ -> this")
-        public @NotNull TaskBuilder delay(@Range(from = 0, to = Long.MAX_VALUE) long delay) {
+        public TaskBuilder delay(long delay) {
             current.delay = delay;
             return this;
         }
@@ -136,7 +135,7 @@ public class Scheduler {
          * @param period how big should be the delay between next task repetition
          */
         @Contract("_ -> this")
-        public @NotNull TaskBuilder period(@Range(from = 0, to = Long.MAX_VALUE) long period) {
+        public TaskBuilder period(long period) {
             current.period = period;
             return this;
         }
@@ -145,7 +144,7 @@ public class Scheduler {
          * @param unit time unit of the delays
          */
         @Contract("_ -> this")
-        public @NotNull TaskBuilder unit(TimeUnit unit) {
+        public TaskBuilder unit(TimeUnit unit) {
             current.unit = unit;
             return this;
         }
@@ -155,7 +154,7 @@ public class Scheduler {
          * @param next next task
          */
         @Contract("_ -> this")
-        public @NotNull TaskBuilder then(@NotNull TaskRunnable<?> next) {
+        public TaskBuilder then(TaskRunnable<?> next) {
             TaskSession nextSession = new TaskSession(next);
             nextSession.previous = current;
             current.future = nextSession;
@@ -167,7 +166,7 @@ public class Scheduler {
          * Runs the task on given shceduler.
          * @param scheduler scheduler to run the task on
          */
-        public void run(@NotNull Scheduler scheduler) {
+        public void run(Scheduler scheduler) {
             startPoint.run(scheduler);
         }
 

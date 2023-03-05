@@ -3,7 +3,6 @@ package org.machinemc.api.world.particles;
 import org.machinemc.server.Server;
 import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.utils.Writable;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -18,18 +17,18 @@ public interface Particle extends NBTSerializable, Writable {
      * @return new particle
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      */
-    static @NotNull Particle of(@NotNull ParticleType type) {
+    static Particle of(ParticleType type) {
         return Server.createParticle(type);
     }
 
     /**
      * @return type used by the particle
      */
-    @NotNull ParticleType getType();
+    ParticleType getType();
 
     /**
      * @return options used by the particle
      */
-    @NotNull Optional<ParticleOptions> getOptions();
+    Optional<ParticleOptions> getOptions();
 
 }

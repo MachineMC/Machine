@@ -1,6 +1,5 @@
 package org.machinemc.api.server.schedule;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -16,6 +15,6 @@ public interface TaskRunnable<R> {
      * @param session current task session
      * @return input for the next task
      */
-    R run(@Nullable Object input, @NotNull TaskSession session);
+    R run(@Nullable Object input, TaskSession session);
 
 }

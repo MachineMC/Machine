@@ -2,7 +2,6 @@ package org.machinemc.api.world.blocks;
 
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -15,17 +14,17 @@ public interface BlockType {
     /**
      * @return name of the block type
      */
-    @NotNull NamespacedKey getName();
+    NamespacedKey getName();
 
     /**
      * @return block properties of the block type
      */
-    @NotNull BlockProperties getProperties();
+    BlockProperties getProperties();
 
     /**
      * @return block visualizer of the block type
      */
-    @NotNull BlockVisualizer getVisualizer();
+    BlockVisualizer getVisualizer();
 
     /**
      * Called when a new world block of this block type is created.
@@ -33,7 +32,7 @@ public interface BlockType {
      * @param reason reason why the world block was created
      * @param source source of the creation
      */
-    void create(@NotNull WorldBlock block, @NotNull CreateReason reason, @Nullable Entity source);
+    void create(WorldBlock block, CreateReason reason, @Nullable Entity source);
 
     /**
      * Called when a world block of this block type is removed.
@@ -41,13 +40,13 @@ public interface BlockType {
      * @param reason reason why the world block was removed
      * @param source source of the removal
      */
-    void destroy(@NotNull WorldBlock block, @NotNull DestroyReason reason, @Nullable Entity source);
+    void destroy(WorldBlock block, DestroyReason reason, @Nullable Entity source);
 
     /**
      * Called when a world block of this type is updated.
      * @param block updated world block
      */
-    void update(@NotNull WorldBlock block);
+    void update(WorldBlock block);
 
     /**
      * Reasons of block creation.
@@ -77,7 +76,7 @@ public interface BlockType {
         /**
          * @return color of the block type
          */
-        @NotNull Color getColor();
+        Color getColor();
 
         /**
          * @return if the block type has a collision

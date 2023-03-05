@@ -1,7 +1,6 @@
 package org.machinemc.api.chunk.palette;
 
 import org.machinemc.api.utils.Writable;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Palette-based storage of entries.
@@ -26,13 +25,13 @@ public interface Palette extends Writable, Cloneable {
      * Accepts all values in the palette.
      * @param consumer consumer for all values in palette
      */
-    void getAll(@NotNull EntryConsumer consumer);
+    void getAll(EntryConsumer consumer);
 
     /**
      * Accepts all non-zero values in the palette.
      * @param consumer consumer for all non-zero values in palette
      */
-    void getAllPresent(@NotNull EntryConsumer consumer);
+    void getAllPresent(EntryConsumer consumer);
 
     /**
      * Changes the value at given coordinates in the palette.
@@ -53,7 +52,7 @@ public interface Palette extends Writable, Cloneable {
      * Changes all values in the palette using supplier.
      * @param supplier supplier for all values in palette
      */
-    void setAll(@NotNull EntrySupplier supplier);
+    void setAll(EntrySupplier supplier);
 
     /**
      * Replaces value at given coordinates with new value.
@@ -68,7 +67,7 @@ public interface Palette extends Writable, Cloneable {
      * Replaces all values in the palette using function.
      * @param function function for all values in palette
      */
-    void replaceAll(@NotNull EntryFunction function);
+    void replaceAll(EntryFunction function);
 
     /**
      * @return number of entries in this palette.

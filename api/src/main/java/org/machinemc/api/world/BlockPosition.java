@@ -6,7 +6,6 @@ import lombok.With;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents position of a block in the world.
@@ -31,7 +30,7 @@ public class BlockPosition implements Writable, Cloneable {
      * @return block position from given coordinates
      */
     @Contract("_, _, _ -> new")
-    public static @NotNull BlockPosition of(int x, int y, int z) {
+    public static BlockPosition of(int x, int y, int z) {
         return new BlockPosition(x, y, z);
     }
 
@@ -39,12 +38,12 @@ public class BlockPosition implements Writable, Cloneable {
      * Position of a block in the world.
      * @param location location of the block
      */
-    public BlockPosition(@NotNull Location location) {
+    public BlockPosition(Location location) {
         this(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 
     @Override
-    public void write(@NotNull ServerBuffer buf) {
+    public void write(ServerBuffer buf) {
         buf.writeBlockPos(this);
     }
 

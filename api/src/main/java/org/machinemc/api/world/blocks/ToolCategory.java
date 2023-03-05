@@ -1,7 +1,6 @@
 package org.machinemc.api.world.blocks;
 
 import org.machinemc.api.world.Material;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public enum ToolCategory {
     INSTANT, // instantly breaks
     NONE; // unbreakable
 
-    private static final Material @NotNull []
+    private static final Material[]
             axes = new Material[]{WOODEN_AXE, STONE_AXE, IRON_AXE, DIAMOND_AXE, NETHERITE_AXE, GOLDEN_AXE},
             pickaxes = new Material[]{WOODEN_PICKAXE, STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE, NETHERITE_PICKAXE, GOLDEN_PICKAXE},
             shears = new Material[]{Material.SHEARS},
@@ -35,7 +34,7 @@ public enum ToolCategory {
      * @return all materials that are efficient against blocks
      * with {@link ToolCategory#AXE} category.
      */
-    public static Material @NotNull [] getAxes() {
+    public static Material[] getAxes() {
         return axes.clone();
     }
 
@@ -43,7 +42,7 @@ public enum ToolCategory {
      * @return all materials that are efficient against blocks
      * with {@link ToolCategory#PICKAXE} category.
      */
-    public static Material @NotNull [] getPickaxes() {
+    public static Material[] getPickaxes() {
         return pickaxes.clone();
     }
 
@@ -51,7 +50,7 @@ public enum ToolCategory {
      * @return all materials that are efficient against blocks
      * with {@link ToolCategory#SHEARS} category.
      */
-    public static Material @NotNull [] getShears() {
+    public static Material[] getShears() {
         return shears.clone();
     }
 
@@ -59,7 +58,7 @@ public enum ToolCategory {
      * @return all materials that are efficient against blocks
      * with {@link ToolCategory#SHOVEL} category.
      */
-    public static Material @NotNull [] getShovels() {
+    public static Material[] getShovels() {
         return shovels.clone();
     }
 
@@ -67,7 +66,7 @@ public enum ToolCategory {
      * @return all materials that are efficient against blocks
      * with {@link ToolCategory#SWORD} category.
      */
-    public static Material @NotNull [] getSwords() {
+    public static Material[] getSwords() {
         return swords.clone();
     }
 
@@ -75,7 +74,7 @@ public enum ToolCategory {
      * @return all materials that are efficient against blocks
      * with {@link ToolCategory#HOE} category.
      */
-    public static Material @NotNull [] getHoes() {
+    public static Material[] getHoes() {
         return hoes.clone();
     }
 
@@ -84,7 +83,7 @@ public enum ToolCategory {
      * @param toolMaterial material to check for
      * @return category the given material is effective against
      */
-    public static @Nullable ToolCategory fromTool(@NotNull Material toolMaterial) {
+    public static @Nullable ToolCategory fromTool(Material toolMaterial) {
         if(List.of(axes).contains(toolMaterial)) return AXE;
         if(List.of(pickaxes).contains(toolMaterial)) return PICKAXE;
         if(List.of(shears).contains(toolMaterial)) return SHEARS;

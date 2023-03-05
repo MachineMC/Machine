@@ -1,9 +1,7 @@
 package org.machinemc.api.world;
 
 import com.google.common.base.Objects;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -14,7 +12,6 @@ import java.util.Arrays;
  * return unique id depending on its material and properties.
  */
 // This class is used by the code generators, edit with caution.
-@ApiStatus.NonExtendable
 public abstract class BlockData implements Cloneable {
 
     /**
@@ -49,9 +46,8 @@ public abstract class BlockData implements Cloneable {
      * @param material new material
      * @return this
      */
-    @ApiStatus.Internal
     @Contract("_ -> this")
-    protected abstract @NotNull BlockData setMaterial(@NotNull Material material);
+    protected abstract BlockData setMaterial(Material material);
 
     /**
      * @return id of the block data used by Minecraft protocol
@@ -63,7 +59,7 @@ public abstract class BlockData implements Cloneable {
      * in alphabetically order.
      * @return block data properties
      */
-    protected abstract Object @NotNull [] getData();
+    protected abstract Object[] getData();
 
     public BlockData clone() {
         try {

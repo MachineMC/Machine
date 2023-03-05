@@ -1,7 +1,6 @@
 package org.machinemc.api.server;
 
 import org.machinemc.api.entities.Player;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -18,19 +17,19 @@ public interface PlayerManager extends ServerProperty {
      * Adds the player to the manager.
      * @param player player to add
      */
-    void addPlayer(@NotNull Player player);
+    void addPlayer(Player player);
 
     /**
      * Removes the player from the manager.
      * @param player player to remove
      */
-    void removePlayer(@NotNull Player player);
+    void removePlayer(Player player);
 
     /**
      * Removes the player with given uuid from the manager.
      * @param uuid uuid of the player
      */
-    default void removePlayer(@NotNull UUID uuid) {
+    default void removePlayer(UUID uuid) {
         final Player player = getPlayer(uuid);
         if(player == null) return;
         removePlayer(player);
@@ -40,7 +39,7 @@ public interface PlayerManager extends ServerProperty {
      * Removes the player with given name from the manager.
      * @param name name of the player
      */
-    default void removePlayer(@NotNull String name) {
+    default void removePlayer(String name) {
         final Player player = getPlayer(name);
         if(player == null) return;
         removePlayer(player);
@@ -51,25 +50,25 @@ public interface PlayerManager extends ServerProperty {
      * @param uuid uuid of the player
      * @return player with given uuid
      */
-    @Nullable Player getPlayer(@NotNull UUID uuid);
+    @Nullable Player getPlayer(UUID uuid);
 
     /**
      * Returns player with given name in the manager.
      * @param name name of the player
      * @return player with given name
      */
-    @Nullable Player getPlayer(@NotNull String name);
+    @Nullable Player getPlayer(String name);
 
     /**
      * @return unmodifiable set of all players in this manager
      */
-    @Unmodifiable @NotNull Set<Player> getPlayers();
+    @Unmodifiable Set<Player> getPlayers();
 
     /**
      * Returns all players in this manager passing the predicate.
      * @param predicate predicate
      * @return unmodifiable set of the players
      */
-    @Unmodifiable @NotNull Set<Player> getPlayers(@NotNull Predicate<Player> predicate);
+    @Unmodifiable Set<Player> getPlayers(Predicate<Player> predicate);
 
 }

@@ -8,7 +8,6 @@ import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.BlockVisual;
 import org.machinemc.api.world.blocks.WorldBlock;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -28,7 +27,7 @@ public interface Chunk extends ServerProperty {
     /**
      * @return world the chunk is in
      */
-    @NotNull World getWorld();
+    World getWorld();
 
     /**
      * @return x coordinate of the chunk
@@ -62,7 +61,7 @@ public interface Chunk extends ServerProperty {
      * @param z z coordinate of the block in this chunk
      * @return world block at given location
      */
-    @NotNull WorldBlock getBlock(int x, int y, int z);
+    WorldBlock getBlock(int x, int y, int z);
 
     /**
      * Sets a new block type for a world block at given location in this chunk.
@@ -75,7 +74,7 @@ public interface Chunk extends ServerProperty {
      * @param source source of the change
      * @return world block that has been changed
      */
-    @NotNull WorldBlock setBlock(int x, int y, int z, @NotNull BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source);
+    WorldBlock setBlock(int x, int y, int z, BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source);
 
     /**
      * Changes the visual of a block at given location in this chunk.
@@ -84,7 +83,7 @@ public interface Chunk extends ServerProperty {
      * @param z z coordinate of the block in this chunk
      * @param visual new visual for the world block
      */
-    void setVisual(int x, int y, int z, @NotNull BlockVisual visual);
+    void setVisual(int x, int y, int z, BlockVisual visual);
 
     /**
      * Returns a biome at given location in this chunk.
@@ -93,7 +92,7 @@ public interface Chunk extends ServerProperty {
      * @param z z coordinate of the biome
      * @return biome at given location
      */
-    @NotNull Biome getBiome(int x, int y, int z);
+    Biome getBiome(int x, int y, int z);
 
     /**
      * Sets a new biome at the given location.
@@ -102,27 +101,27 @@ public interface Chunk extends ServerProperty {
      * @param z z coordinate of the biome
      * @param biome new biome
      */
-    void setBiome(int x, int y, int z, @NotNull Biome biome);
+    void setBiome(int x, int y, int z, Biome biome);
 
     /**
      * Returns unmodifiable list of all sections.
      * @return all sections of this chunk
      */
-    @Unmodifiable @NotNull List<Section> getSections();
+    @Unmodifiable List<Section> getSections();
 
     /**
      * Returns section with given index.
      * @param section index of the section
      * @return section with given index
      */
-    @NotNull Section getSection(int section);
+    Section getSection(int section);
 
     /**
      * Returns section at given y coordinate in the world.
      * @param blockY y coordinate of the section
      * @return section at given y coordinate
      */
-    default @NotNull Section getSectionAt(int blockY) {
+    default Section getSectionAt(int blockY) {
         return getSection(blockY >> CHUNK_SIZE_BITS);
     }
 
@@ -130,13 +129,13 @@ public interface Chunk extends ServerProperty {
      * Sends a chunk to a player.
      * @param player player to send chunk for
      */
-    void sendChunk(@NotNull Player player);
+    void sendChunk(Player player);
 
     /**
      * Unloads the chunk for the player.
      * @param player player to unload chunk for
      */
-    void unloadChunk(@NotNull Player player);
+    void unloadChunk(Player player);
 
     /**
      * Creates a copy of this chunk in a given world at given coordinates.
@@ -145,7 +144,7 @@ public interface Chunk extends ServerProperty {
      * @param chunkZ z coordinate of the copied chunk
      * @return copy of this chunk
      */
-    @NotNull Chunk copy(@NotNull World world, int chunkX, int chunkZ);
+    Chunk copy(World world, int chunkX, int chunkZ);
 
     /**
      * Resets the chunk and its data.

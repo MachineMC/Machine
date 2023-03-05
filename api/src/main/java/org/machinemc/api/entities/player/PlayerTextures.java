@@ -2,8 +2,6 @@ package org.machinemc.api.entities.player;
 
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
@@ -16,17 +14,17 @@ public interface PlayerTextures extends Writable {
     /**
      * @return base64 texture value of the skin
      */
-    @NonNls @NotNull String value();
+    String value();
 
     /**
      * @return signature of the skin
      */
-    @NonNls @Nullable String signature();
+    @Nullable String signature();
 
     /**
      * @return URL of the skin texture
      */
-    @NotNull URL skinUrl();
+    URL skinUrl();
 
     /**
      * @return URL of the texture of skin's cape
@@ -36,9 +34,9 @@ public interface PlayerTextures extends Writable {
     /**
      * @return type of the skin model
      */
-    @NotNull SkinModel skinModel();
+    SkinModel skinModel();
 
-    default void write(@NotNull ServerBuffer buf) {
+    default void write(ServerBuffer buf) {
         buf.writeTextures(this);
     }
 
