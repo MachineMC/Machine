@@ -1,3 +1,3 @@
-import me.pesekjak.machine.gradle.LibraryGeneratorPlugin
+import org.machinemc.generators.LibraryGeneratorPlugin
 
 apply<LibraryGeneratorPlugin>()
