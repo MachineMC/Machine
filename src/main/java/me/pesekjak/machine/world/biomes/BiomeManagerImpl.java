@@ -8,12 +8,11 @@ import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of biome manager.
@@ -24,7 +23,7 @@ public class BiomeManagerImpl implements BiomeManager {
     protected final @NotNull AtomicInteger ID_COUNTER = new AtomicInteger(0);
     private static final String CODEC_TYPE = "minecraft:worldgen/biome";
 
-    private final @NotNull Set<Biome> biomes = new CopyOnWriteArraySet<>();
+    private final @NotNull Map<Integer, Biome> biomes = new ConcurrentHashMap<>();
     @Getter
     private final @NotNull Machine server;
 
@@ -41,34 +40,19 @@ public class BiomeManagerImpl implements BiomeManager {
 
     @Override
     public void addBiome(@NotNull Biome biome) {
-        if(biome.getManager() != null && biome.getManager() != this)
-            throw new IllegalStateException("Biome '" + biome.getName() + "' is already registered in a different BiomeManager");
-        biome.getManagerReference().set(this);
-        biome.getIdReference().set(ID_COUNTER.getAndIncrement());
-        biomes.add(biome);
+        if(isRegistered(biome))
+            throw new IllegalStateException("Biome '" + biome.getName() + "' is already registered");
+        biomes.put(ID_COUNTER.getAndIncrement(), biome);
     }
 
     @Override
     public boolean removeBiome(@NotNull Biome biome) {
-        if(biome.getManager() != this) return false;
-        if(biomes.remove(biome)) {
-            biome.getManagerReference().set(null);
-            biome.getIdReference().set(-1);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean isRegistered(@NotNull NamespacedKey name) {
-        final Biome biome = getBiome(name);
-        if(biome == null) return false;
-        return isRegistered(biome);
+        return biomes.remove(getBiomeId(biome)) == null;
     }
 
     @Override
     public boolean isRegistered(@NotNull Biome biome) {
-        return biomes.contains(biome);
+        return biomes.containsValue(biome);
     }
 
     @Override
@@ -82,16 +66,31 @@ public class BiomeManagerImpl implements BiomeManager {
 
     @Override
     public @Nullable Biome getById(int id) {
-        for(Biome biome : getBiomes()) {
-            if (biome.getIdReference().get() != id) continue;
-            return biome;
+        return biomes.get(id);
+    }
+
+    @Override
+    public int getBiomeId(Biome biome) {
+        for (Integer id : biomes.keySet()) {
+            if (biomes.get(id).equals(biome))
+                return id;
         }
-        return null;
+        return -1;
     }
 
     @Override
     public @NotNull Set<Biome> getBiomes() {
-        return Collections.unmodifiableSet(biomes);
+        return biomes.values().stream().collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Override
+    public NBTCompound getBiomeNBT(Biome biome) {
+        NBTCompound nbtCompound = biome.toNBT();
+        return new NBTCompound(Map.of(
+                "name", biome.getName().toString(),
+                "id", ID_COUNTER.get(),
+                "element", nbtCompound
+        ));
     }
 
     @Override
@@ -101,7 +100,7 @@ public class BiomeManagerImpl implements BiomeManager {
 
     @Override
     public @NotNull List<NBTCompound> getCodecElements() {
-        return new ArrayList<>(biomes.stream()
+        return new ArrayList<>(biomes.values().stream()
                 .map(Biome::toNBT)
                 .toList());
     }

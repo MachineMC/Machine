@@ -12,33 +12,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public interface Biome extends NBTSerializable {
 
     /**
-     * @return atomic reference of the manager
-     */
-    @ApiStatus.Internal
-    @NotNull AtomicReference<BiomeManager> getManagerReference();
-
-    /**
-     * @return manager of the biome
-     */
-    default @Nullable BiomeManager getManager() {
-        return getManagerReference().get();
-    }
-
-    /**
-     * @return atomic reference of the id
-     */
-    @ApiStatus.Internal
-    @NotNull AtomicInteger getIdReference();
-
-    /**
-     * @return id of the biome
-     */
-    default int getId() {
-        if(getManagerReference().get() == null) return -1;
-        return getIdReference().get();
-    }
-
-    /**
      * @return name of the biome
      */
     @NotNull NamespacedKey getName();

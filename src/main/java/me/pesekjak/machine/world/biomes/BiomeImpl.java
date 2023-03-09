@@ -18,9 +18,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @Getter
 public class BiomeImpl implements Biome {
 
-    protected final @NotNull AtomicReference<BiomeManager> managerReference = new AtomicReference<>();
-    protected final @NotNull AtomicInteger idReference = new AtomicInteger(-1);
-
     private final @NotNull NamespacedKey name;
     @Builder.Default private final float depth = 0.125F;
     @Builder.Default private final float temperature = 0.8F;
@@ -55,11 +52,7 @@ public class BiomeImpl implements Biome {
         ));
         if (temperatureModifier != TemperatureModifier.NONE)
             element.set("temperature_modifier", temperatureModifier.name().toLowerCase(Locale.ROOT));
-        return new NBTCompound(Map.of(
-                "name", name.toString(),
-                "id", idReference.get(),
-                "element", element
-        ));
+        return element;
     }
 
 }
