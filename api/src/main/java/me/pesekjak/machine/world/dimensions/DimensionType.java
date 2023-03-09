@@ -77,9 +77,17 @@ public interface DimensionType extends NBTSerializable {
     @Range(from = -2032, to = 2016) int getMinY();
 
     /**
+     * @return max y level of the dimension
+     */
+    default @Range(from = 0, to = 4063) int getMaxY() {
+        return getHeight() - 1;
+    }
+
+    /**
      * @return height of the dimension
      */
-    @Range(from = 0, to = 4064) int getHeight();
+    // This method returns the number of block layers, the actual max y level would be one lower
+    @Range(from = 1, to = 4064) int getHeight();
 
     /**
      * @return logical height of the dimension
