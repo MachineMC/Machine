@@ -21,9 +21,6 @@ import static java.util.Map.entry;
 @Getter
 public class DimensionTypeImpl implements DimensionType {
 
-    protected final @NotNull AtomicReference<DimensionTypeManager> managerReference = new AtomicReference<>();
-    protected final @NotNull AtomicInteger idReference = new AtomicInteger(-1);
-
     private final @NotNull NamespacedKey name;
     @Builder.Default private final boolean natural = true;
     private final float ambientLight;
@@ -78,11 +75,7 @@ public class DimensionTypeImpl implements DimensionType {
         ));
         if (fixedTime != null)
             element.set("fixed_time", fixedTime);
-        return new NBTCompound(Map.of(
-                "name", name.toString(),
-                "id", idReference.intValue(),
-                "element", element
-        ));
+        return element;
     }
 
 }

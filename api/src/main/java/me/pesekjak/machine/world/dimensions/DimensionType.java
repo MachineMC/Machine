@@ -2,45 +2,14 @@ package me.pesekjak.machine.world.dimensions;
 
 import me.pesekjak.machine.server.NBTSerializable;
 import me.pesekjak.machine.utils.NamespacedKey;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Dimension type of world.
  */
 public interface DimensionType extends NBTSerializable {
-
-    /**
-     * @return atomic reference of the manager
-     */
-    @ApiStatus.Internal
-    @NotNull AtomicReference<DimensionTypeManager> getManagerReference();
-
-    /**
-     * @return manager of the dimension
-     */
-    default @Nullable DimensionTypeManager getManager() {
-        return getManagerReference().get();
-    }
-
-    /**
-     * @return atomic reference of the id
-     */
-    @ApiStatus.Internal
-    @NotNull AtomicInteger getIdReference();
-
-    /**
-     * @return id of the dimension
-     */
-    default int getId() {
-        if(getManagerReference().get() == null) return -1;
-        return getIdReference().get();
-    }
 
     /**
      * @return name of the dimension

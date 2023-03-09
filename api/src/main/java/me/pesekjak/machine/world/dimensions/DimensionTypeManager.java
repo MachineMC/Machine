@@ -3,6 +3,7 @@ package me.pesekjak.machine.world.dimensions;
 import me.pesekjak.machine.server.ServerProperty;
 import me.pesekjak.machine.server.codec.CodecPart;
 import me.pesekjak.machine.utils.NamespacedKey;
+import mx.kenzie.nbt.NBTCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -35,16 +36,19 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @param name name of the dimension
      * @return if the dimension with given name is registered in this manager
      */
-    boolean isRegistered(@NotNull NamespacedKey name);
+    default boolean isRegistered(@NotNull NamespacedKey name) {
+        DimensionType dimensionType = getDimension(name);
+        if (dimensionType == null)
+            return false;
+        return isRegistered(dimensionType);
+    }
 
     /**
      * Checks if the dimension is registered in this manager.
      * @param dimensionType dimension to check
      * @return if the dimension is registered in this manager
      */
-    default boolean isRegistered(@NotNull DimensionType dimensionType) {
-        return this.equals(dimensionType.getManager()) && isRegistered(dimensionType.getName());
-    }
+    boolean isRegistered(@NotNull DimensionType dimensionType);
 
     /**
      * Returns dimension with the given name registered in this manager.
@@ -61,8 +65,34 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
     @Nullable DimensionType getById(@Range(from = 0, to = Integer.MAX_VALUE) int id);
 
     /**
+     * Returns the id associated with the given dimension registered in this manager.
+     * @param dimensionType the dimension
+     * @return the id of the dimension, or -1 if it's not registered
+     */
+    int getDimensionId(DimensionType dimensionType);
+
+    /**
      * @return unmodifiable set of all dimensions registered in this manager
      */
     @Unmodifiable @NotNull Set<DimensionType> getDimensions();
+
+    /**
+     * Returns the NBT compound of a dimension with the given name
+     * @param name name of the dimension
+     * @return NBT of the given dimension
+     */
+    default @Nullable NBTCompound getDimensionNBT(NamespacedKey name) {
+        DimensionType dimensionType = getDimension(name);
+        if (dimensionType == null)
+            return null;
+        return getDimensionNBT(dimensionType);
+    }
+
+    /**
+     * Returns the NBT compound of the given dimension
+     * @param name the dimension
+     * @return NBT of the given dimension
+     */
+    NBTCompound getDimensionNBT(DimensionType dimensionType);
 
 }
