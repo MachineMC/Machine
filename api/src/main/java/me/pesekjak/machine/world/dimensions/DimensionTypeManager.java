@@ -90,7 +90,7 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
 
     /**
      * Returns the NBT compound of the given dimension
-     * @param name the dimension
+     * @param dimensionType the dimension
      * @return NBT of the given dimension
      */
     NBTCompound getDimensionNBT(DimensionType dimensionType);
