@@ -24,7 +24,7 @@ public class Scheduler {
 
     @Getter(AccessLevel.PROTECTED)
     private final BlockingQueue<TaskSession> syncQueue;
-    @Getter(AccessLevel.PROTECTED)
+    @Getter
     private final ScheduledExecutorService threadPoolExecutor;
 
     protected final HashSet<TaskSession> sessions = new HashSet<>();

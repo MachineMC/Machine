@@ -1,13 +1,22 @@
 package org.machinemc.server.world;
 
-import io.netty.util.collection.IntObjectHashMap;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import lombok.Getter;
 import lombok.Synchronized;
+import org.machinemc.api.server.schedule.Scheduler;
+import org.machinemc.api.utils.LazyNamespacedKey;
+import org.machinemc.api.utils.Pair;
+import org.machinemc.api.utils.math.Vector3;
+import org.machinemc.api.world.blocks.WorldBlock;
+import org.machinemc.api.world.blocks.WorldBlockManager;
+import org.machinemc.landscape.Landscape;
+import org.machinemc.landscape.Segment;
 import org.machinemc.server.Machine;
 import org.machinemc.api.chunk.Chunk;
-import org.machinemc.server.chunk.ChunkUtils;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.entities.Entity;
+import org.machinemc.server.chunk.ChunkUtils;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.BlockPosition;
@@ -15,13 +24,13 @@ import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldType;
 import org.machinemc.api.world.blocks.BlockType;
-import org.machinemc.server.world.blocks.BlockTypeImpl;
 import org.machinemc.api.world.dimensions.DimensionType;
+import org.machinemc.server.world.blocks.WorldBlockManagerImpl;
 import org.machinemc.server.world.generation.FlatStoneGenerator;
 import org.machinemc.api.world.generation.Generator;
-import org.machinemc.server.world.region.AnvilRegion;
-import org.machinemc.server.world.region.Region;
-import org.jglrxavpok.hephaistos.mca.AnvilException;
+import org.machinemc.server.world.region.DefaultLandscapeHandler;
+import org.machinemc.server.world.region.LandscapeChunk;
+import org.machinemc.server.world.region.LandscapeHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,18 +41,26 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * Server with a folder in the main server directory.
  */
-public class ServerWorld extends WorldImpl {
+@SuppressWarnings("UnstableApiUsage")
+public class ServerWorld extends AbstractWorld {
 
     public final static String DEFAULT_WORLD_FOLDER = "level";
 
     @Getter
     private final File folder;
     private final File regionFolder;
-    private final IntObjectHashMap<Region> regionMap = new IntObjectHashMap<>();
 
     protected final Set<Entity> entityList = new CopyOnWriteArraySet<>();
 
     private final Generator generator = new FlatStoneGenerator(getServer(), getSeed());
+
+    private final LandscapeHelper landscapeHelper;
+    @Getter
+    private final WorldBlockManager worldBlockManager;
+
+    private final Cache<Long, LandscapeChunk> cachedChunks = CacheBuilder.newBuilder()
+            .weakValues()
+            .build();
 
     /**
      * Creates default server world.
@@ -67,6 +84,41 @@ public class ServerWorld extends WorldImpl {
         super(server, name, FileUtils.getOrCreateUUID(folder), dimensionType, worldType, seed);
         this.folder = folder;
         regionFolder = new File(folder.getPath() + "/region/");
+        landscapeHelper = new LandscapeHelper(this,
+                regionFolder,
+                new DefaultLandscapeHandler(
+                        server.getBlockManager(),
+                        server.getBiomeManager(),
+                        true,
+                        48)
+        ); // TODO auto save limit should be configurable
+        worldBlockManager = new WorldBlockManagerImpl(this,
+                (position -> {
+                    final Segment segment = getSegment(position);
+                    BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(position.getX() % 16, position.getY() % 16, position.getZ() % 16)));
+                    if (blockType == null) {
+                        blockType = server.getBlockManager().getBlockType(LazyNamespacedKey.lazy(landscapeHelper.getHandler().getDefaultType()));
+                        if (blockType == null) throw new IllegalStateException();
+                    }
+                    return blockType;
+                }),
+                (position -> {
+                    final Segment segment = getSegment(position);
+                    return segment.getNBT(position.getX() % 16, position.getY() % 16, position.getZ() % 16);
+                })
+                );
+    }
+
+    private Segment getSegment(BlockPosition position) {
+        try {
+            final Landscape landscape = landscapeHelper.get(position.getX(), position.getZ());
+            final int segmentX = Math.abs(ChunkUtils.getChunkCoordinate(position.getX())) % 16;
+            final int segmentZ = Math.abs(ChunkUtils.getChunkCoordinate(position.getZ())) % 16;
+            final int segmentY = (position.getY() - getDimensionType().getMinY()) / 16;
+            return landscape.loadSegment(segmentX, segmentY, segmentZ);
+        } catch (Exception exception) {
+            throw new IllegalStateException(exception);
+        }
     }
 
     @Override
@@ -81,10 +133,10 @@ public class ServerWorld extends WorldImpl {
 
     @Override
     @Synchronized
-    public void load() throws IOException {
+    public void load() {
         if(loaded) throw new UnsupportedOperationException();
         if(!regionFolder.mkdirs() && !regionFolder.exists())
-            throw new IOException();
+            throw new IllegalStateException();
         loaded = true;
         getServer().getConsole().info("Loaded world '" + getName() + "'");
     }
@@ -95,29 +147,62 @@ public class ServerWorld extends WorldImpl {
         if(!loaded) throw new UnsupportedOperationException();
         loaded = false;
         save();
-        regionMap.clear();
+        landscapeHelper.close();
         getServer().getConsole().info("Unloaded world '" + getName() + "'");
     }
 
     @Override
     @Synchronized
-    public void save() throws IOException {
+    public void save() {
         getServer().getConsole().info("Saving world '" + getName() + "'...");
-        for(Region region : regionMap.values())
-            region.save();
+        landscapeHelper.flush();
         getServer().getConsole().info("Saved world '" + getName() + "'");
     }
 
     @Override
-    public void loadPlayer(Player player) {
-        final byte range = 3; // (byte) getServer().getViewDistance();
-        final Chunk center = getChunk(player.getLocation());
-        for(int x = -range; x < range + 1; x++) {
-            for(int z = -range; z < range + 1; z++) {
-                Chunk chunk = getChunk(center.getChunkX() + x, center.getChunkZ() + z);
+    public void loadPlayer(final Player player) {
+        // TODO this should take player's view distance
+        final Scheduler scheduler = getServer().getScheduler();
+        for (int i = 0; i <= 128; i++) {
+            final int[] coordinates = getSpiralCoordinates(i);
+            Scheduler.task(((input, session) -> {
+                final Chunk chunk = getChunk(coordinates[0], coordinates[1]);
                 chunk.sendChunk(player);
-            }
+                return null;
+            })).async().run(scheduler);
         }
+    }
+
+    public static int[] getSpiralCoordinates(int orderIndex) {
+        int x = 0;
+        int y = 0;
+        int currentOrder = 1;
+        int currentLength = 1;
+        int currentDirection = 0;
+
+        while (currentOrder < orderIndex) {
+            for (int i = 0; i < currentLength; i++) {
+                if (currentOrder == orderIndex) {
+                    break;
+                }
+                if (currentDirection == 0) {
+                    x++;
+                } else if (currentDirection == 1) {
+                    y++;
+                } else if (currentDirection == 2) {
+                    x--;
+                } else if (currentDirection == 3) {
+                    y--;
+                }
+                currentOrder++;
+            }
+            if (currentDirection == 1 || currentDirection == 3) {
+                currentLength++;
+            }
+            currentDirection = (currentDirection + 1) % 4;
+        }
+
+        return new int[] { x, y };
     }
 
     @Override
@@ -138,63 +223,48 @@ public class ServerWorld extends WorldImpl {
     }
 
     @Override
-    public Region getRegion(int regionX, int regionZ) {
-        return regionMap.get(createRegionIndex(regionX, regionZ));
-    }
-
-    @Override
-    public void saveRegion(int regionX, int regionZ) throws IOException {
-        getRegion(regionX, regionZ).save();
-    }
-
-    @Override
     public Chunk getChunk(int chunkX, int chunkZ) {
-        final int regionX = ChunkUtils.getRegionCoordinate(chunkX);
-        final int regionZ = ChunkUtils.getRegionCoordinate(chunkZ);
-        Region region = regionMap.get(createRegionIndex(regionX, regionZ));
-        if(region == null) {
-            try {
-                File regionFile = new File(regionFolder.getPath() + "/r." + regionX + "." + regionZ + ".mca");
-                if(!regionFile.createNewFile() && !regionFile.exists())
-                    throw new IllegalStateException();
-                region = new AnvilRegion(this, regionFile, regionX, regionZ);
-                regionMap.put(createRegionIndex(regionX, regionZ), region);
-            } catch (AnvilException | IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        try {
+            final long chunkIndex = chunkIndex(chunkX, chunkZ);
+            final LandscapeChunk chunk = cachedChunks.get(chunkIndex, () -> new LandscapeChunk(this, chunkX, chunkZ, landscapeHelper));
 
-        final int relativeX = Math.abs((chunkX + 32) % 32);
-        final int relativeZ = Math.abs((chunkZ + 32) % 32);
+            for (int i = 0; i <= chunk.getMaxSection(); i++) {
+                final int index = i;
+                final Segment segment = chunk.getSegment(i);
+                if (!segment.isEmpty()) continue;
 
-        boolean generation = region.shouldGenerate(relativeX, relativeZ);
-        Chunk chunk = region.getChunk(Math.abs((chunkX + 32) % 32), Math.abs((chunkZ + 32) % 32));
-        if(!generation) return chunk;
-        final int minY = getDimensionType().getMinY();
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                for (int y = 0; y < getDimensionType().getHeight(); y++) {
-                    final BlockType type = getGenerator().generate(new BlockPosition(Chunk.CHUNK_SIZE_X * chunkX + x, y + 1 + minY, Chunk.CHUNK_SIZE_Z * chunkZ + z));
-                    chunk.setBlock(x, y, z, type, BlockTypeImpl.CreateReason.GENERATED, null, null);
-                }
+                final Pair<BlockType[], short[]> data = generator.populateChunk(chunkX, chunkZ, i, this);
+                final BlockType[] palette = data.first();
+                final short[] blocks = data.second();
+
+                segment.setAllBlocks((x, y, z) -> {
+                    final BlockType blockType = palette[blocks[Generator.index(x, y, z)]];
+                    if(blockType.isTileEntity()) {
+                        final int ry = getDimensionType().getMinY() + y + Chunk.CHUNK_SECTION_SIZE * index;
+                        segment.setNBT(x, y, z, blockType.init(this, new BlockPosition(
+                                Chunk.CHUNK_SIZE_X * chunkX + x,
+                                ry,
+                                Chunk.CHUNK_SIZE_Z * chunkZ + z
+                        )));
+                    }
+                    return blockType.getName().toString();
+                });
+
+                segment.push();
             }
+            return chunk;
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
         }
-        return chunk;
     }
 
     /**
-     * @param regionX x coordinate of the region
-     * @param regionZ z coordinate of the region
-     * @return unique index for a region at given coordinates
+     * @param chunkX x coordinate of the chunk
+     * @param chunkZ z coordinate of the chunk
+     * @return unique index for a chunk at given coordinates
      */
-    private int createRegionIndex(int regionX, int regionZ) {
-        if(regionX > 0x7FFF || regionZ > 0x7FFF) throw new UnsupportedOperationException();
-        int index = 0;
-        if(regionX < 0) index |= (1 << 31);
-        if(regionZ < 0) index |= (1 << 15);
-        index |= (Math.abs(regionX) << 16);
-        index |= Math.abs(regionZ);
-        return index;
+    private long chunkIndex(final int chunkX, final int chunkZ) {
+        return ((long)chunkX << 32) | (chunkZ & 0xFFFFFFFFL);
     }
 
 }

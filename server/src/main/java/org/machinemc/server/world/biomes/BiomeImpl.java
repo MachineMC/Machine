@@ -2,7 +2,6 @@ package org.machinemc.server.world.biomes;
 
 import lombok.*;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.utils.LazyNamespacedKey;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.biomes.BiomeEffects;
@@ -39,7 +38,7 @@ public class BiomeImpl implements Biome {
      */
     public static Biome createDefault() {
         return BiomeImpl.builder()
-                .name(LazyNamespacedKey.of(NamespacedKey.MINECRAFT_NAMESPACE, "plains"))
+                .name(NamespacedKey.of(NamespacedKey.MINECRAFT_NAMESPACE, "plains"))
                 .build();
     }
 

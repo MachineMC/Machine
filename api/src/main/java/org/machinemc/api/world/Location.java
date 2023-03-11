@@ -165,6 +165,11 @@ public class Location implements Cloneable, Writable {
         return new BlockPosition(getBlockX(), getBlockY(), getBlockZ());
     }
 
+    @Contract(pure = true)
+    public Vector3 toVector() {
+        return Vector3.of(getBlockX(), getBlockY(), getBlockZ());
+    }
+
     /**
      * Writes the coordinates of the location to the buffer.
      * @param buf buffer to write into

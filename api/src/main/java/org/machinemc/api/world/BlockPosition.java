@@ -6,6 +6,7 @@ import lombok.With;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
 import org.jetbrains.annotations.Contract;
+import org.machinemc.api.utils.math.Vector3;
 
 /**
  * Represents position of a block in the world.
@@ -45,6 +46,14 @@ public class BlockPosition implements Writable, Cloneable {
     @Override
     public void write(ServerBuffer buf) {
         buf.writeBlockPos(this);
+    }
+
+    public Location toLocation(World world) {
+        return new Location(x, y, z, world);
+    }
+
+    public Vector3 toVector() {
+        return Vector3.of(x, y, z);
     }
 
     @Override

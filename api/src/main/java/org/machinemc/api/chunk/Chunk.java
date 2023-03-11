@@ -1,17 +1,16 @@
 package org.machinemc.api.chunk;
 
-import org.machinemc.api.entities.Entity;
+import org.jetbrains.annotations.Async;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.blocks.BlockType;
-import org.machinemc.api.world.blocks.BlockVisual;
 import org.machinemc.api.world.blocks.WorldBlock;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * Represents a chunk (16x16 area) in a world.
@@ -63,27 +62,18 @@ public interface Chunk extends ServerProperty {
      */
     WorldBlock getBlock(int x, int y, int z);
 
+    @Async.Execute
+    Future<WorldBlock> getBlockAsync(int x, int y, int z);
+
     /**
      * Sets a new block type for a world block at given location in this chunk.
      * @param x x coordinate of the block in this chunk
      * @param y y coordinate of the block in this chunk
      * @param z z coordinate of the block in this chunk
-     * @param blockType new block type
-     * @param reason reason of the change
-     * @param replaceReason reason of the replacement of the old block type
-     * @param source source of the change
-     * @return world block that has been changed
      */
-    WorldBlock setBlock(int x, int y, int z, BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source);
+    void setBlock(int x, int y, int z, BlockType blockType);
 
-    /**
-     * Changes the visual of a block at given location in this chunk.
-     * @param x x coordinate of the block in this chunk
-     * @param y y coordinate of the block in this chunk
-     * @param z z coordinate of the block in this chunk
-     * @param visual new visual for the world block
-     */
-    void setVisual(int x, int y, int z, BlockVisual visual);
+    // TODO async block setters
 
     /**
      * Returns a biome at given location in this chunk.
@@ -111,10 +101,10 @@ public interface Chunk extends ServerProperty {
 
     /**
      * Returns section with given index.
-     * @param section index of the section
+     * @param index index of the section
      * @return section with given index
      */
-    Section getSection(int section);
+    Section getSection(int index);
 
     /**
      * Returns section at given y coordinate in the world.

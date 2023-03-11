@@ -2,7 +2,6 @@ package org.machinemc.server.world.dimensions;
 
 import lombok.*;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.utils.LazyNamespacedKey;
 import org.machinemc.api.utils.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -51,7 +50,7 @@ public class DimensionTypeImpl implements DimensionType {
      */
     public static DimensionType createDefault() {
         return DimensionTypeImpl.builder()
-                .name(LazyNamespacedKey.of(NamespacedKey.MINECRAFT_NAMESPACE, "overworld"))
+                .name(NamespacedKey.of(NamespacedKey.MINECRAFT_NAMESPACE, "overworld"))
                 .build();
     }
 

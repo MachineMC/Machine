@@ -7,6 +7,7 @@ import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
+import org.machinemc.api.world.blocks.WorldBlockManager;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.api.world.generation.Generator;
 import org.jetbrains.annotations.ApiStatus;
@@ -89,6 +90,11 @@ public interface World extends ServerProperty {
      Generator getGenerator();
 
     /**
+     * @return world block manager of this world
+     */
+    WorldBlockManager getWorldBlockManager();
+
+    /**
      * Loads the world.
      * @throws IOException if an I/O error occurs during loading
      */
@@ -161,41 +167,8 @@ public interface World extends ServerProperty {
      * Sets a world block at given position to a different block type.
      * @param blockType new block type
      * @param position position of the block
-     * @param reason reason why the block type was set
-     * @param replaceReason reason why the previous block type was removed
-     * @param source source of the change
      */
-    void setBlock(BlockType blockType, BlockPosition position, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source);
-
-    /**
-     * Sets a world block at given location to a different block type.
-     * @param blockType new block type
-     * @param location location of the block
-     * @param reason reason why the block type was set
-     * @param replaceReason reason why the previous block type was removed
-     * @param source source of the change
-     */
-    default void setBlock(BlockType blockType, Location location, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
-        setBlock(blockType, location.toBlockPosition(), reason, replaceReason, source);
-    }
-
-    /**
-     * Sets a world block at given position to a different block type.
-     * @param blockType new block type
-     * @param position position of the block
-     */
-    default void setBlock(BlockType blockType, BlockPosition position) {
-        setBlock(blockType, position, BlockType.CreateReason.SET, BlockType.DestroyReason.REMOVED, null);
-    }
-
-    /**
-     * Sets a world block at given location to a different block type.
-     * @param blockType new block type
-     * @param location location of the block
-     */
-    default void setBlock(BlockType blockType, Location location) {
-        setBlock(blockType, location, BlockType.CreateReason.SET, BlockType.DestroyReason.REMOVED, null);
-    }
+    void setBlock(BlockType blockType, BlockPosition position);
 
     /**
      * Returns block from the world at given position,
@@ -216,6 +189,8 @@ public interface World extends ServerProperty {
     default WorldBlock getBlock(Location location) {
         return getBlock(location.toBlockPosition());
     }
+
+    // TODO async block getters and setters
 
     // TODO Biomes support
 

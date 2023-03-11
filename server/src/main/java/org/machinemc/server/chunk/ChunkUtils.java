@@ -62,13 +62,6 @@ public final class ChunkUtils {
     }
 
     /**
-     * @return coordinate of region the chunk is in
-     */
-    public static int getRegionCoordinate(int chunkXZ) {
-        return chunkXZ >> 5;
-    }
-
-    /**
      * Gets the block index of a position.
      * @param x x
      * @param y y

@@ -1,9 +1,10 @@
 package org.machinemc.server.world.generation;
 
 import lombok.Getter;
+import org.machinemc.api.utils.Pair;
+import org.machinemc.api.world.World;
 import org.machinemc.server.Machine;
 import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.generation.Generator;
@@ -32,9 +33,11 @@ public class FlatStoneGenerator implements Generator {
     }
 
     @Override
-    public BlockType generate(BlockPosition position) {
-        if(position.getY() > 1) return air;
-        return stone;
+    public Pair<BlockType[], short[]> populateChunk(final int chunkX, final int chunkZ, final int sectionIndex, World world) {
+        return new Pair<>(
+                sectionIndex > 4 ? new BlockType[]{air} : new BlockType[]{stone},
+                new short[Generator.DATA_SIZE]
+        );
     }
 
 }
