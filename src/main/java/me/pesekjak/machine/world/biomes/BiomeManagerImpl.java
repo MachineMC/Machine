@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -71,9 +70,9 @@ public class BiomeManagerImpl implements BiomeManager {
 
     @Override
     public int getBiomeId(Biome biome) {
-        for (Integer id : biomes.keySet()) {
-            if (biomes.get(id).equals(biome))
-                return id;
+        for (Map.Entry<Integer, Biome> entry : biomes.entrySet()) {
+            if (entry.getValue().equals(biome))
+                return entry.getKey();
         }
         return -1;
     }

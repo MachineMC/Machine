@@ -81,9 +81,9 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
 
     @Override
     public int getDimensionId(DimensionType dimensionType) {
-        for (Integer id : dimensionTypes.keySet()) {
-            if (dimensionTypes.get(id).equals(dimensionType))
-                return id;
+        for (Map.Entry<Integer, DimensionType> entry : dimensionTypes.entrySet()) {
+            if (entry.getValue().equals(dimensionType))
+                return entry.getKey();
         }
         return -1;
     }
