@@ -1,17 +1,15 @@
 package org.machinemc.server.world.dimensions;
 
-import lombok.*;
-import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.utils.LazyNamespacedKey;
-import org.machinemc.api.utils.NamespacedKey;
+import lombok.Builder;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.dimensions.DimensionType;
-import org.machinemc.api.world.dimensions.DimensionTypeManager;
+import org.machinemc.nbt.NBTCompound;
+import org.machinemc.server.utils.LazyNamespacedKey;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.Map.entry;
 
@@ -21,9 +19,6 @@ import static java.util.Map.entry;
 @Builder
 @Getter
 public class DimensionTypeImpl implements DimensionType {
-
-    protected final AtomicReference<DimensionTypeManager> managerReference = new AtomicReference<>();
-    protected final AtomicInteger idReference = new AtomicInteger(-1);
 
     private final NamespacedKey name;
     @Builder.Default private final boolean natural = true;
@@ -79,11 +74,7 @@ public class DimensionTypeImpl implements DimensionType {
         ));
         if (fixedTime != null)
             element.set("fixed_time", fixedTime);
-        return new NBTCompound(Map.of(
-                "name", name.toString(),
-                "id", idReference.intValue(),
-                "element", element
-        ));
+        return element;
     }
 
 }

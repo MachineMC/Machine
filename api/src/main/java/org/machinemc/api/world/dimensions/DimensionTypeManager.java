@@ -1,10 +1,11 @@
 package org.machinemc.api.world.dimensions;
 
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.server.codec.CodecPart;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.machinemc.nbt.NBTCompound;
 
 import java.util.Set;
 
@@ -21,6 +22,18 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
     void addDimension(DimensionType dimensionType);
 
     /**
+     * Removed a dimension with given name if it's registered in this manager.
+     * @param name name of the dimension
+     * @return if the dimension with given name was successfully removed
+     */
+    default boolean removeDimension(NamespacedKey name) {
+        DimensionType dimensionType = getDimension(name);
+        if (dimensionType == null)
+            return false;
+        return removeDimension(dimensionType);
+    }
+
+    /**
      * Removes the dimension type from the manager if it's registered in this manager.
      * @param dimensionType dimension to remove
      * @return if the dimension was successfully removed
@@ -33,16 +46,19 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @param name name of the dimension
      * @return if the dimension with given name is registered in this manager
      */
-    boolean isRegistered(NamespacedKey name);
+    default boolean isRegistered(NamespacedKey name) {
+        DimensionType dimensionType = getDimension(name);
+        if (dimensionType == null)
+            return false;
+        return isRegistered(dimensionType);
+    }
 
     /**
      * Checks if the dimension is registered in this manager.
      * @param dimensionType dimension to check
      * @return if the dimension is registered in this manager
      */
-    default boolean isRegistered(DimensionType dimensionType) {
-        return this.equals(dimensionType.getManager()) && isRegistered(dimensionType.getName());
-    }
+    boolean isRegistered(DimensionType dimensionType);
 
     /**
      * Returns dimension with the given name registered in this manager.
@@ -59,8 +75,34 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
     @Nullable DimensionType getById(int id);
 
     /**
+     * Returns the id associated with the given dimension registered in this manager.
+     * @param dimensionType the dimension
+     * @return the id of the dimension, or -1 if it's not registered
+     */
+    int getDimensionId(DimensionType dimensionType);
+
+    /**
      * @return unmodifiable set of all dimensions registered in this manager
      */
     @Unmodifiable Set<DimensionType> getDimensions();
+
+    /**
+     * Returns the NBT compound of a dimension with the given name
+     * @param name name of the dimension
+     * @return NBT of the given dimension
+     */
+    default @Nullable NBTCompound getDimensionNBT(NamespacedKey name) {
+        DimensionType dimensionType = getDimension(name);
+        if (dimensionType == null)
+            return null;
+        return getDimensionNBT(dimensionType);
+    }
+
+    /**
+     * Returns the NBT compound of the given dimension
+     * @param dimensionType the dimension
+     * @return NBT of the given dimension
+     */
+    NBTCompound getDimensionNBT(DimensionType dimensionType);
 
 }
