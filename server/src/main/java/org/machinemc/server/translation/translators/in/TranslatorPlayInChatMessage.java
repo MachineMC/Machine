@@ -45,11 +45,6 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
         for(Player serverPlayer : connection.getServer().getPlayerManager().getPlayers())
             serverPlayer.sendMessage(player, Component.text(message), MessageType.SYSTEM);
         connection.getServer().getConsole().info(message);
-
-        if(!packet.getMessage().contains("chunk"))
-            return;
-
-        player.getWorld().getChunk(player.getLocation()).sendChunk(player);
     }
 
     @Override
