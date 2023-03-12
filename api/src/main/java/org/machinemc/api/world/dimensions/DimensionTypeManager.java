@@ -1,14 +1,11 @@
 package org.machinemc.api.world.dimensions;
 
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.server.codec.CodecPart;
 import org.machinemc.api.utils.NamespacedKey;
-import me.pesekjak.machine.server.ServerProperty;
-import me.pesekjak.machine.server.codec.CodecPart;
-import me.pesekjak.machine.utils.NamespacedKey;
-import mx.kenzie.nbt.NBTCompound;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.machinemc.nbt.NBTCompound;
 
 import java.util.Set;
 
@@ -23,6 +20,18 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @param dimensionType dimension to register
      */
     void addDimension(DimensionType dimensionType);
+
+    /**
+     * Removed a dimension with given name if it's registered in this manager.
+     * @param name name of the dimension
+     * @return if the dimension with given name was successfully removed
+     */
+    default boolean removeDimension(NamespacedKey name) {
+        DimensionType dimensionType = getDimension(name);
+        if (dimensionType == null)
+            return false;
+        return removeDimension(dimensionType);
+    }
 
     /**
      * Removes the dimension type from the manager if it's registered in this manager.

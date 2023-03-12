@@ -1,15 +1,11 @@
 package org.machinemc.api.world.biomes;
 
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.server.codec.CodecPart;
 import org.machinemc.api.utils.NamespacedKey;
-import me.pesekjak.machine.server.ServerProperty;
-import me.pesekjak.machine.server.codec.CodecPart;
-import me.pesekjak.machine.utils.NamespacedKey;
-import mx.kenzie.nbt.NBTCompound;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.machinemc.nbt.NBTCompound;
 
 import java.util.Set;
 
@@ -21,6 +17,18 @@ public interface BiomeManager extends CodecPart, ServerProperty {
      * @param biome biome to register
      */
     void addBiome(Biome biome);
+
+    /**
+     * Removed a biome with given name if it's registered in this manager.
+     * @param name name of the biome
+     * @return if the biome with given name was successfully removed
+     */
+    default boolean removeDimension(NamespacedKey name) {
+        Biome biome = getBiome(name);
+        if (biome == null)
+            return false;
+        return removeBiome(biome);
+    }
 
     /**
      * Removes a biome from the manager if it's registered in this manager.

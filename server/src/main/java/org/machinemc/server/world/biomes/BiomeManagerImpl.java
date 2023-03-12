@@ -23,7 +23,7 @@ public class BiomeManagerImpl implements BiomeManager {
     protected final AtomicInteger ID_COUNTER = new AtomicInteger(0);
     private static final String CODEC_TYPE = "minecraft:worldgen/biome";
 
-    private final @NotNull Map<Integer, Biome> biomes = new ConcurrentHashMap<>();
+    private final Map<Integer, Biome> biomes = new ConcurrentHashMap<>();
     @Getter
     private final Machine server;
 

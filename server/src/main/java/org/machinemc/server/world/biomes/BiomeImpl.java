@@ -1,17 +1,15 @@
 package org.machinemc.server.world.biomes;
 
-import lombok.*;
-import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.utils.LazyNamespacedKey;
+import lombok.Builder;
+import lombok.Getter;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.biomes.BiomeEffects;
-import org.machinemc.api.world.biomes.BiomeManager;
+import org.machinemc.nbt.NBTCompound;
+import org.machinemc.server.utils.LazyNamespacedKey;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Default biome implementation.
@@ -20,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Getter
 public class BiomeImpl implements Biome {
 
-    private final @NotNull NamespacedKey name;
+    private final NamespacedKey name;
     @Builder.Default private final float depth = 0.125F;
     @Builder.Default private final float temperature = 0.8F;
     @Builder.Default private final float scale = 0.05F;

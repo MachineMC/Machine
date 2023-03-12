@@ -1,17 +1,15 @@
 package org.machinemc.server.world.dimensions;
 
-import lombok.*;
-import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.utils.LazyNamespacedKey;
-import org.machinemc.api.utils.NamespacedKey;
+import lombok.Builder;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.dimensions.DimensionType;
-import org.machinemc.api.world.dimensions.DimensionTypeManager;
+import org.machinemc.nbt.NBTCompound;
+import org.machinemc.server.utils.LazyNamespacedKey;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.Map.entry;
 
