@@ -7,6 +7,10 @@ val libs = extensions.getByType(org.gradle.accessors.dm.LibrariesForLibs::class)
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("http://www.machinemc.org/releases")
+        isAllowInsecureProtocol = true
+    }
 }
 
 dependencies {
@@ -42,12 +46,12 @@ tasks {
     }
 }
 
-tasks.register<Jar>("fatJar") {
+tasks.register<Jar>("buildAll") {
     group = "build"
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(sourceSets.main.get().output)
     dependsOn(configurations.runtimeClasspath)
     from({
-        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+        configurations.runtimeClasspath.get().filter { it.isFile }.map { zipTree(it) }
     })
 }

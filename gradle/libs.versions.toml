@@ -1,5 +1,4 @@
 [versions]
-
 jetbrains-kotlin-gradle = "1.7.21"
 jetbrains-annotations = "23.0.0"
 lombok = "1.18.24"
@@ -13,12 +12,12 @@ kyori-adventure = "4.11.0"
 hephaistos = "2.5.1"
 mojang-brigadier = "1.0.18"
 junit = "5.9.1"
+machine-nbt = "1.1.0"
 
-jetbrains-kotlin-jvm = "1.7.10"
+jetbrains-kotlin-jvm = "1.7.20"
 
 
 [libraries]
-
 jetbrains-kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "jetbrains-kotlin-gradle" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
 
@@ -48,6 +47,8 @@ mojang-brigadier = { module = "com.mojang:brigadier", version.ref = "mojang-brig
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+
+machine-nbt = { module = "org.machinemc:nbt", version.ref = "machine-nbt" }
 
 [bundles]
 kyori-adventure = ["kyori-adventure-api", "kyori-adventure-text-serializer-gson", "kyori-adventure-text-serializer-legacy", "kyori-adventure-text-serializer-plain"]
