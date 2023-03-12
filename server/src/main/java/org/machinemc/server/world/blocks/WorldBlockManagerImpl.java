@@ -42,11 +42,11 @@ public class WorldBlockManagerImpl implements WorldBlockManager {
     @Synchronized
     @Override
     public WorldBlock get(BlockPosition position) {
-        WorldBlock block = cached.getIfPresent(position);
-        if(block != null) return block;
-        block = new WorldBlockImpl(() -> typeFunction.apply(position), position, world, nbtFunction.apply(position));
-        cached.put(position, block);
-        return block;
+        try {
+            return cached.get(position, () -> new WorldBlockImpl(() -> typeFunction.apply(position), position, world, nbtFunction.apply(position)));
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     @Async.Execute

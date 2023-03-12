@@ -4,6 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import lombok.Getter;
 import lombok.Synchronized;
+import net.kyori.adventure.text.Component;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.LazyNamespacedKey;
 import org.machinemc.api.utils.Pair;
@@ -89,9 +90,9 @@ public class ServerWorld extends AbstractWorld {
                 new DefaultLandscapeHandler(
                         server.getBlockManager(),
                         server.getBiomeManager(),
-                        true,
-                        48)
-        ); // TODO auto save limit should be configurable
+                        false,
+                        256)
+        ); // TODO auto save should be configurable
         worldBlockManager = new WorldBlockManagerImpl(this,
                 (position -> {
                     final Segment segment = getSegment(position);
@@ -106,7 +107,7 @@ public class ServerWorld extends AbstractWorld {
                     final Segment segment = getSegment(position);
                     return segment.getNBT(position.getX() % 16, position.getY() % 16, position.getZ() % 16);
                 })
-                );
+        );
     }
 
     private Segment getSegment(BlockPosition position) {
@@ -162,18 +163,29 @@ public class ServerWorld extends AbstractWorld {
     @Override
     public void loadPlayer(final Player player) {
         // TODO this should take player's view distance
+        final long now = System.currentTimeMillis();
         final Scheduler scheduler = getServer().getScheduler();
-        for (int i = 0; i <= 128; i++) {
-            final int[] coordinates = getSpiralCoordinates(i);
+        final int chunksPerTask = 6;
+        final int tasks = 50;
+        for (int i = 0; i <= tasks; i++) {
+            final int index = i;
             Scheduler.task(((input, session) -> {
-                final Chunk chunk = getChunk(coordinates[0], coordinates[1]);
-                chunk.sendChunk(player);
+                final int start = index * chunksPerTask;
+                final int end = (index+1) * chunksPerTask;
+                for (int j = start; j < end; j++) {
+                    final int[] coordinates = getSpiralCoordinates(j);
+                    final Chunk chunk = getChunk(coordinates[0], coordinates[1]);
+                    chunk.sendChunk(player);
+                }
+                if(index == tasks)
+                    player.sendMessage(Component.text("Loading of " + (tasks*chunksPerTask) + " chunks took " + (System.currentTimeMillis() - now) + "ms"));
+
                 return null;
             })).async().run(scheduler);
         }
     }
 
-    public static int[] getSpiralCoordinates(int orderIndex) {
+    private static int[] getSpiralCoordinates(int orderIndex) {
         int x = 0;
         int y = 0;
         int currentOrder = 1;

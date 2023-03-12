@@ -17,7 +17,6 @@ import org.machinemc.landscape.Landscape;
 import org.machinemc.landscape.Segment;
 import org.machinemc.server.chunk.SectionImpl;
 import org.machinemc.server.chunk.WorldChunk;
-import org.machinemc.server.world.ServerWorld;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
