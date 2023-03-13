@@ -88,8 +88,7 @@ public class DynamicChunk extends WorldChunk {
 
     @Override
     public void setBiome(int x, int y, int z, Biome biome) {
-        final Section section = getSectionAt(y);
-        section.getBiomePalette().set(x / 4, y / 4, z / 4, biome.getId());
+        throw new UnsupportedOperationException();
     }
 
     @Override

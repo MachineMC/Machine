@@ -90,7 +90,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
     }
 
     @Override
-    public @NotNull Set<DimensionType> getDimensions() {
+    public Set<DimensionType> getDimensions() {
         return dimensionTypes.values().stream().collect(Collectors.toUnmodifiableSet());
     }
 
@@ -110,7 +110,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
     }
 
     @Override
-    public @NotNull List<NBTCompound> getCodecElements() {
+    public List<NBTCompound> getCodecElements() {
         return new ArrayList<>(dimensionTypes.values().stream()
                 .map(DimensionType::toNBT)
                 .toList());
