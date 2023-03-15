@@ -60,7 +60,7 @@ public abstract class WorldChunk implements Chunk {
     /**
      * @return chunk data of this chunk
      */
-    public ChunkData createChunkData() {
+    public static ChunkData createChunkData(final List<Section> sections, int height) {
         final int[] motionBlocking = new int[16 * 16];
         final int[] worldSurface = new int[16 * 16];
         for (int x = 0; x < 16; x++) {
@@ -77,7 +77,7 @@ public abstract class WorldChunk implements Chunk {
 
         // Data
         final FriendlyByteBuf buf = new FriendlyByteBuf();
-        for(final Section section : getSections())
+        for(final Section section : sections)
             section.write(buf);
         final byte[] data = buf.bytes();
 
@@ -87,7 +87,7 @@ public abstract class WorldChunk implements Chunk {
     /**
      * @return light data of this chunk
      */
-    public LightData createLightData() {
+    public static LightData createLightData(final List<Section> sections) {
         final BitSet skyMask = new BitSet();
         final BitSet blockMask = new BitSet();
         final BitSet emptySkyMask = new BitSet();
@@ -95,7 +95,7 @@ public abstract class WorldChunk implements Chunk {
         final List<byte[]> skyLights = new ArrayList<>();
         final List<byte[]> blockLights = new ArrayList<>();
         int index = 0;
-        for (final Section section : getSections()) {
+        for (final Section section : sections) {
             index++;
             final byte[] skyLight = section.getSkyLight();
             final byte[] blockLight = section.getBlockLight();
@@ -122,16 +122,17 @@ public abstract class WorldChunk implements Chunk {
      * @return chunk packet of this chunk
      */
     public PacketPlayOutChunkData createChunkPacket() {
+        final List<Section> sections = getSections();
         return new PacketPlayOutChunkData(chunkX, chunkZ,
-                createChunkData(),
-                createLightData());
+                createChunkData(sections, height),
+                createLightData(sections));
     }
 
     /**
      * @return light packet of this chunk
      */
     public PacketPlayOutUpdateLight createLightPacket() {
-        return new PacketPlayOutUpdateLight(chunkX, chunkZ, createLightData());
+        return new PacketPlayOutUpdateLight(chunkX, chunkZ, createLightData(getSections()));
     }
 
 }

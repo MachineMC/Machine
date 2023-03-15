@@ -1,6 +1,5 @@
 package org.machinemc.server.world.blocks;
 
-import lombok.Setter;
 import lombok.Synchronized;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.BlockPosition;
