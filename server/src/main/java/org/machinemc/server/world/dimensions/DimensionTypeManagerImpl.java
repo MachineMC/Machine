@@ -112,7 +112,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
     @Override
     public List<NBTCompound> getCodecElements() {
         return new ArrayList<>(dimensionTypes.values().stream()
-                .map(DimensionType::toNBT)
+                .map(this::getDimensionNBT)
                 .toList());
     }
 
