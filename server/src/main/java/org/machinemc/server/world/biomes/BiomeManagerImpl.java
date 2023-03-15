@@ -88,7 +88,7 @@ public class BiomeManagerImpl implements BiomeManager {
         NBTCompound nbtCompound = biome.toNBT();
         return new NBTCompound(Map.of(
                 "name", biome.getName().toString(),
-                "id", ID_COUNTER.get(),
+                "id", getBiomeId(biome),
                 "element", nbtCompound
         ));
     }
