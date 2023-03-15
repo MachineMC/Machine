@@ -2,44 +2,13 @@ package org.machinemc.api.world.dimensions;
 
 import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Dimension type of world.
  */
 public interface DimensionType extends NBTSerializable {
-
-    /**
-     * @return atomic reference of the manager
-     */
-    @ApiStatus.Internal
-    AtomicReference<DimensionTypeManager> getManagerReference();
-
-    /**
-     * @return manager of the dimension
-     */
-    default @Nullable DimensionTypeManager getManager() {
-        return getManagerReference().get();
-    }
-
-    /**
-     * @return atomic reference of the id
-     */
-    @ApiStatus.Internal
-    AtomicInteger getIdReference();
-
-    /**
-     * @return id of the dimension
-     */
-    default int getId() {
-        if(getManagerReference().get() == null) return -1;
-        return getIdReference().get();
-    }
 
     /**
      * @return name of the dimension
@@ -107,9 +76,17 @@ public interface DimensionType extends NBTSerializable {
     @Range(from = -2032, to = 2016) int getMinY();
 
     /**
+     * @return max y level of the dimension
+     */
+    default @Range(from = 0, to = 4063) int getMaxY() {
+        return getHeight() - 1;
+    }
+
+    /**
      * @return height of the dimension
      */
-    @Range(from = 0, to = 4064) int getHeight();
+    // This method returns the number of block layers, the actual max y level would be one lower
+    @Range(from = 1, to = 4064) int getHeight();
 
     /**
      * @return logical height of the dimension
