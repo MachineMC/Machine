@@ -101,7 +101,7 @@ public class BiomeManagerImpl implements BiomeManager {
     @Override
     public List<NBTCompound> getCodecElements() {
         return new ArrayList<>(biomes.values().stream()
-                .map(Biome::toNBT)
+                .map(this::getBiomeNBT)
                 .toList());
     }
 
