@@ -12,7 +12,7 @@ kyori-adventure = "4.11.0"
 mojang-brigadier = "1.0.18"
 junit = "5.9.1"
 machine-nbt = "1.1.0"
-machine-landscape = "1.0.1"
+machine-landscape = "1.0.2"
 
 jetbrains-kotlin-jvm = "1.7.20"
 

@@ -1,6 +1,7 @@
 package org.machinemc.api.world.blocks;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
 import org.machinemc.nbt.NBTCompound;
@@ -11,11 +12,9 @@ import org.machinemc.nbt.NBTCompound;
 public interface WorldBlock {
 
     /**
-     * @return type of the block
+     * @return the world the block is in
      */
-    BlockType getBlockType();
-
-    void setBlockType(BlockType blockType);
+    World getWorld();
 
     /**
      * @return position of the block
@@ -23,9 +22,9 @@ public interface WorldBlock {
     BlockPosition getPosition();
 
     /**
-     * @return the world the block is in
+     * @return type of the block
      */
-    World getWorld();
+    BlockType getBlockType();
 
     /**
      * @return nbt of the block
@@ -37,7 +36,7 @@ public interface WorldBlock {
      */
     @Contract("-> new")
     default BlockVisual getVisual() {
-        return getBlockType().getVisual(this);
+        return getBlockType().getVisual(asSnapshot());
     }
 
     /**
@@ -47,6 +46,22 @@ public interface WorldBlock {
      */
     void setVisual(BlockVisual visual);
 
+    default Snapshot asSnapshot() {
+        return new Snapshot(getWorld(), getPosition(), getBlockType(), getNBT());
+    }
+
     // TODO ticking
+
+    /**
+     * Snapshot of the world block, is used for fast getting
+     * WorldBlock snapshots from file or while world generation.
+     */
+    record Snapshot(World world,
+                    BlockPosition position,
+                    BlockType blockType,
+                    @Nullable NBTCompound compound
+                    ) {
+
+    }
 
 }

@@ -1,6 +1,7 @@
 package org.machinemc.server.world.blocks;
 
 import lombok.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.BlockPosition;
@@ -25,20 +26,20 @@ public class BlockTypeImpl implements BlockType {
     private final NamespacedKey name;
     @Getter
     private final BlockProperties properties;
-    private final Function<WorldBlock, BlockVisual> visualProvider;
+    private final Function<WorldBlock.Snapshot, BlockVisual> visualProvider;
 
     private final boolean dynamicVisual;
     private final boolean tileEntity;
 
     private BiFunction<World, BlockPosition, NBTCompound> initFunction;
 
-    private Consumer<WorldBlock> placeConsumer, destroyConsumer, updateConsumer;
+    private Consumer<WorldBlock.Snapshot> placeConsumer, destroyConsumer, updateConsumer;
 
-    public BlockTypeImpl(NamespacedKey name, BlockProperties properties, Function<WorldBlock, BlockVisual> visualProvider, boolean dynamicVisual, boolean tileEntity,
+    public BlockTypeImpl(NamespacedKey name, BlockProperties properties, Function<WorldBlock.Snapshot, BlockVisual> visualProvider, boolean dynamicVisual, boolean tileEntity,
                          @Nullable BiFunction<World, BlockPosition, NBTCompound> initFunction,
-                         @Nullable Consumer<WorldBlock> placeConsumer,
-                         @Nullable Consumer<WorldBlock> destroyConsumer,
-                         @Nullable Consumer<WorldBlock> updateConsumer) {
+                         @Nullable Consumer<WorldBlock.Snapshot> placeConsumer,
+                         @Nullable Consumer<WorldBlock.Snapshot> destroyConsumer,
+                         @Nullable Consumer<WorldBlock.Snapshot> updateConsumer) {
         this(name, properties, visualProvider, dynamicVisual, tileEntity);
         this.initFunction = initFunction;
         this.placeConsumer = placeConsumer;
@@ -47,7 +48,7 @@ public class BlockTypeImpl implements BlockType {
     }
 
     @Override
-    public BlockVisual getVisual(@Nullable WorldBlock block) {
+    public BlockVisual getVisual(@Nullable WorldBlock.Snapshot block) {
         return visualProvider.apply(block);
     }
 
@@ -62,23 +63,27 @@ public class BlockTypeImpl implements BlockType {
     }
 
     @Override
-    public @Nullable NBTCompound init(World world, BlockPosition position) {
-        if(initFunction != null) return initFunction.apply(world, position);
-        return null;
+    public @NotNull WorldBlock.Snapshot init(World world, BlockPosition position) {
+        return new WorldBlock.Snapshot(
+                world,
+                position,
+                this,
+                initFunction != null ? initFunction.apply(world, position) : null
+        );
     }
 
     @Override
-    public void place(WorldBlock block) {
+    public void place(WorldBlock.Snapshot block) {
         if(placeConsumer != null) placeConsumer.accept(block);
     }
 
     @Override
-    public void destroy(WorldBlock block) {
+    public void destroy(WorldBlock.Snapshot block) {
         if(destroyConsumer != null) destroyConsumer.accept(block);
     }
 
     @Override
-    public void update(WorldBlock block) {
+    public void update(WorldBlock.Snapshot block) {
         if(updateConsumer != null) updateConsumer.accept(block);
     }
 

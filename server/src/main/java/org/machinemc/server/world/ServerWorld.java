@@ -8,8 +8,6 @@ import net.kyori.adventure.text.Component;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.LazyNamespacedKey;
 import org.machinemc.api.utils.Pair;
-import org.machinemc.api.utils.math.Vector3;
-import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.blocks.WorldBlockManager;
 import org.machinemc.landscape.Landscape;
 import org.machinemc.landscape.Segment;
@@ -257,12 +255,12 @@ public class ServerWorld extends AbstractWorld {
                                 Chunk.CHUNK_SIZE_X * chunkX + x,
                                 ry,
                                 Chunk.CHUNK_SIZE_Z * chunkZ + z
-                        )));
+                        )).compound());
                     }
                     return blockType.getName().toString();
                 });
 
-                segment.push();
+                segment.push(); // TODO should be configurable (saving of generated chunks not touched by player)
             }
             return chunk;
         } catch (Exception exception) {

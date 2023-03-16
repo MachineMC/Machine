@@ -2,6 +2,7 @@ package org.machinemc.server.world;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.server.Machine;
 import org.machinemc.server.chunk.ChunkUtils;
 import org.machinemc.api.entities.Entity;
@@ -16,6 +17,7 @@ import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.dimensions.DimensionType;
 
 import java.util.UUID;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -39,6 +41,22 @@ public abstract class AbstractWorld implements World {
     protected boolean loaded = false;
 
     @Override
+    public WorldBlock getBlock(BlockPosition position) {
+        return getChunk(position).getBlock(
+                ChunkUtils.getSectionRelativeCoordinate(position.getX()),
+                position.getY(),
+                ChunkUtils.getSectionRelativeCoordinate(position.getZ()));
+    }
+
+    @Override
+    public Future<WorldBlock> getBlockAsync(BlockPosition position) {
+        return getChunk(position).getBlockAsync(
+                ChunkUtils.getSectionRelativeCoordinate(position.getX()),
+                position.getY(),
+                ChunkUtils.getSectionRelativeCoordinate(position.getZ()));
+    }
+
+    @Override
     public void setBlock(BlockType blockType, BlockPosition position) {
         getChunk(position).setBlock(
                 ChunkUtils.getSectionRelativeCoordinate(position.getX()),
@@ -48,8 +66,17 @@ public abstract class AbstractWorld implements World {
     }
 
     @Override
-    public WorldBlock getBlock(BlockPosition position) {
-        return getChunk(position).getBlock(
+    public void setBiome(Biome biome, BlockPosition position) {
+        getChunk(position).setBiome(
+                ChunkUtils.getSectionRelativeCoordinate(position.getX()),
+                position.getY(),
+                ChunkUtils.getSectionRelativeCoordinate(position.getZ()),
+                biome);
+    }
+
+    @Override
+    public Biome getBiome(BlockPosition position) {
+        return getChunk(position).getBiome(
                 ChunkUtils.getSectionRelativeCoordinate(position.getX()),
                 position.getY(),
                 ChunkUtils.getSectionRelativeCoordinate(position.getZ()));

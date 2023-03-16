@@ -5,6 +5,7 @@ import org.machinemc.api.entities.Entity;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
+import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.blocks.WorldBlockManager;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.machinemc.api.chunk.Chunk.CHUNK_SIZE_BITS;
@@ -164,13 +166,6 @@ public interface World extends ServerProperty {
     }
 
     /**
-     * Sets a world block at given position to a different block type.
-     * @param blockType new block type
-     * @param position position of the block
-     */
-    void setBlock(BlockType blockType, BlockPosition position);
-
-    /**
      * Returns block from the world at given position,
      * if the part of the world has not been generated yet, it should be
      * and the generated block should be returned.
@@ -190,9 +185,83 @@ public interface World extends ServerProperty {
         return getBlock(location.toBlockPosition());
     }
 
-    // TODO async block getters and setters
+    /**
+     * Returns block async from the world at given position,
+     * if the part of the world has not been generated yet, it should be
+     * and the generated block should be returned.
+     * @param position position of the block
+     * @return world block at given position
+     */
+    Future<WorldBlock> getBlockAsync(BlockPosition position);
 
-    // TODO Biomes support
+    /**
+     * Returns block async from the world at given position,
+     * if the part of the world has not been generated yet, it should be
+     * and the generated block should be returned.
+     * @param location location of the block
+     * @return world block at given position
+     */
+    default Future<WorldBlock> getBlockAsync(Location location) {
+        return getBlockAsync(location.toBlockPosition());
+    }
+
+    /**
+     * Sets a world block at given position to a different block type.
+     * @param blockType new block type
+     * @param position position of the block
+     */
+    void setBlock(BlockType blockType, BlockPosition position);
+
+    /**
+     * Sets a world block at given position to a different block type.
+     * @param blockType new block type
+     * @param location location of the block
+     */
+    default void setBlock(BlockType blockType, Location location) {
+        setBlock(blockType, location.toBlockPosition());
+    }
+
+    /**
+     * Sets new biome at given location in the world, keep in mind
+     * the biome grid is 4x4.
+     * @param biome new biome
+     * @param position position
+     */
+    void setBiome(Biome biome, BlockPosition position);
+
+    /**
+     * Sets new biome at given location in the world, keep in mind
+     * the biome grid is 4x4.
+     * @param biome new biome
+     * @param location location
+     */
+    default void setBiome(Biome biome, Location location) {
+        setBiome(biome, location.toBlockPosition());
+    }
+
+    /**
+     * Gets biome at given location in the world, keep in mind
+     * the biome grid is 4x4.
+     * <p>
+     * If the part of the world has not been generated yet, it should be
+     * and the generated biome should be returned.
+     * @param position position
+     * @return biome at given position
+     */
+    Biome getBiome(BlockPosition position);
+
+    /**
+     * Gets biome at given location in the world, keep in mind
+     * the biome grid is 4x4.
+     * <p>
+     * If the part of the world has not been generated yet, it should be
+     * and the generated biome should be returned.
+     * @param location location
+     * @return biome at given location
+     */
+    default Biome getBiome(Location location) {
+        return getBiome(location.toBlockPosition());
+    }
 
     /**
      * Changes the world difficulty.

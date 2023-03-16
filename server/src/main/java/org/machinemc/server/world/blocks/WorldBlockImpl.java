@@ -17,27 +17,22 @@ import java.util.function.Supplier;
  */
 public class WorldBlockImpl implements WorldBlock {
 
-    private Supplier<BlockType> blockType;
-    private final BlockPosition position;
     private final World world;
+    private final BlockPosition position;
+    private Supplier<BlockType> blockType;
     private NBTCompound compound;
 
-    protected WorldBlockImpl(Supplier<BlockType> blockType, BlockPosition position, World world, @Nullable NBTCompound compound) {
-        this.blockType = blockType;
-        this.position = position;
+    protected WorldBlockImpl(World world, BlockPosition position, Supplier<BlockType> blockType, @Nullable NBTCompound compound) {
         this.world = world;
+        this.position = position;
+        this.blockType = blockType;
+        this.compound = compound;
     }
 
     @Synchronized
     @Override
-    public BlockType getBlockType() {
-        return blockType.get();
-    }
-
-    @Synchronized
-    @Override
-    public void setBlockType(BlockType blockType) {
-        getWorld().setBlock(blockType, position);
+    public World getWorld() {
+        return world;
     }
 
     @Synchronized
@@ -48,8 +43,8 @@ public class WorldBlockImpl implements WorldBlock {
 
     @Synchronized
     @Override
-    public World getWorld() {
-        return world;
+    public BlockType getBlockType() {
+        return blockType.get();
     }
 
     @Synchronized

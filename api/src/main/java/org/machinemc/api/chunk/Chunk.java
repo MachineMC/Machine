@@ -73,8 +73,6 @@ public interface Chunk extends ServerProperty {
      */
     void setBlock(int x, int y, int z, BlockType blockType);
 
-    // TODO async block setters
-
     /**
      * Returns a biome at given location in this chunk.
      * @param x x coordinate of the biome
@@ -126,15 +124,6 @@ public interface Chunk extends ServerProperty {
      * @param player player to unload chunk for
      */
     void unloadChunk(Player player);
-
-    /**
-     * Creates a copy of this chunk in a given world at given coordinates.
-     * @param world world to create the chunk for
-     * @param chunkX x coordinate of the copied chunk
-     * @param chunkZ z coordinate of the copied chunk
-     * @return copy of this chunk
-     */
-    Chunk copy(World world, int chunkX, int chunkZ);
 
     /**
      * Resets the chunk and its data.
