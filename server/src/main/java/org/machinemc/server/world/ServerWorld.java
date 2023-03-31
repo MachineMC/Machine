@@ -7,10 +7,10 @@ import lombok.Synchronized;
 import net.kyori.adventure.text.Component;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.LazyNamespacedKey;
-import org.machinemc.api.utils.Pair;
-import org.machinemc.api.world.blocks.WorldBlockManager;
+import org.machinemc.api.world.blocks.*;
 import org.machinemc.landscape.Landscape;
 import org.machinemc.landscape.Segment;
+import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.Machine;
 import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.entities.Player;
@@ -22,8 +22,8 @@ import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldType;
-import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.dimensions.DimensionType;
+import org.machinemc.server.utils.WeaklyTimedCache;
 import org.machinemc.server.world.blocks.WorldBlockManagerImpl;
 import org.machinemc.server.world.generation.FlatStoneGenerator;
 import org.machinemc.api.world.generation.Generator;
@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Server with a folder in the main server directory.
@@ -57,9 +58,7 @@ public class ServerWorld extends AbstractWorld {
     @Getter
     private final WorldBlockManager worldBlockManager;
 
-    private final Cache<Long, LandscapeChunk> cachedChunks = CacheBuilder.newBuilder()
-            .weakValues()
-            .build();
+    private final Cache<Long, LandscapeChunk> cachedChunks = new WeaklyTimedCache<>(16, TimeUnit.SECONDS); // TODO configurable (check landscape chunk too, should be the same value)
 
     /**
      * Creates default server world.
@@ -239,23 +238,30 @@ public class ServerWorld extends AbstractWorld {
             final LandscapeChunk chunk = cachedChunks.get(chunkIndex, () -> new LandscapeChunk(this, chunkX, chunkZ, landscapeHelper));
 
             for (int i = 0; i <= chunk.getMaxSection(); i++) {
-                final int index = i;
+                final int ry = getDimensionType().getMinY() + Chunk.CHUNK_SECTION_SIZE * i;
                 final Segment segment = chunk.getSegment(i);
                 if (!segment.isEmpty()) continue;
 
-                final Pair<BlockType[], short[]> data = generator.populateChunk(chunkX, chunkZ, i, this);
-                final BlockType[] palette = data.first();
-                final short[] blocks = data.second();
+                final Generator.SectionContent content = generator.populateChunk(chunkX, chunkZ, i, this);
+                final BlockType[] palette = content.getPalette();
+                final short[] blocks = content.getData();
+                final NBTCompound[] tileEntities = content.getTileEntitiesData();
 
                 segment.setAllBlocks((x, y, z) -> {
-                    final BlockType blockType = palette[blocks[Generator.index(x, y, z)]];
-                    if(blockType.isTileEntity()) {
-                        final int ry = getDimensionType().getMinY() + y + Chunk.CHUNK_SECTION_SIZE * index;
-                        segment.setNBT(x, y, z, blockType.init(this, new BlockPosition(
+                    final int blockIndex = Generator.SectionContent.index(x, y, z);
+                    final BlockType blockType = palette[blocks[blockIndex]];
+                    if(blockType instanceof EntityBlockType entityBlockType) {
+                        final WorldBlock.State state = new WorldBlock.State(this, new BlockPosition(
                                 Chunk.CHUNK_SIZE_X * chunkX + x,
-                                ry,
+                                ry + y,
                                 Chunk.CHUNK_SIZE_Z * chunkZ + z
-                        )).compound());
+                        ), blockType, new NBTCompound());
+                        entityBlockType.initialize(state);
+                        for(BlockHandler handler : blockType.getHandlers())
+                            handler.onGeneration(state);
+                        if(tileEntities[blockIndex] != null)
+                            state.compound().putAll(tileEntities[blockIndex]);
+                        segment.setNBT(x, y, z, state.compound());
                     }
                     return blockType.getName().toString();
                 });

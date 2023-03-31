@@ -1,19 +1,18 @@
 package org.machinemc.server.world.blocks;
 
 import lombok.*;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.api.world.BlockPosition;
-import org.machinemc.api.world.World;
+import org.machinemc.api.world.BlockData;
+import org.machinemc.api.world.blocks.BlockHandler;
 import org.machinemc.api.world.blocks.BlockType;
-import org.machinemc.api.world.blocks.BlockVisual;
 import org.machinemc.api.world.blocks.WorldBlock;
-import org.machinemc.nbt.NBTCompound;
 
 import java.awt.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
 /**
@@ -25,31 +24,34 @@ public class BlockTypeImpl implements BlockType {
     @Getter
     private final NamespacedKey name;
     @Getter
-    private final BlockProperties properties;
-    private final Function<WorldBlock.Snapshot, BlockVisual> visualProvider;
+    private final BlockType.BlockProperties properties;
 
+    private final Function<WorldBlock.State, BlockData> blockDataProvider;
     private final boolean dynamicVisual;
-    private final boolean tileEntity;
 
-    private BiFunction<World, BlockPosition, NBTCompound> initFunction;
+    private final List<BlockHandler> handlers = new CopyOnWriteArrayList<>();
 
-    private Consumer<WorldBlock.Snapshot> placeConsumer, destroyConsumer, updateConsumer;
+    public BlockTypeImpl(NamespacedKey name,
+                         BlockType.BlockProperties properties,
+                         BlockData defaultBlockData) {
+        this.name = name;
+        this.properties = properties;
+        blockDataProvider = (state -> defaultBlockData);
+        dynamicVisual = false;
+    }
 
-    public BlockTypeImpl(NamespacedKey name, BlockProperties properties, Function<WorldBlock.Snapshot, BlockVisual> visualProvider, boolean dynamicVisual, boolean tileEntity,
-                         @Nullable BiFunction<World, BlockPosition, NBTCompound> initFunction,
-                         @Nullable Consumer<WorldBlock.Snapshot> placeConsumer,
-                         @Nullable Consumer<WorldBlock.Snapshot> destroyConsumer,
-                         @Nullable Consumer<WorldBlock.Snapshot> updateConsumer) {
-        this(name, properties, visualProvider, dynamicVisual, tileEntity);
-        this.initFunction = initFunction;
-        this.placeConsumer = placeConsumer;
-        this.destroyConsumer = destroyConsumer;
-        this.updateConsumer = updateConsumer;
+    public BlockTypeImpl(NamespacedKey name,
+                         BlockType.BlockProperties properties,
+                         Function<WorldBlock.State, BlockData> blockDataProvider,
+                         boolean dynamicVisual,
+                         BlockHandler defaultHandler) {
+        this(name, properties, blockDataProvider, dynamicVisual);
+        addHandler(defaultHandler);
     }
 
     @Override
-    public BlockVisual getVisual(@Nullable WorldBlock.Snapshot block) {
-        return visualProvider.apply(block);
+    public BlockData getBlockData(WorldBlock.@Nullable State block) {
+        return blockDataProvider.apply(block);
     }
 
     @Override
@@ -58,33 +60,18 @@ public class BlockTypeImpl implements BlockType {
     }
 
     @Override
-    public boolean isTileEntity() {
-        return false;
+    public @Unmodifiable List<BlockHandler> getHandlers() {
+        return Collections.unmodifiableList(handlers);
     }
 
     @Override
-    public @NotNull WorldBlock.Snapshot init(World world, BlockPosition position) {
-        return new WorldBlock.Snapshot(
-                world,
-                position,
-                this,
-                initFunction != null ? initFunction.apply(world, position) : null
-        );
+    public void addHandler(BlockHandler handler) {
+        handlers.add(handler);
     }
 
     @Override
-    public void place(WorldBlock.Snapshot block) {
-        if(placeConsumer != null) placeConsumer.accept(block);
-    }
-
-    @Override
-    public void destroy(WorldBlock.Snapshot block) {
-        if(destroyConsumer != null) destroyConsumer.accept(block);
-    }
-
-    @Override
-    public void update(WorldBlock.Snapshot block) {
-        if(updateConsumer != null) updateConsumer.accept(block);
+    public boolean removeHandler(BlockHandler handler) {
+        return handlers.remove(handler);
     }
 
     /**

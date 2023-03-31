@@ -43,7 +43,11 @@ public class WorldBlockManagerImpl implements WorldBlockManager {
     @Override
     public WorldBlock get(BlockPosition position) {
         try {
-            return cached.get(position, () -> new WorldBlockImpl(world, position, () -> typeFunction.apply(position), nbtFunction.apply(position)));
+            return cached.get(position, () -> new WorldBlockImpl(
+                    world,
+                    position,
+                    () -> typeFunction.apply(position),
+                    () -> nbtFunction.apply(position)));
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }

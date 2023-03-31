@@ -1,27 +1,27 @@
 package org.machinemc.server.world.region;
 
 import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.chunk.Section;
 import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.LazyNamespacedKey;
+import org.machinemc.api.world.BlockData;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.biomes.BiomeManager;
-import org.machinemc.api.world.blocks.BlockType;
-import org.machinemc.api.world.blocks.BlockVisual;
-import org.machinemc.api.world.blocks.WorldBlock;
-import org.machinemc.api.world.blocks.WorldBlockManager;
+import org.machinemc.api.world.blocks.*;
 import org.machinemc.landscape.Landscape;
 import org.machinemc.landscape.Segment;
+import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.chunk.SectionImpl;
 import org.machinemc.server.chunk.WorldChunk;
+import org.machinemc.server.utils.WeaklyTimedCache;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("UnstableApiUsage")
 public class LandscapeChunk extends WorldChunk {
@@ -32,9 +32,7 @@ public class LandscapeChunk extends WorldChunk {
     private final int segmentX;
     private final int segmentZ;
 
-    private final Cache<Integer, Section> sections = CacheBuilder.newBuilder()
-            .softValues()
-            .build();
+    private final Cache<Integer, Section> sections = new WeaklyTimedCache<>(16, TimeUnit.SECONDS); // TODO configurable (check server world too, should be the same value)
 
     public LandscapeChunk(final World world, final int chunkX, final int chunkZ, final LandscapeHelper helper) throws ExecutionException {
         super(world, chunkX, chunkZ);
@@ -61,11 +59,21 @@ public class LandscapeChunk extends WorldChunk {
     @Override
     public void setBlock(final int x, final int y, final int z, final BlockType blockType) {
         final int offsetY = y - getBottom();
-        final Segment segment = getSegment(offsetY / 16);
-        segment.setBlock(x, offsetY % 16, z, blockType.getName().toString());
+        final int sectionY = offsetY % 16;
 
-        if(blockType.isTileEntity())
-            segment.setNBT(x, offsetY % 16, z, blockType.init(world, new BlockPosition(x, y, z)).compound());
+        final Segment segment = getSegment(offsetY / 16);
+
+        segment.setBlock(x, sectionY, z, blockType.getName().toString());
+
+        if(blockType instanceof EntityBlockType entityBlockType) {
+            final WorldBlock.State state = new WorldBlock.State(world, new BlockPosition(x, y, z), entityBlockType, new NBTCompound());
+            entityBlockType.initialize(state);
+            for(BlockHandler handler : blockType.getHandlers())
+                handler.onPlace(state);
+            segment.setNBT(x, sectionY, z, state.compound());
+        } else {
+            segment.setNBT(x, sectionY, z, null);
+        }
 
         segment.push();
     }
@@ -143,18 +151,18 @@ public class LandscapeChunk extends WorldChunk {
     }
 
     private void setSectionBlock(final Section section, final int sectionIndex, final int x, final int y, final int z, final BlockType blockType) {
-        final BlockVisual visual;
+        final BlockData visual;
         if(blockType.hasDynamicVisual()) {
-            visual = blockType.getVisual(new WorldBlock.Snapshot(
+            visual = blockType.getBlockData(new WorldBlock.State(
                     world,
                     new BlockPosition(worldX + x, getBottom() + y, worldZ + z),
                     blockType,
-                    getSegment(sectionIndex).getNBT(x, y, z)
+                    getSegment(sectionIndex).getNBT(x, y, z).clone()
             ));
         } else {
-            visual = blockType.getVisual(null);
+            visual = blockType.getBlockData(null);
         }
-        section.getBlockPalette().set(x, y, z, visual.getBlockData().getId());
+        section.getBlockPalette().set(x, y, z, visual.getId());
     }
 
     @Override

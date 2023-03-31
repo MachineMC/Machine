@@ -1,13 +1,16 @@
 package org.machinemc.api.world.blocks;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.world.BlockData;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
 import org.machinemc.nbt.NBTCompound;
 
 /**
  * Represents an existing block in a world.
+ * <p>
+ * This is a live object, and only one may exist for any given location in a world.
+ * The state or nbt of the block may change concurrently to your own handling of it;
+ * use {@link WorldBlock#asState} to get a snapshot of the block which will not be modified.
  */
 public interface WorldBlock {
 
@@ -27,40 +30,45 @@ public interface WorldBlock {
     BlockType getBlockType();
 
     /**
-     * @return nbt of the block
+     * Changes the block type of the world block.
+     * @param blockType new block type
+     */
+    void setBlockType(BlockType blockType);
+
+    /**
+     * @return clone of the nbt of the block
      */
     NBTCompound getNBT();
 
     /**
-     * @return visual of the block
+     * Updates the NBT of the world block.
+     * @param compound new nbt
      */
-    @Contract("-> new")
-    default BlockVisual getVisual() {
-        return getBlockType().getVisual(asSnapshot());
+    void setNBT(NBTCompound compound);
+
+    /**
+     * @return blockdata of the block
+     */
+    default BlockData getBlockData() {
+        return getBlockType().getBlockData(asState());
     }
 
     /**
-     * Updates a visual of this block, isn't persistent, the visual is updated
-     * only for players that has the chunk with this world block loaded.
-     * @param visual new visual
+     * Returns the current snapshot of the block as block state.
+     * @return state of this block
      */
-    void setVisual(BlockVisual visual);
-
-    default Snapshot asSnapshot() {
-        return new Snapshot(getWorld(), getPosition(), getBlockType(), getNBT());
+    default State asState() {
+        return new State(getWorld(), getPosition(), getBlockType(), getNBT());
     }
 
-    // TODO ticking
-
     /**
-     * Snapshot of the world block, is used for fast getting
-     * WorldBlock snapshots from file or while world generation.
+     * Represents a state of a block, doesn't contain the current information
+     * about the block, acts just like a snapshot.
      */
-    record Snapshot(World world,
-                    BlockPosition position,
-                    BlockType blockType,
-                    @Nullable NBTCompound compound
-                    ) {
+    record State(World world,
+                 BlockPosition position,
+                 BlockType blockType,
+                 NBTCompound compound) {
 
     }
 

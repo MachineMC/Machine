@@ -1,8 +1,8 @@
 package org.machinemc.server.world.generation;
 
 import lombok.Getter;
-import org.machinemc.api.utils.Pair;
 import org.machinemc.api.world.World;
+import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.Machine;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.blocks.BlockManager;
@@ -33,11 +33,26 @@ public class FlatStoneGenerator implements Generator {
     }
 
     @Override
-    public Pair<BlockType[], short[]> populateChunk(final int chunkX, final int chunkZ, final int sectionIndex, World world) {
-        return new Pair<>(
-                sectionIndex > 4 ? new BlockType[]{air} : new BlockType[]{stone},
-                new short[Generator.DATA_SIZE]
-        );
+    public SectionContent populateChunk(int chunkX, int chunkZ, int sectionIndex, World world) {
+        return new SectionContent() {
+
+            final BlockType[] palette = new BlockType[]{sectionIndex > 4 ? air : stone};
+
+            @Override
+            public BlockType[] getPalette() {
+                return palette;
+            }
+
+            @Override
+            public short[] getData() {
+                return new short[SectionContent.DATA_SIZE];
+            }
+
+            @Override
+            public NBTCompound[] getTileEntitiesData() {
+                return new NBTCompound[SectionContent.DATA_SIZE];
+            }
+        };
     }
 
 }

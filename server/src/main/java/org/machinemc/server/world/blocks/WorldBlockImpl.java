@@ -1,11 +1,9 @@
 package org.machinemc.server.world.blocks;
 
 import lombok.Synchronized;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.blocks.BlockType;
-import org.machinemc.api.world.blocks.BlockVisual;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.nbt.NBTCompound;
 
@@ -15,14 +13,15 @@ import java.util.function.Supplier;
 /**
  * Default world block implementation.
  */
+@SuppressWarnings("ClassCanBeRecord")
 public class WorldBlockImpl implements WorldBlock {
 
     private final World world;
     private final BlockPosition position;
-    private Supplier<BlockType> blockType;
-    private NBTCompound compound;
+    private final Supplier<BlockType> blockType;
+    private final Supplier<NBTCompound> compound;
 
-    protected WorldBlockImpl(World world, BlockPosition position, Supplier<BlockType> blockType, @Nullable NBTCompound compound) {
+    protected WorldBlockImpl(World world, BlockPosition position, Supplier<BlockType> blockType, Supplier<NBTCompound> compound) {
         this.world = world;
         this.position = position;
         this.blockType = blockType;
@@ -47,19 +46,22 @@ public class WorldBlockImpl implements WorldBlock {
         return blockType.get();
     }
 
+    @Override
+    public void setBlockType(BlockType blockType) {
+        world.setBlock(blockType, position);
+    }
+
     @Synchronized
     @Override
     public NBTCompound getNBT() {
-        if(compound == null)
-            compound = new NBTCompound();
-        return compound;
+        return compound.get().clone();
     }
 
-    // TODO implement
-    @Synchronized
     @Override
-    public void setVisual(BlockVisual visual) {
-        // getWorld().setChunk(of this block).setVisual(coordinates, visual)
+    public void setNBT(NBTCompound compound) {
+        NBTCompound source = this.compound.get();
+        source.clear();
+        source.putAll(compound);
     }
 
     @Override
