@@ -1,12 +1,14 @@
 package org.machinemc.server.world;
 
 import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import lombok.Getter;
 import lombok.Synchronized;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.chunk.Section;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.LazyNamespacedKey;
+import org.machinemc.api.world.*;
 import org.machinemc.api.world.blocks.*;
 import org.machinemc.landscape.Landscape;
 import org.machinemc.landscape.Segment;
@@ -16,17 +18,14 @@ import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.server.chunk.ChunkUtils;
+import org.machinemc.server.chunk.SectionImpl;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.api.world.BlockPosition;
-import org.machinemc.api.world.Location;
-import org.machinemc.api.world.World;
-import org.machinemc.api.world.WorldType;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.server.utils.WeaklyTimedCache;
 import org.machinemc.server.world.blocks.WorldBlockManagerImpl;
-import org.machinemc.server.world.generation.FlatStoneGenerator;
 import org.machinemc.api.world.generation.Generator;
+import org.machinemc.server.world.generation.StonePyramidGenerator;
 import org.machinemc.server.world.region.DefaultLandscapeHandler;
 import org.machinemc.server.world.region.LandscapeChunk;
 import org.machinemc.server.world.region.LandscapeHelper;
@@ -52,7 +51,7 @@ public class ServerWorld extends AbstractWorld {
 
     protected final Set<Entity> entityList = new CopyOnWriteArraySet<>();
 
-    private final Generator generator = new FlatStoneGenerator(getServer(), getSeed());
+    private final Generator generator = new StonePyramidGenerator(getServer(), getSeed());
 
     private final LandscapeHelper landscapeHelper;
     @Getter
@@ -244,34 +243,94 @@ public class ServerWorld extends AbstractWorld {
 
                 final Generator.SectionContent content = generator.populateChunk(chunkX, chunkZ, i, this);
                 final BlockType[] palette = content.getPalette();
+
+                assert palette.length != 0;
+
                 final short[] blocks = content.getData();
                 final NBTCompound[] tileEntities = content.getTileEntitiesData();
 
-                segment.setAllBlocks((x, y, z) -> {
-                    final int blockIndex = Generator.SectionContent.index(x, y, z);
-                    final BlockType blockType = palette[blocks[blockIndex]];
-                    if(blockType instanceof EntityBlockType entityBlockType) {
-                        final WorldBlock.State state = new WorldBlock.State(this, new BlockPosition(
-                                Chunk.CHUNK_SIZE_X * chunkX + x,
-                                ry + y,
-                                Chunk.CHUNK_SIZE_Z * chunkZ + z
-                        ), blockType, new NBTCompound());
-                        entityBlockType.initialize(state);
-                        for(BlockHandler handler : blockType.getHandlers())
-                            handler.onGeneration(state);
-                        if(tileEntities[blockIndex] != null)
-                            state.compound().putAll(tileEntities[blockIndex]);
-                        segment.setNBT(x, y, z, state.compound());
-                    }
-                    return blockType.getName().toString();
-                });
+                final Section section = new SectionImpl();
 
+                if(palette.length != 1) {
+                    segment.setAllBlocks((x, y, z) -> {
+                        final int blockIndex = Generator.SectionContent.index(x, y, z);
+                        final BlockType blockType = palette[blocks[blockIndex]];
+                        final BlockPosition position = new BlockPosition(Chunk.CHUNK_SIZE_X * chunkX + x, ry + y, Chunk.CHUNK_SIZE_Z * chunkZ + z);
+
+                        if (blockType instanceof EntityBlockType entityBlockType) {
+                            segment.setNBT(x, y, z, initializeTileEntity(
+                                    entityBlockType,
+                                    position,
+                                    tileEntities[blockIndex]));
+                        }
+
+                        final BlockData visual;
+                        if(blockType.hasDynamicVisual()) {
+                            visual = blockType.getBlockData(new WorldBlock.State(
+                                    this,
+                                    position,
+                                    blockType,
+                                    segment.getNBT(x, y, z).clone()
+                            ));
+                        } else {
+                            visual = blockType.getBlockData(null);
+                        }
+                        section.getBlockPalette().set(x, y, z, visual.getId());
+
+                        return blockType.getName().toString();
+                    });
+                } else {
+                    final BlockType blockType = palette[0];
+                    segment.fill(blockType.getName().toString());
+
+                    if (blockType instanceof EntityBlockType entityBlockType) {
+                        segment.setAllNBT((x, y, z) -> {
+                            final BlockPosition position = new BlockPosition(Chunk.CHUNK_SIZE_X * chunkX + x, ry + y, Chunk.CHUNK_SIZE_Z * chunkZ + z);
+                            return initializeTileEntity(entityBlockType, position, tileEntities[Generator.SectionContent.index(x, y, z)]);
+                        });
+                    }
+
+                    if(blockType.hasDynamicVisual()) {
+                        segment.getAllNBT((x, y, z, nbt) -> {
+                            final BlockPosition position = new BlockPosition(Chunk.CHUNK_SIZE_X * chunkX + x, ry + y, Chunk.CHUNK_SIZE_Z * chunkZ + z);
+                            section.getBlockPalette().set(x, y, z, blockType.getBlockData(new WorldBlock.State(this,
+                                    position,
+                                    blockType,
+                                    segment.getNBT(x, y, z).clone()
+                                    )).getId()
+                            );
+                        });
+                    } else {
+                        section.getBlockPalette().fill(blockType.getBlockData(null).getId());
+                    }
+
+                }
+
+                chunk.readSectionBiomeData(i, section, segment); // TODO should be from generator once generators support biomes
+                chunk.setSection(i, section);
                 segment.push(); // TODO should be configurable (saving of generated chunks not touched by player)
             }
             return chunk;
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    /**
+     * Initialize NBT compound for a tile entity generation.
+     * @param entityBlockType type of the tile entity
+     * @param position position of the block being generated
+     * @param generatorData compound data for the tile entity provided by the generator
+     * @return nbt compound for the tile entity
+     */
+    private NBTCompound initializeTileEntity(EntityBlockType entityBlockType, BlockPosition position, @Nullable NBTCompound generatorData) {
+        final WorldBlock.State state = new WorldBlock.State(this, position, entityBlockType, new NBTCompound());
+        entityBlockType.initialize(state);
+        for (BlockHandler handler : entityBlockType.getHandlers())
+            handler.onGeneration(state);
+        if (generatorData != null)
+            state.compound().putAll(generatorData);
+        return state.compound();
     }
 
     /**

@@ -20,7 +20,6 @@ import org.machinemc.server.utils.WeaklyTimedCache;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -49,11 +48,6 @@ public class LandscapeChunk extends WorldChunk {
     @Override
     public WorldBlock getBlock(final int x, final int y, final int z) {
         return worldBlockManager.get(new BlockPosition(worldX + x, y, worldZ + z));
-    }
-
-    @Override
-    public Future<WorldBlock> getBlockAsync(final int x, final int y, final int z) {
-        return worldBlockManager.getAsync(new BlockPosition(worldX + x, y, worldZ + z));
     }
 
     @Override
@@ -112,42 +106,38 @@ public class LandscapeChunk extends WorldChunk {
                 final SectionImpl section = new SectionImpl();
                 final Segment segment = getSegment(index);
 
-                final Map<String, BlockType> types = new HashMap<>();
-                segment.getAllBlocks((x, y, z, blockName) -> {
-                    if (types.containsKey(blockName)) {
-                        final BlockType blockType = types.get(blockName);
-                        setSectionBlock(section, index, x, y, z, blockType);
-                        return;
-                    }
-                    BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(blockName));
-                    if (blockType == null)
-                        blockType = server.getBlockType(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultType()));
-                    assert blockType != null;
-                    types.put(blockType.getName().toString(), blockType);
-                    setSectionBlock(section, index, x, y, z, blockType);
-                });
-
-                final Map<String, Integer> biomes = new HashMap<>();
-                final Palette biomesPalette = section.getBiomePalette();
-                segment.getAllBiomes((x, y, z, biomeName) -> {
-                    if(x % 4 != 0 || y % 4 != 0 || z % 4 != 0) return; // biome palette's dimension is 4
-                    if(biomes.containsKey(biomeName)) {
-                        biomesPalette.set(x / 4, y / 4, z / 4, biomes.get(biomeName));
-                        return;
-                    }
-                    final BiomeManager biomeManager = server.getBiomeManager();
-                    Biome biome = biomeManager.getBiome(LazyNamespacedKey.lazy(biomeName));
-                    if(biome == null)
-                        biome = biomeManager.getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()));
-                    assert biome != null;
-                    biomes.put(biomeName, biomeManager.getBiomeId(biome));
-                });
+                readSectionBlockData(index, section, segment);
+                readSectionBiomeData(index, section, segment);
 
                 return section;
             });
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    public void setSection(final int index, final Section section) {
+        sections.put(index, section);
+    }
+
+    public void readSectionBlockData(final int sectionIndex, final Section section, final Segment source) {
+        final Map<String, BlockType> types = new HashMap<>();
+        // TODO If landscape would support getting number of block types in a segment
+        //  we could just fill the palette with single biome entry in case there
+        //  is only a single block type
+        source.getAllBlocks((x, y, z, blockName) -> {
+            if (types.containsKey(blockName)) {
+                final BlockType blockType = types.get(blockName);
+                setSectionBlock(section, sectionIndex, x, y, z, blockType);
+                return;
+            }
+            BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(blockName));
+            if (blockType == null)
+                blockType = server.getBlockType(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultType()));
+            assert blockType != null;
+            types.put(blockType.getName().toString(), blockType);
+            setSectionBlock(section, sectionIndex, x, y, z, blockType);
+        });
     }
 
     private void setSectionBlock(final Section section, final int sectionIndex, final int x, final int y, final int z, final BlockType blockType) {
@@ -163,6 +153,27 @@ public class LandscapeChunk extends WorldChunk {
             visual = blockType.getBlockData(null);
         }
         section.getBlockPalette().set(x, y, z, visual.getId());
+    }
+
+    public void readSectionBiomeData(final int sectionIndex, final Section section, final Segment source) {
+        final Map<String, Integer> biomes = new HashMap<>();
+        final Palette biomesPalette = section.getBiomePalette();
+        // TODO If landscape would support getting number of biomes in a segment
+        //  we could just fill the palette with single biome entry in case there
+        //  is only a single biome
+        source.getAllBiomes((x, y, z, biomeName) -> {
+            if(x % 4 != 0 || y % 4 != 0 || z % 4 != 0) return; // biome palette's dimension is 4
+            if(biomes.containsKey(biomeName)) {
+                biomesPalette.set(x / 4, y / 4, z / 4, biomes.get(biomeName));
+                return;
+            }
+            final BiomeManager biomeManager = server.getBiomeManager();
+            Biome biome = biomeManager.getBiome(LazyNamespacedKey.lazy(biomeName));
+            if(biome == null)
+                biome = biomeManager.getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()));
+            assert biome != null;
+            biomes.put(biomeName, biomeManager.getBiomeId(biome));
+        });
     }
 
     @Override

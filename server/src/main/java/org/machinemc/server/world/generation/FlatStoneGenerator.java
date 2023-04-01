@@ -34,25 +34,10 @@ public class FlatStoneGenerator implements Generator {
 
     @Override
     public SectionContent populateChunk(int chunkX, int chunkZ, int sectionIndex, World world) {
-        return new SectionContent() {
-
-            final BlockType[] palette = new BlockType[]{sectionIndex > 4 ? air : stone};
-
-            @Override
-            public BlockType[] getPalette() {
-                return palette;
-            }
-
-            @Override
-            public short[] getData() {
-                return new short[SectionContent.DATA_SIZE];
-            }
-
-            @Override
-            public NBTCompound[] getTileEntitiesData() {
-                return new NBTCompound[SectionContent.DATA_SIZE];
-            }
-        };
+        return new SectionContentImpl(
+                new BlockType[]{sectionIndex > 4 ? air : stone},
+                new short[SectionContent.DATA_SIZE],
+                new NBTCompound[SectionContent.DATA_SIZE]);
     }
 
 }

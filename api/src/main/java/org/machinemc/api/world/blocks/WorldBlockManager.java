@@ -3,8 +3,6 @@ package org.machinemc.api.world.blocks;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
 
-import java.util.concurrent.Future;
-
 /**
  * Managers multiple instances of world blocks in a single world,
  * makes sure that two instances of a world block at the same location
@@ -25,7 +23,5 @@ public interface WorldBlockManager {
      * @return world block at given position
      */
     WorldBlock get(BlockPosition position);
-
-    Future<WorldBlock> getAsync(BlockPosition position);
 
 }

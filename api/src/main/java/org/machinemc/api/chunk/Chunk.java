@@ -1,6 +1,5 @@
 package org.machinemc.api.chunk;
 
-import org.jetbrains.annotations.Async;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.world.World;
@@ -10,7 +9,6 @@ import org.machinemc.api.world.blocks.WorldBlock;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
-import java.util.concurrent.Future;
 
 /**
  * Represents a chunk (16x16 area) in a world.
@@ -61,9 +59,6 @@ public interface Chunk extends ServerProperty {
      * @return world block at given location
      */
     WorldBlock getBlock(int x, int y, int z);
-
-    @Async.Execute
-    Future<WorldBlock> getBlockAsync(int x, int y, int z);
 
     /**
      * Sets a new block type for a world block at given location in this chunk.

@@ -8,6 +8,7 @@ import org.machinemc.nbt.NBTCompound;
 /**
  * Represents generator of a world.
  */
+// TODO Biome support
 public interface Generator extends ServerProperty {
 
     /**

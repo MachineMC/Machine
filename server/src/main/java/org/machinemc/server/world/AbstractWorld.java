@@ -17,7 +17,6 @@ import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.dimensions.DimensionType;
 
 import java.util.UUID;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -43,14 +42,6 @@ public abstract class AbstractWorld implements World {
     @Override
     public WorldBlock getBlock(BlockPosition position) {
         return getChunk(position).getBlock(
-                ChunkUtils.getSectionRelativeCoordinate(position.getX()),
-                position.getY(),
-                ChunkUtils.getSectionRelativeCoordinate(position.getZ()));
-    }
-
-    @Override
-    public Future<WorldBlock> getBlockAsync(BlockPosition position) {
-        return getChunk(position).getBlockAsync(
                 ChunkUtils.getSectionRelativeCoordinate(position.getX()),
                 position.getY(),
                 ChunkUtils.getSectionRelativeCoordinate(position.getZ()));

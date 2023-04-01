@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.machinemc.api.chunk.Chunk.CHUNK_SIZE_BITS;
@@ -183,26 +182,6 @@ public interface World extends ServerProperty {
      */
     default WorldBlock getBlock(Location location) {
         return getBlock(location.toBlockPosition());
-    }
-
-    /**
-     * Returns block async from the world at given position,
-     * if the part of the world has not been generated yet, it should be
-     * and the generated block should be returned.
-     * @param position position of the block
-     * @return world block at given position
-     */
-    Future<WorldBlock> getBlockAsync(BlockPosition position);
-
-    /**
-     * Returns block async from the world at given position,
-     * if the part of the world has not been generated yet, it should be
-     * and the generated block should be returned.
-     * @param location location of the block
-     * @return world block at given position
-     */
-    default Future<WorldBlock> getBlockAsync(Location location) {
-        return getBlockAsync(location.toBlockPosition());
     }
 
     /**
