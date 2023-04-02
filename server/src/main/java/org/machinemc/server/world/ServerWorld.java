@@ -306,7 +306,7 @@ public class ServerWorld extends AbstractWorld {
 
                 }
 
-                chunk.readSectionBiomeData(i, section, segment); // TODO should be from generator once generators support biomes
+                chunk.readSectionBiomeData(section, segment); // TODO should be from generator once generators support biomes
                 chunk.setSection(i, section);
                 segment.push(); // TODO should be configurable (saving of generated chunks not touched by player)
             }

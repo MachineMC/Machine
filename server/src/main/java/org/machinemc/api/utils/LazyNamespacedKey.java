@@ -25,10 +25,20 @@ public final class LazyNamespacedKey {
         return new NamespacedKey(parts[0], key.toString());
     }
 
+    /**
+     * Creates lazy namespaced key with 'minecraft' namespace
+     * @param key key
+     * @return namespaced key
+     */
     public static NamespacedKey minecraft(String key) {
         return new NamespacedKey(NamespacedKey.MINECRAFT_NAMESPACE, key);
     }
 
+    /**
+     * Creates lazy namespaced key with 'machine' namespace
+     * @param key key
+     * @return namespaced key
+     */
     public static NamespacedKey machine(String key) {
         return new NamespacedKey(NamespacedKey.MACHINE_NAMESPACE, key);
     }
