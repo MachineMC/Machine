@@ -22,6 +22,11 @@ public interface Generator extends ServerProperty {
     SectionContent populateChunk(final int chunkX, final int chunkZ, final int sectionIndex, World world);
 
     /**
+     * @return seed used by this generator
+     */
+    long getSeed();
+
+    /**
      * Represents generated content of a section in a chunk.
      */
     interface SectionContent {

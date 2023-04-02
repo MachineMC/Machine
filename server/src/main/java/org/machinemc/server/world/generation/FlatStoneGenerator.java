@@ -16,6 +16,7 @@ import org.machinemc.api.world.generation.Generator;
 public class FlatStoneGenerator implements Generator {
 
     private final Machine server;
+    @Getter
     private final long seed;
 
     private final BlockType air;

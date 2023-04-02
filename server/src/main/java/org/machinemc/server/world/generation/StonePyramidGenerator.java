@@ -1,5 +1,6 @@
 package org.machinemc.server.world.generation;
 
+import lombok.Getter;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.blocks.BlockManager;
@@ -12,6 +13,7 @@ import org.machinemc.server.Server;
 public class StonePyramidGenerator implements Generator {
 
     private final Machine server;
+    @Getter
     private final long seed;
 
     private final BlockType air;
