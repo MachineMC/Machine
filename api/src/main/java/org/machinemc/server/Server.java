@@ -332,6 +332,10 @@ public interface Server {
         return getBlockManager().getBlockType(name);
     }
 
+    /**
+     * @param name name of the biome
+     * @return biome with given name registered in server's biome manager
+     */
     default @Nullable Biome getBiome(NamespacedKey name) {
         return getBiomeManager().getBiome(name);
     }

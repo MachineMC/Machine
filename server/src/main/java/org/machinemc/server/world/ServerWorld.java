@@ -23,7 +23,7 @@ import org.machinemc.server.utils.FileUtils;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.server.utils.WeaklyTimedCache;
-import org.machinemc.server.world.blocks.WorldBlockManagerImpl;
+import org.machinemc.server.world.blocks.WorldBlockManager;
 import org.machinemc.api.world.generation.Generator;
 import org.machinemc.server.world.generation.StonePyramidGenerator;
 import org.machinemc.server.world.region.DefaultLandscapeHandler;
@@ -89,7 +89,7 @@ public class ServerWorld extends AbstractWorld {
                         false,
                         256)
         ); // TODO auto save should be configurable
-        worldBlockManager = new WorldBlockManagerImpl(this,
+        worldBlockManager = new WorldBlockManager(this,
                 (position -> {
                     final Segment segment = getSegment(position);
                     BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(position.getX() % 16, position.getY() % 16, position.getZ() % 16)));
@@ -234,7 +234,7 @@ public class ServerWorld extends AbstractWorld {
     public Chunk getChunk(int chunkX, int chunkZ) {
         try {
             final long chunkIndex = chunkIndex(chunkX, chunkZ);
-            final LandscapeChunk chunk = cachedChunks.get(chunkIndex, () -> new LandscapeChunk(this, chunkX, chunkZ, landscapeHelper));
+            final LandscapeChunk chunk = cachedChunks.get(chunkIndex, () -> new LandscapeChunk(this, worldBlockManager, chunkX, chunkZ, landscapeHelper));
 
             for (int i = 0; i <= chunk.getMaxSection(); i++) {
                 final int ry = getDimensionType().getMinY() + Chunk.CHUNK_SECTION_SIZE * i;

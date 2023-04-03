@@ -17,6 +17,7 @@ import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.chunk.SectionImpl;
 import org.machinemc.server.chunk.WorldChunk;
 import org.machinemc.server.utils.WeaklyTimedCache;
+import org.machinemc.server.world.blocks.WorldBlockManager;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -33,10 +34,10 @@ public class LandscapeChunk extends WorldChunk {
 
     private final Cache<Integer, Section> sections = new WeaklyTimedCache<>(16, TimeUnit.SECONDS); // TODO configurable (check server world too, should be the same value)
 
-    public LandscapeChunk(final World world, final int chunkX, final int chunkZ, final LandscapeHelper helper) throws ExecutionException {
+    public LandscapeChunk(final World world, final WorldBlockManager worldBlockManager, final int chunkX, final int chunkZ, final LandscapeHelper helper) throws ExecutionException {
         super(world, chunkX, chunkZ);
         landscape = helper.get(chunkX * 16, chunkZ * 16);
-        worldBlockManager = world.getWorldBlockManager();
+        this.worldBlockManager = worldBlockManager;
         segmentX = Math.abs(chunkX) % 16;
         segmentZ = Math.abs(chunkZ) % 16;
     }
@@ -54,8 +55,9 @@ public class LandscapeChunk extends WorldChunk {
     public void setBlock(final int x, final int y, final int z, final BlockType blockType) {
         final int offsetY = y - getBottom();
         final int sectionY = offsetY % 16;
+        final int sectionIndex = offsetY / 16;
 
-        final Segment segment = getSegment(offsetY / 16);
+        final Segment segment = getSegment(sectionIndex);
 
         segment.setBlock(x, sectionY, z, blockType.getName().toString());
 
@@ -69,17 +71,24 @@ public class LandscapeChunk extends WorldChunk {
             segment.setNBT(x, sectionY, z, null);
         }
 
+        final Section section = sections.getIfPresent(sectionIndex);
+        if(section != null)
+            setSectionBlock(section, sectionIndex, x, sectionY, z, blockType);
+
         segment.push();
     }
 
     @Override
     public Biome getBiome(final int x, final int y, final int z) {
         final int offsetY = y - getBottom();
-        final Segment segment = getSegment(offsetY / 16);
+        final int sectionY = offsetY % 16;
+        final int sectionIndex = offsetY / 16;
 
-        Biome biome = world.getServer().getBiomeManager().getBiome(LazyNamespacedKey.lazy(segment.getBiome(x, offsetY % 16, z)));
+        final Segment segment = getSegment(sectionIndex);
+
+        Biome biome = world.getServer().getBiome(LazyNamespacedKey.lazy(segment.getBiome(x, sectionY, z)));
         if(biome != null) return biome;
-        biome = world.getServer().getBiomeManager().getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()));
+        biome = world.getServer().getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()));
         if(biome == null) throw new IllegalStateException();
         setBiome(x, offsetY, z, biome);
         return biome;
@@ -87,8 +96,19 @@ public class LandscapeChunk extends WorldChunk {
 
     @Override
     public void setBiome(final int x, final int y, final int z, final Biome biome) {
-        final Segment segment = getSegment(y / 16);
+        final int offsetY = y - getBottom();
+        final int sectionY = offsetY % 16;
+        final int sectionIndex = offsetY / 16;
+
+        final Segment segment = getSegment(sectionIndex);
+
         segment.setBiome(x, y % 16, z, biome.getName().toString());
+
+        final Section section = sections.getIfPresent(sectionIndex);
+        if(section != null)
+            section.getBiomePalette().set(x / 4, sectionY / 4, z / 4, getServer().getBiomeManager().getBiomeId(biome));
+
+        segment.push();
     }
 
     @Override

@@ -8,7 +8,6 @@ import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
-import org.machinemc.api.world.blocks.WorldBlockManager;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.api.world.generation.Generator;
 import org.jetbrains.annotations.ApiStatus;
@@ -89,11 +88,6 @@ public interface World extends ServerProperty {
      * @return generator used by the world
      */
      Generator getGenerator();
-
-    /**
-     * @return world block manager of this world
-     */
-    WorldBlockManager getWorldBlockManager();
 
     /**
      * Loads the world.
