@@ -264,14 +264,16 @@ public class ServerWorld extends AbstractWorld {
                                     tileEntities[blockIndex]));
                         }
 
-                        final BlockData visual;
+                        BlockData visual;
                         if(blockType.hasDynamicVisual()) {
-                            visual = blockType.getBlockData(new WorldBlock.State(
+                            final WorldBlock.State state = new WorldBlock.State(
                                     this,
                                     position,
                                     blockType,
-                                    segment.getNBT(x, y, z).clone()
-                            ));
+                                    segment.getNBT(x, y, z).clone());
+                            visual = blockType.getBlockData(state);
+                            for(final BlockHandler blockHandler : blockType.getHandlers())
+                                visual = blockHandler.onVisualRequest(state, visual);
                         } else {
                             visual = blockType.getBlockData(null);
                         }
@@ -292,12 +294,14 @@ public class ServerWorld extends AbstractWorld {
 
                     if(blockType.hasDynamicVisual()) {
                         segment.getAllNBT((x, y, z, nbt) -> {
-                            final BlockPosition position = new BlockPosition(Chunk.CHUNK_SIZE_X * chunkX + x, ry + y, Chunk.CHUNK_SIZE_Z * chunkZ + z);
-                            section.getBlockPalette().set(x, y, z, blockType.getBlockData(new WorldBlock.State(this,
-                                    position,
+                            final WorldBlock.State state = new WorldBlock.State(this,
+                                    new BlockPosition(Chunk.CHUNK_SIZE_X * chunkX + x, ry + y, Chunk.CHUNK_SIZE_Z * chunkZ + z),
                                     blockType,
-                                    segment.getNBT(x, y, z).clone()
-                                    )).getId()
+                                    segment.getNBT(x, y, z).clone());
+                            BlockData visual = blockType.getBlockData(state);
+                            for(final BlockHandler blockHandler : blockType.getHandlers())
+                                visual = blockHandler.onVisualRequest(state, visual);
+                            section.getBlockPalette().set(x, y, z, visual.getId()
                             );
                         });
                     } else {

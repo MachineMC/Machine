@@ -1,8 +1,10 @@
 package org.machinemc.server.world.blocks;
 
 import lombok.Synchronized;
+import org.machinemc.api.world.BlockData;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
+import org.machinemc.api.world.blocks.BlockHandler;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.nbt.NBTCompound;
@@ -62,6 +64,15 @@ public class WorldBlockImpl implements WorldBlock {
         NBTCompound source = this.compound.get();
         source.clear();
         source.putAll(compound);
+    }
+
+    @Override
+    public BlockData getBlockData() {
+        final State state = asState();
+        BlockData visual = getBlockType().getBlockData(state);
+        for(final BlockHandler blockHandler : state.blockType().getHandlers())
+            visual = blockHandler.onVisualRequest(state, visual);
+        return visual;
     }
 
     @Override

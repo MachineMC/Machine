@@ -173,14 +173,16 @@ public class LandscapeChunk extends WorldChunk {
     }
 
     private void setSectionBlock(final Section section, final int sectionIndex, final int x, final int y, final int z, final BlockType blockType) {
-        final BlockData visual;
+        BlockData visual;
         if(blockType.hasDynamicVisual()) {
-            visual = blockType.getBlockData(new WorldBlock.State(
+            final WorldBlock.State state = new WorldBlock.State(
                     world,
                     new BlockPosition(worldX + x, getBottom() + y, worldZ + z),
                     blockType,
-                    getSegment(sectionIndex).getNBT(x, y, z).clone()
-            ));
+                    getSegment(sectionIndex).getNBT(x, y, z).clone());
+            visual = blockType.getBlockData(state);
+            for(final BlockHandler blockHandler : blockType.getHandlers())
+                visual = blockHandler.onVisualRequest(state, visual);
         } else {
             visual = blockType.getBlockData(null);
         }

@@ -49,9 +49,7 @@ public interface WorldBlock {
     /**
      * @return blockdata of the block
      */
-    default BlockData getBlockData() {
-        return getBlockType().getBlockData(asState());
-    }
+    BlockData getBlockData();
 
     /**
      * Returns the current snapshot of the block as block state.
