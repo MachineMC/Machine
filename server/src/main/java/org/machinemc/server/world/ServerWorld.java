@@ -9,7 +9,9 @@ import org.machinemc.api.chunk.Section;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.LazyNamespacedKey;
 import org.machinemc.api.world.*;
+import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.blocks.*;
+import org.machinemc.api.world.generation.GeneratedSection;
 import org.machinemc.landscape.Landscape;
 import org.machinemc.landscape.Segment;
 import org.machinemc.nbt.NBTCompound;
@@ -33,6 +35,8 @@ import org.machinemc.server.world.region.LandscapeHelper;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
@@ -241,20 +245,24 @@ public class ServerWorld extends AbstractWorld {
                 final Segment segment = chunk.getSegment(i);
                 if (!segment.isEmpty()) continue;
 
-                final Generator.SectionContent content = generator.populateChunk(chunkX, chunkZ, i, this);
-                final BlockType[] palette = content.getPalette();
+                final GeneratedSection content = generator.populateChunk(chunkX, chunkZ, i, this);
 
-                assert palette.length != 0;
+                final BlockType[] blockPalette = content.getBlockPalette();
+                final Biome[] biomePalette = content.getBiomePalette();
 
-                final short[] blocks = content.getData();
+                assert blockPalette.length != 0 && biomePalette.length != 0;
+
+                final short[] blocksData = content.getBlockData();
+                final short[] biomesData = content.getBiomeData();
+
                 final NBTCompound[] tileEntities = content.getTileEntitiesData();
 
                 final Section section = new SectionImpl();
 
-                if(palette.length != 1) {
+                if(blockPalette.length != 1) {
                     segment.setAllBlocks((x, y, z) -> {
-                        final int blockIndex = Generator.SectionContent.index(x, y, z);
-                        final BlockType blockType = palette[blocks[blockIndex]];
+                        final int blockIndex = GeneratedSection.index(x, y, z);
+                        final BlockType blockType = blockPalette[blocksData[blockIndex]];
                         final BlockPosition position = new BlockPosition(Chunk.CHUNK_SIZE_X * chunkX + x, ry + y, Chunk.CHUNK_SIZE_Z * chunkZ + z);
 
                         if (blockType instanceof EntityBlockType entityBlockType) {
@@ -282,13 +290,13 @@ public class ServerWorld extends AbstractWorld {
                         return blockType.getName().toString();
                     });
                 } else {
-                    final BlockType blockType = palette[0];
+                    final BlockType blockType = blockPalette[0];
                     segment.fill(blockType.getName().toString());
 
                     if (blockType instanceof EntityBlockType entityBlockType) {
                         segment.setAllNBT((x, y, z) -> {
                             final BlockPosition position = new BlockPosition(Chunk.CHUNK_SIZE_X * chunkX + x, ry + y, Chunk.CHUNK_SIZE_Z * chunkZ + z);
-                            return initializeTileEntity(entityBlockType, position, tileEntities[Generator.SectionContent.index(x, y, z)]);
+                            return initializeTileEntity(entityBlockType, position, tileEntities[GeneratedSection.index(x, y, z)]);
                         });
                     }
 
@@ -310,7 +318,20 @@ public class ServerWorld extends AbstractWorld {
 
                 }
 
-                chunk.readSectionBiomeData(section, segment); // TODO should be from generator once generators support biomes
+                if(biomePalette.length != 1) {
+                    final Map<Biome, Integer> idMap = new HashMap<>();
+                    for (Biome biome : biomePalette)
+                        idMap.put(biome, getServer().getBiomeManager().getBiomeId(biome));
+                    segment.setAllBiomes((x, y, z) -> {
+                        final Biome biome = biomePalette[biomesData[GeneratedSection.index(x, y, z)]];
+                        section.getBlockPalette().set(x, y, z, idMap.get(biome));
+                        return biome.getName().toString();
+                    });
+                } else {
+                    segment.fillBiome(biomePalette[0].getName().toString());
+                    section.getBiomePalette().fill(getServer().getBiomeManager().getBiomeId(biomePalette[0]));
+                }
+
                 chunk.setSection(i, section);
                 segment.push(); // TODO should be configurable (saving of generated chunks not touched by player)
             }
