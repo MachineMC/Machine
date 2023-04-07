@@ -65,8 +65,8 @@ public class SignBlock extends BlockTypeImpl implements BlockEntityType {
 
         compound.set("id", new NBTString("minecraft:sign"));
         compound.set("x", new NBTInt(state.position().getX()));
-        compound.set("y", new NBTInt(state.position().getX()));
-        compound.set("z", new NBTInt(state.position().getX()));
+        compound.set("y", new NBTInt(state.position().getY()));
+        compound.set("z", new NBTInt(state.position().getZ()));
 
         compound.set("Text1", "{\"text\":\"" + "Hello World!" + "\"}");
         compound.set("Text2", "{\"text\":\"" + state.position().getX() + "\"}");

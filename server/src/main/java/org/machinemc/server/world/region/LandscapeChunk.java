@@ -334,7 +334,7 @@ public class LandscapeChunk extends WorldChunk {
                 blockEntityType,
                 getSegment(sectionIndex).getNBT(x, y, z).clone());
 
-        blockEntityMap.put(Section.index(x, y, z), new Section.BlockEntity((byte) x, (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE), (byte) z,
+        blockEntityMap.put(Section.index(x, y, z), new Section.BlockEntity((byte) x, (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE + getBottom()), (byte) z,
                         blockEntityType.getBlockEntityBase(state), blockEntityType.getClientVisibleNBT(state)));
     }
 

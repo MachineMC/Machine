@@ -322,7 +322,7 @@ public class ServerWorld extends AbstractWorld {
                                     position,
                                     blockEntityType,
                                     segment.getNBT(x, y, z).clone());
-                            section.getClientBlockEntities().put(Section.index(x, y, z), new Section.BlockEntity((byte) x, (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE), (byte) z,
+                            section.getClientBlockEntities().put(Section.index(x, y, z), new Section.BlockEntity((byte) x, (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE + getDimensionType().getMinY()), (byte) z,
                                     blockEntityType.getBlockEntityBase(state), blockEntityType.getClientVisibleNBT(state)));
                         }
 
@@ -347,7 +347,7 @@ public class ServerWorld extends AbstractWorld {
                                         position,
                                         blockEntityType,
                                         compound);
-                                section.getClientBlockEntities().put(Section.index(x, y, z), new Section.BlockEntity((byte) x, (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE), (byte) z,
+                                section.getClientBlockEntities().put(Section.index(x, y, z), new Section.BlockEntity((byte) x, (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE + getDimensionType().getMinY()), (byte) z,
                                         blockEntityType.getBlockEntityBase(state), blockEntityType.getClientVisibleNBT(state)));
                             }
 

@@ -75,7 +75,7 @@ public interface Section extends Writable, Cloneable {
     /**
      * Represents a block entity that's sent to the client.
      * @param x chunk relative x coordinate of the entity
-     * @param y y coordinate of the entity
+     * @param y y coordinate of the entity (in the world - accepts negative values)
      * @param z chunk relative z coordinate of the entity
      */
     record BlockEntity(byte x,
