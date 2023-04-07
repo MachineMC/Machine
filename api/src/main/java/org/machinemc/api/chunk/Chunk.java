@@ -1,5 +1,6 @@
 package org.machinemc.api.chunk;
 
+import org.jetbrains.annotations.Range;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.world.World;
@@ -7,6 +8,7 @@ import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.jetbrains.annotations.Unmodifiable;
+import org.machinemc.nbt.NBTCompound;
 
 import java.util.List;
 
@@ -53,38 +55,56 @@ public interface Chunk extends ServerProperty {
 
     /**
      * Returns a world block at given location in this chunk.
-     * @param x x coordinate of the block in this chunk
-     * @param y y coordinate of the block in this chunk
-     * @param z z coordinate of the block in this chunk
+     * @param x x
+     * @param y y
+     * @param z z
      * @return world block at given location
      */
-    WorldBlock getBlock(int x, int y, int z);
+    WorldBlock getBlock(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z);
 
     /**
      * Sets a new block type for a world block at given location in this chunk.
-     * @param x x coordinate of the block in this chunk
-     * @param y y coordinate of the block in this chunk
-     * @param z z coordinate of the block in this chunk
+     * @param x x
+     * @param y y
+     * @param z z
      */
-    void setBlock(int x, int y, int z, BlockType blockType);
+    void setBlock(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, BlockType blockType);
+
+    /**
+     * Returns clone of nbt of block at given location in this chunk.
+     * @param x x
+     * @param y y
+     * @param z z
+     * @return nbt of block at given location
+     */
+    NBTCompound getBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z);
+
+    /**
+     * Sets new nbt to the block at given location in this chunk.
+     * @param x x
+     * @param y y
+     * @param z z
+     * @param compound new nbt
+     */
+    void setBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, NBTCompound compound);
 
     /**
      * Returns a biome at given location in this chunk.
-     * @param x x coordinate of the biome
-     * @param y y coordinate of the biome
-     * @param z z coordinate of the biome
+     * @param x x
+     * @param y y
+     * @param z z
      * @return biome at given location
      */
-    Biome getBiome(int x, int y, int z);
+    Biome getBiome(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z);
 
     /**
-     * Sets a new biome at the given location.
-     * @param x x coordinate of the biome
-     * @param y y coordinate of the biome
-     * @param z z coordinate of the biome
+     * Sets a new biome at the given location in this chunk.
+     * @param x x
+     * @param y y
+     * @param z z
      * @param biome new biome
      */
-    void setBiome(int x, int y, int z, Biome biome);
+    void setBiome(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, Biome biome);
 
     /**
      * Returns unmodifiable list of all sections.

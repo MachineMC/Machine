@@ -41,6 +41,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
+import static org.machinemc.server.chunk.ChunkUtils.getSectionRelativeCoordinate;
+
 /**
  * Server with a folder in the main server directory.
  */
@@ -90,31 +92,45 @@ public class ServerWorld extends AbstractWorld {
                 new DefaultLandscapeHandler(
                         server.getBlockManager(),
                         server.getBiomeManager(),
-                        false,
-                        256)
-        ); // TODO auto save should be configurable
+                        false,  // TODO auto save should be configurable
+                        256)  // TODO auto save limit should be configurable
+        );
         worldBlockManager = new WorldBlockManager(this,
                 (position -> {
+                    getChunk(position); // loads the chunk in case it's not generated yet
                     final Segment segment = getSegment(position);
-                    BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(position.getX() % 16, position.getY() % 16, position.getZ() % 16)));
+                    BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(
+                            getSectionRelativeCoordinate(position.getX()),
+                            getSectionRelativeCoordinate(position.getY() - getDimensionType().getMinY()),
+                            getSectionRelativeCoordinate(position.getZ())
+                    )));
                     if (blockType == null) {
-                        blockType = server.getBlockManager().getBlockType(LazyNamespacedKey.lazy(landscapeHelper.getHandler().getDefaultType()));
+                        blockType = server.getBlockType(LazyNamespacedKey.lazy(landscapeHelper.getHandler().getDefaultType()));
                         if (blockType == null) throw new IllegalStateException();
                     }
                     return blockType;
                 }),
                 (position -> {
+                    getChunk(position); // loads the chunk in case it's not generated yet
                     final Segment segment = getSegment(position);
-                    return segment.getNBT(position.getX() % 16, position.getY() % 16, position.getZ() % 16);
+                    return segment.getNBT(
+                            getSectionRelativeCoordinate(position.getX()),
+                            getSectionRelativeCoordinate(position.getY() - getDimensionType().getMinY()),
+                            getSectionRelativeCoordinate(position.getZ()));
                 })
         );
     }
 
+    /**
+     * Returns a segment at given position.
+     * @param position position
+     * @return segment at given position
+     */
     private Segment getSegment(BlockPosition position) {
         try {
             final Landscape landscape = landscapeHelper.get(position.getX(), position.getZ());
-            final int segmentX = Math.abs(ChunkUtils.getChunkCoordinate(position.getX())) % 16;
-            final int segmentZ = Math.abs(ChunkUtils.getChunkCoordinate(position.getZ())) % 16;
+            final int segmentX = ChunkUtils.getChunkCoordinate(position.getX()) & 0xF;
+            final int segmentZ = ChunkUtils.getChunkCoordinate(position.getZ()) & 0xF;
             final int segmentY = (position.getY() - getDimensionType().getMinY()) / 16;
             return landscape.loadSegment(segmentX, segmentY, segmentZ);
         } catch (Exception exception) {
@@ -165,8 +181,8 @@ public class ServerWorld extends AbstractWorld {
         // TODO this should take player's view distance
         final long now = System.currentTimeMillis();
         final Scheduler scheduler = getServer().getScheduler();
-        final int chunksPerTask = 6;
-        final int tasks = 50;
+        final int chunksPerTask = 10;
+        final int tasks = 3;
         for (int i = 0; i <= tasks; i++) {
             final int index = i;
             Scheduler.task(((input, session) -> {
@@ -185,6 +201,11 @@ public class ServerWorld extends AbstractWorld {
         }
     }
 
+    /**
+     * Returns a x;y coordinates of a spiral.
+     * @param orderIndex index
+     * @return x and y coordinates in the spiral
+     */
     private static int[] getSpiralCoordinates(int orderIndex) {
         int x = 0;
         int y = 0;
@@ -235,15 +256,17 @@ public class ServerWorld extends AbstractWorld {
     }
 
     @Override
+    @Synchronized
     public Chunk getChunk(int chunkX, int chunkZ) {
         try {
             final long chunkIndex = chunkIndex(chunkX, chunkZ);
             final LandscapeChunk chunk = cachedChunks.get(chunkIndex, () -> new LandscapeChunk(this, worldBlockManager, chunkX, chunkZ, landscapeHelper));
 
             for (int i = 0; i <= chunk.getMaxSection(); i++) {
+                final int sectionIndex = i;
                 final int ry = getDimensionType().getMinY() + Chunk.CHUNK_SECTION_SIZE * i;
                 final Segment segment = chunk.getSegment(i);
-                if (!segment.isEmpty()) continue;
+                if (!segment.isEmpty()) continue; // if the segment has been generated before, skip
 
                 final GeneratedSection content = generator.populateChunk(chunkX, chunkZ, i, this);
 
@@ -257,21 +280,26 @@ public class ServerWorld extends AbstractWorld {
 
                 final NBTCompound[] tileEntities = content.getTileEntitiesData();
 
+                // Section is created as well; generated chunks are expected to be sent to client, if yes the intermediate step
+                // of conversion between Landscape segment and section is skipped which makes the process of loading newly generated chunks much faster.
                 final Section section = new SectionImpl();
 
+                // There are multiple block types in the generated section
                 if(blockPalette.length != 1) {
                     segment.setAllBlocks((x, y, z) -> {
-                        final int blockIndex = GeneratedSection.index(x, y, z);
+                        final int blockIndex = Section.index(x, y, z);
                         final BlockType blockType = blockPalette[blocksData[blockIndex]];
                         final BlockPosition position = new BlockPosition(Chunk.CHUNK_SIZE_X * chunkX + x, ry + y, Chunk.CHUNK_SIZE_Z * chunkZ + z);
 
-                        if (blockType instanceof EntityBlockType entityBlockType) {
+                        // Initialization of block entities
+                        if (blockType instanceof BlockEntityType blockEntityType) {
                             segment.setNBT(x, y, z, initializeTileEntity(
-                                    entityBlockType,
+                                    blockEntityType,
                                     position,
                                     tileEntities[blockIndex]));
                         }
 
+                        // Getting correct visual for the section's block palette
                         BlockData visual;
                         if(blockType.hasDynamicVisual()) {
                             final WorldBlock.State state = new WorldBlock.State(
@@ -287,19 +315,47 @@ public class ServerWorld extends AbstractWorld {
                         }
                         section.getBlockPalette().set(x, y, z, visual.getId());
 
+                        // Setting client visible nbt data for the section
+                        if(blockType instanceof BlockEntityType blockEntityType && blockEntityType.sendsToClient()) {
+                            final WorldBlock.State state = new WorldBlock.State(
+                                    this,
+                                    position,
+                                    blockEntityType,
+                                    segment.getNBT(x, y, z).clone());
+                            section.getClientBlockEntities().put(Section.index(x, y, z), new Section.BlockEntity((byte) x, (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE), (byte) z,
+                                    blockEntityType.getBlockEntityBase(state), blockEntityType.getClientVisibleNBT(state)));
+                        }
+
                         return blockType.getName().toString();
                     });
+
+                // There is only a single block type in the whole generated section
                 } else {
                     final BlockType blockType = blockPalette[0];
-                    segment.fill(blockType.getName().toString());
+                    segment.fill(blockType.getName().toString()); // we can fill the segment
 
-                    if (blockType instanceof EntityBlockType entityBlockType) {
+                    // If the block type is block entity we need to initialize each block in the section, plus in this part
+                    // we can set the client visible nbt as well
+                    if (blockType instanceof BlockEntityType blockEntityType) {
                         segment.setAllNBT((x, y, z) -> {
                             final BlockPosition position = new BlockPosition(Chunk.CHUNK_SIZE_X * chunkX + x, ry + y, Chunk.CHUNK_SIZE_Z * chunkZ + z);
-                            return initializeTileEntity(entityBlockType, position, tileEntities[GeneratedSection.index(x, y, z)]);
+                            final NBTCompound compound = initializeTileEntity(blockEntityType, position, tileEntities[Section.index(x, y, z)]);
+
+                            if(blockEntityType.sendsToClient()) {
+                                final WorldBlock.State state = new WorldBlock.State(
+                                        this,
+                                        position,
+                                        blockEntityType,
+                                        compound);
+                                section.getClientBlockEntities().put(Section.index(x, y, z), new Section.BlockEntity((byte) x, (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE), (byte) z,
+                                        blockEntityType.getBlockEntityBase(state), blockEntityType.getClientVisibleNBT(state)));
+                            }
+
+                            return compound;
                         });
                     }
 
+                    // If the block type has dynamic visual, each block needs to be handled separately
                     if(blockType.hasDynamicVisual()) {
                         segment.getAllNBT((x, y, z, nbt) -> {
                             final WorldBlock.State state = new WorldBlock.State(this,
@@ -318,12 +374,13 @@ public class ServerWorld extends AbstractWorld {
 
                 }
 
+                // Biome generation
                 if(biomePalette.length != 1) {
                     final Map<Biome, Integer> idMap = new HashMap<>();
                     for (Biome biome : biomePalette)
                         idMap.put(biome, getServer().getBiomeManager().getBiomeId(biome));
                     segment.setAllBiomes((x, y, z) -> {
-                        final Biome biome = biomePalette[biomesData[GeneratedSection.index(x, y, z)]];
+                        final Biome biome = biomePalette[biomesData[Section.index(x, y, z)]];
                         section.getBlockPalette().set(x, y, z, idMap.get(biome));
                         return biome.getName().toString();
                     });
@@ -332,7 +389,7 @@ public class ServerWorld extends AbstractWorld {
                     section.getBiomePalette().fill(getServer().getBiomeManager().getBiomeId(biomePalette[0]));
                 }
 
-                chunk.setSection(i, section);
+                chunk.setSection(i, section); // we set the section manually
                 segment.push(); // TODO should be configurable (saving of generated chunks not touched by player)
             }
             return chunk;
@@ -348,7 +405,7 @@ public class ServerWorld extends AbstractWorld {
      * @param generatorData compound data for the tile entity provided by the generator
      * @return nbt compound for the tile entity
      */
-    private NBTCompound initializeTileEntity(EntityBlockType entityBlockType, BlockPosition position, @Nullable NBTCompound generatorData) {
+    private NBTCompound initializeTileEntity(BlockEntityType entityBlockType, BlockPosition position, @Nullable NBTCompound generatorData) {
         final WorldBlock.State state = new WorldBlock.State(this, position, entityBlockType, new NBTCompound());
         entityBlockType.initialize(state);
         for (BlockHandler handler : entityBlockType.getHandlers())

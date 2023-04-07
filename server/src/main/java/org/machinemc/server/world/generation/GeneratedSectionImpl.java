@@ -5,6 +5,9 @@ import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.generation.GeneratedSection;
 import org.machinemc.nbt.NBTCompound;
 
+/**
+ * Default implementation of the generated section.
+ */
 public record GeneratedSectionImpl(BlockType[] blockPalette,
                                    short[] blockData,
                                    Biome[] biomePalette,

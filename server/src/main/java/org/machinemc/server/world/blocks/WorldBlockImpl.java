@@ -8,26 +8,30 @@ import org.machinemc.api.world.blocks.BlockHandler;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.nbt.NBTCompound;
+import org.machinemc.server.chunk.ChunkUtils;
 
 import java.util.*;
 import java.util.function.Supplier;
 
 /**
  * Default world block implementation.
+ * @see WorldBlockManager
  */
 @SuppressWarnings("ClassCanBeRecord")
 public class WorldBlockImpl implements WorldBlock {
 
     private final World world;
     private final BlockPosition position;
-    private final Supplier<BlockType> blockType;
-    private final Supplier<NBTCompound> compound;
+    private final Supplier<BlockType> blockTypeSupplier;
+    private final Supplier<NBTCompound> nbtSupplier;
 
-    protected WorldBlockImpl(World world, BlockPosition position, Supplier<BlockType> blockType, Supplier<NBTCompound> compound) {
+    protected WorldBlockImpl(World world, BlockPosition position,
+                             Supplier<BlockType> blockTypeSupplier,
+                             Supplier<NBTCompound> nbtSupplier) {
         this.world = world;
         this.position = position;
-        this.blockType = blockType;
-        this.compound = compound;
+        this.blockTypeSupplier = blockTypeSupplier;
+        this.nbtSupplier = nbtSupplier;
     }
 
     @Synchronized
@@ -45,9 +49,10 @@ public class WorldBlockImpl implements WorldBlock {
     @Synchronized
     @Override
     public BlockType getBlockType() {
-        return blockType.get();
+        return blockTypeSupplier.get();
     }
 
+    @Synchronized
     @Override
     public void setBlockType(BlockType blockType) {
         world.setBlock(blockType, position);
@@ -56,16 +61,16 @@ public class WorldBlockImpl implements WorldBlock {
     @Synchronized
     @Override
     public NBTCompound getNBT() {
-        return compound.get().clone();
+        return nbtSupplier.get().clone();
     }
 
+    @Synchronized
     @Override
     public void setNBT(NBTCompound compound) {
-        NBTCompound source = this.compound.get();
-        source.clear();
-        source.putAll(compound);
+        world.getChunk(position).setBlockNBT(ChunkUtils.getSectionRelativeCoordinate(position.getX()), position.getY(), ChunkUtils.getSectionRelativeCoordinate(position.getZ()), compound);
     }
 
+    @Synchronized
     @Override
     public BlockData getBlockData() {
         final State state = asState();

@@ -38,7 +38,8 @@ public class BlockManagerImpl implements BlockManager {
                         Material.AIR.createBlockData()),
                 new BlockTypeImpl(NamespacedKey.minecraft("stone"), BlockTypeImpl.BlockProperties.builder()
                         .color(Color.GRAY).resistance(6).blockHardness(1.5F).build(),
-                        Material.STONE.createBlockData())
+                        Material.STONE.createBlockData()),
+                new SignBlock()
         );
         return manager;
     }

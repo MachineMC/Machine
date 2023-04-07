@@ -2,6 +2,7 @@ package org.machinemc.server.world.blocks;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Synchronized;
 import org.machinemc.api.world.BlockPosition;
@@ -12,34 +13,36 @@ import org.machinemc.nbt.NBTCompound;
 
 import java.util.function.Function;
 
+/**
+ * Manager of world blocks, prevents multiple WorldBlock instances of a single block to exists,
+ * provides suppliers of block types and nbt to the world blocks.
+ */
 @SuppressWarnings("UnstableApiUsage")
+@AllArgsConstructor
 public class WorldBlockManager {
 
     @Getter
     private final World world;
-    private final Function<BlockPosition, BlockType> typeFunction;
-    private final Function<BlockPosition, NBTCompound> nbtFunction;
+    private final Function<BlockPosition, BlockType> blockTypeSupplier;
+    private final Function<BlockPosition, NBTCompound> nbtSupplier;
 
     private final Cache<BlockPosition, WorldBlock> cached = CacheBuilder.newBuilder()
             .weakValues()
             .build();
 
-    public WorldBlockManager(World world,
-                             Function<BlockPosition, BlockType> typeFunction,
-                             Function<BlockPosition, NBTCompound> nbtFunction) {
-        this.world = world;
-        this.typeFunction = typeFunction;
-        this.nbtFunction = nbtFunction;
-    }
-
+    /**
+     * Returns a world block instance of a given position.
+     * @param position position
+     * @return world block at given position
+     */
     @Synchronized
     public WorldBlock get(BlockPosition position) {
         try {
             return cached.get(position, () -> new WorldBlockImpl(
                     world,
                     position,
-                    () -> typeFunction.apply(position),
-                    () -> nbtFunction.apply(position)));
+                    () -> blockTypeSupplier.apply(position),
+                    () -> nbtSupplier.apply(position)));
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }

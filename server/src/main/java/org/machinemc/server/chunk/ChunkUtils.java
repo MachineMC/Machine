@@ -5,6 +5,9 @@ import org.machinemc.api.world.BlockPosition;
 
 import static org.machinemc.api.chunk.Chunk.CHUNK_SIZE_BITS;
 
+/**
+ * Utils for easier working with chunks.
+ */
 public final class ChunkUtils {
 
     /**
@@ -62,14 +65,14 @@ public final class ChunkUtils {
     }
 
     /**
-     * Gets the block index of a position.
+     * Creates a unique index for a block within a chunk from its chunk coordinates.
      * @param x x
      * @param y y
      * @param z z
      * @return an index which can be used to store and retrieve later data linked to a block position
      */
     public static int getBlockIndex(int x, int y, int z) {
-        if(x > 15 || x < 0 || z > 15 || z < 0 || y > 4064 || y < 0) throw new UnsupportedOperationException();
+        if(x > 15 || x < 0 || z > 15 || z < 0 || y > 4096 || y < 0) throw new UnsupportedOperationException();
         int index = 0;
         index |= (y << 8);
         index |= (z << 4);
@@ -78,7 +81,7 @@ public final class ChunkUtils {
     }
 
     /**
-     * @param index  an index computed from {@link #getBlockIndex(int, int, int)}
+     * @param index an index computed from {@link #getBlockIndex(int, int, int)}
      * @param chunkX the chunk X
      * @param chunkZ the chunk Z
      * @return the position of the block

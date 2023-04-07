@@ -8,6 +8,9 @@ import org.machinemc.server.chunk.palette.AdaptivePalette;
 import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.ServerBuffer;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Default implementation of the section.
  */
@@ -22,9 +25,16 @@ public class SectionImpl implements Section {
     @Setter
     private byte[] blockLight;
 
+    private final Map<Integer, BlockEntity> clientBlockEntities = new ConcurrentHashMap<>();
+
     public SectionImpl() {
         this(AdaptivePalette.blocks(), AdaptivePalette.biomes(),
                 new byte[0], new byte[0]);
+    }
+
+    @Override
+    public Map<Integer, BlockEntity> getClientBlockEntities() {
+        return clientBlockEntities;
     }
 
     @Override

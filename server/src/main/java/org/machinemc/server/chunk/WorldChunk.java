@@ -34,6 +34,7 @@ public abstract class WorldChunk implements Chunk {
     protected boolean loaded = true;
 
     private final int bottom;
+    private final int top;
     private final int height;
 
     public WorldChunk(final World world, final int chunkX, final int chunkZ) {
@@ -42,8 +43,9 @@ public abstract class WorldChunk implements Chunk {
         this.chunkX = chunkX;
         this.chunkZ = chunkZ;
         bottom = world.getDimensionType().getMinY();
+        top = world.getDimensionType().getMaxY();
         height = world.getDimensionType().getHeight();
-        maxSection = height / 16 - 1;
+        maxSection = height / Chunk.CHUNK_SECTION_SIZE - 1;
         minSection = 0;
     }
 
@@ -60,7 +62,7 @@ public abstract class WorldChunk implements Chunk {
     /**
      * @return chunk data of this chunk
      */
-    public static ChunkData createChunkData(final List<Section> sections, int height) {
+    public static ChunkData createChunkData(final List<Section> sections, Section.BlockEntity[] blockEntities, int height) {
         final int[] motionBlocking = new int[16 * 16];
         final int[] worldSurface = new int[16 * 16];
         for (int x = 0; x < 16; x++) {
@@ -81,7 +83,7 @@ public abstract class WorldChunk implements Chunk {
             section.write(buf);
         final byte[] data = buf.bytes();
 
-        return new ChunkData(heightmaps, data);
+        return new ChunkData(heightmaps, data, blockEntities);
     }
 
     /**
@@ -119,12 +121,19 @@ public abstract class WorldChunk implements Chunk {
     }
 
     /**
+     * Returns all client block entities present in the chunk, order
+     * of the array doesn't matter.
+     * @return block entities of this chunk
+     */
+    public abstract Section.BlockEntity[] getClientBlockEntities();
+
+    /**
      * @return chunk packet of this chunk
      */
     public PacketPlayOutChunkData createChunkPacket() {
         final List<Section> sections = getSections();
         return new PacketPlayOutChunkData(chunkX, chunkZ,
-                createChunkData(sections, height),
+                createChunkData(sections, getClientBlockEntities(), height),
                 createLightData(sections));
     }
 

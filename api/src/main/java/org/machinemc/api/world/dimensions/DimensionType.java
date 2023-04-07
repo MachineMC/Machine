@@ -71,21 +71,20 @@ public interface DimensionType extends NBTSerializable {
     boolean isPiglinSafe();
 
     /**
-     * @return min y level of the dimension
+     * @return min y level of the dimension where blocks can be placed
      */
     @Range(from = -2032, to = 2016) int getMinY();
 
     /**
-     * @return max y level of the dimension
+     * @return max y level of the dimension where blocks can be placed
      */
-    default @Range(from = 0, to = 4063) int getMaxY() {
-        return getHeight() - 1;
+    default int getMaxY() {
+        return getMinY() + getHeight() - 1;
     }
 
     /**
-     * @return height of the dimension
+     * @return number of block layers in the dimension
      */
-    // This method returns the number of block layers, the actual max y level would be one lower
     @Range(from = 1, to = 4064) int getHeight();
 
     /**

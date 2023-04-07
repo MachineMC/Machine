@@ -1,6 +1,7 @@
 package org.machinemc.server.world.generation;
 
 import lombok.Getter;
+import org.machinemc.api.chunk.Section;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.biomes.Biome;
@@ -12,6 +13,9 @@ import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.Machine;
 import org.machinemc.server.Server;
 
+/**
+ * Generator that generates stone pyramids.
+ */
 public class StonePyramidGenerator implements Generator {
 
     private final Machine server;
@@ -20,6 +24,7 @@ public class StonePyramidGenerator implements Generator {
 
     private final BlockType air;
     private final BlockType stone;
+    private final BlockType sign;
 
     private final Biome biome;
 
@@ -29,9 +34,11 @@ public class StonePyramidGenerator implements Generator {
         final BlockManager manager = server.getBlockManager();
         final BlockType air = manager.getBlockType(NamespacedKey.minecraft("air"));
         final BlockType stone = manager.getBlockType(NamespacedKey.minecraft("stone"));
-        if(air == null || stone == null) throw new IllegalStateException();
+        final BlockType sign = manager.getBlockType(NamespacedKey.minecraft("oak_sign"));
+        if(air == null || stone == null || sign == null) throw new IllegalStateException();
         this.air = air;
         this.stone = stone;
+        this.sign = sign;
         Biome biome = server.getBiome(NamespacedKey.minecraft("plains"));
         if(biome == null)
             biome = server.getBiomeManager().getBiomes().stream().iterator().next();
@@ -62,17 +69,18 @@ public class StonePyramidGenerator implements Generator {
                     new short[GeneratedSection.BLOCK_DATA_SIZE],
                     new NBTCompound[GeneratedSection.BLOCK_DATA_SIZE]);
         }
-        final BlockType[] palette = new BlockType[]{air, stone};
+        final BlockType[] palette = new BlockType[]{air, stone, sign};
         final short[] data = new short[GeneratedSection.BLOCK_DATA_SIZE];
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 final int h = Math.abs(x-8) + Math.abs(z-8) - 1;
                 for (int y = 0; y < 16; y++) {
-                    data[GeneratedSection.index(x, y, z)] = (short) (y < h ? 1 : 0);
+                    data[Section.index(x, y, z)] = (short) (y < h ? 1 : 0);
                 }
             }
         }
+        data[Section.index(0, 15, 0)] = 2;
 
         return new GeneratedSectionImpl(palette, data,
                 new Biome[]{biome},
