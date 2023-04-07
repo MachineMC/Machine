@@ -61,12 +61,8 @@ public class SignBlock extends BlockTypeImpl implements BlockEntityType {
 
     @Override
     public @Nullable NBTCompound getClientVisibleNBT(WorldBlock.State state) {
-        final NBTCompound compound = new NBTCompound();
-
-        compound.set("id", new NBTString("minecraft:sign"));
-        compound.set("x", new NBTInt(state.position().getX()));
-        compound.set("y", new NBTInt(state.position().getY()));
-        compound.set("z", new NBTInt(state.position().getZ()));
+        final NBTCompound compound = getBaseClientVisibleNBT(state);
+        if(compound == null) return new NBTCompound();
 
         compound.set("Text1", "{\"text\":\"" + "Hello World!" + "\"}");
         compound.set("Text2", "{\"text\":\"" + state.position().getX() + "\"}");
