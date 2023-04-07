@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTList;
+import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.Machine;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.entities.EntityType;
@@ -11,8 +12,6 @@ import org.machinemc.server.utils.EntityUtils;
 import org.machinemc.api.utils.NBTUtils;
 import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -68,11 +67,6 @@ public abstract class ServerEntity implements Entity {
         entityId = EntityUtils.getEmptyID();
         location = new Location(0, 0, 0, getServer().getDefaultWorld());
         active = false;
-    }
-
-    @Override
-    public UUID uuid() {
-        return uuid;
     }
 
     @Override
@@ -155,7 +149,7 @@ public abstract class ServerEntity implements Entity {
         ));
         compound.setUUID("UUID", uuid);
         if (getCustomName() != null)
-            compound.set("CustomName", GsonComponentSerializer.gson().serialize(getCustomName()));
+            compound.set("CustomName", getCustomName().toJson());
         if (isCustomNameVisible())
             compound.set("CustomNameVisible", (byte) (isCustomNameVisible() ? 1 : 0));
         if (silent)
@@ -202,7 +196,7 @@ public abstract class ServerEntity implements Entity {
             uuid = nbtCompound.getUUID("UUID");
         if (nbtCompound.containsKey("CustomName")) {
             String string = nbtCompound.getValue("CustomName");
-            setCustomName(GsonComponentSerializer.gson().deserialize(string));
+            setCustomName(getServer().getComponentSerializer().deserializeJson(string));
         }
         setCustomNameVisible(nbtCompound.getValue("CustomNameVisible", 0) == 1);
         setSilent(nbtCompound.getValue("Silent", 0) == 1);

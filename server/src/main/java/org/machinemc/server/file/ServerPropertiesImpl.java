@@ -1,13 +1,13 @@
 package org.machinemc.server.file;
 
 import lombok.Getter;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.server.Machine;
 import org.machinemc.api.file.ServerProperties;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.WorldType;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -75,7 +75,7 @@ public class ServerPropertiesImpl implements ServerProperties {
         maxPlayers = Integer.parseInt(properties.getProperty("max-players"));
 
         String motdJson = properties.getProperty("motd");
-        motd = motdJson.equals("") ? Component.empty() : GsonComponentSerializer.gson().deserialize(motdJson);
+        motd = motdJson.equals("") ? TextComponent.empty() : getServer().getComponentSerializer().deserializeJson(motdJson);
 
         NamespacedKey defaultWorldParsed = null;
         try {

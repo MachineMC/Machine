@@ -6,8 +6,8 @@ import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.ServerProperty;
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.*;
+import org.machinemc.scriptive.components.Component;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

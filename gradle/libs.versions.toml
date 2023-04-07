@@ -8,11 +8,11 @@ asm = "9.2"
 netty = "4.1.80.Final"
 jna = "5.12.1"
 jline = "3.21.0"
-kyori-adventure = "4.11.0"
 hephaistos = "2.5.1"
 mojang-brigadier = "1.0.18"
 junit = "5.9.1"
 machine-nbt = "1.1.0"
+machine-scriptive = "1.0.1"
 
 jetbrains-kotlin-jvm = "1.7.20"
 
@@ -34,11 +34,6 @@ jna = { module = "net.java.dev.jna:jna-platform", version.ref = "jna" }
 
 jline = { module = "org.jline:jline", version.ref = "jline" }
 
-kyori-adventure-api = { module = "net.kyori:adventure-api", version.ref = "kyori-adventure" }
-kyori-adventure-text-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "kyori-adventure" }
-kyori-adventure-text-serializer-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "kyori-adventure" }
-kyori-adventure-text-serializer-plain = { module = "net.kyori:adventure-text-serializer-plain", version.ref = "kyori-adventure" }
-
 hephaistos-common = { module = "io.github.jglrxavpok.hephaistos:common", version.ref = "hephaistos" }
 hephaistos-gson = { module = "io.github.jglrxavpok.hephaistos:gson", version.ref = "hephaistos" }
 
@@ -49,9 +44,9 @@ junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref 
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 
 machine-nbt = { module = "org.machinemc:nbt", version.ref = "machine-nbt" }
+machine-scriptive = { module = "org.machinemc:scriptive", version.ref = "machine-scriptive" }
 
 [bundles]
-kyori-adventure = ["kyori-adventure-api", "kyori-adventure-text-serializer-gson", "kyori-adventure-text-serializer-legacy", "kyori-adventure-text-serializer-plain"]
 hephaistos = ["hephaistos-common", "hephaistos-gson"]
 
 [plugins]

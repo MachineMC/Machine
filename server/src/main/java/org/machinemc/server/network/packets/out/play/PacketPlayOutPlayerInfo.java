@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import net.kyori.adventure.text.Component;
+import org.machinemc.scriptive.components.Component;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.auth.PublicKeyData;

@@ -25,11 +25,12 @@ dependencies {
     }
 
     implementation(libs.machine.nbt)
+    implementation(libs.machine.scriptive)
 
     implementation(libs.jetbrains.annotations) // overrides default compileOnly
 
     implementation(libs.google.guava)
+    implementation(libs.google.gson)
 
-    implementation(libs.bundles.kyori.adventure)
     implementation(libs.mojang.brigadier)
 }

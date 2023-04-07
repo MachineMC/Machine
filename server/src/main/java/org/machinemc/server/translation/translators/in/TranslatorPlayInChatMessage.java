@@ -1,14 +1,14 @@
 package org.machinemc.server.translation.translators.in;
 
-import org.machinemc.api.chat.ChatUtils;
+import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.chat.Messenger;
 import org.machinemc.api.entities.Player;
+import org.machinemc.scriptive.components.TextComponent;
+import org.machinemc.scriptive.util.ChatUtils;
 import org.machinemc.server.entities.ServerPlayer;
-import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.play.PacketPlayInChatMessage;
-import net.kyori.adventure.audience.MessageType;
-import net.kyori.adventure.text.Component;
+import org.machinemc.server.translation.PacketTranslator;
 
 public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInChatMessage> {
 
@@ -33,7 +33,7 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
                 .replace("%name%", player.getName())
                 .replace("%message%", packet.getMessage());
         for(Player serverPlayer : connection.getServer().getPlayerManager().getPlayers())
-            serverPlayer.sendMessage(player, Component.text(message), MessageType.SYSTEM);
+            serverPlayer.sendMessage(player.getUuid(), TextComponent.of(message), MessageType.SYSTEM);
         connection.getServer().getConsole().info(message);
     }
 

@@ -4,19 +4,20 @@ import com.google.common.base.Preconditions;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.machinemc.api.server.NBTSerializable;
-import org.machinemc.api.utils.NamespacedKey;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.machinemc.api.server.NBTSerializable;
+import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTList;
+import org.machinemc.scriptive.style.ChatColor;
+import org.machinemc.scriptive.style.ChatStyle;
+import org.machinemc.scriptive.style.TextFormat;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static org.machinemc.server.chat.ChatType.Element.DEFAULT_NARRATION_ELEMENT;
 
@@ -31,6 +32,7 @@ public enum ChatType implements NBTSerializable {
             Element.chat(
                     Set.of(Parameter.SENDER, Parameter.CONTENT),
                     "chat.type.text",
+                    null,
                     null
             ),
             DEFAULT_NARRATION_ELEMENT
@@ -40,6 +42,7 @@ public enum ChatType implements NBTSerializable {
             Element.chat(
                     Set.of(Parameter.SENDER, Parameter.CONTENT),
                     "chat.type.announcement",
+                    null,
                     null
             ),
             DEFAULT_NARRATION_ELEMENT
@@ -49,10 +52,8 @@ public enum ChatType implements NBTSerializable {
             Element.chat(
                     Set.of(Parameter.SENDER, Parameter.CONTENT),
                     "commands.message.display.incoming",
-                    Style.style()
-                    .color(NamedTextColor.GRAY)
-                    .decorate(TextDecoration.ITALIC)
-                    .build()
+                    new TextFormat(ChatColor.GRAY, ChatStyle.ITALIC),
+                    null
             ),
             DEFAULT_NARRATION_ELEMENT
     ),
@@ -61,10 +62,8 @@ public enum ChatType implements NBTSerializable {
             Element.chat(
                     Set.of(Parameter.TARGET, Parameter.CONTENT),
                     "commands.message.display.outgoing",
-                    Style.style()
-                    .color(NamedTextColor.GRAY)
-                    .decorate(TextDecoration.ITALIC)
-                    .build()
+                    new TextFormat(ChatColor.GRAY, ChatStyle.ITALIC),
+                    null
             ),
             DEFAULT_NARRATION_ELEMENT
     ),
@@ -73,6 +72,7 @@ public enum ChatType implements NBTSerializable {
             Element.chat(
                     Set.of(Parameter.TARGET, Parameter.SENDER, Parameter.CONTENT),
                     "chat.type.team.text",
+                    null,
                     null
             ),
             DEFAULT_NARRATION_ELEMENT
@@ -82,6 +82,7 @@ public enum ChatType implements NBTSerializable {
             Element.chat(
                     Set.of(Parameter.TARGET, Parameter.SENDER, Parameter.CONTENT),
                     "chat.type.team.sent",
+                    null,
                     null
             ),
             DEFAULT_NARRATION_ELEMENT
@@ -91,11 +92,13 @@ public enum ChatType implements NBTSerializable {
             Element.chat(
                     Set.of(Parameter.SENDER, Parameter.TARGET),
                     "chat.type.emote",
+                    null,
                     null
             ),
             Element.narration(
                     Set.of(Parameter.SENDER, Parameter.CONTENT),
                     "chat.type.emote",
+                    null,
                     null
             )
     ),
@@ -105,11 +108,13 @@ public enum ChatType implements NBTSerializable {
             Element.chat(
                     Set.of(Parameter.CONTENT),
                     "%s",
+                    null,
                     null
             ),
             Element.narration(
                     Set.of(Parameter.CONTENT),
                     "%s",
+                    null,
                     null
             )
     );
@@ -145,60 +150,54 @@ public enum ChatType implements NBTSerializable {
 
     /**
      * Chat and Narration types of chat types, contain information
-     * about their parameters, translation key and chat style.
+     * about their parameters, translation key and chat format.
      */
     protected record Element(ElementType type,
                              Set<Parameter> parameters,
                              String translationKey,
-                             @Nullable Style style) implements NBTSerializable {
+                             @Nullable TextFormat format,
+                             @Nullable NamespacedKey font) implements NBTSerializable {
 
         static final Element DEFAULT_NARRATION_ELEMENT = Element.narration(
                 Set.of(Parameter.SENDER, Parameter.CONTENT),
                 "chat.type.text.narrate",
+                null,
                 null);
 
         /**
          * Creates new element of type chat.
          * @param parameters parameters of the element
          * @param translationKey translation key of the element
-         * @param style chat style of the element
+         * @param format chat format of the element
          * @return created chat type element
          */
-        public static Element chat(Set<Parameter> parameters, String translationKey, @Nullable Style style) {
-            return new Element(ElementType.CHAT, parameters, translationKey, style);
+        public static Element chat(Set<Parameter> parameters, String translationKey, @Nullable TextFormat format, @Nullable NamespacedKey font) {
+            return new Element(ElementType.CHAT, parameters, translationKey, format, font);
         }
         /**
          * Creates new element of type narration.
          * @param parameters parameters of the element
          * @param translationKey translation key of the element
-         * @param style chat style of the element
+         * @param format chat format of the element
          * @return created chat type element
          */
-        public static Element narration(Set<Parameter> parameters, String translationKey, @Nullable Style style) {
-            return new Element(ElementType.NARRATION, parameters, translationKey, style);
+        public static Element narration(Set<Parameter> parameters, String translationKey, @Nullable TextFormat format, @Nullable NamespacedKey font) {
+            return new Element(ElementType.NARRATION, parameters, translationKey, format, font);
         }
 
         @Override
         public NBTCompound toNBT() {
             final NBTList parameters = new NBTList(this.parameters.stream().map(Parameter::getName).toList());
             final Map<String, String> styleMap = new HashMap<>();
-            if(style != null) {
-                Map<TextDecoration, TextDecoration.State> decorations = style.decorations();
-                for (TextDecoration decoration : decorations.keySet()) {
-                    if (decorations.get(decoration) != TextDecoration.State.NOT_SET)
-                        styleMap.put(decoration.toString(), decorations.get(decoration).toString());
+            if(format != null) {
+                Map<ChatStyle, Boolean> styles = format.getStyles();
+                for (Map.Entry<ChatStyle, Boolean> entry : styles.entrySet()) {
+                    if (entry.getValue() != null)
+                        styleMap.put(entry.getKey().name().toLowerCase(Locale.ENGLISH), entry.getValue().toString());
                 }
-                TextColor color = style.color();
-                if (color != null) {
-                    NamedTextColor named = NamedTextColor.namedColor(color.value());
-                    if (named != null)
-                        styleMap.put("color", named.toString());
-                    else
-                        styleMap.put("color", color.asHexString());
-                }
-                Key font = style.font();
+                format.getColor().ifPresent(color -> styleMap.put("color", color.getName()));
                 if (font != null)
-                    styleMap.put("font", font.asString());
+                    styleMap.put("font", font.toString());
             }
             NBTCompound style = new NBTCompound();
             for(String key : styleMap.keySet())

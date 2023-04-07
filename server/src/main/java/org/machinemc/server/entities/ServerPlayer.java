@@ -3,32 +3,36 @@ package org.machinemc.server.entities;
 import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
-import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Machine;
-import org.machinemc.api.chat.ChatColor;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.chat.ChatMode;
-import org.machinemc.api.chat.ChatUtils;
+import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.entities.Player;
-import org.machinemc.api.entities.player.*;
-import org.machinemc.server.network.ClientConnection;
+import org.machinemc.api.entities.player.Gamemode;
+import org.machinemc.api.entities.player.Hand;
+import org.machinemc.api.entities.player.PlayerProfile;
+import org.machinemc.api.entities.player.SkinPart;
 import org.machinemc.api.network.packets.Packet;
-import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.api.server.PlayerManager;
-import org.machinemc.server.server.codec.Codec;
-import net.kyori.adventure.audience.MessageType;
-import net.kyori.adventure.identity.Identity;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldType;
+import org.machinemc.nbt.NBTCompound;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.components.TextComponent;
+import org.machinemc.scriptive.components.TranslationComponent;
+import org.machinemc.scriptive.style.ChatColor;
+import org.machinemc.server.Machine;
+import org.machinemc.server.network.ClientConnection;
+import org.machinemc.server.network.packets.out.play.*;
+import org.machinemc.server.server.codec.Codec;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Default implementation of player
@@ -72,7 +76,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
         connection.setOwner(this);
         connection.startKeepingAlive();
         this.connection = connection;
-        this.displayName = Component.text(getName());
+        this.displayName = TextComponent.of(getName());
         playerListName = displayName;
     }
 
@@ -91,7 +95,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
             throw new IllegalStateException("Player can't be initialized if their connection isn't in play state");
         }
         if(manager.getPlayer(profile.getUsername()) != null || manager.getPlayer(profile.getUuid()) != null) {
-            connection.disconnect(Component.translatable("disconnect.loginFailed"));
+            connection.disconnect(TranslationComponent.of("disconnect.loginFailed"));
             throw new IllegalStateException("Session is already active");
         }
         ServerPlayer player = new ServerPlayer(server, profile, connection);
@@ -107,9 +111,11 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
         }
         try {
             manager.addPlayer(player);
-            final Component joinMessage = Component.translatable("multiplayer.player.joined", Component.text(player.getName())).style(ChatColor.YELLOW.asStyle());
+            final TranslationComponent joinMessage = TranslationComponent.of("multiplayer.player.joined", TextComponent.of(player.getName())).modify()
+                    .color(ChatColor.YELLOW)
+                    .finish();
             manager.getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(joinMessage));
-            server.getConsole().info(ChatColor.YELLOW + ChatUtils.componentToString(player.getDisplayName()) + " joined the game");
+            server.getConsole().info(ChatColor.YELLOW + player.getDisplayName().toLegacyString() + " joined the game");
             player.init();
             return player;
         } catch (Exception exception) {
@@ -193,9 +199,11 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
             getWorld().unloadPlayer(this);
             getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this));
             getServer().getPlayerManager().removePlayer(this);
-            final Component leaveMessage = Component.translatable("multiplayer.player.left", Component.text(getName())).style(ChatColor.YELLOW.asStyle());
+            final TranslationComponent leaveMessage = TranslationComponent.of("multiplayer.player.left", TranslationComponent.of(getName())).modify()
+                    .color(ChatColor.YELLOW)
+                    .finish();
             getServer().getPlayerManager().getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(leaveMessage));
-            getServer().getConsole().info(ChatColor.YELLOW + ChatUtils.componentToString(getDisplayName()) + " left the game");
+            getServer().getConsole().info(ChatColor.YELLOW + getDisplayName().toLegacyString() + " left the game");
             save();
         }
         catch (IOException exception) {
@@ -210,13 +218,13 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public void setDisplayName(@Nullable Component displayName) {
-        this.displayName = displayName == null ? Component.text(getName()) : displayName;
+        this.displayName = displayName == null ? TextComponent.of(getName()) : displayName;
     }
 
     @Override
     public void setPlayerListName(@Nullable Component playerListName) {
         if (playerListName == null)
-            playerListName = Component.text(getName());
+            playerListName = TextComponent.of(getName());
         this.playerListName = playerListName;
         try {
             getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME, this));
@@ -233,7 +241,12 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
     }
 
     @Override
-    public void sendMessage(final Identity source, final Component message, final MessageType type) {
+    public int execute(String input) {
+        return 0;
+    }
+
+    @Override
+    public void sendMessage(final @Nullable UUID source, final Component message, final MessageType type) {
         getServer().getMessenger().sendMessage(this, message, type);
     }
 
