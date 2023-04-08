@@ -1,5 +1,6 @@
 package org.machinemc.api.chunk;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
@@ -95,7 +96,7 @@ public interface Chunk extends ServerProperty {
      * @param z z
      * @param compound new nbt
      */
-    void setBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, NBTCompound compound);
+    void setBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, @Nullable NBTCompound compound);
 
     /**
      * Returns a biome at given location in this chunk.

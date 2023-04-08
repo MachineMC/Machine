@@ -1,6 +1,7 @@
 package org.machinemc.server.chunk;
 
 import lombok.*;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.chunk.Section;
 import org.machinemc.nbt.NBTCompound;
@@ -56,15 +57,15 @@ public class SectionImpl implements Section {
     @Override
     @Synchronized
     public void mergeData(NBTCompound compound) {
-        dataSupplier.get().putAll(compound);
+        dataSupplier.get().putAll(compound.clone());
     }
 
     @Override
     @Synchronized
-    public void setData(NBTCompound compound) {
+    public void setData(@Nullable NBTCompound compound) {
         final NBTCompound original = dataSupplier.get();
         original.clear();
-        original.putAll(compound);
+        if(compound != null) original.putAll(compound.clone());
     }
 
     @Override

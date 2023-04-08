@@ -3,6 +3,7 @@ package org.machinemc.server.world.region;
 import com.google.common.cache.Cache;
 import io.netty.util.internal.UnstableApi;
 import lombok.Synchronized;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.chunk.Chunk;
@@ -63,12 +64,14 @@ public class LandscapeChunk extends WorldChunk {
     @Override
     @Synchronized
     public WorldBlock getBlock(final int x, final int y, final int z) {
+        checkCoordinates(x, y, z);
         return worldBlockManager.get(new BlockPosition(worldX + x, y, worldZ + z)); // world block instances are managed by the world block managers
     }
 
     @Override
     @Synchronized
     public void setBlock(final int x, final int y, final int z, final BlockType blockType) {
+        checkCoordinates(x, y, z);
         final int offsetY = y - getBottom();
         final int sectionY = getSectionRelativeCoordinate(offsetY);
         final int sectionIndex = offsetY / Chunk.CHUNK_SECTION_SIZE;
@@ -99,6 +102,7 @@ public class LandscapeChunk extends WorldChunk {
     @Override
     @Synchronized
     public NBTCompound getBlockNBT(final int x, final int y, final int z) {
+        checkCoordinates(x, y, z);
         final int offsetY = y - getBottom();
         final int sectionY = getSectionRelativeCoordinate(offsetY);
         final int sectionIndex = offsetY / Chunk.CHUNK_SECTION_SIZE;
@@ -108,13 +112,14 @@ public class LandscapeChunk extends WorldChunk {
 
     @Override
     @Synchronized
-    public void mergeBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, NBTCompound compound) {
+    public void mergeBlockNBT(final int x, final int y, final int z, final NBTCompound compound) {
+        checkCoordinates(x, y, z);
         final int offsetY = y - getBottom();
         final int sectionY = getSectionRelativeCoordinate(offsetY);
         final int sectionIndex = offsetY / Chunk.CHUNK_SECTION_SIZE;
         final Segment segment = getSegment(sectionIndex);
         final NBTCompound original = segment.getNBT(x, sectionY, z);
-        original.putAll(compound);
+        original.putAll(compound.clone());
 
         final Section section = sections.getIfPresent(sectionIndex);
         // updates the visual and client nbt if the section is present
@@ -132,12 +137,13 @@ public class LandscapeChunk extends WorldChunk {
 
     @Override
     @Synchronized
-    public void setBlockNBT(final int x, final int y, final int z, final NBTCompound compound) {
+    public void setBlockNBT(final int x, final int y, final int z, final @Nullable NBTCompound compound) {
+        checkCoordinates(x, y, z);
         final int offsetY = y - getBottom();
         final int sectionY = getSectionRelativeCoordinate(offsetY);
         final int sectionIndex = offsetY / Chunk.CHUNK_SECTION_SIZE;
         final Segment segment = getSegment(sectionIndex);
-        segment.setNBT(x, sectionY, z, compound.clone());
+        segment.setNBT(x, sectionY, z, compound != null ? compound.clone() : null);
 
         final Section section = sections.getIfPresent(sectionIndex);
         // updates the visual and client nbt if the section is present
@@ -156,6 +162,7 @@ public class LandscapeChunk extends WorldChunk {
     @Override
     @Synchronized
     public Biome getBiome(final int x, final int y, final int z) {
+        checkCoordinates(x, y, z);
         final int offsetY = y - getBottom();
         final int sectionY = getSectionRelativeCoordinate(offsetY);
         final int sectionIndex = offsetY / Chunk.CHUNK_SECTION_SIZE;
@@ -173,6 +180,7 @@ public class LandscapeChunk extends WorldChunk {
     @Override
     @Synchronized
     public void setBiome(final int x, final int y, final int z, final Biome biome) {
+        checkCoordinates(x, y, z);
         final int offsetY = y - getBottom();
         final int sectionY = getSectionRelativeCoordinate(offsetY);
         final int sectionIndex = offsetY / Chunk.CHUNK_SECTION_SIZE;
@@ -189,6 +197,18 @@ public class LandscapeChunk extends WorldChunk {
         segment.push();
     }
 
+    /**
+     * Checks whether the provided coordinates are within the chunk's area.
+     * @param x x
+     * @param y y
+     * @param z z
+     */
+    private void checkCoordinates(final int x, final int y, final int z) {
+        if(y > getTop()) throw new IllegalStateException("Maximum height of the world exceeded");
+        if(x > 15 || x < 0) throw new IllegalStateException("The x coordinate is outside the chunk area");
+        if(z > 15 || z < 0) throw new IllegalStateException("The x coordinate is outside the chunk area");
+    }
+
     @Override
     public @Unmodifiable List<Section> getSections() {
         final List<Section> sections = new LinkedList<>();
@@ -200,6 +220,8 @@ public class LandscapeChunk extends WorldChunk {
     @Override
     @Synchronized
     public Section getSection(final int index) {
+        if(index < getMinSection() || index > getMaxSection())
+            throw new IndexOutOfBoundsException("Section with index " + index + " is outside the boundaries of this section");
         try {
             return sections.get(index, () -> {
                 final Segment segment = getSegment(index);

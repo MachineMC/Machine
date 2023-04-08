@@ -1,5 +1,6 @@
 package org.machinemc.api.chunk;
 
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
@@ -60,7 +61,7 @@ public interface Section extends Writable, Cloneable {
      * Sets the data to this section.
      * @param compound new data
      */
-    void setData(NBTCompound compound);
+    void setData(@Nullable NBTCompound compound);
 
     /**
      * @return sky light data of this section

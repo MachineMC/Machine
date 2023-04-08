@@ -1,5 +1,6 @@
 package org.machinemc.api.world.blocks;
 
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.BlockData;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
@@ -50,7 +51,7 @@ public interface WorldBlock {
      * Updates the NBT of the world block.
      * @param compound new nbt
      */
-    void setNBT(NBTCompound compound);
+    void setNBT(@Nullable NBTCompound compound);
 
     /**
      * @return blockdata of the block

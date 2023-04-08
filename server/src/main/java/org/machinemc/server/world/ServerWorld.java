@@ -402,7 +402,7 @@ public class ServerWorld extends AbstractWorld {
         for (BlockHandler handler : entityBlockType.getHandlers())
             handler.onGeneration(state);
         if (generatorData != null)
-            state.compound().putAll(generatorData);
+            state.compound().putAll(generatorData.clone());
         return state.compound();
     }
 

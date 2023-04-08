@@ -11,7 +11,6 @@ import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.nbt.NBTByte;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTInt;
-import org.machinemc.nbt.NBTString;
 
 import java.awt.*;
 

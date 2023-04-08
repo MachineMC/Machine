@@ -1,6 +1,7 @@
 package org.machinemc.server.world.blocks;
 
 import lombok.Synchronized;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.BlockData;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
@@ -69,7 +70,7 @@ public class WorldBlockImpl implements WorldBlock {
 
     @Override
     @Synchronized
-    public void setNBT(final NBTCompound compound) {
+    public void setNBT(final @Nullable NBTCompound compound) {
         world.getChunk(position).setBlockNBT(ChunkUtils.getSectionRelativeCoordinate(position.getX()), position.getY(), ChunkUtils.getSectionRelativeCoordinate(position.getZ()), compound);
     }
 
