@@ -274,7 +274,10 @@ public class ServerWorld extends AbstractWorld {
 
                 // Section is created as well; generated chunks are expected to be sent to client, if yes the intermediate step
                 // of conversion between Landscape segment and section is skipped which makes the process of loading newly generated chunks much faster.
-                final Section section = new SectionImpl(chunk, i, segment::getDataCompound);
+                final Section section = new SectionImpl(chunk, i,  () -> {
+                    segment.push(); // if compound is requested we push the segment in case it's changed later
+                    return segment.getDataCompound();
+                });
 
                 // There are multiple block types in the generated section
                 if(blockPalette.length != 1) {

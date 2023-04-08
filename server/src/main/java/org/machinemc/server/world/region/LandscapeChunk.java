@@ -203,7 +203,10 @@ public class LandscapeChunk extends WorldChunk {
         try {
             return sections.get(index, () -> {
                 final Segment segment = getSegment(index);
-                final SectionImpl section = new SectionImpl(this, index, segment::getDataCompound);
+                final SectionImpl section = new SectionImpl(this, index, () -> {
+                    segment.push(); // if compound is requested we push the segment in case it's changed later
+                    return segment.getDataCompound();
+                });
 
                 readSectionBlockData(section, index, segment);
                 readSectionBiomeData(section, segment);
