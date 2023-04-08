@@ -171,7 +171,6 @@ public class ServerWorld extends AbstractWorld {
     @Override
     public void loadPlayer(final Player player) {
         // TODO this should take player's view distance
-        final long now = System.currentTimeMillis();
         final Scheduler scheduler = getServer().getScheduler();
         final int chunksPerTask = 10;
         final int tasks = 3;
@@ -185,9 +184,6 @@ public class ServerWorld extends AbstractWorld {
                     final Chunk chunk = getChunk(coordinates[0], coordinates[1]);
                     chunk.sendChunk(player);
                 }
-                if(index == tasks)
-                    player.sendMessage(Component.text("Loading of " + (tasks*chunksPerTask) + " chunks took " + (System.currentTimeMillis() - now) + "ms"));
-
                 return null;
             })).async().run(scheduler);
         }
