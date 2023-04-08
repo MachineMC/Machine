@@ -80,6 +80,15 @@ public interface Chunk extends ServerProperty {
     NBTCompound getBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z);
 
     /**
+     * Merges provided nbt compound to the compound of block at given coordinates.
+     * @param x x
+     * @param y y
+     * @param z z
+     * @param compound compound to merge
+     */
+    void mergeBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, NBTCompound compound);
+
+    /**
      * Sets new nbt to the block at given location in this chunk.
      * @param x x
      * @param y y

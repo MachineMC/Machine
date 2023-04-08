@@ -14,6 +14,16 @@ import java.util.Map;
 public interface Section extends Writable, Cloneable {
 
     /**
+     * @return source of this section
+     */
+    Chunk getSource();
+
+    /**
+     * @return index of the section in the source chunk
+     */
+    int getIndex();
+
+    /**
      * @return block palette used by this section
      */
     Palette getBlockPalette();
@@ -32,6 +42,27 @@ public interface Section extends Writable, Cloneable {
     Map<Integer, BlockEntity> getClientBlockEntities();
 
     /**
+     * Returns clone of nbt data of this section.
+     * <p>
+     * Information about entities, generation etc. can be
+     * stored there.
+     * @return data of this section
+     */
+    NBTCompound getData();
+
+    /**
+     * Merges provided compound with the compound of the section.
+     * @param compound compound to merge
+     */
+    void mergeData(NBTCompound compound);
+
+    /**
+     * Sets the data to this section.
+     * @param compound new data
+     */
+    void setData(NBTCompound compound);
+
+    /**
      * @return sky light data of this section
      */
     byte[] getSkyLight();
@@ -45,8 +76,6 @@ public interface Section extends Writable, Cloneable {
      * Clears the section.
      */
     void clear();
-
-    Section clone();
 
     /**
      * Creates a unique index for a coordinates within the section.

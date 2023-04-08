@@ -63,7 +63,7 @@ public class ServerWorld extends AbstractWorld {
     @Getter
     private final WorldBlockManager worldBlockManager;
 
-    private final Cache<Long, LandscapeChunk> cachedChunks = new WeaklyTimedCache<>(16, TimeUnit.SECONDS); // TODO configurable (check landscape chunk too, should be the same value)
+    private final Cache<Long, LandscapeChunk> cachedChunks = new WeaklyTimedCache<>(16, TimeUnit.SECONDS); // TODO configurable
 
     /**
      * Creates default server world.
@@ -109,14 +109,6 @@ public class ServerWorld extends AbstractWorld {
                         if (blockType == null) throw new IllegalStateException();
                     }
                     return blockType;
-                }),
-                (position -> {
-                    getChunk(position); // loads the chunk in case it's not generated yet
-                    final Segment segment = getSegment(position);
-                    return segment.getNBT(
-                            getSectionRelativeCoordinate(position.getX()),
-                            getSectionRelativeCoordinate(position.getY() - getDimensionType().getMinY()),
-                            getSectionRelativeCoordinate(position.getZ()));
                 })
         );
     }
@@ -282,7 +274,7 @@ public class ServerWorld extends AbstractWorld {
 
                 // Section is created as well; generated chunks are expected to be sent to client, if yes the intermediate step
                 // of conversion between Landscape segment and section is skipped which makes the process of loading newly generated chunks much faster.
-                final Section section = new SectionImpl();
+                final Section section = new SectionImpl(chunk, i, segment::getDataCompound);
 
                 // There are multiple block types in the generated section
                 if(blockPalette.length != 1) {

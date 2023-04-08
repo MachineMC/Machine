@@ -23,55 +23,58 @@ public class WorldBlockImpl implements WorldBlock {
     private final World world;
     private final BlockPosition position;
     private final Supplier<BlockType> blockTypeSupplier;
-    private final Supplier<NBTCompound> nbtSupplier;
 
-    protected WorldBlockImpl(World world, BlockPosition position,
-                             Supplier<BlockType> blockTypeSupplier,
-                             Supplier<NBTCompound> nbtSupplier) {
+    protected WorldBlockImpl(final World world, final BlockPosition position,
+                             final Supplier<BlockType> blockTypeSupplier) {
         this.world = world;
         this.position = position;
         this.blockTypeSupplier = blockTypeSupplier;
-        this.nbtSupplier = nbtSupplier;
     }
 
-    @Synchronized
     @Override
+    @Synchronized
     public World getWorld() {
         return world;
     }
 
-    @Synchronized
     @Override
+    @Synchronized
     public BlockPosition getPosition() {
         return position;
     }
 
-    @Synchronized
     @Override
+    @Synchronized
     public BlockType getBlockType() {
         return blockTypeSupplier.get();
     }
 
-    @Synchronized
     @Override
-    public void setBlockType(BlockType blockType) {
+    @Synchronized
+    public void setBlockType(final BlockType blockType) {
         world.setBlock(blockType, position);
     }
 
-    @Synchronized
     @Override
+    @Synchronized
     public NBTCompound getNBT() {
-        return nbtSupplier.get().clone();
+        return world.getChunk(position).getBlockNBT(ChunkUtils.getSectionRelativeCoordinate(position.getX()), position.getY(), ChunkUtils.getSectionRelativeCoordinate(position.getZ()));
     }
 
-    @Synchronized
     @Override
-    public void setNBT(NBTCompound compound) {
+    @Synchronized
+    public void mergeNBT(final NBTCompound compound) {
+        world.getChunk(position).mergeBlockNBT(ChunkUtils.getSectionRelativeCoordinate(position.getX()), position.getY(), ChunkUtils.getSectionRelativeCoordinate(position.getZ()), compound);
+    }
+
+    @Override
+    @Synchronized
+    public void setNBT(final NBTCompound compound) {
         world.getChunk(position).setBlockNBT(ChunkUtils.getSectionRelativeCoordinate(position.getX()), position.getY(), ChunkUtils.getSectionRelativeCoordinate(position.getZ()), compound);
     }
 
-    @Synchronized
     @Override
+    @Synchronized
     public BlockData getBlockData() {
         final State state = asState();
         BlockData visual = getBlockType().getBlockData(state);

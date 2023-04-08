@@ -9,7 +9,6 @@ import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
-import org.machinemc.nbt.NBTCompound;
 
 import java.util.function.Function;
 
@@ -24,7 +23,6 @@ public class WorldBlockManager {
     @Getter
     private final World world;
     private final Function<BlockPosition, BlockType> blockTypeSupplier;
-    private final Function<BlockPosition, NBTCompound> nbtSupplier;
 
     private final Cache<BlockPosition, WorldBlock> cached = CacheBuilder.newBuilder()
             .weakValues()
@@ -41,8 +39,7 @@ public class WorldBlockManager {
             return cached.get(position, () -> new WorldBlockImpl(
                     world,
                     position,
-                    () -> blockTypeSupplier.apply(position),
-                    () -> nbtSupplier.apply(position)));
+                    () -> blockTypeSupplier.apply(position)));
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }

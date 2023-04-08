@@ -41,6 +41,12 @@ public interface WorldBlock {
     NBTCompound getNBT();
 
     /**
+     * Merges the provided compound to the nbt compound of the world block.
+     * @param compound compound to merge
+     */
+    void mergeNBT(NBTCompound compound);
+
+    /**
      * Updates the NBT of the world block.
      * @param compound new nbt
      */

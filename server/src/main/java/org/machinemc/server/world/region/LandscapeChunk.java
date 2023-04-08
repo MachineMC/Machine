@@ -41,7 +41,7 @@ public class LandscapeChunk extends WorldChunk {
     private final int segmentX;
     private final int segmentZ;
 
-    private final Cache<Integer, Section> sections = new WeaklyTimedCache<>(16, TimeUnit.SECONDS); // TODO configurable (check server world too, should be the same value)
+    private final Cache<Integer, Section> sections = new WeaklyTimedCache<>(16, TimeUnit.SECONDS); // TODO configurable
 
     public LandscapeChunk(final World world, final WorldBlockManager worldBlockManager, final int chunkX, final int chunkZ, final LandscapeHelper helper) throws ExecutionException {
         super(world, chunkX, chunkZ);
@@ -104,6 +104,30 @@ public class LandscapeChunk extends WorldChunk {
         final int sectionIndex = offsetY / Chunk.CHUNK_SECTION_SIZE;
         final Segment segment = getSegment(sectionIndex);
         return segment.getNBT(x, sectionY, z).clone();
+    }
+
+    @Override
+    @Synchronized
+    public void mergeBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, NBTCompound compound) {
+        final int offsetY = y - getBottom();
+        final int sectionY = getSectionRelativeCoordinate(offsetY);
+        final int sectionIndex = offsetY / Chunk.CHUNK_SECTION_SIZE;
+        final Segment segment = getSegment(sectionIndex);
+        final NBTCompound original = segment.getNBT(x, sectionY, z);
+        original.putAll(compound);
+
+        final Section section = sections.getIfPresent(sectionIndex);
+        // updates the visual and client nbt if the section is present
+        if(section != null) {
+            BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(x, sectionY, z)));
+            if (blockType == null) {
+                blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType()));
+                if (blockType == null) throw new IllegalStateException();
+            }
+            setSectionBlock(section, sectionIndex, x, sectionY, z, blockType);
+        }
+
+        segment.push();
     }
 
     @Override
@@ -178,8 +202,8 @@ public class LandscapeChunk extends WorldChunk {
     public Section getSection(final int index) {
         try {
             return sections.get(index, () -> {
-                final SectionImpl section = new SectionImpl();
                 final Segment segment = getSegment(index);
+                final SectionImpl section = new SectionImpl(this, index, segment::getDataCompound);
 
                 readSectionBlockData(section, index, segment);
                 readSectionBiomeData(section, segment);
@@ -378,6 +402,7 @@ public class LandscapeChunk extends WorldChunk {
             segment.reset();
             segment.push();
         }
+        sections.invalidateAll();
     }
 
     @Override
