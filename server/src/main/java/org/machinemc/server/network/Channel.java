@@ -3,10 +3,10 @@ package org.machinemc.server.network;
 import lombok.*;
 import org.machinemc.api.auth.Crypt;
 import org.machinemc.api.network.packets.Packet;
+import org.machinemc.api.utils.Pair;
 import org.machinemc.server.network.packets.out.login.PacketLoginOutSetCompression;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.server.utils.Pair;
 import org.machinemc.server.utils.ZLib;
 import org.jetbrains.annotations.Nullable;
 

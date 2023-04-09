@@ -6,7 +6,6 @@ import org.machinemc.api.entities.Entity;
 import org.machinemc.api.entities.EntityManager;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.world.World;
-import org.machinemc.api.world.WorldManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -20,8 +19,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EntityManagerImpl implements EntityManager {
 
-    private final WorldManager worldManager;
-
     private final Map<UUID, Entity> entityMap = new ConcurrentHashMap<>();
 
     /**
@@ -30,7 +27,7 @@ public class EntityManagerImpl implements EntityManager {
      * @return new manager
      */
     public static EntityManagerImpl createDefault(Machine server) {
-        return new EntityManagerImpl(server.getWorldManager());
+        return new EntityManagerImpl();
     }
 
     @Override
@@ -67,20 +64,13 @@ public class EntityManagerImpl implements EntityManager {
 
     @Override
     public Set<Entity> getEntities() {
-        Set<ServerEntity> entities = new LinkedHashSet<>();
-        for(World world : worldManager.getWorlds()) {
-            for(Entity entity : world.getEntities()) {
-                entities.add((ServerEntity) entity);
-            }
-        }
+        Set<Entity> entities = new LinkedHashSet<>(entityMap.values());
         return Collections.unmodifiableSet(entities);
     }
 
     @Override
     public Set<Entity> getEntities(World world) {
-        if(world.getManager() != worldManager)
-            throw new IllegalStateException();
-        return new LinkedHashSet<>(world.getEntities());
+        return getEntities((entity -> entity.getWorld().equals(world)));
     }
 
     @Override
@@ -95,17 +85,11 @@ public class EntityManagerImpl implements EntityManager {
 
     @Override
     public void addEntity(Entity entity) {
-        if(entity.getWorld().getManager() != worldManager || entityMap.containsKey(entity.getUuid()))
-            throw new IllegalStateException();
-        entity.getWorld().spawn(entity, entity.getLocation());
         entityMap.put(entity.getUuid(), entity);
     }
 
     @Override
     public void removeEntity(Entity entity) {
-        if(entity.getWorld().getManager() != worldManager || !entityMap.containsKey(entity.getUuid()))
-            throw new IllegalStateException();
-        entity.getWorld().remove(entity);
         entityMap.remove(entity.getUuid());
     }
 }

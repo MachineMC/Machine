@@ -21,6 +21,7 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.Material;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldManager;
+import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.biomes.BiomeManager;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
@@ -335,6 +336,14 @@ public interface Server {
      */
     default @Nullable BlockType getBlockType(NamespacedKey name) {
         return getBlockManager().getBlockType(name);
+    }
+
+    /**
+     * @param name name of the biome
+     * @return biome with given name registered in server's biome manager
+     */
+    default @Nullable Biome getBiome(NamespacedKey name) {
+        return getBiomeManager().getBiome(name);
     }
 
 }

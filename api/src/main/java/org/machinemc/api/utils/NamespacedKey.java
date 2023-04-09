@@ -13,7 +13,7 @@ import java.util.Objects;
  * <p>
  * Valid characters for keys are [a-z0-9.-_/].
  */
-public class NamespacedKey {
+public final class NamespacedKey {
 
     public static final String
             MINECRAFT_NAMESPACE = "minecraft",

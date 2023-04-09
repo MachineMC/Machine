@@ -54,6 +54,7 @@ import org.machinemc.server.utils.ClassUtils;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.server.utils.NetworkUtils;
+import org.machinemc.server.world.region.LandscapeChunk;
 
 import java.io.File;
 import java.io.IOException;
@@ -224,6 +225,13 @@ public class Machine implements Server {
 
         messenger = new MessengerImpl(this);
 
+        // TODO Implement biomes json
+        biomeManager = BiomeManagerImpl.createDefault(this);
+
+        entityManager = EntityManagerImpl.createDefault(this);
+
+        playerManager = new PlayerManagerImpl(this);
+
         try {
             playerDataContainer = new PlayerDataContainerImpl(this);
         } catch (Exception exception) {
@@ -280,13 +288,6 @@ public class Machine implements Server {
             }
         }
         console.info("Loaded all server worlds");
-
-        // TODO Implement biomes json
-        biomeManager = BiomeManagerImpl.createDefault(this);
-
-        entityManager = EntityManagerImpl.createDefault(this);
-
-        playerManager = new PlayerManagerImpl(this);
 
         ClassUtils.loadClass(PacketFactory.class);
         console.info("Loaded all packet mappings");

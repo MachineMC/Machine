@@ -85,6 +85,8 @@ public class BiomeManagerImpl implements BiomeManager {
 
     @Override
     public NBTCompound getBiomeNBT(Biome biome) {
+        if(!isRegistered(biome))
+            throw new IllegalStateException();
         NBTCompound nbtCompound = biome.toNBT();
         return new NBTCompound(Map.of(
                 "name", biome.getName().toString(),

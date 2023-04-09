@@ -1,19 +1,26 @@
 package org.machinemc.server.chunk;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.chunk.Section;
+import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.chunk.palette.AdaptivePalette;
 import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.ServerBuffer;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+
 /**
  * Default implementation of the section.
  */
-@AllArgsConstructor
 @Getter
 public class SectionImpl implements Section {
+
+    private final Chunk source;
+    private final int index;
 
     private final Palette blockPalette;
     private final Palette biomePalette;
@@ -22,9 +29,43 @@ public class SectionImpl implements Section {
     @Setter
     private byte[] blockLight;
 
-    public SectionImpl() {
-        this(AdaptivePalette.blocks(), AdaptivePalette.biomes(),
-                new byte[0], new byte[0]);
+    private final Supplier<NBTCompound> dataSupplier;
+
+    private final Map<Integer, BlockEntity> clientBlockEntities = new ConcurrentHashMap<>();
+
+    public SectionImpl(final Chunk source, final int index, final Supplier<NBTCompound> dataSupplier) {
+        this.source = source;
+        this.index = index;
+        blockPalette = AdaptivePalette.blocks();
+        biomePalette = AdaptivePalette.biomes();
+        skyLight = new byte[0];
+        blockLight = new byte[0];
+        this.dataSupplier = dataSupplier;
+    }
+
+    @Override
+    public Map<Integer, BlockEntity> getClientBlockEntities() {
+        return clientBlockEntities;
+    }
+
+    @Override
+    @Synchronized
+    public NBTCompound getData() {
+        return dataSupplier.get().clone();
+    }
+
+    @Override
+    @Synchronized
+    public void mergeData(NBTCompound compound) {
+        dataSupplier.get().putAll(compound.clone());
+    }
+
+    @Override
+    @Synchronized
+    public void setData(@Nullable NBTCompound compound) {
+        final NBTCompound original = dataSupplier.get();
+        original.clear();
+        if(compound != null) original.putAll(compound.clone());
     }
 
     @Override
@@ -33,12 +74,6 @@ public class SectionImpl implements Section {
         this.biomePalette.fill(0);
         this.skyLight = new byte[0];
         this.blockLight = new byte[0];
-    }
-
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
-    @Override
-    public SectionImpl clone() {
-        return new SectionImpl(blockPalette.clone(), biomePalette.clone(), skyLight.clone(), blockLight.clone());
     }
 
     @Override
