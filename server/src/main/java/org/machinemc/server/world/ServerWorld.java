@@ -3,7 +3,6 @@ package org.machinemc.server.world;
 import com.google.common.cache.Cache;
 import lombok.Getter;
 import lombok.Synchronized;
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.chunk.Section;
 import org.machinemc.api.server.schedule.Scheduler;
