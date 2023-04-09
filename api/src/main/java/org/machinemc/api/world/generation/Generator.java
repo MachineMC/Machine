@@ -1,8 +1,7 @@
 package org.machinemc.api.world.generation;
 
 import org.machinemc.api.server.ServerProperty;
-import org.machinemc.api.world.BlockPosition;
-import org.machinemc.api.world.blocks.BlockType;
+import org.machinemc.api.world.World;
 
 /**
  * Represents generator of a world.
@@ -10,10 +9,18 @@ import org.machinemc.api.world.blocks.BlockType;
 public interface Generator extends ServerProperty {
 
     /**
-     * Returns a block type that should generate at the given block position
-     * @param position position to generate
-     * @return block type to generate at that position
+     * Generates entries for a section in a chunk.
+     * @param chunkX x coordinate of the chunk
+     * @param chunkZ z coordinate of the chunk
+     * @param sectionIndex index of the section
+     * @param world world of the chunk
+     * @return content for the chunk section
      */
-    BlockType generate(BlockPosition position);
+    GeneratedSection populateChunk(final int chunkX, final int chunkZ, final int sectionIndex, World world);
+
+    /**
+     * @return seed used by this generator
+     */
+    long getSeed();
 
 }

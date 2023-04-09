@@ -128,6 +128,7 @@ public abstract class ServerEntity implements Entity {
             throw new IllegalStateException(this + " is already initiated");
         active = true;
         getServer().getEntityManager().addEntity(this);
+        getWorld().spawn(this, location);
     }
 
     @Override
@@ -136,6 +137,7 @@ public abstract class ServerEntity implements Entity {
             throw new IllegalStateException(this + " is not active");
         active = false;
         getServer().getEntityManager().removeEntity(this);
+        getWorld().remove(this);
     }
 
     @Override

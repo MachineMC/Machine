@@ -96,6 +96,8 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
 
     @Override
     public NBTCompound getDimensionNBT(DimensionType dimensionType) {
+        if(!isRegistered(dimensionType))
+            throw new IllegalStateException();
         NBTCompound nbtCompound = dimensionType.toNBT();
         return new NBTCompound(Map.of(
                 "name", dimensionType.getName().toString(),

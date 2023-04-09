@@ -41,6 +41,16 @@ public interface BlockManager extends ServerProperty {
         Arrays.stream(blockTypes).forEach(this::removeBlock);
     }
 
+    default void removeBlock(NamespacedKey name) {
+        BlockType block = getBlockType(name);
+        if(block == null) return;
+        removeBlock(block);
+    }
+
+    default void removeBlocks(NamespacedKey... names) {
+        Arrays.stream(names).forEach(this::removeBlocks);
+    }
+
     /**
      * Checks if block type with given name is registered in this manager.
      * @param name name of the block type

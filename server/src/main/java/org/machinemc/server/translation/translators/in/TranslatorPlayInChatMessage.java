@@ -2,13 +2,23 @@ package org.machinemc.server.translation.translators.in;
 
 import org.machinemc.api.chat.ChatUtils;
 import org.machinemc.api.chat.Messenger;
+import org.machinemc.api.chunk.Section;
 import org.machinemc.api.entities.Player;
+import org.machinemc.nbt.NBTCompound;
+import org.machinemc.nbt.NBTLongArray;
+import org.machinemc.server.chunk.ChunkUtils;
+import org.machinemc.server.chunk.data.ChunkData;
 import org.machinemc.server.entities.ServerPlayer;
+import org.machinemc.server.network.packets.out.play.PacketPlayOutChunkData;
 import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.play.PacketPlayInChatMessage;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.text.Component;
+import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.server.utils.math.MathUtils;
+
+import java.util.Map;
 
 public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInChatMessage> {
 

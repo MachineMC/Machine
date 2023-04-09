@@ -1,15 +1,15 @@
 package org.machinemc.api.chunk;
 
-import org.machinemc.api.entities.Entity;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.blocks.BlockType;
-import org.machinemc.api.world.blocks.BlockVisual;
 import org.machinemc.api.world.blocks.WorldBlock;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.machinemc.nbt.NBTCompound;
 
 import java.util.List;
 
@@ -56,52 +56,65 @@ public interface Chunk extends ServerProperty {
 
     /**
      * Returns a world block at given location in this chunk.
-     * @param x x coordinate of the block in this chunk
-     * @param y y coordinate of the block in this chunk
-     * @param z z coordinate of the block in this chunk
+     * @param x x
+     * @param y y
+     * @param z z
      * @return world block at given location
      */
-    WorldBlock getBlock(int x, int y, int z);
+    WorldBlock getBlock(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z);
 
     /**
      * Sets a new block type for a world block at given location in this chunk.
-     * @param x x coordinate of the block in this chunk
-     * @param y y coordinate of the block in this chunk
-     * @param z z coordinate of the block in this chunk
-     * @param blockType new block type
-     * @param reason reason of the change
-     * @param replaceReason reason of the replacement of the old block type
-     * @param source source of the change
-     * @return world block that has been changed
+     * @param x x
+     * @param y y
+     * @param z z
      */
-    WorldBlock setBlock(int x, int y, int z, BlockType blockType, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source);
+    void setBlock(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, BlockType blockType);
 
     /**
-     * Changes the visual of a block at given location in this chunk.
-     * @param x x coordinate of the block in this chunk
-     * @param y y coordinate of the block in this chunk
-     * @param z z coordinate of the block in this chunk
-     * @param visual new visual for the world block
+     * Returns clone of nbt of block at given location in this chunk.
+     * @param x x
+     * @param y y
+     * @param z z
+     * @return nbt of block at given location
      */
-    void setVisual(int x, int y, int z, BlockVisual visual);
+    NBTCompound getBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z);
+
+    /**
+     * Merges provided nbt compound to the compound of block at given coordinates.
+     * @param x x
+     * @param y y
+     * @param z z
+     * @param compound compound to merge
+     */
+    void mergeBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, NBTCompound compound);
+
+    /**
+     * Sets new nbt to the block at given location in this chunk.
+     * @param x x
+     * @param y y
+     * @param z z
+     * @param compound new nbt
+     */
+    void setBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, @Nullable NBTCompound compound);
 
     /**
      * Returns a biome at given location in this chunk.
-     * @param x x coordinate of the biome
-     * @param y y coordinate of the biome
-     * @param z z coordinate of the biome
+     * @param x x
+     * @param y y
+     * @param z z
      * @return biome at given location
      */
-    Biome getBiome(int x, int y, int z);
+    Biome getBiome(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z);
 
     /**
-     * Sets a new biome at the given location.
-     * @param x x coordinate of the biome
-     * @param y y coordinate of the biome
-     * @param z z coordinate of the biome
+     * Sets a new biome at the given location in this chunk.
+     * @param x x
+     * @param y y
+     * @param z z
      * @param biome new biome
      */
-    void setBiome(int x, int y, int z, Biome biome);
+    void setBiome(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, Biome biome);
 
     /**
      * Returns unmodifiable list of all sections.
@@ -111,10 +124,10 @@ public interface Chunk extends ServerProperty {
 
     /**
      * Returns section with given index.
-     * @param section index of the section
+     * @param index index of the section
      * @return section with given index
      */
-    Section getSection(int section);
+    Section getSection(int index);
 
     /**
      * Returns section at given y coordinate in the world.
@@ -136,15 +149,6 @@ public interface Chunk extends ServerProperty {
      * @param player player to unload chunk for
      */
     void unloadChunk(Player player);
-
-    /**
-     * Creates a copy of this chunk in a given world at given coordinates.
-     * @param world world to create the chunk for
-     * @param chunkX x coordinate of the copied chunk
-     * @param chunkZ z coordinate of the copied chunk
-     * @return copy of this chunk
-     */
-    Chunk copy(World world, int chunkX, int chunkZ);
 
     /**
      * Resets the chunk and its data.

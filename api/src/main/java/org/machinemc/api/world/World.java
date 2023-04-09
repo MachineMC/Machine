@@ -5,6 +5,7 @@ import org.machinemc.api.entities.Entity;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
+import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.dimensions.DimensionType;
@@ -158,46 +159,6 @@ public interface World extends ServerProperty {
     }
 
     /**
-     * Sets a world block at given position to a different block type.
-     * @param blockType new block type
-     * @param position position of the block
-     * @param reason reason why the block type was set
-     * @param replaceReason reason why the previous block type was removed
-     * @param source source of the change
-     */
-    void setBlock(BlockType blockType, BlockPosition position, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source);
-
-    /**
-     * Sets a world block at given location to a different block type.
-     * @param blockType new block type
-     * @param location location of the block
-     * @param reason reason why the block type was set
-     * @param replaceReason reason why the previous block type was removed
-     * @param source source of the change
-     */
-    default void setBlock(BlockType blockType, Location location, @Nullable BlockType.CreateReason reason, @Nullable BlockType.DestroyReason replaceReason, @Nullable Entity source) {
-        setBlock(blockType, location.toBlockPosition(), reason, replaceReason, source);
-    }
-
-    /**
-     * Sets a world block at given position to a different block type.
-     * @param blockType new block type
-     * @param position position of the block
-     */
-    default void setBlock(BlockType blockType, BlockPosition position) {
-        setBlock(blockType, position, BlockType.CreateReason.SET, BlockType.DestroyReason.REMOVED, null);
-    }
-
-    /**
-     * Sets a world block at given location to a different block type.
-     * @param blockType new block type
-     * @param location location of the block
-     */
-    default void setBlock(BlockType blockType, Location location) {
-        setBlock(blockType, location, BlockType.CreateReason.SET, BlockType.DestroyReason.REMOVED, null);
-    }
-
-    /**
      * Returns block from the world at given position,
      * if the part of the world has not been generated yet, it should be
      * and the generated block should be returned.
@@ -217,7 +178,63 @@ public interface World extends ServerProperty {
         return getBlock(location.toBlockPosition());
     }
 
-    // TODO Biomes support
+    /**
+     * Sets a world block at given position to a different block type.
+     * @param blockType new block type
+     * @param position position of the block
+     */
+    void setBlock(BlockType blockType, BlockPosition position);
+
+    /**
+     * Sets a world block at given position to a different block type.
+     * @param blockType new block type
+     * @param location location of the block
+     */
+    default void setBlock(BlockType blockType, Location location) {
+        setBlock(blockType, location.toBlockPosition());
+    }
+
+    /**
+     * Sets new biome at given location in the world, keep in mind
+     * the biome grid is 4x4.
+     * @param biome new biome
+     * @param position position
+     */
+    void setBiome(Biome biome, BlockPosition position);
+
+    /**
+     * Sets new biome at given location in the world, keep in mind
+     * the biome grid is 4x4.
+     * @param biome new biome
+     * @param location location
+     */
+    default void setBiome(Biome biome, Location location) {
+        setBiome(biome, location.toBlockPosition());
+    }
+
+    /**
+     * Gets biome at given location in the world, keep in mind
+     * the biome grid is 4x4.
+     * <p>
+     * If the part of the world has not been generated yet, it should be
+     * and the generated biome should be returned.
+     * @param position position
+     * @return biome at given position
+     */
+    Biome getBiome(BlockPosition position);
+
+    /**
+     * Gets biome at given location in the world, keep in mind
+     * the biome grid is 4x4.
+     * <p>
+     * If the part of the world has not been generated yet, it should be
+     * and the generated biome should be returned.
+     * @param location location
+     * @return biome at given location
+     */
+    default Biome getBiome(Location location) {
+        return getBiome(location.toBlockPosition());
+    }
 
     /**
      * Changes the world difficulty.

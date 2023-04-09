@@ -1,4 +1,4 @@
-package org.machinemc.server.utils;
+package org.machinemc.api.utils;
 
 /**
  * Pair of key and value.

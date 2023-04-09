@@ -109,7 +109,7 @@ public class WorldJson implements ServerFile, ServerProperty {
      * @return newly created and registered world
      */
     public World buildWorld() {
-        WorldImpl world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
+        AbstractWorld world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
         world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
         world.setDifficulty(server.getProperties().getDefaultDifficulty());
         return world;

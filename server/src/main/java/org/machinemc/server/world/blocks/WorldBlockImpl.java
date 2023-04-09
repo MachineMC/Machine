@@ -1,35 +1,107 @@
 package org.machinemc.server.world.blocks;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Synchronized;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.world.BlockData;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
+import org.machinemc.api.world.blocks.BlockHandler;
 import org.machinemc.api.world.blocks.BlockType;
-import org.machinemc.api.world.blocks.BlockVisual;
 import org.machinemc.api.world.blocks.WorldBlock;
+import org.machinemc.nbt.NBTCompound;
+import org.machinemc.server.chunk.ChunkUtils;
+
+import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Default world block implementation.
+ * @see WorldBlockManager
  */
-// TODO Equals should check just location and world
-//  and the block instance should be synced and only
-//  one per world block
-@EqualsAndHashCode
-@ToString
-@Getter
+@SuppressWarnings("ClassCanBeRecord")
 public class WorldBlockImpl implements WorldBlock {
 
-    private final BlockType blockType;
-    private final BlockPosition position;
     private final World world;
-    private final BlockVisual visual;
+    private final BlockPosition position;
+    private final Supplier<BlockType> blockTypeSupplier;
 
-    public WorldBlockImpl(BlockType blockType, BlockPosition position, World world) {
-        this.blockType = blockType;
-        this.position = position;
+    protected WorldBlockImpl(final World world, final BlockPosition position,
+                             final Supplier<BlockType> blockTypeSupplier) {
         this.world = world;
-        this.visual = blockType.getVisualizer().create(this);
+        this.position = position;
+        this.blockTypeSupplier = blockTypeSupplier;
+    }
+
+    @Override
+    @Synchronized
+    public World getWorld() {
+        return world;
+    }
+
+    @Override
+    @Synchronized
+    public BlockPosition getPosition() {
+        return position;
+    }
+
+    @Override
+    @Synchronized
+    public BlockType getBlockType() {
+        return blockTypeSupplier.get();
+    }
+
+    @Override
+    @Synchronized
+    public void setBlockType(final BlockType blockType) {
+        world.setBlock(blockType, position);
+    }
+
+    @Override
+    @Synchronized
+    public NBTCompound getNBT() {
+        return world.getChunk(position).getBlockNBT(ChunkUtils.getSectionRelativeCoordinate(position.getX()), position.getY(), ChunkUtils.getSectionRelativeCoordinate(position.getZ()));
+    }
+
+    @Override
+    @Synchronized
+    public void mergeNBT(final NBTCompound compound) {
+        world.getChunk(position).mergeBlockNBT(ChunkUtils.getSectionRelativeCoordinate(position.getX()), position.getY(), ChunkUtils.getSectionRelativeCoordinate(position.getZ()), compound);
+    }
+
+    @Override
+    @Synchronized
+    public void setNBT(final @Nullable NBTCompound compound) {
+        world.getChunk(position).setBlockNBT(ChunkUtils.getSectionRelativeCoordinate(position.getX()), position.getY(), ChunkUtils.getSectionRelativeCoordinate(position.getZ()), compound);
+    }
+
+    @Override
+    @Synchronized
+    public BlockData getBlockData() {
+        final State state = asState();
+        BlockData visual = getBlockType().getBlockData(state);
+        for(final BlockHandler blockHandler : state.blockType().getHandlers())
+            visual = blockHandler.onVisualRequest(state, visual);
+        return visual;
+    }
+
+    @Override
+    public String toString() {
+        return "WorldBlock[" +
+                world +
+                ", " + position +
+                ']';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof WorldBlockImpl that)) return false;
+        return position.equals(that.position) && world.equals(that.world);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(position, world);
     }
 
 }

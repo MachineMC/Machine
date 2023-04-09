@@ -35,10 +35,11 @@ public class BlockManagerImpl implements BlockManager {
         manager.addBlocks(
                 new BlockTypeImpl(NamespacedKey.minecraft("air"), BlockTypeImpl.BlockProperties.builder()
                         .color(new Color(255, 255, 255, 0)).isAir(true).transparent(true).build(),
-                        ((source) -> new FixedVisual(Material.AIR.createBlockData()))),
+                        Material.AIR.createBlockData()),
                 new BlockTypeImpl(NamespacedKey.minecraft("stone"), BlockTypeImpl.BlockProperties.builder()
                         .color(Color.GRAY).resistance(6).blockHardness(1.5F).build(),
-                        ((source) -> new DynamicVisual(source, Material.STONE.createBlockData())))
+                        Material.STONE.createBlockData()),
+                new SignBlock()
         );
         return manager;
     }

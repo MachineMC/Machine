@@ -1,10 +1,13 @@
 package org.machinemc.api.world.blocks;
 
-import org.machinemc.api.entities.Entity;
-import org.machinemc.api.utils.NamespacedKey;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+import org.machinemc.api.utils.NamespacedKey;
+import org.machinemc.api.world.BlockData;
 
 import java.awt.*;
+import java.util.List;
 
 /**
  * Represents a block type with name, properties and custom behaviour.
@@ -22,51 +25,41 @@ public interface BlockType {
     BlockProperties getProperties();
 
     /**
-     * @return block visualizer of the block type
+     * Provides a blockdata visual for a block in a world.
+     * @param block block
+     * @return blockdata visual for the block
+     * @apiNote block argument can be null in case
+     * the visual isn't dynamic {@link BlockType#hasDynamicVisual()}
      */
-    BlockVisualizer getVisualizer();
+    @Contract("_ -> new")
+    BlockData getBlockData(@Nullable WorldBlock.State block);
 
     /**
-     * Called when a new world block of this block type is created.
-     * @param block created world block
-     * @param reason reason why the world block was created
-     * @param source source of the creation
+     * Whether the visual of the block of this type is dynamic and
+     * can change depending on block's data.
+     * @return whether the visual is dynamic
      */
-    void create(WorldBlock block, CreateReason reason, @Nullable Entity source);
+    boolean hasDynamicVisual();
+
+    // TODO ticking
 
     /**
-     * Called when a world block of this block type is removed.
-     * @param block removed world block
-     * @param reason reason why the world block was removed
-     * @param source source of the removal
+     * @return list of all block handlers of this block type
      */
-    void destroy(WorldBlock block, DestroyReason reason, @Nullable Entity source);
+    @Unmodifiable List<BlockHandler> getHandlers();
 
     /**
-     * Called when a world block of this type is updated.
-     * @param block updated world block
+     * Adds a new block handler to this block type.
+     * @param handler handler to add
      */
-    void update(WorldBlock block);
+    void addHandler(BlockHandler handler);
 
     /**
-     * Reasons of block creation.
+     * Removes an existing handler from this block type.
+     * @param handler handler to remove
+     * @return whether the handler has been removed successfully
      */
-    enum CreateReason {
-        GENERATED,
-        SET,
-        PLACED,
-        OTHER
-    }
-
-    /**
-     * Reasons of block removal.
-     */
-    enum DestroyReason {
-        REMOVED,
-        EXPLOSION,
-        DESTROYED,
-        OTHER
-    }
+    boolean removeHandler(BlockHandler handler);
 
     /**
      * Represents properties of block types.

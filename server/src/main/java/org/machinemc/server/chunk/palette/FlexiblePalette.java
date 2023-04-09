@@ -3,8 +3,8 @@ package org.machinemc.server.chunk.palette;
 import io.netty.util.collection.IntObjectHashMap;
 import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.server.utils.IntegerList;
 import org.machinemc.server.utils.math.MathUtils;
-import org.antlr.v4.runtime.misc.IntegerList;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
