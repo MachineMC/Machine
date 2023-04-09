@@ -29,6 +29,7 @@ import org.machinemc.api.world.dimensions.DimensionTypeManager;
 import org.machinemc.api.world.particles.Particle;
 import org.machinemc.api.world.particles.ParticleType;
 import org.jetbrains.annotations.*;
+import org.machinemc.scriptive.serialization.ComponentSerializer;
 
 import java.util.Set;
 import java.util.UUID;
@@ -158,6 +159,11 @@ public interface Server {
      * @return server's messenger
      */
     Messenger getMessenger();
+
+    /**
+     * @return server's component serializer
+     */
+    ComponentSerializer getComponentSerializer();
 
     /**
      * @return server's world manager

@@ -3,14 +3,15 @@ package org.machinemc.server.chat;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.machinemc.api.chat.MessageType;
 import org.machinemc.nbt.NBTCompound;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.components.TranslationComponent;
+import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.server.Machine;
 import org.machinemc.api.chat.Messenger;
 import org.machinemc.api.entities.Player;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutSystemChatMessage;
-import net.kyori.adventure.audience.MessageType;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +29,9 @@ public class MessengerImpl implements Messenger {
     private final Machine server;
 
     @Getter @Setter
-    private Component cannotSendMessage = Component.translatable("chat.cannotSend", NamedTextColor.RED);
+    private TranslationComponent cannotSendMessage = TranslationComponent.of("chat.cannotSend").modify()
+            .color(ChatColor.RED)
+            .finish();
 
     // TODO Player Message impl once it's done
     @Override

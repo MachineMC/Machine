@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import net.kyori.adventure.text.Component;
 import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 

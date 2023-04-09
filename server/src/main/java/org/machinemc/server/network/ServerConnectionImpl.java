@@ -1,12 +1,12 @@
 package org.machinemc.server.network;
 
 import lombok.Getter;
-import org.machinemc.server.Machine;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.ServerConnection;
 import org.machinemc.api.network.packets.Packet;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.scriptive.components.TranslationComponent;
+import org.machinemc.server.Machine;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -112,7 +112,7 @@ public class ServerConnectionImpl extends Thread implements ServerConnection {
      */
     public void disconnect(PlayerConnection connection) {
         if(connection.getClientState() != ClientConnection.ClientState.DISCONNECTED)
-            connection.disconnect(Component.translatable("disconnect.disconnected"));
+            connection.disconnect(TranslationComponent.of("disconnect.disconnected"));
         clients.remove(connection);
     }
 

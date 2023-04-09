@@ -1,7 +1,7 @@
 package org.machinemc.api.entities;
 
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
+import org.machinemc.scriptive.components.Component;
 
 /**
  * Entity with optional custom name.

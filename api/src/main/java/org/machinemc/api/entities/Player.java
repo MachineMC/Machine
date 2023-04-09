@@ -2,16 +2,16 @@ package org.machinemc.api.entities;
 
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.chat.ChatMode;
+import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.entities.player.*;
 import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.NBTSerializable;
-import net.kyori.adventure.audience.Audience;
 
 /**
  * Represents a player on the server.
  */
-public interface Player extends HumanEntity, Audience, NBTSerializable {
+public interface Player extends HumanEntity, CommandExecutor, NBTSerializable {
 
     /**
      * @return player's connection

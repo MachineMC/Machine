@@ -7,6 +7,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
 import org.machinemc.api.auth.OnlineServer;
 import org.machinemc.api.world.Material;
+import org.machinemc.scriptive.components.TranslationComponent;
+import org.machinemc.scriptive.serialization.ComponentSerializer;
+import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
 import org.machinemc.server.auth.OnlineServerImpl;
 import org.machinemc.api.chat.Messenger;
 import org.machinemc.server.chat.MessengerImpl;
@@ -46,8 +49,6 @@ import org.machinemc.server.world.dimensions.DimensionTypeImpl;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
 import org.machinemc.server.world.dimensions.DimensionTypeManagerImpl;
 import org.machinemc.server.world.particles.ParticleFactory;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.server.utils.ClassUtils;
 import org.machinemc.server.utils.FileUtils;
@@ -110,6 +111,8 @@ public class Machine implements Server {
     @Getter
     protected Messenger messenger;
     @Getter
+    protected ComponentSerializer componentSerializer;
+    @Getter
     protected WorldManager worldManager;
     @Getter
     protected BiomeManager biomeManager;
@@ -145,6 +148,7 @@ public class Machine implements Server {
         final long start = System.currentTimeMillis();
 
         final boolean colors = !arguments.contains("nocolors");
+        componentSerializer = new ComponentSerializerImpl(); // TODO register other server related component types (NBTComponent, ScoreComponent, SelectorComponent)
 
         // Setting up console
         try {
@@ -345,7 +349,7 @@ public class Machine implements Server {
         console.info("Saving player data...");
         for(Player player : playerManager.getPlayers()) {
             try {
-                player.getConnection().disconnect(Component.translatable("disconnect.closed"));
+                player.getConnection().disconnect(TranslationComponent.of("disconnect.closed"));
             } catch (Exception exception) {
                 exceptionHandler.handle(exception);
             }
@@ -392,7 +396,7 @@ public class Machine implements Server {
             json.addProperty("favicon", "data:image/png;base64," + properties.getEncodedIcon());
         return gson
                 .toJson(json)
-                .replace("\"%MOTD%\"", GsonComponentSerializer.gson().serialize(properties.getMotd()));
+                .replace("\"%MOTD%\"", properties.getMotd().toJson());
     }
 
 }

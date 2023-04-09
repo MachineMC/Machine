@@ -3,8 +3,7 @@ package org.machinemc.api.chat;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.server.codec.CodecPart;
-import net.kyori.adventure.audience.MessageType;
-import net.kyori.adventure.text.Component;
+import org.machinemc.scriptive.components.Component;
 
 public interface Messenger extends CodecPart, ServerProperty {
 

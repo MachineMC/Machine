@@ -1,13 +1,14 @@
 package org.machinemc.api.utils;
 
 import org.machinemc.nbt.NBTCompound;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.server.Server;
 import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.inventory.Item;
 import org.machinemc.api.world.BlockPosition;
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -304,10 +305,16 @@ public interface ServerBuffer extends Cloneable {
     ServerBuffer writeNBT(NBTCompound tag);
 
     /**
-     * @return next component
+     * @return next component using the default component serializer
      */
     @Contract("-> new")
     Component readComponent();
+
+    /**
+     * @return next component using a component serializer
+     */
+    @Contract("_ -> new")
+    Component readComponent(ComponentSerializer serializer);
 
     /**
      * @param component component to write

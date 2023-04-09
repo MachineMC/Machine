@@ -4,7 +4,6 @@ import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
-import net.kyori.adventure.identity.Identity;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.nbt.NBTCompound;
@@ -15,7 +14,7 @@ import java.util.UUID;
 /**
  * Represents a base entity in the world.
  */
-public interface Entity extends Identity, ServerProperty, NBTSerializable, Nameable {
+public interface Entity extends ServerProperty, NBTSerializable, Nameable {
 
     /**
      * @return entity type of the entity

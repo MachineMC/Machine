@@ -2,22 +2,25 @@ package org.machinemc.server.utils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.machinemc.api.auth.*;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.auth.Crypt;
+import org.machinemc.api.auth.MessageSignature;
+import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.player.PlayerTextures;
-import org.machinemc.api.world.Material;
-import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.auth.MessageSignatureImpl;
-import org.machinemc.server.auth.PublicKeyDataImpl;
-import org.machinemc.server.entities.player.PlayerTexturesImpl;
 import org.machinemc.api.inventory.Item;
-import org.machinemc.server.inventory.ItemStack;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
 import org.machinemc.api.world.BlockPosition;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.world.Material;
+import org.machinemc.nbt.NBTCompound;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentSerializer;
+import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
+import org.machinemc.server.auth.MessageSignatureImpl;
+import org.machinemc.server.auth.PublicKeyDataImpl;
+import org.machinemc.server.entities.player.PlayerTexturesImpl;
+import org.machinemc.server.inventory.ItemStack;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -386,12 +389,17 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public Component readComponent() {
-        return GsonComponentSerializer.gson().deserialize(readString(StandardCharsets.UTF_8));
+        return readComponent(new ComponentSerializerImpl());
+    }
+
+    @Override
+    public Component readComponent(ComponentSerializer serializer) {
+        return serializer.deserializeJson(readString(StandardCharsets.UTF_8));
     }
 
     @Override
     public FriendlyByteBuf writeComponent(Component component) {
-        writeString(GsonComponentSerializer.gson().serialize(component), StandardCharsets.UTF_8);
+        writeString(component.toJson(), StandardCharsets.UTF_8);
         return this;
     }
 

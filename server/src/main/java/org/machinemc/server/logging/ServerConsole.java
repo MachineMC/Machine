@@ -4,29 +4,27 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.Getter;
 import lombok.Setter;
-import org.machinemc.server.Machine;
-import org.machinemc.api.chat.ChatColor;
-import org.machinemc.api.chat.ChatUtils;
-import org.machinemc.api.commands.CommandExecutor;
-import org.machinemc.api.logging.Console;
-import org.machinemc.api.server.schedule.Scheduler;
-import net.kyori.adventure.audience.MessageType;
-import net.kyori.adventure.identity.Identity;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.jetbrains.annotations.Nullable;
 import org.jline.reader.*;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.machinemc.api.commands.CommandExecutor;
+import org.machinemc.api.logging.Console;
+import org.machinemc.api.server.schedule.Scheduler;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.components.TextComponent;
+import org.machinemc.scriptive.style.ChatColor;
+import org.machinemc.scriptive.style.Colour;
+import org.machinemc.scriptive.util.ChatUtils;
+import org.machinemc.server.Machine;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 
-import static org.machinemc.api.chat.ChatUtils.asciiColor;
+import static org.machinemc.scriptive.util.ChatUtils.asciiColor;
 
 /**
  * Represents default console implementation with colors support, tab
@@ -60,11 +58,11 @@ public class ServerConsole implements Console {
             warningPrefix = "WARNING",
             severePrefix = "SEVERE";
     @Getter @Setter
-    private @Nullable TextColor
+    private @Nullable Colour
             configColor = null,
             infoColor = null,
-            warningColor = ChatColor.GOLD.asStyle().color(),
-            severeColor = ChatColor.RED.asStyle().color();
+            warningColor = ChatColor.GOLD,
+            severeColor = ChatColor.RED;
 
     @Getter @Setter
     private String prompt = "> ";
@@ -106,12 +104,11 @@ public class ServerConsole implements Console {
         }
     }
 
-    @Override
-    public void sendMessage(final Identity source, final Component message, final MessageType type) {
+    public void sendMessage(final Component message) {
         if(colors)
             info(ChatUtils.consoleFormatted(message));
         else
-            info(ChatUtils.componentToString(message));
+            info(message.toLegacyString());
     }
 
     @Override
@@ -152,13 +149,22 @@ public class ServerConsole implements Console {
             return server.getCommandDispatcher().execute(parse);
         } catch (CommandSyntaxException exception) {
             if(exception.getCursor() == 0) {
-                sendMessage(Component.text("Unknown command '" + parts[0] + "'").style(ChatColor.RED.asStyle()));
+                sendMessage(TextComponent.of("Unknown command '" + parts[0] + "'").modify()
+                        .color(ChatColor.RED)
+                        .finish());
                 return -1;
             }
-            sendMessage(Component.text(exception.getRawMessage().getString()).style(ChatColor.RED.asStyle()));
-            sendMessage(Component.text(input.substring(0, exception.getCursor()))
-                    .append(Component.text(input.substring(exception.getCursor())).style(ChatColor.RED.asStyle().decorate(TextDecoration.UNDERLINED)))
-                    .append(Component.text("<--[HERE]").style(ChatColor.RED.asStyle())));
+            sendMessage(TextComponent.of(exception.getRawMessage().getString()).modify()
+                    .color(ChatColor.RED)
+                    .finish());
+            sendMessage(TextComponent.of(input.substring(0, exception.getCursor()))
+                    .append(TextComponent.of(input.substring(exception.getCursor())).modify()
+                            .color(ChatColor.RED)
+                            .underlined(true)
+                            .finish())
+                    .append(TextComponent.of("<--[HERE]").modify()
+                            .color(ChatColor.RED)
+                            .finish()));
             return -1;
         }
     }

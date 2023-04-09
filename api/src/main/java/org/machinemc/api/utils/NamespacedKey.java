@@ -1,6 +1,5 @@
 package org.machinemc.api.utils;
 
-import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,26 +67,6 @@ public final class NamespacedKey {
     @Contract("_ -> new")
     public static NamespacedKey machine(String key) {
         return NamespacedKey.of(MACHINE_NAMESPACE, key);
-    }
-
-    /**
-     * Converts adventure Key to NamespacedKey
-     * @param key key to convert
-     * @return converted NamespacedKey
-     */
-    @Contract("_ -> new")
-    public static NamespacedKey fromKey(Key key) {
-        return new NamespacedKey(key.namespace(), key.value());
-    }
-
-    /**
-     * Converts the NamespacedKey to adventure Key
-     * @return converted adventure Key
-     */
-    @Contract(pure = true)
-    @SuppressWarnings("PatternValidation")
-    public Key asKey() {
-        return Key.key(namespace, key);
     }
 
     @Override

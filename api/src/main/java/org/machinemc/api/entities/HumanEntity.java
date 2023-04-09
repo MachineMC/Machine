@@ -6,7 +6,7 @@ import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.entities.player.Hand;
 import org.machinemc.api.entities.player.PlayerProfile;
 import org.machinemc.api.entities.player.SkinPart;
-import net.kyori.adventure.text.Component;
+import org.machinemc.scriptive.components.Component;
 
 import java.util.Set;
 

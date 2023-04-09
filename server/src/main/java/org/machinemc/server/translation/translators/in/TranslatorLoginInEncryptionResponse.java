@@ -1,18 +1,18 @@
 package org.machinemc.server.translation.translators.in;
 
-import org.machinemc.server.auth.MojangAuth;
 import org.machinemc.api.auth.OnlineServer;
-import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.api.entities.player.PlayerProfile;
+import org.machinemc.scriptive.components.TranslationComponent;
+import org.machinemc.server.auth.MojangAuth;
+import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.entities.player.PlayerProfileImpl;
 import org.machinemc.server.entities.player.PlayerTexturesImpl;
-import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.exception.ClientException;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.login.PacketLoginInEncryptionResponse;
 import org.machinemc.server.network.packets.out.login.PacketLoginOutSuccess;
+import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.utils.UUIDUtils;
-import net.kyori.adventure.text.Component;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
         MojangAuth.getAuthData(serverId, username).thenAccept(json -> {
             if(json == null) {
                 try {
-                    connection.disconnect(Component.translatable("disconnect.loginFailedInfo.invalidSession"));
+                    connection.disconnect(TranslationComponent.of("disconnect.loginFailedInfo.invalidSession"));
                 } catch (Exception exception) {
                     throw new RuntimeException(exception);
                 }

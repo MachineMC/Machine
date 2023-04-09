@@ -28,15 +28,14 @@ dependencies {
     }
 
     implementation(libs.google.guava)
+    implementation(libs.google.gson)
     implementation(libs.netty.buffer)
     implementation(libs.jna)
     implementation(libs.jline)
-
-    implementation(libs.bundles.kyori.adventure)
     implementation(libs.mojang.brigadier)
     implementation(libs.machine.nbt)
     implementation(libs.machine.landscape)
-
+    implementation(libs.machine.scriptive)
 }
 
 application {

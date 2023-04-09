@@ -1,21 +1,20 @@
 package org.machinemc.api.logging;
 
-import org.machinemc.api.chat.ChatUtils;
+import org.jetbrains.annotations.Async;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.server.ServerProperty;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.audience.MessageType;
-import net.kyori.adventure.identity.Identity;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.Async;
+import org.machinemc.scriptive.components.Component;
 
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.logging.Level;
 
 /**
  * Console of the server.
  */
-public interface Console extends Audience, ServerProperty, CommandExecutor {
+public interface Console extends ServerProperty, CommandExecutor {
 
     /**
      * Sends a messages to the console at certain logging level.
@@ -99,8 +98,8 @@ public interface Console extends Audience, ServerProperty, CommandExecutor {
      */
     void stop();
 
-    default void sendMessage(final Identity source, final Component message, final MessageType type) {
-        info(ChatUtils.componentToString(message));
+    default void sendMessage(final @Nullable UUID source, final Component message, final MessageType type) {
+        info(message.toLegacyString());
     }
 
 }

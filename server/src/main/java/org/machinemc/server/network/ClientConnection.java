@@ -3,6 +3,8 @@ package org.machinemc.server.network;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.server.Machine;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.server.entities.ServerPlayer;
@@ -15,7 +17,6 @@ import org.machinemc.server.network.packets.out.play.PacketPlayOutDisconnect;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutKeepAlive;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.NamespacedKey;
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
 import javax.crypto.SecretKey;
@@ -143,7 +144,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
                             return null;
                         }
                         if(System.currentTimeMillis() - lastReadTimestamp > ServerConnectionImpl.READ_IDLE_TIMEOUT)
-                            disconnect(Component.translatable("disconnect.timeout"));
+                            disconnect(TranslationComponent.of("disconnect.timeout"));
                         return null;
                     }))
                     .async()
@@ -289,7 +290,7 @@ public class ClientConnection extends Thread implements PlayerConnection {
      * Disconnects the client from the server.
      */
     public void disconnect() {
-        disconnect(Component.translatable("disconnect.disconnected"));
+        disconnect(TranslationComponent.of("disconnect.disconnected"));
     }
 
     /**
