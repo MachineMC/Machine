@@ -28,6 +28,7 @@ import org.machinemc.server.inventory.ItemStack;
 import org.machinemc.server.logging.FormattedOutputStream;
 import org.machinemc.api.network.ServerConnection;
 import org.machinemc.api.server.PlayerManager;
+import org.machinemc.server.logging.SimpleConsole;
 import org.machinemc.server.translation.TranslatorDispatcher;
 import org.machinemc.server.exception.ExceptionHandlerImpl;
 import org.machinemc.server.logging.ServerConsole;
@@ -54,7 +55,6 @@ import org.machinemc.server.utils.ClassUtils;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.server.utils.NetworkUtils;
-import org.machinemc.server.world.region.LandscapeChunk;
 
 import java.io.File;
 import java.io.IOException;
@@ -138,7 +138,6 @@ public class Machine implements Server {
     }
 
     public static void main(String[] args) throws Exception {
-        if(System.console() == null) return;
         new Machine(args);
     }
 
@@ -152,9 +151,9 @@ public class Machine implements Server {
 
         // Setting up console
         try {
-            console = new ServerConsole(this, colors);
-            System.setOut(new PrintStream(new FormattedOutputStream(((ServerConsole) console), Level.INFO, "[stdout] ")));
-            System.setErr(new PrintStream(new FormattedOutputStream(((ServerConsole) console), Level.SEVERE, "[stderr] ")));
+            console = System.console() != null ? new ServerConsole(this, colors) : new SimpleConsole(this, colors, System.out, System.in);
+            System.setOut(new PrintStream(new FormattedOutputStream(console, Level.INFO, "[stdout] ")));
+            System.setErr(new PrintStream(new FormattedOutputStream(console, Level.SEVERE, "[stderr] ")));
         } catch (Exception e) {
             System.out.println("Failed to load server console");
             e.printStackTrace();

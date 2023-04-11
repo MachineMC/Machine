@@ -3,10 +3,9 @@ package org.machinemc.server.utils;
 import lombok.Cleanup;
 import org.machinemc.server.Machine;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -50,6 +49,12 @@ public final class ClassUtils {
      * @throws IOException if jar is invalid
      */
     public static List<String> getClasses(String basePackage) throws IOException {
+        if (FileUtils.getMachineJar().getName().endsWith(".jar"))
+            return getJarClasses(basePackage);
+        return getDirClasses(basePackage);
+    }
+
+    private static List<String> getJarClasses(String basePackage) throws IOException {
         @Cleanup JarFile jar = new JarFile(FileUtils.getMachineJar());
         basePackage = basePackage.replace('.', '/') + "/";
         List<String> classNames = new ArrayList<>();
@@ -57,6 +62,22 @@ public final class ClassUtils {
             JarEntry entry = entries.next();
             if (entry.getName().startsWith(basePackage) && entry.getName().endsWith(".class"))
                 classNames.add(entry.getName().replace('/', '.').substring(0, entry.getName().length() - ".class".length()));
+        }
+        return classNames;
+    }
+
+    private static List<String> getDirClasses(String basePackage) {
+        List<String> classNames = new ArrayList<>();
+        File parentDirectory = new File(FileUtils.getMachineJar(), basePackage.replace('.', '/'));
+        String[] children = parentDirectory.list();
+        if (children == null)
+            return Collections.emptyList();
+        for (String child : children) {
+            if (child.endsWith(".class")) {
+                classNames.add(basePackage + '.' + child.substring(0, child.length() - ".class".length()));
+            } else {
+                classNames.addAll(getDirClasses(basePackage + '.' + child));
+            }
         }
         return classNames;
     }
