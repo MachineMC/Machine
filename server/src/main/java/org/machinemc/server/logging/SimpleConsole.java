@@ -6,6 +6,9 @@ import org.machinemc.server.Machine;
 import java.io.*;
 import java.util.logging.Level;
 
+/**
+ * Represents a basic console implementation with colors support intended to be compatible with all consoles.
+ */
 public class SimpleConsole extends BaseConsole {
 
     private final PrintStream out;

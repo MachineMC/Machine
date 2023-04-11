@@ -106,6 +106,13 @@ public abstract class BaseConsole implements Console {
             info(message.toLegacyString());
     }
 
+    /**
+     * Logs the given messages with the specified logging level, using the provided logger.
+     *
+     * @param logger the logger to use for logging the messages
+     * @param level the logging level to use
+     * @param messages the messages to log
+     */
     protected void log(Logger logger, Level level, String... messages) {
         final String prefix = getPrefix(level);
         final String date = now();
@@ -116,6 +123,12 @@ public abstract class BaseConsole implements Console {
         }
     }
 
+    /**
+     * Returns the logging prefix for the given logging level.
+     *
+     * @param level the logging level to get the prefix for
+     * @return the logging prefix for the given level
+     */
     protected String getPrefix(Level level) {
         return switch (level.intValue()) {
             case 700 -> (colors && configColor != null ? asciiColor(configColor) : ServerConsole.EMPTY) + configPrefix + ": "; // Config value
@@ -137,6 +150,11 @@ public abstract class BaseConsole implements Console {
     @FunctionalInterface
     protected interface Logger {
 
+        /**
+         * Logs the given message.
+         *
+         * @param message the message to log
+         */
         void log(String message);
 
     }

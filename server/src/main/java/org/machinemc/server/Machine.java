@@ -147,11 +147,12 @@ public class Machine implements Server {
         final long start = System.currentTimeMillis();
 
         final boolean colors = !arguments.contains("nocolors");
+        final boolean simpleConsole = arguments.contains("simpleconsole");
         componentSerializer = new ComponentSerializerImpl(); // TODO register other server related component types (NBTComponent, ScoreComponent, SelectorComponent)
 
         // Setting up console
         try {
-            console = System.console() != null ? new ServerConsole(this, colors) : new SimpleConsole(this, colors, System.out, System.in);
+            console = simpleConsole || System.console() == null ? new SimpleConsole(this, colors, System.out, System.in) : new ServerConsole(this, colors);
             System.setOut(new PrintStream(new FormattedOutputStream(console, Level.INFO, "[stdout] ")));
             System.setErr(new PrintStream(new FormattedOutputStream(console, Level.SEVERE, "[stderr] ")));
         } catch (Exception e) {
