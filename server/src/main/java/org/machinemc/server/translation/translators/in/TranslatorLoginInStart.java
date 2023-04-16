@@ -1,6 +1,7 @@
 package org.machinemc.server.translation.translators.in;
 
 import org.machinemc.api.auth.OnlineServer;
+import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.api.entities.player.PlayerProfile;
 import org.machinemc.server.entities.player.PlayerProfileImpl;
@@ -9,8 +10,6 @@ import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.login.PacketLoginInStart;
 import org.machinemc.server.network.packets.out.login.PacketLoginOutEncryptionRequest;
 import org.machinemc.server.network.packets.out.login.PacketLoginOutSuccess;
-
-import java.io.IOException;
 
 public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart> {
 
@@ -24,14 +23,10 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
         connection.setLoginUsername(packet.getUsername());
         if(!connection.getServer().isOnline()) {
             final PlayerProfile profile = PlayerProfileImpl.offline(packet.getUsername());
-            try {
-                connection.sendPacket(new PacketLoginOutSuccess(profile.getUuid(), profile.getUsername(), profile.getTextures()));
-            } catch (IOException exception) {
-                throw new RuntimeException(exception);
-            }
-            if(connection.getClientState() == ClientConnection.ClientState.DISCONNECTED)
+            connection.send(new PacketLoginOutSuccess(profile.getUuid(), profile.getUsername(), profile.getTextures()));
+            if(connection.getState() == PlayerConnection.ClientState.DISCONNECTED)
                 return;
-            connection.setClientState(ClientConnection.ClientState.PLAY);
+            connection.setState(PlayerConnection.ClientState.PLAY);
             ServerPlayer.spawn(connection.getServer(), profile, connection);
             return;
         }
@@ -44,11 +39,7 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
         byte[] verifyToken = onlineServer.nextVerifyToken();
 
         connection.setPublicKeyData(packet.getPublicKeyData());
-        try {
-            connection.sendPacket(new PacketLoginOutEncryptionRequest(publicKey, verifyToken));
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
+        connection.send(new PacketLoginOutEncryptionRequest(publicKey, verifyToken));
     }
 
     @Override

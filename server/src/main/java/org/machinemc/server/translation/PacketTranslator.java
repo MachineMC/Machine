@@ -1,7 +1,7 @@
 package org.machinemc.server.translation;
 
-import org.machinemc.server.network.ClientConnection;
 import org.machinemc.api.network.packets.Packet;
+import org.machinemc.server.network.ClientConnection;
 
 /**
  * Translates packet into server actions and events.
@@ -36,7 +36,7 @@ public abstract class PacketTranslator<T extends Packet> {
      * @return false if packet should be cancelled
      */
     @SuppressWarnings("unchecked")
-    boolean rawTranslate(ClientConnection connection, Packet packet) {
+    final boolean rawTranslate(ClientConnection connection, Packet packet) {
         return translate(connection, (T) packet);
     }
 
@@ -46,7 +46,7 @@ public abstract class PacketTranslator<T extends Packet> {
      * @param packet Packet that has been sent or received
      */
     @SuppressWarnings("unchecked")
-    void rawTranslateAfter(ClientConnection connection, Packet packet) {
+    final void rawTranslateAfter(ClientConnection connection, Packet packet) {
         translateAfter(connection, (T) packet);
     }
 

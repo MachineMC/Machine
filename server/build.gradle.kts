@@ -29,7 +29,7 @@ dependencies {
 
     implementation(libs.google.guava)
     implementation(libs.google.gson)
-    implementation(libs.netty.buffer)
+    implementation(libs.netty.all)
     implementation(libs.jna)
     implementation(libs.jline)
     implementation(libs.mojang.brigadier)

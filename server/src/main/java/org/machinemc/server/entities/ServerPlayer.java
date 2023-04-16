@@ -12,6 +12,7 @@ import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.entities.player.Hand;
 import org.machinemc.api.entities.player.PlayerProfile;
 import org.machinemc.api.entities.player.SkinPart;
+import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.world.Difficulty;
@@ -28,7 +29,6 @@ import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.server.server.codec.Codec;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -71,7 +71,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
         this.profile = profile;
         if(connection.getOwner() != null)
             throw new IllegalStateException("There can't be multiple players with the same ClientConnection");
-        if(connection.getClientState() != ClientConnection.ClientState.PLAY)
+        if(connection.getState() != PlayerConnection.ClientState.PLAY)
             throw new IllegalStateException("Player's connection has to be in play state");
         connection.setOwner(this);
         connection.startKeepingAlive();
@@ -91,7 +91,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
      */
     public static ServerPlayer spawn(Machine server, PlayerProfile profile, ClientConnection connection) {
         final PlayerManager manager = server.getPlayerManager();
-        if(connection.getClientState() != ClientConnection.ClientState.PLAY) {
+        if(connection.getState() != PlayerConnection.ClientState.PLAY) {
             throw new IllegalStateException("Player can't be initialized if their connection isn't in play state");
         }
         if(manager.getPlayer(profile.getUsername()) != null || manager.getPlayer(profile.getUuid()) != null) {
@@ -192,23 +192,18 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public void remove() {
-        try {
-            if(connection.getClientState() != ClientConnection.ClientState.DISCONNECTED)
-                throw new IllegalStateException("You can't remove player from server until the connection is closed");
-            super.remove();
-            getWorld().unloadPlayer(this);
-            getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this));
-            getServer().getPlayerManager().removePlayer(this);
-            final TranslationComponent leaveMessage = TranslationComponent.of("multiplayer.player.left", TranslationComponent.of(getName())).modify()
-                    .color(ChatColor.YELLOW)
-                    .finish();
-            getServer().getPlayerManager().getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(leaveMessage));
-            getServer().getConsole().info(ChatColor.YELLOW + getDisplayName().toLegacyString() + " left the game");
-            save();
-        }
-        catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
+        if(connection.getState() != PlayerConnection.ClientState.DISCONNECTED)
+            throw new IllegalStateException("You can't remove player from server until the connection is closed");
+        super.remove();
+        getWorld().unloadPlayer(this);
+        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this));
+        getServer().getPlayerManager().removePlayer(this);
+        final TranslationComponent leaveMessage = TranslationComponent.of("multiplayer.player.left", TranslationComponent.of(getName())).modify()
+                .color(ChatColor.YELLOW)
+                .finish();
+        getServer().getPlayerManager().getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(leaveMessage));
+        getServer().getConsole().info(ChatColor.YELLOW + getDisplayName().toLegacyString() + " left the game");
+        save();
     }
 
     @Override
@@ -226,11 +221,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
         if (playerListName == null)
             playerListName = TextComponent.of(getName());
         this.playerListName = playerListName;
-        try {
-            getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME, this));
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
+        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME, this));
     }
 
     @Override
@@ -292,11 +283,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public void sendPacket(Packet packet) {
-        try {
-            getConnection().sendPacket(packet);
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
+        getConnection().send(packet);
     }
 
     @Override

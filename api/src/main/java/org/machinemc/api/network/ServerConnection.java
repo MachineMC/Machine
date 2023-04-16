@@ -1,5 +1,6 @@
 package org.machinemc.api.network;
 
+import io.netty.channel.ChannelFuture;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.ServerProperty;
 import org.jetbrains.annotations.*;
@@ -10,7 +11,7 @@ import java.util.Set;
 /**
  * Represents server's connection.
  */
-public interface ServerConnection extends ServerProperty, AutoCloseable {
+public interface ServerConnection extends ServerProperty {
 
     /**
      * @return server's ip
@@ -30,25 +31,23 @@ public interface ServerConnection extends ServerProperty, AutoCloseable {
     /**
      * Starts accepting client connections.
      */
-    @Async.Execute
-    void start();
+    ChannelFuture start();
 
     /**
      * Closes the server connection.
      */
-    void close();
+    ChannelFuture close();
 
     /**
      * Sends a packet to all clients connected to the server.
      * @param packet packet to send
-     * @throws IOException if an I/O error occurs during writing the bytes
      */
-    void broadcastPacket(Packet packet) throws IOException;
+    void broadcastPacket(Packet packet);
 
     /**
      * Disconnects a player connection from the server.
      * @param connection connection to disconnect
      */
-    void disconnect(PlayerConnection connection);
+    ChannelFuture disconnect(PlayerConnection connection);
 
 }
