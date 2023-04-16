@@ -24,7 +24,7 @@ public interface Console extends ServerProperty, CommandExecutor {
     void log(Level level, String... messages);
 
     /**
-     * Sends multiple messages at INFO logging level
+     * Sends multiple messages at INFO logging level.
      * @param messages messages to send
      */
     default void info(String... messages) {
@@ -32,7 +32,7 @@ public interface Console extends ServerProperty, CommandExecutor {
     }
 
     /**
-     * Sends multiple objects at INFO logging level
+     * Sends multiple objects at INFO logging level.
      * @param objects objects to send
      */
     default void info(Object... objects) {
@@ -40,7 +40,7 @@ public interface Console extends ServerProperty, CommandExecutor {
     }
 
     /**
-     * Sends multiple messages at WARNING logging level
+     * Sends multiple messages at WARNING logging level.
      * @param messages messages to send
      */
     default void warning(String... messages) {
@@ -48,7 +48,7 @@ public interface Console extends ServerProperty, CommandExecutor {
     }
 
     /**
-     * Sends multiple objects at WARNING logging level
+     * Sends multiple objects at WARNING logging level.
      * @param objects objects to send
      */
     default void warning(Object... objects) {
@@ -56,7 +56,7 @@ public interface Console extends ServerProperty, CommandExecutor {
     }
 
     /**
-     * Sends multiple messages at SEVERE logging level
+     * Sends multiple messages at SEVERE logging level.
      * @param messages messages to send
      */
     default void severe(String... messages) {
@@ -64,7 +64,7 @@ public interface Console extends ServerProperty, CommandExecutor {
     }
 
     /**
-     * Sends multiple objects at SEVERE logging level
+     * Sends multiple objects at SEVERE logging level.
      * @param objects objects to send
      */
     default void severe(Object... objects) {
@@ -72,7 +72,7 @@ public interface Console extends ServerProperty, CommandExecutor {
     }
 
     /**
-     * Sends multiple messages at CONFIG logging level
+     * Sends multiple messages at CONFIG logging level.
      * @param messages messages to send
      */
     default void config(String... messages) {
@@ -80,7 +80,7 @@ public interface Console extends ServerProperty, CommandExecutor {
     }
 
     /**
-     * Sends multiple objects at CONFIG logging level
+     * Sends multiple objects at CONFIG logging level.
      * @param objects objects to send
      */
     default void config(Object... objects) {
@@ -98,6 +98,12 @@ public interface Console extends ServerProperty, CommandExecutor {
      */
     void stop();
 
+    /**
+     * Sends a message to the console.
+     * @param source source uuid
+     * @param message message to send
+     * @param type type of the message
+     */
     default void sendMessage(final @Nullable UUID source, final Component message, final MessageType type) {
         info(message.toLegacyString());
     }

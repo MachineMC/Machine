@@ -47,9 +47,9 @@ public interface Server {
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      */
     static ServerBuffer createServerBuffer() {
-        if(Factories.BUFFER_FACTORY == null)
+        if (Factories.bufferFactory == null)
             throw new UnsupportedOperationException();
-        return Factories.BUFFER_FACTORY.create();
+        return Factories.bufferFactory.create();
     }
 
     /**
@@ -61,9 +61,9 @@ public interface Server {
      * @throws IllegalStateException if the material can't have item form
      */
     static Item createItem(Material material, byte amount) {
-        if(Factories.ITEM_FACTORY == null)
+        if (Factories.itemFactory == null)
             throw new UnsupportedOperationException();
-        return Factories.ITEM_FACTORY.create(material, amount);
+        return Factories.itemFactory.create(material, amount);
     }
 
     /**
@@ -85,9 +85,9 @@ public interface Server {
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      */
     static Particle createParticle(ParticleType type) {
-        if(Factories.PARTICLE_FACTORY == null)
+        if (Factories.particleFactory == null)
             throw new UnsupportedOperationException();
-        return Factories.PARTICLE_FACTORY.create(type);
+        return Factories.particleFactory.create(type);
     }
 
     /**
@@ -211,7 +211,7 @@ public interface Server {
     void shutdown();
 
     /**
-     * Sends a message using server's console
+     * Sends a message using server's console.
      * @param level logging level of the message
      * @param messages message to send
      */

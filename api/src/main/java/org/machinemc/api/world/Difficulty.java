@@ -28,7 +28,7 @@ public enum Difficulty {
      * @param id id of the difficulty
      * @return difficulty for given id
      */
-    public static Difficulty fromID(@Range(from = 0, to = 3) int id) {
+    public static Difficulty fromID(final @Range(from = 0, to = 3) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported difficulty type");
         return values()[id];
     }
@@ -38,7 +38,7 @@ public enum Difficulty {
      * @param name name of the difficulty
      * @return difficulty with given name
      */
-    public static @Nullable Difficulty getByName(String name) {
+    public static @Nullable Difficulty getByName(final String name) {
         for (Difficulty value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }

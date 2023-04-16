@@ -27,7 +27,7 @@ public enum ParticleType {
      * @param id id of the particle type
      * @return particle type for given id
      */
-    public static ParticleType fromID(int id) {
+    public static ParticleType fromID(final int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported particle type");
         return values()[id];
     }
@@ -37,7 +37,7 @@ public enum ParticleType {
      * @param name name of the particle type
      * @return particle type with given name
      */
-    public static @Nullable ParticleType getByName(String name) {
+    public static @Nullable ParticleType getByName(final String name) {
         for (ParticleType value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }

@@ -43,6 +43,12 @@ application {
 }
 
 tasks {
+    distTar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+    distZip {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
     jar {
         manifest {
             attributes["Main-Class"] = application.mainClass

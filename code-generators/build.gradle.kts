@@ -11,3 +11,11 @@ dependencies {
     implementation(libs.google.gson)
     implementation(libs.asm)
 }
+
+tasks {
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
+    }
+}

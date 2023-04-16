@@ -36,6 +36,10 @@ public interface PlayerTextures extends Writable {
      */
     SkinModel skinModel();
 
+    /**
+     * Writes the player textures into a buffer.
+     * @param buf buffer to write into
+     */
     default void write(ServerBuffer buf) {
         buf.writeTextures(this);
     }

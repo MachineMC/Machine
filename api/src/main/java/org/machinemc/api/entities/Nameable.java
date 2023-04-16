@@ -14,7 +14,7 @@ public interface Nameable {
     @Nullable Component getCustomName();
 
     /**
-     * Changes the custom name of the entity
+     * Changes the custom name of the entity.
      * @param customName new custom name
      */
     void setCustomName(@Nullable Component customName);

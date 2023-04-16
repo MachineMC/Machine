@@ -50,6 +50,7 @@ public interface PlayerConnection extends ServerProperty {
     /**
      * Disconnects the client and closes the connection.
      * @param reason reason for the disconnection
+     * @return close channel future
      */
     ChannelFuture disconnect(Component reason);
 
@@ -62,13 +63,14 @@ public interface PlayerConnection extends ServerProperty {
 
     /**
      * Closes the client connection.
+     * @return close channel future
      */
     ChannelFuture close();
 
     /**
      * Sends packet to the connection.
      * @param packet packet to send
-     * @return if the operation was successful
+     * @return send message future
      */
     ChannelFuture send(Packet packet);
 
@@ -100,10 +102,10 @@ public interface PlayerConnection extends ServerProperty {
          * @return client states
          */
         @Contract(pure = true)
-        public static ClientState[] fromState(Packet.PacketState state) {
+        public static ClientState[] fromState(final Packet.PacketState state) {
             final Set<ClientState> clientStates = new LinkedHashSet<>();
-            for(ClientState clientState : values()) {
-                if(clientState.in == state || clientState.out == state)
+            for (ClientState clientState : values()) {
+                if (clientState.in == state || clientState.out == state)
                     clientStates.add(clientState);
             }
             return clientStates.toArray(new ClientState[0]);

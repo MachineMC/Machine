@@ -14,9 +14,13 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 final class Factories {
 
-    static ServerBufferCreator BUFFER_FACTORY;
-    static ItemCreator ITEM_FACTORY;
-    static ParticleCreator PARTICLE_FACTORY;
+    static ServerBufferCreator bufferFactory;
+    static ItemCreator itemFactory;
+    static ParticleCreator particleFactory;
+
+    private Factories() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Creator providing default buffer implementation.

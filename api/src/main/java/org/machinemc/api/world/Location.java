@@ -9,12 +9,12 @@ import org.machinemc.api.utils.math.Vector3;
 import org.jetbrains.annotations.Contract;
 
 /**
- * Represents the location in the world
+ * Represents the location in the world.
  */
 @Data
 @With
 @AllArgsConstructor(staticName = "of")
-public class Location implements Cloneable, Writable {
+public final class Location implements Cloneable, Writable {
 
     private double x, y, z;
     private float yaw, pitch;
@@ -29,7 +29,7 @@ public class Location implements Cloneable, Writable {
      * @return new location
      */
     @Contract("_, _, _, _ -> new")
-    public static Location of(double x, double y, double z, World world) {
+    public static Location of(final double x, final double y, final double z, final World world) {
         return new Location(x, y, z, world);
     }
 
@@ -40,7 +40,7 @@ public class Location implements Cloneable, Writable {
      * @return new location
      */
     @Contract("_, _ -> new")
-    public static Location of(BlockPosition blockPosition, World world) {
+    public static Location of(final BlockPosition blockPosition, final World world) {
         return new Location(blockPosition, world);
     }
 
@@ -51,8 +51,9 @@ public class Location implements Cloneable, Writable {
      * @return decoded location
      */
     @Contract("_, _ -> new")
-    public static Location from(ServerBuffer buf, World world) {
-        return new Location(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readAngle(), buf.readAngle(), world);
+    public static Location from(final ServerBuffer buf, final World world) {
+        return new Location(buf.readDouble(), buf.readDouble(), buf.readDouble(),
+                buf.readAngle(), buf.readAngle(), world);
     }
 
     /**
@@ -62,7 +63,7 @@ public class Location implements Cloneable, Writable {
      * @param z z-coordinate of the location
      * @param world world of the location
      */
-    public Location(double x, double y, double z, World world) {
+    public Location(final double x, final double y, final double z, final World world) {
         this(x, y, z, 0, 0, world);
     }
 
@@ -71,14 +72,15 @@ public class Location implements Cloneable, Writable {
      * @param blockPosition block position of the location
      * @param world world of the location
      */
-    public Location(BlockPosition blockPosition, World world) {
+    public Location(final BlockPosition blockPosition, final World world) {
         this(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), world);
     }
 
     /**
      * Gets a unit-vector pointing in the direction that this Location is
      * facing.
-     * @return a vector pointing the direction of this location's {@link Location#getPitch()} and {@link Location#getYaw()}
+     * @return a vector pointing the direction of this location's {@link Location#getPitch()}
+     * and {@link Location#getYaw()}
      */
     public Vector3 getDirection() {
         final Vector3 vector = new Vector3();
@@ -100,8 +102,8 @@ public class Location implements Cloneable, Writable {
      * @return the same location
      */
     @Contract("_ -> this")
-    public Location setDirection(Vector3 vector) {
-        final double PII = 2 * Math.PI;
+    public Location setDirection(final Vector3 vector) {
+        final double pii = 2 * Math.PI;
         final double x = vector.getX();
         final double z = vector.getZ();
 
@@ -111,7 +113,7 @@ public class Location implements Cloneable, Writable {
         }
 
         double theta = Math.atan2(-x, z);
-        yaw = (float) Math.toDegrees((theta + PII) % PII);
+        yaw = (float) Math.toDegrees((theta + pii) % pii);
 
         double x2 = Math.pow(x, 2);
         double z2 = Math.pow(z, 2);
@@ -126,8 +128,8 @@ public class Location implements Cloneable, Writable {
      * @param vector The vector.
      * @return this.
      */
-     @Contract("_ -> this")
-    public Location offset(Vector3 vector) {
+    @Contract("_ -> this")
+    public Location offset(final Vector3 vector) {
         x += vector.getX();
         y += vector.getY();
         z += vector.getZ();
@@ -165,6 +167,10 @@ public class Location implements Cloneable, Writable {
         return new BlockPosition(getBlockX(), getBlockY(), getBlockZ());
     }
 
+    /**
+     * Converts this location to a vector.
+     * @return vector of this location
+     */
     @Contract(pure = true)
     public Vector3 toVector() {
         return Vector3.of(getBlockX(), getBlockY(), getBlockZ());
@@ -174,7 +180,7 @@ public class Location implements Cloneable, Writable {
      * Writes the coordinates of the location to the buffer.
      * @param buf buffer to write into
      */
-    public void writePos(ServerBuffer buf) {
+    public void writePos(final ServerBuffer buf) {
         buf.writeDouble(x).writeDouble(y).writeDouble(z);
     }
 
@@ -182,7 +188,7 @@ public class Location implements Cloneable, Writable {
      * Writes the rotation of the location to the buffer.
      * @param buf buffer to write into
      */
-    public void writeRot(ServerBuffer buf) {
+    public void writeRot(final ServerBuffer buf) {
         buf.writeAngle(yaw).writeAngle(pitch);
     }
 
@@ -191,7 +197,7 @@ public class Location implements Cloneable, Writable {
      * @param buf buffer to write into
      */
     @Override
-    public void write(ServerBuffer buf) {
+    public void write(final ServerBuffer buf) {
         writePos(buf);
         writeRot(buf);
     }
@@ -200,8 +206,7 @@ public class Location implements Cloneable, Writable {
     public Location clone() {
         try {
             return (Location) super.clone();
-        }
-        catch (CloneNotSupportedException e) {
+        } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
     }

@@ -79,7 +79,7 @@ public enum BlockEntityBase {
 
     private final Material[] materials;
 
-    BlockEntityBase(Material... materials) {
+    BlockEntityBase(final Material... materials) {
         this.materials = materials;
     }
 
@@ -95,7 +95,7 @@ public enum BlockEntityBase {
      * @param material material
      * @return whether the given material is supported by this block entity base
      */
-    public boolean supports(Material material) {
+    public boolean supports(final Material material) {
         for (Material supported : materials) {
             if (supported.equals(material)) return true;
         }
@@ -121,7 +121,7 @@ public enum BlockEntityBase {
      * @param id id of the difficulty
      * @return difficulty for given id
      */
-    public static BlockEntityBase fromID(@Range(from = 0, to = 37) int id) {
+    public static BlockEntityBase fromID(final @Range(from = 0, to = 37) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported block entity base");
         return values()[id];
     }
@@ -131,7 +131,7 @@ public enum BlockEntityBase {
      * @param name name of the block entity base
      * @return block entity base with given name
      */
-    public static @Nullable BlockEntityBase getByName(String name) {
+    public static @Nullable BlockEntityBase getByName(final String name) {
         for (BlockEntityBase value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }
@@ -143,10 +143,10 @@ public enum BlockEntityBase {
      * @param material material supported by the block entity base
      * @return block entity base of given material
      */
-    public static @Nullable BlockEntityBase getByMaterial(Material material) {
+    public static @Nullable BlockEntityBase getByMaterial(final Material material) {
         for (BlockEntityBase value : values()) {
             for (Material supported : value.materials)
-                if(supported.equals(material)) return value;
+                if (supported.equals(material)) return value;
         }
         return null;
     }

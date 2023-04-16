@@ -69,6 +69,10 @@ public interface WorldBlock {
     /**
      * Represents a state of a block, doesn't contain the current information
      * about the block, acts just like a snapshot.
+     * @param world world of the block
+     * @param position position of the block
+     * @param blockType type of the block
+     * @param compound nbt of the block
      */
     record State(World world,
                  BlockPosition position,

@@ -32,7 +32,7 @@ public interface Messenger extends CodecPart, ServerProperty {
      * @return if player accepts given message type
      */
     static boolean accepts(Player player, MessageType messageType) {
-        if(messageType == MessageType.CHAT && canReceiveMessage(player))
+        if (messageType == MessageType.CHAT && canReceiveMessage(player))
             return true;
         return messageType == MessageType.SYSTEM && canReceiveCommand(player);
     }

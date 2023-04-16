@@ -59,9 +59,9 @@ public interface BlockEntityType extends BlockType {
      * @param state state of the block
      * @return base compound for the client
      */
-    default @Nullable NBTCompound getBaseClientVisibleNBT(WorldBlock.State state) {
+    default @Nullable NBTCompound getBaseClientVisibleNBT(final WorldBlock.State state) {
         final BlockEntityBase base = getBlockEntityBase(state);
-        if(base == null) return null;
+        if (base == null) return null;
         final NBTCompound compound = new NBTCompound();
         compound.set("id", new NBTString(base.getName().toString()));
         compound.set("x", new NBTInt(state.position().getX()));

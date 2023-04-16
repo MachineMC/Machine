@@ -39,16 +39,16 @@ public class TaskSession {
      * Runs the task.
      * @param scheduler scheduler to run the task on
      */
-    protected void run(Scheduler scheduler) {
-        if(running)
+    protected void run(final Scheduler scheduler) {
+        if (running)
             throw new IllegalStateException("You can't run the same task twice");
         running = true;
         this.scheduler = scheduler;
         scheduler.sessions.add(this);
         this.input = previous != null ? previous.output.get() : null;
 
-        if(execution == Execution.SYNC) {
-            if(!repeating) {
+        if (execution == Execution.SYNC) {
+            if (!repeating) {
                 wrapped = (i, session) -> {
                     output.set(runnable.run(i, session));
                     runFuture();
@@ -67,8 +67,8 @@ public class TaskSession {
                         delay, period, unit
                 );
             }
-        } else if(execution == Execution.ASYNC) {
-            if(!repeating) {
+        } else if (execution == Execution.ASYNC) {
+            if (!repeating) {
                 wrapped = (i, session) -> {
                     asyncScheduledFuture = scheduler.getThreadPoolExecutor().schedule(() -> {
                         output.set(runnable.run(i, session));
@@ -94,8 +94,8 @@ public class TaskSession {
      */
     private void runFuture() {
         scheduler.sessions.remove(this);
-        if(future == null) return;
-        if(!scheduler.isRunning()) return;
+        if (future == null) return;
+        if (!scheduler.isRunning()) return;
         future.run(scheduler);
     }
 
@@ -112,12 +112,12 @@ public class TaskSession {
      * @param interrupt if the thread executing this task should be interrupted
      * @param next if the next task should be run
      */
-    public void stop(boolean interrupt, boolean next) {
-        if(!running)
+    public void stop(final boolean interrupt, final boolean next) {
+        if (!running)
             throw new IllegalStateException("You can't stop not running task");
-        if(asyncScheduledFuture != null) {
+        if (asyncScheduledFuture != null) {
             asyncScheduledFuture.cancel(interrupt);
-            if(next) runFuture();
+            if (next) runFuture();
         }
     }
 
@@ -125,7 +125,7 @@ public class TaskSession {
      * Terminates the task.
      */
     protected void terminate() {
-        if(asyncScheduledFuture != null)
+        if (asyncScheduledFuture != null)
             asyncScheduledFuture.cancel(true);
     }
 

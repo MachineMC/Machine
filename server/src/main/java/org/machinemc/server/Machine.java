@@ -130,9 +130,9 @@ public class Machine implements Server {
     protected World defaultWorld;
 
     static {
-        Factories.BUFFER_FACTORY = FriendlyByteBuf::new;
-        Factories.ITEM_FACTORY = ItemStack::new;
-        Factories.PARTICLE_FACTORY = ParticleFactory::create;
+        Factories.bufferFactory = FriendlyByteBuf::new;
+        Factories.itemFactory = ItemStack::new;
+        Factories.particleFactory = ParticleFactory::create;
     }
 
     public static void main(String[] args) throws Exception {

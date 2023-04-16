@@ -24,7 +24,7 @@ public enum Hand {
      * @param id id of the hand
      * @return hand for given id
      */
-    public static Hand fromID(@Range(from = 0, to = 1) int id) {
+    public static Hand fromID(final @Range(from = 0, to = 1) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported Hand type");
         return values()[id];
     }
@@ -35,7 +35,7 @@ public enum Hand {
      * @param name name of the hand
      * @return hand with given name
      */
-    public static @Nullable Hand getByName(String name) {
+    public static @Nullable Hand getByName(final String name) {
         for (Hand value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }

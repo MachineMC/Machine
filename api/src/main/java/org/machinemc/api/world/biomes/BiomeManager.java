@@ -84,7 +84,7 @@ public interface BiomeManager extends CodecPart, ServerProperty {
     @Unmodifiable Set<Biome> getBiomes();
 
     /**
-     * Returns the NBT compound of a dimension with the given name
+     * Returns the NBT compound of a dimension with the given name.
      * @param name name of the dimension
      * @return NBT of the given dimension
      */
@@ -96,7 +96,7 @@ public interface BiomeManager extends CodecPart, ServerProperty {
     }
 
     /**
-     * Returns the NBT compound of the given biome
+     * Returns the NBT compound of the given biome.
      * @param biome the biome
      * @return NBT of the given biome
      */

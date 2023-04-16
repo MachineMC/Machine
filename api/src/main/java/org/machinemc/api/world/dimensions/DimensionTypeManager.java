@@ -87,7 +87,7 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
     @Unmodifiable Set<DimensionType> getDimensions();
 
     /**
-     * Returns the NBT compound of a dimension with the given name
+     * Returns the NBT compound of a dimension with the given name.
      * @param name name of the dimension
      * @return NBT of the given dimension
      */
@@ -99,7 +99,7 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
     }
 
     /**
-     * Returns the NBT compound of the given dimension
+     * Returns the NBT compound of the given dimension.
      * @param dimensionType the dimension
      * @return NBT of the given dimension
      */

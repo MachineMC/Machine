@@ -87,7 +87,7 @@ public interface World extends ServerProperty {
     /**
      * @return generator used by the world
      */
-     Generator getGenerator();
+    Generator getGenerator();
 
     /**
      * Loads the world.
@@ -135,7 +135,7 @@ public interface World extends ServerProperty {
     boolean remove(Entity entity);
 
     /**
-     * Returns chunk with given chunk coordinates
+     * Returns chunk with given chunk coordinates.
      * @param chunkX x coordinate of the chunk
      * @param chunkZ z coordinate of the chunk
      * @return chunk with given coordinates

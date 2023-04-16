@@ -97,6 +97,9 @@ public interface Palette extends Writable, Cloneable {
         return dimension * dimension * dimension;
     }
 
+    /**
+     * @return clone of this palette
+     */
     Palette clone();
 
     /**
@@ -104,6 +107,13 @@ public interface Palette extends Writable, Cloneable {
      */
     @FunctionalInterface
     interface EntrySupplier {
+        /**
+         * Sets new entry in the palette.
+         * @param x x coordinate
+         * @param y y coordinate
+         * @param z z coordinate
+         * @return new value
+         */
         int get(int x, int y, int z);
     }
 
@@ -112,6 +122,13 @@ public interface Palette extends Writable, Cloneable {
      */
     @FunctionalInterface
     interface EntryConsumer {
+        /**
+         * Accepts the entry in the palette.
+         * @param x x coordinate
+         * @param y y coordinate
+         * @param z z coordinate
+         * @param value value
+         */
         void accept(int x, int y, int z, int value);
     }
 
@@ -120,6 +137,14 @@ public interface Palette extends Writable, Cloneable {
      */
     @FunctionalInterface
     interface EntryFunction {
+        /**
+         * Replaces the entry in the palette.
+         * @param x x coordinate
+         * @param y y coordinate
+         * @param z z coordinate
+         * @param value old value
+         * @return new value
+         */
         int apply(int x, int y, int z, int value);
     }
 

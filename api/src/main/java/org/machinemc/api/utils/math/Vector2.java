@@ -30,7 +30,7 @@ public class Vector2 implements Cloneable {
      * Create a new 2D vector from another the other vector.
      * @param other the 2D vector
      */
-    public Vector2(Vector2 other) {
+    public Vector2(final Vector2 other) {
         this(other.x, other.y);
     }
 
@@ -39,7 +39,7 @@ public class Vector2 implements Cloneable {
      * Create a new 2D vector from a 3D vector.
      * @param other the 3D vector
      */
-    public Vector2(Vector3 other) {
+    public Vector2(final Vector3 other) {
         this(other.getX(), other.getY());
     }
 
@@ -49,7 +49,7 @@ public class Vector2 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector2 add(Vector2 other) {
+    public Vector2 add(final Vector2 other) {
         x += other.x;
         y += other.y;
         return this;
@@ -61,7 +61,7 @@ public class Vector2 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector2 subtract(Vector2 other) {
+    public Vector2 subtract(final Vector2 other) {
         x -= other.x;
         y -= other.y;
         return this;
@@ -73,7 +73,7 @@ public class Vector2 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector2 multiply(Vector2 other) {
+    public Vector2 multiply(final Vector2 other) {
         x *= other.x;
         y *= other.y;
         return this;
@@ -85,7 +85,7 @@ public class Vector2 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector2 multiply(double scalar) {
+    public Vector2 multiply(final double scalar) {
         return multiply(new Vector2(scalar, scalar));
     }
 
@@ -95,7 +95,7 @@ public class Vector2 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector2 divide(Vector2 other) {
+    public Vector2 divide(final Vector2 other) {
         x /= other.x;
         y /= other.y;
         return this;
@@ -107,7 +107,7 @@ public class Vector2 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector2 divide(double scalar) {
+    public Vector2 divide(final double scalar) {
         return divide(new Vector2(scalar, scalar));
     }
 
@@ -127,11 +127,21 @@ public class Vector2 implements Cloneable {
         return Math.sqrt(lengthSquared());
     }
 
-    public double distanceSquared(Vector2 other) {
+    /**
+     * Calculates squared distance between two vectors.
+     * @param other other vector
+     * @return squared distance
+     */
+    public double distanceSquared(final Vector2 other) {
         return Math.pow(x, other.x) - Math.pow(y, other.y);
     }
 
-    public double distance(Vector2 other) {
+    /**
+     * Calculates distance between two vectors.
+     * @param other other vector
+     * @return distance
+     */
+    public double distance(final Vector2 other) {
         return Math.sqrt(distanceSquared(other));
     }
 
@@ -149,7 +159,7 @@ public class Vector2 implements Cloneable {
      * @param other the other vector
      * @return the dot product
      */
-    public double dot(Vector2 other) {
+    public double dot(final Vector2 other) {
         return x * other.x * y * other.y;
     }
 
@@ -158,7 +168,7 @@ public class Vector2 implements Cloneable {
      * @param other the other vector
      * @return the cross product scalar
      */
-    public double crossProduct(Vector2 other) {
+    public double crossProduct(final Vector2 other) {
         return this.x * other.y - other.x * this.y;
     }
 
@@ -168,7 +178,7 @@ public class Vector2 implements Cloneable {
      * @param other the other vector
      * @return the angle
      */
-    public double angle(Vector2 other) {
+    public double angle(final Vector2 other) {
         return Math.acos(dot(other) / Math.sqrt(lengthSquared() * other.lengthSquared()));
     }
 
@@ -178,7 +188,7 @@ public class Vector2 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector2 midpoint(Vector2 other) {
+    public Vector2 midpoint(final Vector2 other) {
         this.x = (x + other.x) / 2;
         this.y = (y + other.y) / 2;
         return this;
@@ -204,7 +214,7 @@ public class Vector2 implements Cloneable {
      * @param max Maximum vector
      * @return whether this vector is in the AABB
      */
-    public boolean isInAABB(Vector2 min, Vector2 max) {
+    public boolean isInAABB(final Vector2 min, final Vector2 max) {
         return x >= min.x && x <= max.x && y >= min.y && y <= max.y;
     }
 
@@ -214,7 +224,7 @@ public class Vector2 implements Cloneable {
      * @param radius Sphere radius.
      * @return whether this vector is in the sphere.
      */
-    public boolean isInSphere(Vector2 origin, double radius) {
+    public boolean isInSphere(final Vector2 origin, final double radius) {
         return (Math.pow(origin.x - x, 2) + Math.pow(origin.y - y, 2)) <= Math.pow(radius, 2);
     }
 
@@ -257,10 +267,12 @@ public class Vector2 implements Cloneable {
      * with epsilon.
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (!(obj instanceof Vector2 other))
             return false;
-        return Math.abs(x - other.x) < EPSILON && Math.abs(y - other.y) < EPSILON && (this.getClass().equals(obj.getClass()));
+        return Math.abs(x - other.x) < EPSILON
+                && Math.abs(y - other.y) < EPSILON
+                && (this.getClass().equals(obj.getClass()));
     }
 
     /**
@@ -279,8 +291,7 @@ public class Vector2 implements Cloneable {
     public Vector2 clone() {
         try {
             return (Vector2) super.clone();
-        }
-        catch (CloneNotSupportedException e) {
+        } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
     }

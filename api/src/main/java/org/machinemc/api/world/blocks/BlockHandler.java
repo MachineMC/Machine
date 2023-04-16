@@ -4,7 +4,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.machinemc.api.world.BlockData;
 
 /**
- * Specifies behaviour of a certain block type
+ * Specifies behaviour of a certain block type.
  */
 // TODO Event arguments as source of the changes once event
 //  system gets implemented

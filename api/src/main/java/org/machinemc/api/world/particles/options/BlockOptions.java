@@ -2,10 +2,9 @@ package org.machinemc.api.world.particles.options;
 
 import org.machinemc.api.world.BlockData;
 import org.machinemc.api.world.particles.ParticleOptions;
-import org.machinemc.api.world.particles.ParticleType;
 
 /**
- * Options used by {@link ParticleType#BLOCK}.
+ * Options used by {@link org.machinemc.api.world.particles.ParticleType#BLOCK}.
  */
 public interface BlockOptions extends ParticleOptions {
 

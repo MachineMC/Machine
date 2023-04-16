@@ -16,7 +16,7 @@ public interface Generator extends ServerProperty {
      * @param world world of the chunk
      * @return content for the chunk section
      */
-    GeneratedSection populateChunk(final int chunkX, final int chunkZ, final int sectionIndex, World world);
+    GeneratedSection populateChunk(int chunkX, int chunkZ, int sectionIndex, World world);
 
     /**
      * @return seed used by this generator

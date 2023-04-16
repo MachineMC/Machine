@@ -19,7 +19,7 @@ import java.util.*;
 public class BlockDataImpl extends BlockData {
 
     private static final Map<Integer, BlockDataImpl> REGISTRY = new TreeMap<>();
-    private static BlockDataImpl[] REGISTRY_ARRAY = new BlockDataImpl[0];
+    private static BlockDataImpl[] registryArray = new BlockDataImpl[0];
 
     private Material material;
     private int id;
@@ -29,9 +29,9 @@ public class BlockDataImpl extends BlockData {
      */
     public static void finishRegistration() {
         Integer size = Iterables.getLast(REGISTRY.keySet());
-        REGISTRY_ARRAY = new BlockDataImpl[++size];
-        for(Integer stateId : REGISTRY.keySet())
-            REGISTRY_ARRAY[stateId] = REGISTRY.get(stateId);
+        registryArray = new BlockDataImpl[++size];
+        for (Integer stateId : REGISTRY.keySet())
+            registryArray[stateId] = REGISTRY.get(stateId);
     }
 
     /**
@@ -39,34 +39,34 @@ public class BlockDataImpl extends BlockData {
      * @param id id of the block data
      * @return new instance of the block data with the given id
      */
-    public static @Nullable BlockData getBlockData(int id) {
-        if(id == -1) return null;
-        if(REGISTRY_ARRAY.length <= id) return null;
-        BlockDataImpl data = REGISTRY_ARRAY[id];
-        if(data == null) return null;
+    public static @Nullable BlockData getBlockData(final int id) {
+        if (id == -1) return null;
+        if (registryArray.length <= id) return null;
+        BlockDataImpl data = registryArray[id];
+        if (data == null) return null;
         return data.clone();
     }
 
     /**
-     * Returns id of the block data
+     * Returns id of the block data.
      * @param blockData block data to get id from
      * @return id of the given block data
      */
-    public static int getId(BlockData blockData) {
+    public static int getId(final BlockData blockData) {
         return blockData.getId();
     }
 
-    protected BlockDataImpl(int id) {
+    protected BlockDataImpl(final int id) {
         this.id = id;
     }
 
     @Override
-    protected BlockDataImpl setMaterial(Material material) {
+    protected BlockDataImpl setMaterial(final Material material) {
         this.material = material;
         Map<Integer, BlockData> stateMap = getIdMap();
         for (Integer stateId : stateMap.keySet()) {
             BlockData data = stateMap.get(stateId).clone();
-            if(!(data instanceof BlockDataImpl blockData))
+            if (!(data instanceof BlockDataImpl blockData))
                 throw new IllegalStateException();
             blockData.material = material;
             REGISTRY.put(stateId, blockData);

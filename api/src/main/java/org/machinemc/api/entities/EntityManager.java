@@ -1,6 +1,5 @@
 package org.machinemc.api.entities;
 
-import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -74,7 +73,7 @@ public interface EntityManager {
 
     /**
      * Adds entity into the manager.
-     * @see World#spawn(Entity, Location)
+     * @see World#spawn(Entity, org.machinemc.api.world.Location)
      * @param entity entity to add
      */
     @ApiStatus.Internal

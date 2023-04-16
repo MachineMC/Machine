@@ -107,6 +107,8 @@ public interface Section extends Writable, Cloneable {
      * @param x chunk relative x coordinate of the entity
      * @param y y coordinate of the entity (in the world - accepts negative values)
      * @param z chunk relative z coordinate of the entity
+     * @param base base of the block entity
+     * @param data data to be send to the client
      */
     record BlockEntity(byte x,
                        short y,
@@ -114,11 +116,11 @@ public interface Section extends Writable, Cloneable {
                        BlockEntityBase base,
                        NBTCompound data) implements Writable {
 
-        public BlockEntity(byte packedXZ, short y, BlockEntityBase base, NBTCompound data) {
+        public BlockEntity(final byte packedXZ, final short y, final BlockEntityBase base, final NBTCompound data) {
             this((byte) (packedXZ & 0xF0), y, (byte) (packedXZ & 0xF), base, data);
         }
 
-        public BlockEntity(ServerBuffer buf) {
+        public BlockEntity(final ServerBuffer buf) {
             this(buf.readByte(), buf.readShort(), BlockEntityBase.fromID(buf.readVarInt()), buf.readNBT());
         }
 
@@ -132,7 +134,7 @@ public interface Section extends Writable, Cloneable {
         }
 
         @Override
-        public void write(ServerBuffer buf) {
+        public void write(final ServerBuffer buf) {
             buf.writeByte(packedXZ());
             buf.writeShort(y);
             buf.writeVarInt(base.getId());

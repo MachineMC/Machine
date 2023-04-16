@@ -16,7 +16,7 @@ public enum WorldType {
      * @param name name of the world type
      * @return world type with given name
      */
-    public static @Nullable WorldType getByName(String name) {
+    public static @Nullable WorldType getByName(final String name) {
         for (WorldType value : values()) {
             if (value.name().equalsIgnoreCase(name))
                 return value;

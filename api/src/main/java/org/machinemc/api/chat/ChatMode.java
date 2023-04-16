@@ -24,7 +24,7 @@ public enum ChatMode {
      * @param id id of the chat mode
      * @return chat mode for given id
      */
-    public static ChatMode fromID(@Range(from = 0, to = 2) int id) {
+    public static ChatMode fromID(final @Range(from = 0, to = 2) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported ChatMode type");
         return values()[id];
     }

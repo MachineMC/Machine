@@ -26,6 +26,10 @@ public interface PublicKeyData extends Writable {
      */
     Instant timestamp();
 
+    /**
+     * Writes the public key data in to a buffer.
+     * @param buf buffer to write into
+     */
     default void write(ServerBuffer buf) {
         buf.writePublicKey(this);
     }

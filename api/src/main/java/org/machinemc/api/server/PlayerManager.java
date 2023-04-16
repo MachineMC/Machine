@@ -29,9 +29,9 @@ public interface PlayerManager extends ServerProperty {
      * Removes the player with given uuid from the manager.
      * @param uuid uuid of the player
      */
-    default void removePlayer(UUID uuid) {
+    default void removePlayer(final UUID uuid) {
         final Player player = getPlayer(uuid);
-        if(player == null) return;
+        if (player == null) return;
         removePlayer(player);
     }
 
@@ -39,9 +39,9 @@ public interface PlayerManager extends ServerProperty {
      * Removes the player with given name from the manager.
      * @param name name of the player
      */
-    default void removePlayer(String name) {
+    default void removePlayer(final String name) {
         final Player player = getPlayer(name);
-        if(player == null) return;
+        if (player == null) return;
         removePlayer(player);
     }
 

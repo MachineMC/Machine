@@ -19,16 +19,16 @@ public abstract class BlockData implements Cloneable {
      * @param id id of the block data
      * @return new instance of the block data with the given id
      */
-    public static BlockData getBlockData(int id) {
+    public static BlockData getBlockData(final int id) {
         return BlockDataImpl.getBlockData(id);
     }
 
     /**
-     * Returns id of the block data
+     * Returns id of the block data.
      * @param blockData block data to get id from
      * @return id of the given block data
      */
-    public static int getId(BlockData blockData) {
+    public static int getId(final BlockData blockData) {
         return BlockDataImpl.getId(blockData);
     }
 
@@ -61,6 +61,9 @@ public abstract class BlockData implements Cloneable {
      */
     protected abstract Object[] getData();
 
+    /**
+     * @return clone of this block data
+     */
     public BlockData clone() {
         try {
             return (BlockData) super.clone();
@@ -71,21 +74,21 @@ public abstract class BlockData implements Cloneable {
 
     @Override
     public String toString() {
-        if(getMaterial() != null)
+        if (getMaterial() != null)
             return getMaterial().getName().getKey() + Arrays.toString(getData());
         return "none" + Arrays.toString(getData());
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof BlockData blockData)) return false;
-        if(getMaterial() != blockData.getMaterial()) return false;
+        if (getMaterial() != blockData.getMaterial()) return false;
         Object[] original = getData();
         Object[] compare = blockData.getData();
-        if(original.length != compare.length) return false;
-        for(int i = 0; i < original.length; i++) {
-            if(original[i] != compare[i]) return false;
+        if (original.length != compare.length) return false;
+        for (int i = 0; i < original.length; i++) {
+            if (original[i] != compare[i]) return false;
         }
         return true;
     }

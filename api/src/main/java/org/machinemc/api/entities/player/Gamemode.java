@@ -26,7 +26,7 @@ public enum Gamemode {
      * @param id id of the gamemode
      * @return gamemode for given id
      */
-    public static Gamemode fromID(@Range(from = 0, to = 3) int id) {
+    public static Gamemode fromID(final @Range(from = 0, to = 3) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported Gamemode type");
         return values()[id];
     }
@@ -37,7 +37,7 @@ public enum Gamemode {
      * @param id id of the gamemode
      * @return gamemode for given id
      */
-    public static @Nullable Gamemode nullableFromID(@Range(from = -1, to = 3) int id) {
+    public static @Nullable Gamemode nullableFromID(final @Range(from = -1, to = 3) int id) {
         if (id == -1)
             return null;
         Preconditions.checkArgument(id < values().length, "Unsupported Gamemode type");
@@ -49,7 +49,7 @@ public enum Gamemode {
      * @param name name of the gamemode
      * @return gamemode with given name
      */
-    public static @Nullable Gamemode getByName(String name) {
+    public static @Nullable Gamemode getByName(final String name) {
         for (Gamemode value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }

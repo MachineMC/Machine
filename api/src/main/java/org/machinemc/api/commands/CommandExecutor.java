@@ -21,23 +21,47 @@ public interface CommandExecutor {
      */
     int execute(String input);
 
+    /**
+     * Sends a message to the command executor.
+     * @param message message to send
+     */
     default void sendMessage(final String message) {
         sendMessage(ChatUtils.stringToComponent(message));
     }
 
+    /**
+     * Sends a message to the command executor.
+     * @param message message to send
+     */
     default void sendMessage(final Component message) {
         sendMessage(null, message);
     }
 
+    /**
+     * Sends a message to the command executor.
+     * @param sender sender uuid
+     * @param message message to send
+     */
     default void sendMessage(final @Nullable UUID sender, final String message) {
         sendMessage(sender, ChatUtils.stringToComponent(message));
     }
 
+    /**
+     * Sends a message to the command executor.
+     * @param sender sender uuid
+     * @param message message to send
+     */
     default void sendMessage(final @Nullable UUID sender, final Component message) {
         sendMessage(sender, message, MessageType.SYSTEM);
     }
 
-    void sendMessage(final @Nullable UUID sender, final Component message, final MessageType type);
+    /**
+     * Sends a message to the command executor.
+     * @param sender sender uuid
+     * @param message message to send
+     * @param type type of the message
+     */
+    void sendMessage(@Nullable UUID sender, Component message, MessageType type);
 
     /**
      * Formats the input as a Minecraft command - removes all leading,
@@ -46,9 +70,9 @@ public interface CommandExecutor {
      * @return formatted command input
      */
     static String formatCommandInput(String input) {
-        if(input.isBlank()) return "";
+        if (input.isBlank()) return "";
         input = input.trim();
-        while(input.contains("  "))
+        while (input.contains("  "))
             input = input.replace("  ", " ");
         return input;
     }

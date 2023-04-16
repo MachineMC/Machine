@@ -55,7 +55,7 @@ public interface ServerBuffer extends Cloneable {
     DataOutputStream stream() throws IOException;
 
     /**
-     * Writes the bytes of this buffer in a data output stream
+     * Writes the bytes of this buffer in a data output stream.
      * @param stream stream to write into
      * @return given stream
      * @throws IOException if an I/O error occurs during writing the bytes
@@ -64,7 +64,7 @@ public interface ServerBuffer extends Cloneable {
     DataOutputStream writeToStream(DataOutputStream stream) throws IOException;
 
     /**
-     * Writes a writable object into this buffer
+     * Writes a writable object into this buffer.
      * @param writable object to write
      * @return this
      */
@@ -311,6 +311,7 @@ public interface ServerBuffer extends Cloneable {
     Component readComponent();
 
     /**
+     * @param serializer serializer to use
      * @return next component using a component serializer
      */
     @Contract("_ -> new")
@@ -444,8 +445,14 @@ public interface ServerBuffer extends Cloneable {
     @Contract("_ -> this")
     ServerBuffer setWriterIndex(int index);
 
+    /**
+     * Deallocates this buffer.
+     */
     void release();
 
+    /**
+     * @return clone of this buffer
+     */
     ServerBuffer clone();
 
 }

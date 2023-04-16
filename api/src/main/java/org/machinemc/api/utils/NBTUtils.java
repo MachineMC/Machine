@@ -23,7 +23,7 @@ public final class NBTUtils {
      * @return NBT double list
      */
     @Contract("_ -> new")
-    public static NBTList list(Object... objects) {
+    public static NBTList list(final Object... objects) {
         return new NBTList(objects);
     }
 
@@ -32,7 +32,7 @@ public final class NBTUtils {
      * @param file The file to serialize to
      * @param nbt The NBT to serialize
      */
-    public static void serializeNBT(File file, NBTCompound nbt) {
+    public static void serializeNBT(final File file, final NBTCompound nbt) {
         try {
             if (!file.exists() && !file.createNewFile())
                 throw new IOException("Unable to create file at " + file.getAbsolutePath());
@@ -47,7 +47,7 @@ public final class NBTUtils {
      * @param file The file to deserialize from
      * @return The NBT stored in the file
      */
-    public static NBTCompound deserializeNBTFile(File file) {
+    public static NBTCompound deserializeNBTFile(final File file) {
         try {
             NBTCompound compound = new NBTCompound();
             compound.read(file);

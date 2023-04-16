@@ -68,6 +68,7 @@ public interface Chunk extends ServerProperty {
      * @param x x
      * @param y y
      * @param z z
+     * @param blockType new block type
      */
     void setBlock(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, BlockType blockType);
 
@@ -96,7 +97,10 @@ public interface Chunk extends ServerProperty {
      * @param z z
      * @param compound new nbt
      */
-    void setBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, @Nullable NBTCompound compound);
+    void setBlockNBT(@Range(from = 0, to = 15) int x,
+                     int y,
+                     @Range(from = 0, to = 15) int z,
+                     @Nullable NBTCompound compound);
 
     /**
      * Returns a biome at given location in this chunk.

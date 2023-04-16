@@ -8,6 +8,9 @@ import org.machinemc.api.utils.Writable;
  */
 public interface ParticleOptions extends NBTSerializable, Writable, Cloneable {
 
+    /**
+     * @return clone of this particle options
+     */
     ParticleOptions clone();
 
 }

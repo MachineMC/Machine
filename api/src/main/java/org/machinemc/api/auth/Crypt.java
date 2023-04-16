@@ -59,7 +59,7 @@ public final class Crypt {
      * @param encryptedSecretKey encrypted secret key
      * @return secret key
      */
-    public static SecretKey decryptByteToSecretKey(PrivateKey privateKey, byte[] encryptedSecretKey) {
+    public static SecretKey decryptByteToSecretKey(final PrivateKey privateKey, final byte[] encryptedSecretKey) {
         try {
             Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
@@ -76,7 +76,7 @@ public final class Crypt {
      * @param secretKey secret key shared between server and client
      * @return digested data
      */
-    public static byte[] digestData(String baseServerId, PublicKey publicKey, SecretKey secretKey) {
+    public static byte[] digestData(final String baseServerId, final PublicKey publicKey, final SecretKey secretKey) {
         try {
             return digestData(baseServerId.getBytes(BYTE_ENCODING), secretKey.getEncoded(), publicKey.getEncoded());
         } catch (Exception exception) {
@@ -89,7 +89,7 @@ public final class Crypt {
      * @param bytes encoded key
      * @return public key
      */
-    public static PublicKey pubicKeyFrom(byte[] bytes) {
+    public static PublicKey pubicKeyFrom(final byte[] bytes) {
         X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(ASYMMETRIC_ALGORITHM);
@@ -107,7 +107,11 @@ public final class Crypt {
      * @param key server's secret key
      * @return created cipher
      */
-    public static Cipher getCipher(@MagicConstant(intValues = {Cipher.ENCRYPT_MODE, Cipher.DECRYPT_MODE, Cipher.WRAP_MODE, Cipher.UNWRAP_MODE}) int mode, Key key) {
+    public static Cipher getCipher(final @MagicConstant(intValues = {Cipher.ENCRYPT_MODE,
+                                                                     Cipher.DECRYPT_MODE,
+                                                                     Cipher.WRAP_MODE,
+                                                                     Cipher.UNWRAP_MODE}) int mode,
+                                   final Key key) {
         try {
             Cipher cipher = Cipher.getInstance(ENCRYPTION);
             cipher.init(mode, key, new IvParameterSpec(key.getEncoded()));
@@ -117,7 +121,7 @@ public final class Crypt {
         }
     }
 
-    private static byte[] digestData(byte[]... bytes) {
+    private static byte[] digestData(final byte[]... bytes) {
         MessageDigest messageDigest;
         try {
             messageDigest = MessageDigest.getInstance(HASH_ALGORITHM);

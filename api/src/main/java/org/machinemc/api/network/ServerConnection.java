@@ -5,7 +5,6 @@ import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.ServerProperty;
 import org.jetbrains.annotations.*;
 
-import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -30,11 +29,13 @@ public interface ServerConnection extends ServerProperty {
 
     /**
      * Starts accepting client connections.
+     * @return open channel future
      */
     ChannelFuture start();
 
     /**
      * Closes the server connection.
+     * @return close channel future
      */
     ChannelFuture close();
 
@@ -47,6 +48,7 @@ public interface ServerConnection extends ServerProperty {
     /**
      * Disconnects a player connection from the server.
      * @param connection connection to disconnect
+     * @return close channel future
      */
     ChannelFuture disconnect(PlayerConnection connection);
 
