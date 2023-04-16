@@ -28,7 +28,7 @@ google-guava = { module = "com.google.guava:guava", version.ref = "google-guava"
 
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 
-netty-buffer = { module = "io.netty:netty-buffer", version.ref = "netty" }
+netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
 
 jna = { module = "net.java.dev.jna:jna-platform", version.ref = "jna" }
 

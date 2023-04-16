@@ -6,8 +6,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.machinemc.server.Machine;
-import org.machinemc.server.network.ClientConnection;
 import org.machinemc.api.network.packets.Packet;
+import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.PacketFactory;
 import org.machinemc.server.utils.ClassUtils;
 
@@ -119,7 +119,7 @@ public class TranslatorDispatcher {
      * @param packet packet
      * @return true if the packet wasn't cancelled
      */
-    protected boolean play(ClientConnection connection, Packet packet) {
+    public boolean play(ClientConnection connection, Packet packet) {
         if (Packet.PacketState.in().contains(packet.getPacketState()))
             return playIn(connection, packet);
         else if (Packet.PacketState.out().contains(packet.getPacketState()))
@@ -133,7 +133,7 @@ public class TranslatorDispatcher {
      * @param packet packet
      * @return true if the packet wasn't cancelled
      */
-    protected boolean playIn(ClientConnection connection, Packet packet) {
+    public boolean playIn(ClientConnection connection, Packet packet) {
         boolean result = true;
         for(PacketTranslator<? extends Packet> translator : IN_TRANSLATORS.get(packet.getClass()))
             result = translator.rawTranslate(connection, packet);
@@ -146,7 +146,7 @@ public class TranslatorDispatcher {
      * @param packet packet
      * @return true if the packet wasn't cancelled
      */
-    protected boolean playOut(ClientConnection connection, Packet packet) {
+    public boolean playOut(ClientConnection connection, Packet packet) {
         boolean result = true;
         for(PacketTranslator<? extends Packet> translator : OUT_TRANSLATORS.get(packet.getClass()))
             result = translator.rawTranslate(connection, packet);
@@ -158,7 +158,7 @@ public class TranslatorDispatcher {
      * @param connection connection that sent the packet
      * @param packet packet
      */
-    protected void playAfter(ClientConnection connection, Packet packet) {
+    public void playAfter(ClientConnection connection, Packet packet) {
         if(Packet.PacketState.in().contains(packet.getPacketState()))
             playInAfter(connection, packet);
         else if (Packet.PacketState.out().contains(packet.getPacketState()))
@@ -170,7 +170,7 @@ public class TranslatorDispatcher {
      * @param connection connection that sent the packet
      * @param packet packet
      */
-    protected void playInAfter(ClientConnection connection, Packet packet) {
+    public void playInAfter(ClientConnection connection, Packet packet) {
         for(PacketTranslator<? extends Packet> translator : IN_TRANSLATORS.get(packet.getClass()))
             translator.rawTranslateAfter(connection, packet);
     }
@@ -180,7 +180,7 @@ public class TranslatorDispatcher {
      * @param connection connection that received the packet
      * @param packet packet
      */
-    protected void playOutAfter(ClientConnection connection, Packet packet) {
+    public void playOutAfter(ClientConnection connection, Packet packet) {
         for(PacketTranslator<? extends Packet> translator : OUT_TRANSLATORS.get(packet.getClass()))
             translator.rawTranslateAfter(connection, packet);
     }

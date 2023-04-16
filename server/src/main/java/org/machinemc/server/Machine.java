@@ -26,13 +26,12 @@ import org.machinemc.server.file.ServerPropertiesImpl;
 import org.machinemc.server.file.WorldJson;
 import org.machinemc.server.inventory.ItemStack;
 import org.machinemc.server.logging.FormattedOutputStream;
-import org.machinemc.api.network.ServerConnection;
 import org.machinemc.api.server.PlayerManager;
+import org.machinemc.server.network.NettyServer;
 import org.machinemc.server.translation.TranslatorDispatcher;
 import org.machinemc.server.exception.ExceptionHandlerImpl;
 import org.machinemc.server.logging.ServerConsole;
 import org.machinemc.api.logging.Console;
-import org.machinemc.server.network.ServerConnectionImpl;
 import org.machinemc.server.network.packets.PacketFactory;
 import org.machinemc.server.server.PlayerManagerImpl;
 import org.machinemc.api.server.schedule.Scheduler;
@@ -54,7 +53,6 @@ import org.machinemc.server.utils.ClassUtils;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.server.utils.NetworkUtils;
-import org.machinemc.server.world.region.LandscapeChunk;
 
 import java.io.File;
 import java.io.IOException;
@@ -126,7 +124,7 @@ public class Machine implements Server {
     private PlayerDataContainer playerDataContainer;
 
     @Getter
-    protected ServerConnection connection;
+    protected NettyServer connection;
 
     @Getter
     protected World defaultWorld;
@@ -301,7 +299,11 @@ public class Machine implements Server {
         console.info("Loaded all packet translators");
 
         try {
-            connection = new ServerConnectionImpl(this);
+            Scheduler.task(((input, session) -> {
+                connection = new NettyServer(this);
+                connection.start();
+                return null;
+            })).async().run(scheduler);
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
             System.exit(2);
@@ -349,7 +351,7 @@ public class Machine implements Server {
         console.info("Saving player data...");
         for(Player player : playerManager.getPlayers()) {
             try {
-                player.getConnection().disconnect(TranslationComponent.of("disconnect.closed"));
+                player.getConnection().disconnect(TranslationComponent.of("disconnect.closed")).sync();
             } catch (Exception exception) {
                 exceptionHandler.handle(exception);
             }

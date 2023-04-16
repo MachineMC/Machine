@@ -37,8 +37,8 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     private final ByteBuf buf;
 
-    private static final int SEGMENT_BITS = 0x7F;
-    private static final int CONTINUE_BIT = 0x80;
+    public static final int SEGMENT_BITS = 0x7F;
+    public static final int CONTINUE_BIT = 0x80;
 
     public FriendlyByteBuf() {
         this(new byte[0]);
@@ -549,6 +549,11 @@ public class FriendlyByteBuf implements ServerBuffer {
     public ServerBuffer setWriterIndex(int index) {
         buf.writerIndex(index);
         return this;
+    }
+
+    @Override
+    public void release() {
+        buf.release();
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")

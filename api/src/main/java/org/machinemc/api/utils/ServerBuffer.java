@@ -444,6 +444,8 @@ public interface ServerBuffer extends Cloneable {
     @Contract("_ -> this")
     ServerBuffer setWriterIndex(int index);
 
+    void release();
+
     ServerBuffer clone();
 
 }

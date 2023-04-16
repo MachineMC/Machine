@@ -1,7 +1,7 @@
 package org.machinemc.server.translation.translators.in;
 
-import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.network.ClientConnection;
+import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.network.packets.in.play.PacketPlayInKeepAlive;
 
 public class TranslatorPlayInKeepAlive extends PacketTranslator<PacketPlayInKeepAlive> {

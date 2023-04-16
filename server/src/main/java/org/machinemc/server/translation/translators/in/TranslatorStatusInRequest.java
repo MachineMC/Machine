@@ -5,8 +5,6 @@ import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.status.PacketStatusInRequest;
 import org.machinemc.server.network.packets.out.status.PacketStatusOutResponse;
 
-import java.io.IOException;
-
 public class TranslatorStatusInRequest extends PacketTranslator<PacketStatusInRequest> {
 
     @Override
@@ -16,9 +14,7 @@ public class TranslatorStatusInRequest extends PacketTranslator<PacketStatusInRe
 
     @Override
     public void translateAfter(ClientConnection connection, PacketStatusInRequest packet) {
-        try {
-            connection.sendPacket(new PacketStatusOutResponse(connection.getServer().statusJson()));
-        } catch (IOException ignored) { }
+        connection.send(new PacketStatusOutResponse(connection.getServer().statusJson()));
     }
 
     @Override

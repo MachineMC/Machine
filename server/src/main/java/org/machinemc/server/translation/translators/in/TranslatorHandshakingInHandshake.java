@@ -1,5 +1,6 @@
 package org.machinemc.server.translation.translators.in;
 
+import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.handshaking.PacketHandshakingInHandshake;
@@ -14,9 +15,9 @@ public class TranslatorHandshakingInHandshake extends PacketTranslator<PacketHan
     @Override
     public void translateAfter(ClientConnection connection, PacketHandshakingInHandshake packet) {
         if(packet.getHandshakeType() == PacketHandshakingInHandshake.HandshakeType.STATUS) {
-            connection.setClientState(ClientConnection.ClientState.STATUS);
+            connection.setState(PlayerConnection.ClientState.STATUS);
         } else if(packet.getHandshakeType() == PacketHandshakingInHandshake.HandshakeType.LOGIN) {
-            connection.setClientState(ClientConnection.ClientState.LOGIN);
+            connection.setState(PlayerConnection.ClientState.LOGIN);
         }
     }
 

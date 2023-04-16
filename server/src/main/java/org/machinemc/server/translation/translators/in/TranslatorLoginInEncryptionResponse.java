@@ -15,7 +15,6 @@ import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.utils.UUIDUtils;
 
 import javax.crypto.SecretKey;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -65,14 +64,11 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
             String authUsername = json.get("name").getAsString();
             PlayerTexturesImpl playerTextures = PlayerTexturesImpl.buildSkin(json.getAsJsonArray("properties").get(0));
             final PlayerProfile profile = PlayerProfileImpl.online(authUsername, authUUID, playerTextures);
-            try {
-                connection.sendPacket(new PacketLoginOutSuccess(authUUID, authUsername, profile.getTextures()));
-            } catch (IOException exception) {
-                throw new RuntimeException(exception);
-            }
-            if(connection.getClientState() == ClientConnection.ClientState.DISCONNECTED)
+            connection.setCompression(256); // TODO should be in properties
+            connection.send(new PacketLoginOutSuccess(authUUID, authUsername, profile.getTextures()));
+            if(connection.getState() == ClientConnection.ClientState.DISCONNECTED)
                 return;
-            connection.setClientState(ClientConnection.ClientState.PLAY);
+            connection.setState(ClientConnection.ClientState.PLAY);
             ServerPlayer.spawn(connection.getServer(), profile, connection);
         }).exceptionally(exception -> {
             connection.getServer().getExceptionHandler().handle(new ClientException(connection, exception.getCause()));

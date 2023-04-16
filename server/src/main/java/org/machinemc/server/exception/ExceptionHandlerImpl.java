@@ -54,7 +54,7 @@ public class ExceptionHandlerImpl implements ExceptionHandler, ServerProperty {
             throwable = throwable.getCause();
         server.getConsole().severe("Client generated " + throwable.getClass().getName(),
                 "Login username: " + connection.getLoginUsername(),
-                "Address: " + connection.getClientSocket().getInetAddress(),
+                "Address: " + connection.getAddress(),
                 "Reason: " + exception.getMessage(),
                 "Stack trace:"
         );

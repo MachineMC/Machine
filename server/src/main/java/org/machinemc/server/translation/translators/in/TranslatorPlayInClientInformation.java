@@ -1,8 +1,8 @@
 package org.machinemc.server.translation.translators.in;
 
 import org.machinemc.server.entities.ServerPlayer;
-import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.network.ClientConnection;
+import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.network.packets.in.play.PacketPlayInClientInformation;
 
 public class TranslatorPlayInClientInformation extends PacketTranslator<PacketPlayInClientInformation> {
