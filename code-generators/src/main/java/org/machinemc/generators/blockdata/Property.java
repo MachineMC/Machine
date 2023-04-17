@@ -21,21 +21,33 @@ public class Property {
     private final Set<String> values = new LinkedHashSet<>();
     private Type type;
 
-    public Property(String name) {
+    public Property(final String name) {
         this.name = name;
         path = "org.machinemc.api.world.blockdata." + name + "Property";
     }
 
-    public void addValue(String value) {
+    /**
+     * Adds new value to the property.
+     * @param value new value
+     */
+    public void addValue(final String value) {
         type = null;
         values.add(value);
     }
 
-    public void merge(Property other) {
-        for(String value : other.values)
+    /**
+     * Merges (adds values) other property with this property.
+     * @param other other property to merge
+     */
+    public void merge(final Property other) {
+        for (String value : other.values)
             addValue(value);
     }
 
+    /**
+     * Generates the data for enum class for this property.
+     * @return enum class data of this property
+     */
     public byte[] generate() {
         ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         cw.visit(Opcodes.V17,
@@ -46,8 +58,11 @@ public class Property {
                 new String[0]);
 
         // Fields
-        for(String value : values) {
-            FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL | Opcodes.ACC_ENUM,
+        for (String value : values) {
+            FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC
+                            | Opcodes.ACC_STATIC
+                            | Opcodes.ACC_FINAL
+                            | Opcodes.ACC_ENUM,
                     value.toUpperCase(),
                     type(path).getDescriptor(),
                     null,
@@ -83,7 +98,7 @@ public class Property {
                 null,
                 new String[0]);
         int i = 0;
-        for(String value : values) {
+        for (String value : values) {
             mv.visitTypeInsn(Opcodes.NEW, type(path).getInternalName());
             mv.visitInsn(Opcodes.DUP);
             pushValue(mv, value.toUpperCase());
@@ -123,7 +138,7 @@ public class Property {
         pushValue(mv, values.size());
         mv.visitTypeInsn(Opcodes.ANEWARRAY, type(path).getInternalName());
         i = 0;
-        for(String value : values) {
+        for (String value : values) {
             mv.visitInsn(Opcodes.DUP);
             pushValue(mv, i);
             mv.visitFieldInsn(Opcodes.GETSTATIC,
@@ -181,7 +196,10 @@ public class Property {
         mv.visitEnd();
         cw.visitEnd();
 
-        FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL | Opcodes.ACC_SYNTHETIC,
+        FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE
+                        | Opcodes.ACC_STATIC
+                        | Opcodes.ACC_FINAL
+                        | Opcodes.ACC_SYNTHETIC,
                 "$VALUES",
                 array(type(path)).getDescriptor(),
                 null,
@@ -193,6 +211,10 @@ public class Property {
         return cw.toByteArray();
     }
 
+    /**
+     * Generates interface class data for this property.
+     * @return data for interface of this property
+     */
     public byte[] generateInterface() {
         String interfacePath = "org.machinemc.api.world.blockdata.interfaces.Has" + name;
         String descriptor = switch (getType()) {
@@ -223,27 +245,33 @@ public class Property {
         return cw.toByteArray();
     }
 
+    /**
+     * @return dot path of the interface for this property
+     */
     public String getInterfacePath() {
         return "org.machinemc.api.world.blockdata.interfaces.Has" + name;
     }
 
+    /**
+     * @return property type of this property (not to get confused with asm type)
+     */
     public Type getType() {
-        if(type != null)
+        if (type != null)
             return type;
         boolean isBoolean = true;
-        for(String value : values) {
-            if (!(value.equalsIgnoreCase("true") ||
-                    value.equalsIgnoreCase("false"))) {
+        for (String value : values) {
+            if (!(value.equalsIgnoreCase("true")
+                    || value.equalsIgnoreCase("false"))) {
                 isBoolean = false;
                 break;
             }
         }
-        if(isBoolean) {
+        if (isBoolean) {
             type = Type.BOOLEAN;
             return Type.BOOLEAN;
         }
         boolean isNumber = true;
-        for(String value : values) {
+        for (String value : values) {
             try {
                 Integer.parseInt(value);
             } catch (NumberFormatException exception) {
@@ -255,31 +283,31 @@ public class Property {
         return Type.NUMBER;
     }
 
-    private org.objectweb.asm.Type type(String dotPath) {
+    private org.objectweb.asm.Type type(final String dotPath) {
         return org.objectweb.asm.Type.getType("L" + dotPath.replace(".", "/") + ";");
     }
 
-    private org.objectweb.asm.Type array(org.objectweb.asm.Type type) {
+    private org.objectweb.asm.Type array(final org.objectweb.asm.Type type) {
         return org.objectweb.asm.Type.getType("[" + type.getDescriptor());
     }
 
-    private void pushValue(final MethodVisitor mv, Object o) {
+    private void pushValue(final MethodVisitor mv, final Object o) {
         int value;
-        if(o instanceof Boolean)
+        if (o instanceof Boolean)
             value = (Boolean) o ? 1 : 0;
-        else if(o instanceof Character)
+        else if (o instanceof Character)
             value = (Character) o;
-        else if(o instanceof Number)
+        else if (o instanceof Number)
             value = ((Number) o).intValue();
         else {
             mv.visitLdcInsn(o);
             return;
         }
-        if(0 <= value && value <= 5)
+        if (0 <= value && value <= 5)
             mv.visitInsn(Opcodes.ICONST_0 + value);
-        else if(Byte.MIN_VALUE <= value && value <= Byte.MAX_VALUE)
+        else if (Byte.MIN_VALUE <= value && value <= Byte.MAX_VALUE)
             mv.visitIntInsn(Opcodes.BIPUSH, value);
-        else if(Short.MIN_VALUE <= value && value <= Short.MAX_VALUE)
+        else if (Short.MIN_VALUE <= value && value <= Short.MAX_VALUE)
             mv.visitIntInsn(Opcodes.SIPUSH, value);
         else
             mv.visitLdcInsn(value);

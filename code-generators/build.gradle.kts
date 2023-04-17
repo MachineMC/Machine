@@ -18,4 +18,7 @@ tasks {
             jvmTarget = "17"
         }
     }
+    jar {
+        dependsOn(checkstyleMain)
+    }
 }

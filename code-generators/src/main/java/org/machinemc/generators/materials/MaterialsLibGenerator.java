@@ -15,13 +15,13 @@ import java.util.TreeMap;
 
 public class MaterialsLibGenerator extends CodeGenerator {
 
-    public final static String MATERIAL_CLASS = "org.machinemc.api.world.Material";
+    public static final String MATERIAL_CLASS = "org.machinemc.api.world.Material";
 
     private final Map<String, Integer> itemsMap = new TreeMap<>();
     @Getter
     private final String path = MATERIAL_CLASS;
 
-    public MaterialsLibGenerator(File outputDir) throws IOException {
+    public MaterialsLibGenerator(final File outputDir) throws IOException {
         super(outputDir, "materials", "registries.json");
     }
 
@@ -30,7 +30,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
         System.out.println("Generating the " + super.getLibraryName() + " library");
         setSource(getSource().get("minecraft:item").getAsJsonObject()
                 .get("entries").getAsJsonObject());
-        for(Map.Entry<String, JsonElement> entry : getSource().entrySet())
+        for (Map.Entry<String, JsonElement> entry : getSource().entrySet())
             handleEntry(entry, true);
 
         // Getting the BlockData information
@@ -38,11 +38,11 @@ public class MaterialsLibGenerator extends CodeGenerator {
         String iBlockDataPath = BlockData.I_BLOCKDATA_CLASS;
         JsonParser parser = new JsonParser();
         final InputStream stream = getClass().getClassLoader().getResourceAsStream("blocks.json");
-        if(stream == null)
+        if (stream == null)
             throw new FileNotFoundException();
         JsonObject blocksJson = parser.parse(new InputStreamReader(stream)).getAsJsonObject();
 
-        for(Map.Entry<String, JsonElement> entry : blocksJson.entrySet())
+        for (Map.Entry<String, JsonElement> entry : blocksJson.entrySet())
             handleEntry(entry, false);
 
         System.out.println("Loaded " + itemsMap.keySet().size() + " materials");
@@ -57,8 +57,11 @@ public class MaterialsLibGenerator extends CodeGenerator {
                 new String[0]);
 
         // Fields
-        for(String value : itemsMap.keySet()) {
-            FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL | Opcodes.ACC_ENUM,
+        for (String value : itemsMap.keySet()) {
+            FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC
+                            | Opcodes.ACC_STATIC
+                            | Opcodes.ACC_FINAL
+                            | Opcodes.ACC_ENUM,
                     value.toUpperCase(),
                     type(path).getDescriptor(),
                     null,
@@ -191,7 +194,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
                 null,
                 new String[0]);
         int i = 0;
-        for(String value : itemsMap.keySet()) {
+        for (String value : itemsMap.keySet()) {
             mv.visitTypeInsn(Opcodes.NEW, type(path).getInternalName());
             mv.visitInsn(Opcodes.DUP);
             pushValue(mv, value.toUpperCase());
@@ -199,9 +202,9 @@ public class MaterialsLibGenerator extends CodeGenerator {
             pushValue(mv, value);
             pushValue(mv, itemsMap.get(value));
 
-            if(blocksJson.get("minecraft:" + value) != null) {
+            if (blocksJson.get("minecraft:" + value) != null) {
                 JsonObject blockJson = blocksJson.get("minecraft:" + value).getAsJsonObject();
-                if(blockJson.get("properties") != null) {
+                if (blockJson.get("properties") != null) {
                     String path = "org.machinemc.api.world." + BlockDataLibGenerator.toCamelCase(value, true) + "Data";
                     mv.visitTypeInsn(Opcodes.NEW, type(path).getInternalName());
                     mv.visitInsn(Opcodes.DUP);
@@ -302,7 +305,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
         pushValue(mv, itemsMap.size());
         mv.visitTypeInsn(Opcodes.ANEWARRAY, type(path).getInternalName());
         i = 0;
-        for(String value : itemsMap.keySet()) {
+        for (String value : itemsMap.keySet()) {
             mv.visitInsn(Opcodes.DUP);
             pushValue(mv, i);
             mv.visitFieldInsn(Opcodes.GETSTATIC,
@@ -373,7 +376,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
         super.generate();
     }
 
-    private void handleEntry(Map.Entry<String, JsonElement> entry, boolean hasId) {
+    private void handleEntry(final Map.Entry<String, JsonElement> entry, final boolean hasId) {
         itemsMap.putIfAbsent(entry.getKey().replaceFirst("minecraft:", ""),
                 hasId ? entry.getValue().getAsJsonObject().get("protocol_id").getAsInt() : -1);
     }

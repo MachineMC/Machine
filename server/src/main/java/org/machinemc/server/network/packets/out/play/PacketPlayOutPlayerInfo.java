@@ -73,7 +73,6 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                 case UPDATE_DISPLAY_NAME -> displayName = buf.readComponent();
                 case REMOVE_PLAYER -> {
                 }
-                default -> throw new UnsupportedOperationException();
             }
             playerInfoDataArray[i] = new PlayerInfoData(uuid, name, skin, gamemode,
                     latency, displayName, publicKeyData);
@@ -197,7 +196,6 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                 }
                 case REMOVE_PLAYER -> {
                 }
-                default -> throw new UnsupportedOperationException();
             }
         }
     }

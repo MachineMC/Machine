@@ -134,9 +134,7 @@
 
         <!-- Checks for Size Violations.                    -->
         <!-- See https://checkstyle.org/config_sizes.html -->
-        <!-- EDITED FOR MACHINE --> <module name="MethodLength">
-            <property name="max" value="300"/>
-        </module>
+        <!-- DISABLED FOR MACHINE --> <!-- module name="MethodLength"/ -->
         <module name="ParameterNumber"/>
 
         <!-- Checks for whitespace                               -->
@@ -178,7 +176,7 @@
         <module name="IllegalInstantiation"/>
         <!-- DISBLED FOR MACHINE --> <!-- module name="InnerAssignment"/ -->
         <!-- module name="MagicNumber"/ -->
-        <module name="MissingSwitchDefault"/>
+        <!-- DISABLED FOR MACHINE --> <!-- module name="MissingSwitchDefault"/ -->
         <!-- DISABLED FOR MACHINE --> <!-- module name="MultipleVariableDeclarations"/ -->
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>

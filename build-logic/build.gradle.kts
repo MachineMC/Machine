@@ -19,3 +19,11 @@ dependencies {
     implementation(libs.jetbrains.kotlin.gradle)
     compileOnly(files(libs::class.java.superclass.protectionDomain.codeSource.location))
 }
+
+tasks {
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
+    }
+}

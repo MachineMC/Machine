@@ -10,10 +10,10 @@ import java.util.*;
 
 import static org.machinemc.generators.blockdata.BlockDataLibGenerator.toCamelCase;
 
-public class BlockData {
+public final class BlockData {
 
-    public final static String BLOCKDATA_CLASS = "org.machinemc.api.world.BlockDataImpl";
-    public final static String I_BLOCKDATA_CLASS = "org.machinemc.api.world.BlockData";
+    public static final String BLOCKDATA_CLASS = "org.machinemc.api.world.BlockDataImpl";
+    public static final String I_BLOCKDATA_CLASS = "org.machinemc.api.world.BlockData";
 
     @Getter
     private final String name;
@@ -31,14 +31,21 @@ public class BlockData {
     @Getter
     private final String path;
 
-    private BlockData(String id) {
+    private BlockData(final String id) {
         this.name = toCamelCase(id.replaceFirst("minecraft:", ""), true);
         this.id = id;
         path = "org.machinemc.api.world." + this.name + "Data";
     }
 
-    public static BlockData create(BlockDataLibGenerator generator, String name, JsonObject json) {
-        if(json.get("properties") == null) return null;
+    /**
+     * Creates new block data instance.
+     * @param generator generator to use
+     * @param name name of the block data
+     * @param json json report file
+     * @return block data
+     */
+    public static BlockData create(final BlockDataLibGenerator generator, final String name, final JsonObject json) {
+        if (json.get("properties") == null) return null;
 
         // Linked HashMaps are important, system depends on order!
         final Set<Property> properties                    = new LinkedHashSet<>();
@@ -50,7 +57,7 @@ public class BlockData {
         final Map<Property, String> defaultState = new HashMap<>();
 
         JsonObject jsonProperties = json.get("properties").getAsJsonObject();
-        for(Map.Entry<String, JsonElement> entry : jsonProperties.entrySet()) {
+        for (Map.Entry<String, JsonElement> entry : jsonProperties.entrySet()) {
             Property property = generator.getProperties().get(toCamelCase(entry.getKey(), true));
             properties.add(property);
             availableValues.put(property, new ArrayList<>());
@@ -60,18 +67,18 @@ public class BlockData {
         }
 
         JsonArray jsonStates = json.get("states").getAsJsonArray();
-        for(JsonElement stateElement : jsonStates) {
+        for (JsonElement stateElement : jsonStates) {
             int stateId = stateElement.getAsJsonObject().get("id").getAsInt();
             blockDataMap.put(stateId, new ArrayList<>());
             boolean isDefault = stateElement.getAsJsonObject().get("default") != null;
             JsonObject stateProperties = stateElement.getAsJsonObject().get("properties").getAsJsonObject();
             StringBuilder key = new StringBuilder();
-            for(Map.Entry<String, JsonElement> entry : stateProperties.entrySet()) {
+            for (Map.Entry<String, JsonElement> entry : stateProperties.entrySet()) {
                 key.append(entry.getValue().getAsString());
                 key.append(";");
                 Property property = generator.getProperties().get(toCamelCase(entry.getKey(), true));
                 blockDataMap.get(stateId).add(new AbstractMap.SimpleEntry<>(property, entry.getValue().getAsString()));
-                if(isDefault)
+                if (isDefault)
                     defaultState.put(property, entry.getValue().getAsString());
             }
             idMap.put(key.toString().toLowerCase(), stateId);
@@ -89,11 +96,15 @@ public class BlockData {
         return blockData;
     }
 
+    /**
+     * Generates the data for the block data class.
+     * @return data for the block data class
+     */
     public byte[] generate() {
         String material = id.replaceFirst("minecraft:", "").toUpperCase();
         ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         Set<String> interfaces = new LinkedHashSet<>();
-        for(Property property : properties)
+        for (Property property : properties)
             interfaces.add(property.getInterfacePath().replaceAll("\\.", "/"));
         cw.visit(Opcodes.V17,
                 Opcodes.ACC_PUBLIC,
@@ -115,7 +126,7 @@ public class BlockData {
                 "Ljava/util/HashMap<Ljava/lang/Integer;" + type(path).getDescriptor() + ">;",
                 null);
         fv.visitEnd();
-        for(Property property : properties) {
+        for (Property property : properties) {
             String descriptor = switch (property.getType()) {
                 case BOOLEAN -> Type.BOOLEAN_TYPE.getDescriptor();
                 case NUMBER -> Type.INT_TYPE.getDescriptor();
@@ -128,7 +139,7 @@ public class BlockData {
                     null);
             AnnotationVisitor av = fv.visitAnnotation("Lorg/machinemc/api/world/PropertyRange;", true);
             AnnotationVisitor arrayVisitor = av.visitArray("available");
-            for(String value : availableValues.get(property))
+            for (String value : availableValues.get(property))
                 arrayVisitor.visit(value, property.getType() == Property.Type.OTHER ? value : value.toLowerCase());
             arrayVisitor.visitEnd();
             av.visitEnd();
@@ -149,9 +160,10 @@ public class BlockData {
                     type(path).getInternalName(),
                     toCamelCase(property.getName(), false),
                     descriptor);
-            mv.visitInsn(switch (property.getType()) {
-                case BOOLEAN, NUMBER -> Opcodes.IRETURN;
-                case OTHER -> Opcodes.ARETURN;
+            mv.visitInsn(
+                    switch (property.getType()) {
+                        case BOOLEAN, NUMBER -> Opcodes.IRETURN;
+                        case OTHER -> Opcodes.ARETURN;
             });
             mv.visitMaxs(0, 0);
             mv.visitEnd();
@@ -166,9 +178,10 @@ public class BlockData {
             mv.visitEnd();
             mv.visitCode();
             mv.visitVarInsn(Opcodes.ALOAD, 0);
-            mv.visitVarInsn(switch (property.getType()) {
-                case BOOLEAN, NUMBER -> Opcodes.ILOAD;
-                case OTHER -> Opcodes.ALOAD;
+            mv.visitVarInsn(
+                    switch (property.getType()) {
+                        case BOOLEAN, NUMBER -> Opcodes.ILOAD;
+                        case OTHER -> Opcodes.ALOAD;
             }, 1);
             mv.visitFieldInsn(Opcodes.PUTFIELD,
                     type(path).getInternalName(),
@@ -194,7 +207,7 @@ public class BlockData {
                 "<init>",
                 "()V",
                 false);
-        for(Property property : properties) {
+        for (Property property : properties) {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             String defaultValue = defaultState.get(property);
             switch (property.getType()) {
@@ -221,11 +234,12 @@ public class BlockData {
 
         // all args constructor
         StringBuilder descriptorBuilder = new StringBuilder().append("(");
-        for(Property property : properties)
-            descriptorBuilder.append(switch (property.getType()) {
-                case BOOLEAN -> Type.BOOLEAN_TYPE.getDescriptor();
-                case NUMBER -> Type.INT_TYPE.getDescriptor();
-                case OTHER -> type(property.getPath()).getDescriptor();
+        for (Property property : properties)
+            descriptorBuilder.append(
+                    switch (property.getType()) {
+                        case BOOLEAN -> Type.BOOLEAN_TYPE.getDescriptor();
+                        case NUMBER -> Type.INT_TYPE.getDescriptor();
+                        case OTHER -> type(property.getPath()).getDescriptor();
             });
         descriptorBuilder.append(")V");
         mv = cw.visitMethod(Opcodes.ACC_PROTECTED,
@@ -241,11 +255,12 @@ public class BlockData {
                 "()V",
                 false);
         int i = 1;
-        for(Property property : properties) {
+        for (Property property : properties) {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
-            mv.visitVarInsn(switch (property.getType()) {
-                case BOOLEAN, NUMBER -> Opcodes.ILOAD;
-                case OTHER -> Opcodes.ALOAD;
+            mv.visitVarInsn(
+                    switch (property.getType()) {
+                        case BOOLEAN, NUMBER -> Opcodes.ILOAD;
+                        case OTHER -> Opcodes.ALOAD;
             }, i);
             mv.visitFieldInsn(Opcodes.PUTFIELD,
                     type(path).getInternalName(),
@@ -270,7 +285,7 @@ public class BlockData {
                 new String[0]);
         mv.visitCode();
         i = 0;
-        for(String fieldName : List.of("ID_MAP", "BLOCKDATA_MAP")) {
+        for (String fieldName : List.of("ID_MAP", "BLOCKDATA_MAP")) {
             mv.visitTypeInsn(Opcodes.NEW, Type.getType(HashMap.class).getInternalName());
             mv.visitInsn(Opcodes.DUP);
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
@@ -286,7 +301,7 @@ public class BlockData {
                     Type.getType(HashMap.class).getDescriptor());
             i++;
         }
-        for(String key : idMap.keySet()) {
+        for (String key : idMap.keySet()) {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             pushValue(mv, key);
             pushValue(mv, idMap.get(key));
@@ -319,13 +334,13 @@ public class BlockData {
                 null,
                 new String[0]);
         mv.visitCode();
-        for(Integer id : blockDataMap.keySet()) {
+        for (Integer id : blockDataMap.keySet()) {
             mv.visitFieldInsn(Opcodes.GETSTATIC,
                     type(path).getInternalName(),
                     "BLOCKDATA_MAP",
                     Type.getType(HashMap.class).getDescriptor());
             StringBuilder stateKeyBuilder = new StringBuilder();
-            for(Map.Entry<Property, String> property : blockDataMap.get(id))
+            for (Map.Entry<Property, String> property : blockDataMap.get(id))
                 stateKeyBuilder.append(property.getValue().toLowerCase()).append(";");
             pushValue(mv, idMap.get(stateKeyBuilder.toString()));
             mv.visitMethodInsn(Opcodes.INVOKESTATIC,
@@ -335,7 +350,7 @@ public class BlockData {
                     false);
             mv.visitTypeInsn(Opcodes.NEW, type(path).getInternalName());
             mv.visitInsn(Opcodes.DUP);
-            for(Map.Entry<Property, String> property : blockDataMap.get(id)) {
+            for (Map.Entry<Property, String> property : blockDataMap.get(id)) {
                 switch (property.getKey().getType()) {
                     case BOOLEAN -> pushValue(mv, Boolean.parseBoolean(property.getValue()));
                     case NUMBER -> pushValue(mv, Integer.parseInt(property.getValue()));
@@ -374,7 +389,7 @@ public class BlockData {
         pushValue(mv, properties.size());
         mv.visitTypeInsn(Opcodes.ANEWARRAY, Type.getType(Object.class).getInternalName());
         i = 0;
-        for(Property property : properties) {
+        for (Property property : properties) {
             mv.visitInsn(Opcodes.DUP);
             pushValue(mv, i);
             mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -386,13 +401,13 @@ public class BlockData {
                         case NUMBER -> Type.INT_TYPE.getDescriptor();
                         case OTHER -> type(property.getPath()).getDescriptor();
                     });
-            if(property.getType() == Property.Type.BOOLEAN)
+            if (property.getType() == Property.Type.BOOLEAN)
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC,
                         Type.getType(Boolean.class).getInternalName(),
                         "valueOf",
                         "(Z)Ljava/lang/Boolean;",
                         false);
-            else if(property.getType() == Property.Type.NUMBER)
+            else if (property.getType() == Property.Type.NUMBER)
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC,
                         Type.getType(Integer.class).getInternalName(),
                         "valueOf",
@@ -443,7 +458,7 @@ public class BlockData {
                 "<init>",
                 "()V",
                 false);
-        for(Property property : properties) {
+        for (Property property : properties) {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             mv.visitFieldInsn(Opcodes.GETFIELD,
                     type(path).getInternalName(),
@@ -505,31 +520,31 @@ public class BlockData {
         return cw.toByteArray();
     }
 
-    private Type type(String dotPath) {
+    private Type type(final String dotPath) {
         return Type.getType("L" + dotPath.replace(".", "/") + ";");
     }
 
-    private Type array(Type type) {
+    private Type array(final Type type) {
         return Type.getType("[" + type.getDescriptor());
     }
 
-    private void pushValue(final MethodVisitor mv, Object o) {
+    private void pushValue(final MethodVisitor mv, final Object o) {
         int value;
-        if(o instanceof Boolean)
+        if (o instanceof Boolean)
             value = (Boolean) o ? 1 : 0;
-        else if(o instanceof Character)
+        else if (o instanceof Character)
             value = (Character) o;
-        else if(o instanceof Number)
+        else if (o instanceof Number)
             value = ((Number) o).intValue();
         else {
             mv.visitLdcInsn(o);
             return;
         }
-        if(0 <= value && value <= 5)
+        if (0 <= value && value <= 5)
             mv.visitInsn(Opcodes.ICONST_0 + value);
-        else if(Byte.MIN_VALUE <= value && value <= Byte.MAX_VALUE)
+        else if (Byte.MIN_VALUE <= value && value <= Byte.MAX_VALUE)
             mv.visitIntInsn(Opcodes.BIPUSH, value);
-        else if(Short.MIN_VALUE <= value && value <= Short.MAX_VALUE)
+        else if (Short.MIN_VALUE <= value && value <= Short.MAX_VALUE)
             mv.visitIntInsn(Opcodes.SIPUSH, value);
         else
             mv.visitLdcInsn(value);
