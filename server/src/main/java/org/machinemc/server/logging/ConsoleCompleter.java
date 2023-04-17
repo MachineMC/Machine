@@ -15,13 +15,15 @@ import java.util.List;
 
 /**
  * Default console completer for Machine server.
+ * @param server server
+ * @param console console
  */
 public record ConsoleCompleter(Machine server, ServerConsole console) implements Completer, ServerProperty {
 
     @Override
-    public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
+    public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
         final CommandDispatcher<CommandExecutor> dispatcher = server.getCommandDispatcher();
-        if(line.wordIndex() == 0) {
+        if (line.wordIndex() == 0) {
             final String commandString = line.word().toLowerCase();
             candidates.addAll(dispatcher.getRoot().getChildren().stream()
                     .map(CommandNode::getName)

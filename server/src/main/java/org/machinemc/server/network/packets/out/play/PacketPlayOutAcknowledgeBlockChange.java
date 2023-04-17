@@ -23,7 +23,7 @@ public class PacketPlayOutAcknowledgeBlockChange extends PacketOut {
                 PacketPlayOutAcknowledgeBlockChange::new);
     }
 
-    public PacketPlayOutAcknowledgeBlockChange(ServerBuffer buf) {
+    public PacketPlayOutAcknowledgeBlockChange(final ServerBuffer buf) {
         sequenceId = buf.readVarInt();
     }
 

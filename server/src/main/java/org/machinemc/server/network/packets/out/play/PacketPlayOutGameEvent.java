@@ -25,7 +25,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
                 PacketPlayOutGameEvent::new);
     }
 
-    public PacketPlayOutGameEvent(ServerBuffer buf) {
+    public PacketPlayOutGameEvent(final ServerBuffer buf) {
         event = Event.fromID(buf.readByte());
         value = buf.readFloat();
     }
@@ -67,11 +67,19 @@ public class PacketPlayOutGameEvent extends PacketOut {
         PLAY_ELDER_GUARDIAN_APPEARANCE,
         ENABLE_RESPAWN_SCREEN;
 
+        /**
+         * @return id of the event
+         */
         public byte getId() {
             return (byte) ordinal();
         }
 
-        public static Event fromID(@Range(from = 0, to = 11) int id) {
+        /**
+         * Returns event with given id.
+         * @param id id
+         * @return event
+         */
+        public static Event fromID(final @Range(from = 0, to = 11) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Event type");
             return values()[id];
         }

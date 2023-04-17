@@ -26,7 +26,7 @@ public class PacketLoginOutEncryptionRequest extends PacketOut {
                 PacketLoginOutEncryptionRequest::new);
     }
 
-    public PacketLoginOutEncryptionRequest(ServerBuffer buf) {
+    public PacketLoginOutEncryptionRequest(final ServerBuffer buf) {
         buf.readString(StandardCharsets.UTF_8); // reading serverID
         publicKey = buf.readByteArray();
         verifyToken = buf.readByteArray();

@@ -8,14 +8,14 @@ import org.machinemc.server.network.packets.in.play.PacketPlayInClientInformatio
 public class TranslatorPlayInClientInformation extends PacketTranslator<PacketPlayInClientInformation> {
 
     @Override
-    public boolean translate(ClientConnection connection, PacketPlayInClientInformation packet) {
+    public boolean translate(final ClientConnection connection, final PacketPlayInClientInformation packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(ClientConnection connection, PacketPlayInClientInformation packet) {
+    public void translateAfter(final ClientConnection connection, final PacketPlayInClientInformation packet) {
         ServerPlayer player = connection.getOwner();
-        if(player == null)
+        if (player == null)
             return;
         player.setLocale(packet.getLocale());
         player.setViewDistance(packet.getViewDistance());

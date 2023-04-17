@@ -25,7 +25,7 @@ public class FlexiblePalette implements Palette {
     protected IntegerList paletteToValueList;
     protected IntObjectHashMap<Integer> valueToPaletteMap;
 
-    protected FlexiblePalette(AdaptivePalette adaptivePalette, byte bitsPerEntry) {
+    protected FlexiblePalette(final AdaptivePalette adaptivePalette, final byte bitsPerEntry) {
         this.adaptivePalette = adaptivePalette;
         this.bitsPerEntry = bitsPerEntry;
         this.paletteToValueList = new IntegerList(1);
@@ -37,12 +37,12 @@ public class FlexiblePalette implements Palette {
         values = new long[(maxSize() + valuesPerLong - 1) / valuesPerLong];
     }
 
-    protected FlexiblePalette(AdaptivePalette adaptivePalette) {
+    protected FlexiblePalette(final AdaptivePalette adaptivePalette) {
         this(adaptivePalette, adaptivePalette.defaultBitsPerEntry);
     }
 
     @Override
-    public int get(int x, int y, int z) {
+    public int get(final int x, final int y, final int z) {
         final int bitsPerEntry = this.bitsPerEntry;
         final int sectionIndex = getSectionIndex(dimension(), x, y, z);
         final int valuesPerLong = Long.SIZE / bitsPerEntry;
@@ -53,18 +53,18 @@ public class FlexiblePalette implements Palette {
     }
 
     @Override
-    public void getAll(EntryConsumer consumer) {
+    public void getAll(final EntryConsumer consumer) {
         retrieveAll(consumer, true);
     }
 
     @Override
-    public void getAllPresent(EntryConsumer consumer) {
+    public void getAllPresent(final EntryConsumer consumer) {
         retrieveAll(consumer, false);
     }
 
     @Override
-    public void set(int x, int y, int z, int value) {
-        value = getPaletteIndex(value);
+    public void set(final int x, final int y, final int z, final int value) {
+        final int valueIndex = getPaletteIndex(value);
         final int bitsPerEntry = this.bitsPerEntry;
         final long[] values = this.values;
 
@@ -76,49 +76,49 @@ public class FlexiblePalette implements Palette {
         final long block = values[index];
         final long clear = (1L << bitsPerEntry) - 1L;
         final long oldBlock = block >> bitIndex & clear;
-        values[index] = block & ~(clear << bitIndex) | ((long) value << bitIndex);
+        values[index] = block & ~(clear << bitIndex) | ((long) valueIndex << bitIndex);
 
         final boolean currentAir = oldBlock == 0;
-        if(currentAir != (value == 0)) count += currentAir ? 1 : -1;
+        if (currentAir != (valueIndex == 0)) count += currentAir ? 1 : -1;
     }
 
     @Override
-    public void fill(int value) {
-        if(value == 0) {
+    public void fill(final int value) {
+        if (value == 0) {
             Arrays.fill(values, 0);
             count = 0;
             return;
         }
-        value = getPaletteIndex(value);
+        final int valueIndex = getPaletteIndex(value);
         final int bitsPerEntry = this.bitsPerEntry;
         final int valuesPerLong = Long.SIZE / bitsPerEntry;
         final long[] values = this.values;
         long block = 0;
-        for(int i = 0; i < valuesPerLong; i++)
-            block |= (long) value << i * bitsPerEntry;
+        for (int i = 0; i < valuesPerLong; i++)
+            block |= (long) valueIndex << i * bitsPerEntry;
         Arrays.fill(values, block);
         count = maxSize();
     }
 
     @Override
-    public void setAll(EntrySupplier supplier) {
+    public void setAll(final EntrySupplier supplier) {
         int[] cache = WRITE_CACHE.get();
         final int dimension = dimension();
         int fillValue = -1;
         int count = 0;
         int index = 0;
 
-        for(int x = 0; x < dimension; x++) {
-            for(int y = 0; y < dimension; y++) {
-                for(int z = 0; z < dimension; z++) {
+        for (int x = 0; x < dimension; x++) {
+            for (int y = 0; y < dimension; y++) {
+                for (int z = 0; z < dimension; z++) {
                     int value = supplier.get(x, y, z);
 
                     // Support for using fill except of updateAll if
                     // supplier returns constant value.
-                    if(fillValue != -2) {
-                        if(fillValue == -1)
+                    if (fillValue != -2) {
+                        if (fillValue == -1)
                             fillValue = value;
-                        else if(fillValue != value)
+                        else if (fillValue != value)
                             fillValue = -2;
                     }
 
@@ -132,7 +132,7 @@ public class FlexiblePalette implements Palette {
         }
 
         assert index == maxSize();
-        if(fillValue < 0) {
+        if (fillValue < 0) {
             updateAll(cache);
             this.count = count;
         } else {
@@ -141,13 +141,13 @@ public class FlexiblePalette implements Palette {
     }
 
     @Override
-    public void replace(int x, int y, int z, int value) {
+    public void replace(final int x, final int y, final int z, final int value) {
         final int oldValue = get(x, y, z);
         if (oldValue != value) set(x, y, z, value);
     }
 
     @Override
-    public void replaceAll(EntryFunction function) {
+    public void replaceAll(final EntryFunction function) {
         int[] cache = WRITE_CACHE.get();
         AtomicInteger arrayIndex = new AtomicInteger();
         AtomicInteger count = new AtomicInteger();
@@ -156,7 +156,7 @@ public class FlexiblePalette implements Palette {
             final int index = arrayIndex.getPlain();
             arrayIndex.setPlain(index + 1);
             cache[index] = newValue != value ? getPaletteIndex(newValue) : value;
-            if(newValue != 0) count.setPlain(count.getPlain() + 1);
+            if (newValue != 0) count.setPlain(count.getPlain() + 1);
         });
         assert arrayIndex.getPlain() == maxSize();
         updateAll(cache);
@@ -194,9 +194,9 @@ public class FlexiblePalette implements Palette {
         palette.values = values.clone();
         palette.paletteToValueList = new IntegerList();
         palette.valueToPaletteMap = new IntObjectHashMap<>();
-        for(int i : paletteToValueList.toArray())
+        for (int i : paletteToValueList.toArray())
             palette.paletteToValueList.add(i);
-        for(int i : valueToPaletteMap.keySet())
+        for (int i : valueToPaletteMap.keySet())
             palette.valueToPaletteMap.put(i, valueToPaletteMap.get(i));
         palette.count = count;
         palette.bitsPerEntry = bitsPerEntry;
@@ -204,15 +204,15 @@ public class FlexiblePalette implements Palette {
     }
 
     @Override
-    public void write(ServerBuffer buf) {
+    public void write(final ServerBuffer buf) {
         buf.writeByte(bitsPerEntry);
         if (bitsPerEntry <= maxBitsPerEntry()) {
             buf.writeVarInt(paletteToValueList.size());
-            for(int i : paletteToValueList.toArray())
+            for (int i : paletteToValueList.toArray())
                 buf.writeVarInt(i);
         }
         buf.writeVarInt(values.length);
-        for(long l : values)
+        for (long l : values)
             buf.writeLong(l);
     }
 
@@ -221,7 +221,7 @@ public class FlexiblePalette implements Palette {
      * @param consumer consumer
      * @param consumeEmpty if empty (zero) values should be accepted
      */
-    private void retrieveAll(EntryConsumer consumer, boolean consumeEmpty) {
+    private void retrieveAll(final EntryConsumer consumer, final boolean consumeEmpty) {
         if (!consumeEmpty && count == 0) return;
 
         final long[] values = this.values;
@@ -235,7 +235,7 @@ public class FlexiblePalette implements Palette {
         final int dimensionBitCount = MathUtils.bitsToRepresent(dimensionMinus);
         final int shiftedDimensionBitCount = dimensionBitCount << 1;
 
-        for(int i = 0; i < values.length; i++) {
+        for (int i = 0; i < values.length; i++) {
             final long value = values[i];
 
             final int startIndex = i * valuesPerLong;
@@ -259,7 +259,7 @@ public class FlexiblePalette implements Palette {
      * Updates all palette values.
      * @param paletteValues new palette values
      */
-    private void updateAll(int[] paletteValues) {
+    private void updateAll(final int[] paletteValues) {
         final int size = maxSize();
         assert paletteValues.length >= size;
 
@@ -269,13 +269,13 @@ public class FlexiblePalette implements Palette {
         final long clear = (1L << bitsPerEntry) - 1L;
         final long[] values = this.values;
 
-        for(int i = 0; i < values.length; i++) {
+        for (int i = 0; i < values.length; i++) {
             long block = values[i];
 
             final int startIndex = i * valuesPerLong;
             final int endIndex = Math.min(startIndex + valuesPerLong, size);
 
-            for(int index = startIndex; index < endIndex; index++) {
+            for (int index = startIndex; index < endIndex; index++) {
                 final int bitIndex = (index - startIndex) * bitsPerEntry;
                 block = block & ~(clear << bitIndex) | ((long) paletteValues[index] << bitIndex);
             }
@@ -287,12 +287,12 @@ public class FlexiblePalette implements Palette {
      * Sets new bits per entry of this palette.
      * @param newBitsPerEntry new bits per entry
      */
-    protected void resize(byte newBitsPerEntry) {
+    protected void resize(final byte newBitsPerEntry) {
         // Fixes invalid bitsPerEntry values.
         // https://wiki.vg/Chunk_Format#Direct
-        newBitsPerEntry = newBitsPerEntry > maxBitsPerEntry() ? 15 : newBitsPerEntry;
+        final byte cappedBitsPerEntry = newBitsPerEntry > maxBitsPerEntry() ? 15 : newBitsPerEntry;
 
-        FlexiblePalette palette = new FlexiblePalette(adaptivePalette, newBitsPerEntry);
+        FlexiblePalette palette = new FlexiblePalette(adaptivePalette, cappedBitsPerEntry);
         palette.paletteToValueList = paletteToValueList;
         palette.valueToPaletteMap = valueToPaletteMap;
         getAll(palette::set);
@@ -307,7 +307,7 @@ public class FlexiblePalette implements Palette {
      * @param value value to get index for
      * @return index of the value
      */
-    private int getPaletteIndex(int value) {
+    private int getPaletteIndex(final int value) {
         if (!hasPalette()) return value;
         final int lastPaletteIndex = paletteToValueList.size();
         final byte bitsPerEntry = this.bitsPerEntry;
@@ -342,12 +342,12 @@ public class FlexiblePalette implements Palette {
      * @param z z
      * @return index of the block on the section array
      */
-    private static int getSectionIndex(int dimension, int x, int y, int z) {
+    private static int getSectionIndex(final int dimension, final int x, final int y, final int z) {
         final int dimensionMask = dimension - 1;
         final int dimensionBitCount = MathUtils.bitsToRepresent(dimensionMask);
-        return (y & dimensionMask) << (dimensionBitCount << 1) |
-                (z & dimensionMask) << dimensionBitCount |
-                (x & dimensionMask);
+        return (y & dimensionMask) << (dimensionBitCount << 1)
+                | (z & dimensionMask) << dimensionBitCount
+                | (x & dimensionMask);
     }
 
     /**
@@ -355,7 +355,7 @@ public class FlexiblePalette implements Palette {
      * @param bitsPerEntry bits per entry of the palette to check for
      * @return maximal size of a palette
      */
-    private static int maxPaletteSize(int bitsPerEntry) {
+    private static int maxPaletteSize(final int bitsPerEntry) {
         return 1 << bitsPerEntry;
     }
 

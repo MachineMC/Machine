@@ -22,7 +22,7 @@ public class PacketPlayOutHideMessage extends PacketOut {
                 PacketPlayOutHideMessage::new);
     }
 
-    public PacketPlayOutHideMessage(ServerBuffer buf) {
+    public PacketPlayOutHideMessage(final ServerBuffer buf) {
         signature = buf.readByteArray();
     }
 

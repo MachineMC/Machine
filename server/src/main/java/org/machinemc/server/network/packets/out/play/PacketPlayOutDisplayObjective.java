@@ -17,7 +17,11 @@ public class PacketPlayOutDisplayObjective extends PacketOut {
 
     private static final int ID = 0x4F;
 
-    // The position of the scoreboard. 0: list, 1: sidebar, 2: below name, 3 - 18: team specific sidebar, indexed as 3 + team color
+    // The position of the scoreboard.
+    // 0: list,
+    // 1: sidebar,
+    // 2: below name,
+    // 3 - 18: team specific sidebar, indexed as 3 + team color
     // TODO rework as enum
     private byte position;
     private String objectiveName;
@@ -27,7 +31,7 @@ public class PacketPlayOutDisplayObjective extends PacketOut {
                 PacketPlayOutDisplayObjective::new);
     }
 
-    public PacketPlayOutDisplayObjective(ServerBuffer buf) {
+    public PacketPlayOutDisplayObjective(final ServerBuffer buf) {
         position = buf.readByte();
         objectiveName = buf.readString(StandardCharsets.UTF_8);
     }

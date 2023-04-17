@@ -24,7 +24,7 @@ public class PacketLoginOutDisconnect extends PacketOut {
     @Getter @Setter
     private Component message;
 
-    public PacketLoginOutDisconnect(ServerBuffer buf) {
+    public PacketLoginOutDisconnect(final ServerBuffer buf) {
         message = buf.readComponent();
     }
 

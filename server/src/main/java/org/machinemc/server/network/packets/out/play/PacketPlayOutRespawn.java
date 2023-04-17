@@ -32,7 +32,7 @@ public class PacketPlayOutRespawn extends PacketOut {
                 PacketPlayOutRespawn::new);
     }
 
-    public PacketPlayOutRespawn(ServerBuffer buf) {
+    public PacketPlayOutRespawn(final ServerBuffer buf) {
         worldType = buf.readNamespacedKey();
         worldName = buf.readNamespacedKey();
         hashedSeed = buf.readLong();

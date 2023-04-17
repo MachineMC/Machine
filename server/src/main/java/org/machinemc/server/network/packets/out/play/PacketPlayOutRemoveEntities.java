@@ -22,7 +22,7 @@ public class PacketPlayOutRemoveEntities extends PacketOut {
                 PacketPlayOutRemoveEntities::new);
     }
 
-    public PacketPlayOutRemoveEntities(ServerBuffer buf) {
+    public PacketPlayOutRemoveEntities(final ServerBuffer buf) {
         entityIds = buf.readVarIntArray();
     }
 

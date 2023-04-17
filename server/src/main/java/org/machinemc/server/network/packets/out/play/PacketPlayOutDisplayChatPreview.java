@@ -22,7 +22,7 @@ public class PacketPlayOutDisplayChatPreview extends PacketOut {
                 PacketPlayOutDisplayChatPreview::new);
     }
 
-    public PacketPlayOutDisplayChatPreview(ServerBuffer buf) {
+    public PacketPlayOutDisplayChatPreview(final ServerBuffer buf) {
         chatPreviewSetting = buf.readBoolean();
     }
 

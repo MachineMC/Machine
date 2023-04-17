@@ -27,7 +27,7 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
                 PacketPlayOutTeleportEntity::new);
     }
 
-    public PacketPlayOutTeleportEntity(ServerBuffer buf) {
+    public PacketPlayOutTeleportEntity(final ServerBuffer buf) {
         entityId = buf.readVarInt();
         position = Vector3.of(buf.readDouble(), buf.readDouble(), buf.readDouble());
         rotation = Vector2.of(buf.readAngle(), buf.readAngle());

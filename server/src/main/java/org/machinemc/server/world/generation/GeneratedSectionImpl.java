@@ -7,6 +7,11 @@ import org.machinemc.nbt.NBTCompound;
 
 /**
  * Default implementation of the generated section.
+ * @param blockPalette palette of used blocks
+ * @param blockData block data
+ * @param biomePalette palette of used biomes
+ * @param biomeData biome data
+ * @param tileEntitiesData data for tile entities
  */
 public record GeneratedSectionImpl(BlockType[] blockPalette,
                                    short[] blockData,

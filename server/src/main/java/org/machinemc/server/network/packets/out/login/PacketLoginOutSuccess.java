@@ -31,7 +31,7 @@ public class PacketLoginOutSuccess extends PacketOut {
         );
     }
 
-    public PacketLoginOutSuccess(ServerBuffer buf) {
+    public PacketLoginOutSuccess(final ServerBuffer buf) {
         uuid = buf.readUUID();
         userName = buf.readString(StandardCharsets.UTF_8);
         textures = buf.readTextures();

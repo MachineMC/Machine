@@ -10,10 +10,10 @@ import org.machinemc.api.world.particles.ParticleType;
 @FunctionalInterface
 public interface ParticleCreator {
 
-    ParticleCreator empty = (type, buf) -> ParticleImpl.of(type);
+    ParticleCreator EMPTY = (type, buf) -> ParticleImpl.of(type);
 
     /**
-     * Creates the Particle from the type and buffer with its options data
+     * Creates the Particle from the type and buffer with its options data.
      * @param type type of the particle
      * @param buf buffer with data of the particle options
      * @return created Particle

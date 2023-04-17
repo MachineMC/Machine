@@ -17,14 +17,14 @@ public class Codec implements NBTSerializable {
 
     private final List<CodecPart> codecParts = new ArrayList<>();
 
-    public Codec(CodecPart... codecParts) {
+    public Codec(final CodecPart... codecParts) {
         this.codecParts.addAll(List.of(codecParts));
     }
 
     @Override
     public NBTCompound toNBT() {
         NBTCompound compound = new NBTCompound();
-        for(CodecPart part : codecParts)
+        for (CodecPart part : codecParts)
             compound.set(part.getCodecType(), part.getCodecNBT());
         return compound;
     }

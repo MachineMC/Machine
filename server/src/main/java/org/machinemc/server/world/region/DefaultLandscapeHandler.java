@@ -19,9 +19,12 @@ public class DefaultLandscapeHandler implements LandscapeHandler {
     private final boolean autoSave;
     private final int autoSaveLimit;
 
-    public DefaultLandscapeHandler(BlockManager blockManager, BiomeManager biomeManager, boolean autoSave, int autoSaveLimit) {
+    public DefaultLandscapeHandler(final BlockManager blockManager,
+                                   final BiomeManager biomeManager,
+                                   final boolean autoSave,
+                                   final int autoSaveLimit) {
 
-        if(blockManager.isRegistered(NamespacedKey.minecraft("air"))) {
+        if (blockManager.isRegistered(NamespacedKey.minecraft("air"))) {
             defaultBlock = NamespacedKey.minecraft("air");
         } else {
             Set<BlockType> blockTypes = blockManager.getBlocks();

@@ -23,7 +23,7 @@ public class PacketPlayOutBorderCenter extends PacketOut {
                 PacketPlayOutBorderCenter::new);
     }
 
-    public PacketPlayOutBorderCenter(ServerBuffer buf) {
+    public PacketPlayOutBorderCenter(final ServerBuffer buf) {
         x = buf.readDouble();
         z = buf.readDouble();
     }

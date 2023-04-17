@@ -8,12 +8,12 @@ import org.machinemc.server.network.packets.out.status.PacketStatusOutPong;
 public class TranslatorStatusInPing extends PacketTranslator<PacketStatusInPing> {
 
     @Override
-    public boolean translate(ClientConnection connection, PacketStatusInPing packet) {
+    public boolean translate(final ClientConnection connection, final PacketStatusInPing packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(ClientConnection connection, PacketStatusInPing packet) {
+    public void translateAfter(final ClientConnection connection, final PacketStatusInPing packet) {
         connection.send(new PacketStatusOutPong(packet.getPayload()));
         connection.disconnect();
     }

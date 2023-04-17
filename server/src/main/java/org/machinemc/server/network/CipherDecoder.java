@@ -18,8 +18,8 @@ public class CipherDecoder extends ByteToMessageDecoder {
     private final ClientConnection connection;
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) {
-        if(connection.encryptionContext == null) {
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf msg, final List<Object> out) {
+        if (connection.encryptionContext == null) {
             out.add(msg.readBytes(msg.readableBytes()));
             return;
         }
@@ -33,7 +33,7 @@ public class CipherDecoder extends ByteToMessageDecoder {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         connection.getServer().getExceptionHandler().handle(new ClientException(connection, cause));
     }
 

@@ -23,7 +23,7 @@ public class PacketPlayOutBorderWarningDelay extends PacketOut {
                 PacketPlayOutBorderWarningDelay::new);
     }
 
-    public PacketPlayOutBorderWarningDelay(ServerBuffer buf) {
+    public PacketPlayOutBorderWarningDelay(final ServerBuffer buf) {
         warningTime = buf.readVarInt();
     }
 

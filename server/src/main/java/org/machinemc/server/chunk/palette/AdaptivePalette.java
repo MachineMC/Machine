@@ -24,13 +24,13 @@ public class AdaptivePalette implements Palette {
     }
 
     /**
-     * Creates new palette filled with zeros
+     * Creates new palette filled with zeros.
      * @param dimension dimension of the palette
      * @param maxBitsPerEntry max bits per entry
      * @param bitsPerEntry min bits per entry
      * @return created palette
      */
-    public static Palette newPalette(int dimension, int maxBitsPerEntry, int bitsPerEntry) {
+    public static Palette newPalette(final int dimension, final int maxBitsPerEntry, final int bitsPerEntry) {
         return new AdaptivePalette((byte) dimension, (byte) maxBitsPerEntry, (byte) bitsPerEntry);
     }
 
@@ -40,7 +40,7 @@ public class AdaptivePalette implements Palette {
             maxBitsPerEntry;
     protected Palette palette;
 
-    AdaptivePalette(byte dimension, byte maxBitsPerEntry, byte bitsPerEntry) {
+    AdaptivePalette(final byte dimension, final byte maxBitsPerEntry, final byte bitsPerEntry) {
         validateDimension(dimension);
         this.dimension = dimension;
         this.maxBitsPerEntry = maxBitsPerEntry;
@@ -49,50 +49,50 @@ public class AdaptivePalette implements Palette {
     }
 
     @Override
-    public int get(int x, int y, int z) {
+    public int get(final int x, final int y, final int z) {
         if (x < 0 || y < 0 || z < 0)
             throw new IllegalArgumentException("Coordinates must be positive");
         return palette.get(x, y, z);
     }
 
     @Override
-    public void getAll(EntryConsumer consumer) {
+    public void getAll(final EntryConsumer consumer) {
         palette.getAll(consumer);
     }
 
     @Override
-    public void getAllPresent(EntryConsumer consumer) {
+    public void getAllPresent(final EntryConsumer consumer) {
         palette.getAllPresent(consumer);
     }
 
     @Override
-    public void set(int x, int y, int z, int value) {
+    public void set(final int x, final int y, final int z, final int value) {
         if (x < 0 || y < 0 || z < 0)
             throw new IllegalArgumentException("Coordinates must be positive");
         flexiblePalette().set(x, y, z, value);
     }
 
     @Override
-    public void fill(int value) {
+    public void fill(final int value) {
         palette = new FilledPalette(dimension, value);
     }
 
     @Override
-    public void setAll(EntrySupplier supplier) {
+    public void setAll(final EntrySupplier supplier) {
         Palette newPalette = new FlexiblePalette(this);
         newPalette.setAll(supplier);
         palette = newPalette;
     }
 
     @Override
-    public void replace(int x, int y, int z, int value) {
+    public void replace(final int x, final int y, final int z, final int value) {
         if (x < 0 || y < 0 || z < 0)
             throw new IllegalArgumentException("Coordinates must be positive");
         flexiblePalette().replace(x, y, z, value);
     }
 
     @Override
-    public void replaceAll(EntryFunction function) {
+    public void replaceAll(final EntryFunction function) {
         flexiblePalette().replaceAll(function);
     }
 
@@ -128,7 +128,7 @@ public class AdaptivePalette implements Palette {
     }
 
     @Override
-    public void write(ServerBuffer buf) {
+    public void write(final ServerBuffer buf) {
         final Palette optimized = optimizedPalette();
         this.palette = optimized;
         optimized.write(buf);
@@ -143,7 +143,7 @@ public class AdaptivePalette implements Palette {
     Palette optimizedPalette() {
         final Palette currentPalette = palette;
 
-        if(!(currentPalette instanceof FlexiblePalette flexiblePalette))
+        if (!(currentPalette instanceof FlexiblePalette flexiblePalette))
             return currentPalette;
 
         final int count = flexiblePalette.count();
@@ -158,8 +158,8 @@ public class AdaptivePalette implements Palette {
 
         if (entries.size() == 1) {
             return new FilledPalette(dimension, entries.iterator().next());
-        } else if (currentBitsPerEntry > defaultBitsPerEntry &&
-                (bitsPerEntry = MathUtils.bitsToRepresent(entries.size() - 1)) < currentBitsPerEntry) {
+        } else if (currentBitsPerEntry > defaultBitsPerEntry
+                && (bitsPerEntry = MathUtils.bitsToRepresent(entries.size() - 1)) < currentBitsPerEntry) {
             flexiblePalette.resize((byte) bitsPerEntry);
             return flexiblePalette;
         }
@@ -183,10 +183,10 @@ public class AdaptivePalette implements Palette {
     }
 
     /**
-     * Checks if provided dimension is valid (power of 2)
+     * Checks if provided dimension is valid (power of 2).
      * @param dimension dimension
      */
-    private static void validateDimension(int dimension) {
+    private static void validateDimension(final int dimension) {
         if (dimension <= 1 || (dimension & dimension - 1) != 0)
             throw new IllegalArgumentException("Dimension must be a positive power of 2");
     }

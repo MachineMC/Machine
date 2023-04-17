@@ -17,13 +17,13 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
     private final ClientConnection connection;
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, Packet msg, ByteBuf out) {
+    protected void encode(final ChannelHandlerContext ctx, final Packet msg, final ByteBuf out) {
         assert connection.getState() != null && connection.getState() != PlayerConnection.ClientState.DISCONNECTED;
         final Packet.PacketState packetState = connection.getState().getOut();
         assert packetState != null;
 
         final TranslatorDispatcher dispatcher = connection.getServer().getTranslatorDispatcher();
-        if(!dispatcher.playIn(connection, msg)) return;
+        if (!dispatcher.playIn(connection, msg)) return;
         dispatcher.playInAfter(connection, msg);
 
         out.writeBytes(msg.rawSerialize());

@@ -63,7 +63,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class Machine implements Server {
+public final class Machine implements Server {
 
     public static final String SERVER_BRAND = "Machine";
     public static final String SERVER_IMPLEMENTATION_VERSION = "1.19.2";
@@ -135,24 +135,37 @@ public class Machine implements Server {
         Factories.particleFactory = ParticleFactory::create;
     }
 
-    public static void main(String[] args) throws Exception {
-        if(System.console() == null) return;
+    /**
+     * Machine entry point.
+     * @param args java arguments
+     */
+    public static void main(final String[] args) throws Exception {
+        if (System.console() == null) return;
         new Machine(args);
     }
 
-    private Machine(String[] args) throws Exception {
+    private Machine(final String[] args) throws Exception {
 
         final Set<String> arguments = Set.of(args);
         final long start = System.currentTimeMillis();
 
         final boolean colors = !arguments.contains("nocolors");
-        componentSerializer = new ComponentSerializerImpl(); // TODO register other server related component types (NBTComponent, ScoreComponent, SelectorComponent)
+        // TODO register other server related component types (NBTComponent, ScoreComponent, SelectorComponent)
+        componentSerializer = new ComponentSerializerImpl();
 
         // Setting up console
         try {
             console = new ServerConsole(this, colors);
-            System.setOut(new PrintStream(new FormattedOutputStream(((ServerConsole) console), Level.INFO, "[stdout] ")));
-            System.setErr(new PrintStream(new FormattedOutputStream(((ServerConsole) console), Level.SEVERE, "[stderr] ")));
+            System.setOut(new PrintStream(new FormattedOutputStream((
+                    (ServerConsole) console),
+                    Level.INFO,
+                    "[stdout] "
+            )));
+            System.setErr(new PrintStream(new FormattedOutputStream((
+                    (ServerConsole) console),
+                    Level.SEVERE,
+                    "[stderr] "
+            )));
         } catch (Exception e) {
             System.out.println("Failed to load server console");
             e.printStackTrace();
@@ -164,7 +177,7 @@ public class Machine implements Server {
 
         // Setting up server properties
         File propertiesFile = new File(ServerPropertiesImpl.PROPERTIES_FILE_NAME);
-        if(!propertiesFile.exists()) {
+        if (!propertiesFile.exists()) {
             FileUtils.createFromDefault(propertiesFile);
             FileUtils.createFromDefault(new File(ServerPropertiesImpl.ICON_FILE_NAME));
         }
@@ -183,12 +196,12 @@ public class Machine implements Server {
             System.exit(2);
         }
 
-        if(properties.isOnline()) {
+        if (properties.isOnline()) {
             onlineServer = new OnlineServerImpl(this);
         } else {
-            console.warning("The server will make no attempt to authenticate usernames and encrypt packets. Beware. " +
-                    "While this makes the game possible to play without internet access, it also opens up " +
-                    "the ability for others to connect with any username they choose.");
+            console.warning("The server will make no attempt to authenticate usernames and encrypt packets. Beware. "
+                    + "While this makes the game possible to play without internet access, it also opens up "
+                    + "the ability for others to connect with any username they choose.");
         }
 
         commandDispatcher = new CommandDispatcher<>();
@@ -202,7 +215,7 @@ public class Machine implements Server {
         // Loading dimensions json file
         dimensionTypeManager = new DimensionTypeManagerImpl(this);
         File dimensionsFile = new File(DimensionsJson.DIMENSIONS_FILE_NAME);
-        if(!dimensionsFile.exists())
+        if (!dimensionsFile.exists())
             FileUtils.createFromDefault(dimensionsFile);
         Set<DimensionType> dimensions = new LinkedHashSet<>();
         try {
@@ -212,11 +225,12 @@ public class Machine implements Server {
         }
 
         // Registering all dimensions from the file into the manager
-        if(dimensions.size() == 0) {
-            console.warning("There are no defined dimensions in the dimensions file, loading default dimension instead");
+        if (dimensions.size() == 0) {
+            console.warning("There are no defined dimensions in the dimensions file, "
+                    + "loading default dimension instead");
             dimensionTypeManager.addDimension(DimensionTypeImpl.createDefault());
         } else {
-            for(DimensionType dimension : dimensions)
+            for (DimensionType dimension : dimensions)
                 dimensionTypeManager.addDimension(dimension);
         }
         console.info("Registered " + dimensionTypeManager.getDimensions().size() + " dimension types");
@@ -260,7 +274,7 @@ public class Machine implements Server {
             exceptionHandler.handle(exception, "Failed to load the server worlds from server directory");
         }
 
-        if(worldManager.getWorlds().size() == 0) {
+        if (worldManager.getWorlds().size() == 0) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             try {
                 final File worldJson = new File(WorldJson.WORLD_FILE_NAME);
@@ -273,12 +287,13 @@ public class Machine implements Server {
             }
         }
         defaultWorld = worldManager.getWorld(properties.getDefaultWorld());
-        if(defaultWorld == null) {
+        if (defaultWorld == null) {
             defaultWorld = worldManager.getWorlds().stream().iterator().next();
-            console.warning("Default world in the server properties doesn't exist, using '" + defaultWorld.getName() + "' instead");
+            console.warning("Default world in the server properties doesn't exist, "
+                    + "using '" + defaultWorld.getName() + "' instead");
         }
 
-        for(World world : worldManager.getWorlds()) {
+        for (World world : worldManager.getWorlds()) {
             try {
                 world.load();
             } catch (Exception exception) {
@@ -349,7 +364,7 @@ public class Machine implements Server {
         console.stop();
         console.info("Shutting down...");
         console.info("Saving player data...");
-        for(Player player : playerManager.getPlayers()) {
+        for (Player player : playerManager.getPlayers()) {
             try {
                 player.getConnection().disconnect(TranslationComponent.of("disconnect.closed")).sync();
             } catch (Exception exception) {
@@ -363,7 +378,7 @@ public class Machine implements Server {
         } catch (Exception ignored) { }
         console.info("Connection has been closed");
         console.info("Saving worlds...");
-        for(World world : worldManager.getWorlds()) {
+        for (World world : worldManager.getWorlds()) {
             try {
                 world.save();
             } catch (Exception exception) {

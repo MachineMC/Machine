@@ -23,7 +23,7 @@ public final class ClassUtils {
      * Loads a class.
      * @param classObject class to load
      */
-    public static void loadClass(Class<?> classObject) {
+    public static void loadClass(final Class<?> classObject) {
         try {
             Class.forName(classObject.getName(), true, Machine.CLASS_LOADER);
         } catch (ClassNotFoundException ignored) { }
@@ -34,7 +34,7 @@ public final class ClassUtils {
      * @param basePackage base package of the classes
      * @throws IOException if jar is invalid
      */
-    public static void loadClasses(String basePackage) throws IOException {
+    public static void loadClasses(final String basePackage) throws IOException {
         List<String> classNames = getClasses(basePackage);
         for (String className : classNames) {
             try {
@@ -49,14 +49,15 @@ public final class ClassUtils {
      * @return list of the class inside
      * @throws IOException if jar is invalid
      */
-    public static List<String> getClasses(String basePackage) throws IOException {
+    public static List<String> getClasses(final String basePackage) throws IOException {
         @Cleanup JarFile jar = new JarFile(FileUtils.getMachineJar());
-        basePackage = basePackage.replace('.', '/') + "/";
+        final String packagePath = basePackage.replace('.', '/') + "/";
         List<String> classNames = new ArrayList<>();
-        for (Iterator<JarEntry> entries = jar.entries().asIterator(); entries.hasNext(); ) {
+        for (Iterator<JarEntry> entries = jar.entries().asIterator(); entries.hasNext();) {
             JarEntry entry = entries.next();
-            if (entry.getName().startsWith(basePackage) && entry.getName().endsWith(".class"))
-                classNames.add(entry.getName().replace('/', '.').substring(0, entry.getName().length() - ".class".length()));
+            if (entry.getName().startsWith(packagePath) && entry.getName().endsWith(".class"))
+                classNames.add(entry.getName().replace('/', '.')
+                        .substring(0, entry.getName().length() - ".class".length()));
         }
         return classNames;
     }

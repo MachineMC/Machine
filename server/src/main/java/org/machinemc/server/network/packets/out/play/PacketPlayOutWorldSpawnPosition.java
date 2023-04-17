@@ -25,11 +25,11 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
                 PacketPlayOutWorldSpawnPosition::new);
     }
 
-    public PacketPlayOutWorldSpawnPosition(Location location) {
+    public PacketPlayOutWorldSpawnPosition(final Location location) {
         this(new BlockPosition(location), location.getYaw());
     }
 
-    public PacketPlayOutWorldSpawnPosition(ServerBuffer buf) {
+    public PacketPlayOutWorldSpawnPosition(final ServerBuffer buf) {
         position = buf.readBlockPos();
         angle = buf.readFloat();
     }

@@ -24,7 +24,7 @@ public class PacketStatusOutPong extends PacketOut {
         );
     }
 
-    public PacketStatusOutPong(ServerBuffer buf) {
+    public PacketStatusOutPong(final ServerBuffer buf) {
         payload = buf.readLong();
     }
 

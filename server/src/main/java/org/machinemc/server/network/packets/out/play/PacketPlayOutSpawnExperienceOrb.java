@@ -25,7 +25,7 @@ public class PacketPlayOutSpawnExperienceOrb extends PacketOut {
                 PacketPlayOutSpawnExperienceOrb::new);
     }
 
-    public PacketPlayOutSpawnExperienceOrb(ServerBuffer buf) {
+    public PacketPlayOutSpawnExperienceOrb(final ServerBuffer buf) {
         entityId = buf.readVarInt();
         position = Vector3.of(buf.readDouble(), buf.readDouble(), buf.readDouble());
         count = buf.readByte();

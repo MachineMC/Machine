@@ -50,11 +50,7 @@ tasks {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
     jar {
-        manifest {
-            attributes["Main-Class"] = application.mainClass
-        }
-    }
-    buildAll {
+        dependsOn(checkstyleMain)
         manifest {
             attributes["Main-Class"] = application.mainClass
         }

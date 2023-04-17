@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class EntityUtils {
 
-    private final static AtomicInteger ID_COUNTER = new AtomicInteger(0);
+    private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
 
     private EntityUtils() {
         throw new UnsupportedOperationException();

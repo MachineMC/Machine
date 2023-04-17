@@ -24,7 +24,7 @@ public class PacketPlayOutSystemChatMessage extends PacketOut {
                 PacketPlayOutSystemChatMessage::new);
     }
 
-    public PacketPlayOutSystemChatMessage(ServerBuffer buf) {
+    public PacketPlayOutSystemChatMessage(final ServerBuffer buf) {
         message = buf.readComponent();
         overlay = buf.readBoolean();
     }

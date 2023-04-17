@@ -21,7 +21,7 @@ public final class NetworkUtils {
      * @param port port to check for
      * @return true if available
      */
-    public static boolean available(@Range(from = 0, to = 65536) int port) {
+    public static boolean available(final @Range(from = 0, to = 65536) int port) {
         try {
             @Cleanup ServerSocket serverSocket = new ServerSocket(port);
             serverSocket.setReuseAddress(true);

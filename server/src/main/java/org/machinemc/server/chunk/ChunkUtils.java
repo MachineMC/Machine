@@ -49,7 +49,7 @@ public final class ChunkUtils {
      * @param xyz the coordinate to convert
      * @return the chunk X, Y or Z coordinate
      */
-    public static int getChunkCoordinate(int xyz) {
+    public static int getChunkCoordinate(final int xyz) {
         return xyz >> CHUNK_SIZE_BITS;
     }
 
@@ -60,7 +60,7 @@ public final class ChunkUtils {
      * @param xyz global coordinate
      * @return section coordinate
      */
-    public static int getSectionRelativeCoordinate(int xyz) {
+    public static int getSectionRelativeCoordinate(final int xyz) {
         return xyz & 0xF;
     }
 
@@ -71,8 +71,8 @@ public final class ChunkUtils {
      * @param z z
      * @return an index which can be used to store and retrieve later data linked to a block position
      */
-    public static int getBlockIndex(int x, int y, int z) {
-        if(x > 15 || x < 0 || z > 15 || z < 0 || y > 4096 || y < 0) throw new UnsupportedOperationException();
+    public static int getBlockIndex(final int x, final int y, final int z) {
+        if (x > 15 || x < 0 || z > 15 || z < 0 || y > 4096 || y < 0) throw new UnsupportedOperationException();
         int index = 0;
         index |= (y << 8);
         index |= (z << 4);
@@ -86,7 +86,7 @@ public final class ChunkUtils {
      * @param chunkZ the chunk Z
      * @return the position of the block
      */
-    public static BlockPosition getBlockPosition(int index, int chunkX, int chunkZ) {
+    public static BlockPosition getBlockPosition(final int index, final int chunkX, final int chunkZ) {
         final int x = (index & 0xF) + Chunk.CHUNK_SIZE_X * chunkX;
         final int y = index >> 8;
         final int z = (index & 0xF0) + Chunk.CHUNK_SIZE_Z * chunkZ;
@@ -99,7 +99,7 @@ public final class ChunkUtils {
      * @param bitsPerEntry bits per entry
      * @return encoded blocks
      */
-    public static long[] encodeBlocks(int[] blocks, int bitsPerEntry) {
+    public static long[] encodeBlocks(final int[] blocks, final int bitsPerEntry) {
         final long maxEntryValue = (1L << bitsPerEntry) - 1;
         final int valuesPerLong = (64 / bitsPerEntry);
         final int magicIndex = 3 * (valuesPerLong - 1);

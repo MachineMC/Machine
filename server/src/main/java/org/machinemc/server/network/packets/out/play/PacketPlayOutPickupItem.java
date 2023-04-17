@@ -23,7 +23,7 @@ public class PacketPlayOutPickupItem extends PacketOut {
                 PacketPlayOutPickupItem::new);
     }
 
-    public PacketPlayOutPickupItem(ServerBuffer buf) {
+    public PacketPlayOutPickupItem(final ServerBuffer buf) {
         collectedEntityId = buf.readVarInt();
         collectorEntityId = buf.readVarInt();
         pickupItemCount = buf.readVarInt();

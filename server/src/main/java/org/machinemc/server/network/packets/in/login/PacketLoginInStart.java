@@ -30,7 +30,7 @@ public class PacketLoginInStart extends PacketIn {
         );
     }
 
-    public PacketLoginInStart(ServerBuffer buf) {
+    public PacketLoginInStart(final ServerBuffer buf) {
         username = buf.readString(StandardCharsets.UTF_8);
         if (buf.readBoolean())
             publicKeyData = buf.readPublicKey();

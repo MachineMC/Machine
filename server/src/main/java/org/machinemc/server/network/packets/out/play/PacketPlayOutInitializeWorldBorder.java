@@ -26,7 +26,7 @@ public class PacketPlayOutInitializeWorldBorder extends PacketOut {
                 PacketPlayOutInitializeWorldBorder::new);
     }
 
-    public PacketPlayOutInitializeWorldBorder(ServerBuffer buf) {
+    public PacketPlayOutInitializeWorldBorder(final ServerBuffer buf) {
         x = buf.readDouble();
         z = buf.readDouble();
         oldDiameter = buf.readDouble();

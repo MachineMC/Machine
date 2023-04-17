@@ -11,7 +11,6 @@ import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.scriptive.components.Component;
-import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.server.Machine;
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.packets.out.login.PacketLoginOutDisconnect;
@@ -59,7 +58,7 @@ public class ClientConnection implements PlayerConnection {
     private long keepAliveRequest;
     private long keepAliveResponse;
 
-    public ClientConnection(NettyServer nettyServer, Channel channel) {
+    public ClientConnection(final NettyServer nettyServer, final Channel channel) {
         this.nettyServer = nettyServer;
         this.channel = channel;
         this.address = (InetSocketAddress) channel.remoteAddress();
@@ -71,13 +70,13 @@ public class ClientConnection implements PlayerConnection {
     @Override
     @Synchronized
     public ChannelFuture send(final Packet packet) {
-        if(!channel.isOpen())
+        if (!channel.isOpen())
             throw new IllegalStateException();
-        if(!Packet.PacketState.out().contains(packet.getPacketState())) throw new UnsupportedOperationException();
+        if (!Packet.PacketState.out().contains(packet.getPacketState())) throw new UnsupportedOperationException();
         final ChannelFuture channelfuture = channel.writeAndFlush(packet);
         channelfuture.addListener((ChannelFutureListener) future -> {
-            if(future.cause() == null) return;
-            if(!future.channel().isOpen()) return;
+            if (future.cause() == null) return;
+            if (!future.channel().isOpen()) return;
             server.getExceptionHandler().handle(future.cause());
         });
         return channelfuture;
@@ -97,9 +96,9 @@ public class ClientConnection implements PlayerConnection {
      */
     @Synchronized
     public void setState(final ClientState state) {
-        if(state == ClientState.DISCONNECTED)
+        if (state == ClientState.DISCONNECTED)
             throw new UnsupportedOperationException("You can't set the connection's state to disconnected");
-        if(this.state == ClientState.DISCONNECTED)
+        if (this.state == ClientState.DISCONNECTED)
             throw new UnsupportedOperationException("Connection has been already closed");
         this.state = state;
     }
@@ -110,10 +109,10 @@ public class ClientConnection implements PlayerConnection {
      * @param player new player
      */
     @Synchronized
-    public void setOwner(ServerPlayer player) {
-        if(owner != null)
+    public void setOwner(final ServerPlayer player) {
+        if (owner != null)
             throw new IllegalStateException("Connection has been already initialized");
-        if(!player.getName().equals(loginUsername))
+        if (!player.getName().equals(loginUsername))
             throw new IllegalStateException("Player's name and login name has to match");
         owner = player;
     }
@@ -123,11 +122,10 @@ public class ClientConnection implements PlayerConnection {
      * @param threshold compression threshold
      * @return whether the operation was successful
      */
-    public boolean setCompression(int threshold) {
-        if(state != ClientState.LOGIN) throw new UnsupportedOperationException();
-        if(threshold <= 0) threshold = -1;
+    public boolean setCompression(final int threshold) {
+        if (state != ClientState.LOGIN) throw new UnsupportedOperationException();
         try {
-            if(!send(new PacketLoginOutSetCompression(threshold)).sync().isSuccess())
+            if (!send(new PacketLoginOutSetCompression(threshold)).sync().isSuccess())
                 return false;
             compressionThreshold = threshold;
             return true;
@@ -155,9 +153,9 @@ public class ClientConnection implements PlayerConnection {
      * Starts sending the keep alive packets.
      */
     public void startKeepingAlive() {
-        if(state != ClientState.PLAY)
+        if (state != ClientState.PLAY)
             throw new IllegalStateException("Client isn't in the playing state");
-        if(keepAliveKey != -1)
+        if (keepAliveKey != -1)
             throw new IllegalStateException("Connection is already being kept alive");
 
         keepAliveKey = new Random().nextLong();
@@ -165,13 +163,13 @@ public class ClientConnection implements PlayerConnection {
         keepAliveResponse = System.currentTimeMillis();
 
         Scheduler.task(((input, session) -> {
-            if(state != ClientState.PLAY) {
+            if (state != ClientState.PLAY) {
                 session.stop();
                 return null;
             }
             send(new PacketPlayOutKeepAlive(keepAliveKey));
             keepAliveRequest = System.currentTimeMillis();
-            if(keepAliveRequest - keepAliveResponse > NettyServer.READ_IDLE_TIMEOUT)
+            if (keepAliveRequest - keepAliveResponse > NettyServer.READ_IDLE_TIMEOUT)
                 disconnect();
             return null;
         })).async()
@@ -184,11 +182,11 @@ public class ClientConnection implements PlayerConnection {
      * Is used for responding to the keep alive packet, updates player's latency.
      */
     public void keepAlive() {
-        if(state != ClientState.PLAY)
+        if (state != ClientState.PLAY)
             throw new IllegalStateException("Client isn't in the playing state");
-        if(keepAliveKey == -1)
+        if (keepAliveKey == -1)
             throw new IllegalStateException("Connection isn't being kept alive");
-        if(owner != null) owner.setLatency((int) (System.currentTimeMillis() - keepAliveRequest));
+        if (owner != null) owner.setLatency((int) (System.currentTimeMillis() - keepAliveRequest));
         keepAliveResponse = System.currentTimeMillis();
     }
 
@@ -196,9 +194,9 @@ public class ClientConnection implements PlayerConnection {
     @Override
     public ChannelFuture disconnect(final Component reason) {
         try {
-            if(state == ClientState.LOGIN)
+            if (state == ClientState.LOGIN)
                 this.send(new PacketLoginOutDisconnect(reason));
-            if(state == ClientState.PLAY)
+            if (state == ClientState.PLAY)
                 this.send(new PacketPlayOutDisconnect(reason));
         } catch (Exception ignored) { }
         return close();
@@ -227,7 +225,7 @@ public class ClientConnection implements PlayerConnection {
      * @return secret key used for encryption
      */
     public @Nullable SecretKey getSecretKey() {
-        if(!isOpen()) throw new UnsupportedOperationException();
+        if (!isOpen()) throw new UnsupportedOperationException();
         return secretKey;
     }
 
@@ -236,9 +234,9 @@ public class ClientConnection implements PlayerConnection {
      * @param key new secret key
      */
     @Synchronized
-    public void setSecretKey(SecretKey key) {
-        if(!isOpen()) throw new UnsupportedOperationException();
-        if(secretKey != null)
+    public void setSecretKey(final SecretKey key) {
+        if (!isOpen()) throw new UnsupportedOperationException();
+        if (secretKey != null)
             throw new IllegalStateException("Encryption for the connection is already enabled");
         secretKey = key;
         encryptionContext = new EncryptionContext(
@@ -249,8 +247,10 @@ public class ClientConnection implements PlayerConnection {
 
     /**
      * Context containing ciphers for both encrypting and decrypting.
+     * @param encrypt cipher for encryption
+     * @param decrypt cipher for decryption
      */
-    static record EncryptionContext(Cipher encrypt, Cipher decrypt) {
+    record EncryptionContext(Cipher encrypt, Cipher decrypt) {
     }
 
 }

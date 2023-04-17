@@ -35,7 +35,7 @@ public class PacketPlayInClientInformation extends PacketIn {
                 PacketPlayInClientInformation::new);
     }
 
-    public PacketPlayInClientInformation(ServerBuffer buf) {
+    public PacketPlayInClientInformation(final ServerBuffer buf) {
         locale = buf.readString(StandardCharsets.UTF_8);
         viewDistance = buf.readByte();
         chatMode = ChatMode.fromID(buf.readVarInt());

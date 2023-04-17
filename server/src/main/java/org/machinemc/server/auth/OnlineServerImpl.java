@@ -16,7 +16,7 @@ public class OnlineServerImpl implements OnlineServer {
     private final Machine server;
     protected final KeyPair key;
 
-    public OnlineServerImpl(Machine server) {
+    public OnlineServerImpl(final Machine server) {
         this.server = server;
         key = Crypt.generateKeyPair();
     }

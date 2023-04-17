@@ -23,7 +23,7 @@ public class PacketPlayOutPlayerAbilities extends PacketOut {
                 PacketPlayOutPlayerAbilities::new);
     }
 
-    public PacketPlayOutPlayerAbilities(ServerBuffer buf) {
+    public PacketPlayOutPlayerAbilities(final ServerBuffer buf) {
         flags = buf.readByte();
         flyingSpeed = buf.readFloat();
         fovModifier = buf.readFloat();

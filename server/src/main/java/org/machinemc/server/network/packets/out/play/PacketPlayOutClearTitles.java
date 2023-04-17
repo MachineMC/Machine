@@ -22,7 +22,7 @@ public class PacketPlayOutClearTitles extends PacketOut {
                 PacketPlayOutClearTitles::new);
     }
 
-    public PacketPlayOutClearTitles(ServerBuffer buf) {
+    public PacketPlayOutClearTitles(final ServerBuffer buf) {
         reset = buf.readBoolean();
     }
 

@@ -24,7 +24,7 @@ public class PacketPlayOutSetSubtitleText extends PacketOut {
                 PacketPlayOutSetSubtitleText::new);
     }
 
-    public PacketPlayOutSetSubtitleText(ServerBuffer buf) {
+    public PacketPlayOutSetSubtitleText(final ServerBuffer buf) {
         text = buf.readComponent();
     }
 

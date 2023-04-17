@@ -22,7 +22,7 @@ public class PacketPlayOutUpdateTime extends PacketOut {
                 PacketPlayOutUpdateTime::new);
     }
 
-    public PacketPlayOutUpdateTime(ServerBuffer buf) {
+    public PacketPlayOutUpdateTime(final ServerBuffer buf) {
         worldAge = buf.readLong();
         timeOfDay = buf.readLong();
     }

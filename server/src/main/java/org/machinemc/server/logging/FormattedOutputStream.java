@@ -14,7 +14,7 @@ public class FormattedOutputStream extends FilterOutputStream {
     private final String linePrefix;
     private EolTrackerByteArrayOutputStream buf = new EolTrackerByteArrayOutputStream();
 
-    public FormattedOutputStream(ServerConsole console, Level level, String linePrefix) {
+    public FormattedOutputStream(final ServerConsole console, final Level level, final String linePrefix) {
         super(console.terminal.output());
         this.level = level;
         this.console = console;
@@ -22,7 +22,7 @@ public class FormattedOutputStream extends FilterOutputStream {
     }
 
     @Override
-    public void write(int b) throws IOException {
+    public void write(final int b) throws IOException {
         buf.write(b);
         if (buf.isLineComplete()) {
             String line = new String(buf.toByteArray(), 0, buf.size() - LINE_SEPARATOR.length);

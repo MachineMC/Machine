@@ -1,5 +1,6 @@
 package org.machinemc.server.entities;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.machinemc.server.Machine;
 import org.machinemc.api.entities.Entity;
@@ -19,6 +20,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EntityManagerImpl implements EntityManager {
 
+    @Getter
+    private final Machine server;
     private final Map<UUID, Entity> entityMap = new ConcurrentHashMap<>();
 
     /**
@@ -26,19 +29,19 @@ public class EntityManagerImpl implements EntityManager {
      * @param server server
      * @return new manager
      */
-    public static EntityManagerImpl createDefault(Machine server) {
-        return new EntityManagerImpl();
+    public static EntityManagerImpl createDefault(final Machine server) {
+        return new EntityManagerImpl(server);
     }
 
     @Override
-    public Set<Entity> getEntitiesOfType(EntityType entityType) {
+    public Set<Entity> getEntitiesOfType(final EntityType entityType) {
         return getEntities().stream()
                 .filter(entity -> entity.getEntityType() == entityType)
                 .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
-    public Set<Entity> getEntitiesOfType(EntityType entityType, World world) {
+    public Set<Entity> getEntitiesOfType(final EntityType entityType, final World world) {
         return getEntities(world).stream()
                 .filter(entity -> entity.getEntityType() == entityType)
                 .collect(Collectors.toUnmodifiableSet());
@@ -46,7 +49,7 @@ public class EntityManagerImpl implements EntityManager {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <E extends Entity> Set<E> getEntitiesOfClass(Class<E> entityClass) {
+    public <E extends Entity> Set<E> getEntitiesOfClass(final Class<E> entityClass) {
         return getEntities().stream()
                 .filter(entity -> entityClass.isAssignableFrom(entity.getClass()))
                 .map(entity -> (E) entity)
@@ -55,7 +58,7 @@ public class EntityManagerImpl implements EntityManager {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <E extends Entity> Set<E> getEntitiesOfClass(Class<E> entityClass, World world) {
+    public <E extends Entity> Set<E> getEntitiesOfClass(final Class<E> entityClass, final World world) {
         return getEntities(world).stream()
                 .filter(entity -> entityClass.isAssignableFrom(entity.getClass()))
                 .map(entity -> (E) entity)
@@ -69,27 +72,27 @@ public class EntityManagerImpl implements EntityManager {
     }
 
     @Override
-    public Set<Entity> getEntities(World world) {
+    public Set<Entity> getEntities(final World world) {
         return getEntities((entity -> entity.getWorld().equals(world)));
     }
 
     @Override
-    public Set<Entity> getEntities(Predicate<Entity> predicate) {
+    public Set<Entity> getEntities(final Predicate<Entity> predicate) {
         return getEntities().stream().filter(predicate).collect(Collectors.toSet());
     }
 
     @Override
-    public @Nullable Entity getEntity(UUID uuid) {
+    public @Nullable Entity getEntity(final UUID uuid) {
         return entityMap.get(uuid);
     }
 
     @Override
-    public void addEntity(Entity entity) {
+    public void addEntity(final Entity entity) {
         entityMap.put(entity.getUuid(), entity);
     }
 
     @Override
-    public void removeEntity(Entity entity) {
+    public void removeEntity(final Entity entity) {
         entityMap.remove(entity.getUuid());
     }
 }

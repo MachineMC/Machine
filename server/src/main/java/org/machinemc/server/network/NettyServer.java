@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NettyServer implements ServerConnection {
 
-    public final static int READ_IDLE_TIMEOUT = 30000;
-    public final static int KEEP_ALIVE_FREQ = 20000;
+    public static final int READ_IDLE_TIMEOUT = 30000;
+    public static final int KEEP_ALIVE_FREQ = 20000;
 
     private final EventLoopGroup bossGroup = new NioEventLoopGroup();
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -63,14 +63,14 @@ public class NettyServer implements ServerConnection {
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
         bindFuture = bootstrap.bind(port).addListener(future -> {
-            if(future.isSuccess()) running = true;
+            if (future.isSuccess()) running = true;
         });
         return bindFuture;
     }
 
     @Override
     public ChannelFuture close() {
-        if(bindFuture == null) throw new UnsupportedOperationException("Server hasn't been started yet");
+        if (bindFuture == null) throw new UnsupportedOperationException("Server hasn't been started yet");
         final ChannelFuture future = bindFuture.channel().close();
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
@@ -78,12 +78,12 @@ public class NettyServer implements ServerConnection {
     }
 
     @Override
-    public void broadcastPacket(Packet packet) {
+    public void broadcastPacket(final Packet packet) {
         getClients().forEach(connection -> connection.send(packet));
     }
 
     @Override
-    public ChannelFuture disconnect(PlayerConnection connection) {
+    public ChannelFuture disconnect(final PlayerConnection connection) {
         return connection.disconnect(TranslationComponent.of("disconnect.disconnected"));
     }
 
@@ -92,7 +92,7 @@ public class NettyServer implements ServerConnection {
      */
     class Initializer extends ChannelInitializer<SocketChannel> {
         @Override
-        public void initChannel(@NotNull SocketChannel ch) {
+        public void initChannel(final @NotNull SocketChannel ch) {
             final ClientConnection connection = new ClientConnection(NettyServer.this, ch);
             ch.config().setKeepAlive(true);
             ch.pipeline().addLast(

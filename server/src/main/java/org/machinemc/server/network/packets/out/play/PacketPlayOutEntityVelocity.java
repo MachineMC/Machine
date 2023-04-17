@@ -24,7 +24,7 @@ public class PacketPlayOutEntityVelocity extends PacketOut {
                 PacketPlayOutEntityVelocity::new);
     }
 
-    public PacketPlayOutEntityVelocity(ServerBuffer buf) {
+    public PacketPlayOutEntityVelocity(final ServerBuffer buf) {
         entityId = buf.readVarInt();
         velocityX = buf.readShort();
         velocityY = buf.readShort();

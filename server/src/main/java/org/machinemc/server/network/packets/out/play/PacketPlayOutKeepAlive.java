@@ -12,7 +12,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @ToString
 public class PacketPlayOutKeepAlive extends PacketOut {
 
-    private final static int ID = 0x20;
+    private static final int ID = 0x20;
 
     @Getter @Setter
     private long keepAliveId;
@@ -22,7 +22,7 @@ public class PacketPlayOutKeepAlive extends PacketOut {
                 PacketPlayOutKeepAlive::new);
     }
 
-    public PacketPlayOutKeepAlive(ServerBuffer buf) {
+    public PacketPlayOutKeepAlive(final ServerBuffer buf) {
         keepAliveId = buf.readLong();
     }
 

@@ -56,16 +56,16 @@ public class SectionImpl implements Section {
 
     @Override
     @Synchronized
-    public void mergeData(NBTCompound compound) {
+    public void mergeData(final NBTCompound compound) {
         dataSupplier.get().putAll(compound.clone());
     }
 
     @Override
     @Synchronized
-    public void setData(@Nullable NBTCompound compound) {
+    public void setData(final @Nullable NBTCompound compound) {
         final NBTCompound original = dataSupplier.get();
         original.clear();
-        if(compound != null) original.putAll(compound.clone());
+        if (compound != null) original.putAll(compound.clone());
     }
 
     @Override
@@ -77,7 +77,7 @@ public class SectionImpl implements Section {
     }
 
     @Override
-    public void write(ServerBuffer buf) {
+    public void write(final ServerBuffer buf) {
         buf.writeShort((short) blockPalette.count());
         blockPalette.write(buf);
         biomePalette.write(buf);

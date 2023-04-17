@@ -25,7 +25,7 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
                 PacketPlayOutEntityAnimation::new);
     }
 
-    public PacketPlayOutEntityAnimation(ServerBuffer buf) {
+    public PacketPlayOutEntityAnimation(final ServerBuffer buf) {
         entityId = buf.readVarInt();
         animation = Animation.fromID(buf.readByte());
     }
@@ -61,11 +61,19 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
         CRITICAL_EFFECT,
         MAGIC_CRITICAL_EFFECT;
 
+        /**
+         * @return id of the animation
+         */
         public int getId() {
             return ordinal();
         }
 
-        public static Animation fromID(@Range(from = 0, to = 5) int id) {
+        /**
+         * Returns animation with given id.
+         * @param id id
+         * @return animation
+         */
+        public static Animation fromID(final @Range(from = 0, to = 5) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Animation type");
             return values()[id];
         }

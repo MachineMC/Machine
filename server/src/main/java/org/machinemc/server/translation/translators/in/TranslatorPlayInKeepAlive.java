@@ -7,14 +7,14 @@ import org.machinemc.server.network.packets.in.play.PacketPlayInKeepAlive;
 public class TranslatorPlayInKeepAlive extends PacketTranslator<PacketPlayInKeepAlive> {
 
     @Override
-    public boolean translate(ClientConnection connection, PacketPlayInKeepAlive packet) {
-        if(packet.getKeepAliveId() != connection.getKeepAliveKey()) return false;
+    public boolean translate(final ClientConnection connection, final PacketPlayInKeepAlive packet) {
+        if (packet.getKeepAliveId() != connection.getKeepAliveKey()) return false;
         connection.keepAlive();
         return true;
     }
 
     @Override
-    public void translateAfter(ClientConnection connection, PacketPlayInKeepAlive packet) {
+    public void translateAfter(final ClientConnection connection, final PacketPlayInKeepAlive packet) {
 
     }
 

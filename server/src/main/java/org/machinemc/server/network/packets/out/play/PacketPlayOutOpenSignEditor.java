@@ -23,7 +23,7 @@ public class PacketPlayOutOpenSignEditor extends PacketOut {
                 PacketPlayOutOpenSignEditor::new);
     }
 
-    public PacketPlayOutOpenSignEditor(ServerBuffer buf) {
+    public PacketPlayOutOpenSignEditor(final ServerBuffer buf) {
         position = buf.readBlockPos();
     }
 

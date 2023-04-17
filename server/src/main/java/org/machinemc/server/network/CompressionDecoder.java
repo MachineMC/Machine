@@ -19,8 +19,8 @@ public class CompressionDecoder extends ByteToMessageDecoder {
     private final ClientConnection connection;
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
-        if(!connection.isCompressed()) {
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) {
+        if (!connection.isCompressed()) {
             out.add(in.readBytes(in.readableBytes()));
             return;
         }
@@ -29,7 +29,7 @@ public class CompressionDecoder extends ByteToMessageDecoder {
         final int length = buf.readVarInt();
 
         // Is not compressed
-        if(length == 0) {
+        if (length == 0) {
             out.add(in.readBytes(in.readableBytes()));
             return;
         }

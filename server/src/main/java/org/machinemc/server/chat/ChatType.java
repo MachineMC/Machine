@@ -126,11 +126,19 @@ public enum ChatType implements NBTSerializable {
     @Getter(AccessLevel.PROTECTED)
     protected final Element narrationElement;
 
+    /**
+     * @return id of the chat type
+     */
     public int getId() {
         return ordinal();
     }
 
-    public static ChatType fromID(@Range(from = 0, to = 7) int id) {
+    /**
+     * Returns chat type with given id.
+     * @param id id
+     * @return chat type
+     */
+    public static ChatType fromID(final @Range(from = 0, to = 7) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported Chat type");
         return values()[id];
     }
@@ -151,6 +159,11 @@ public enum ChatType implements NBTSerializable {
     /**
      * Chat and Narration types of chat types, contain information
      * about their parameters, translation key and chat format.
+     * @param type type of the element
+     * @param parameters parameters of the element
+     * @param translationKey translation key of the element
+     * @param format format of the element
+     * @param font font of the element
      */
     protected record Element(ElementType type,
                              Set<Parameter> parameters,
@@ -169,9 +182,13 @@ public enum ChatType implements NBTSerializable {
          * @param parameters parameters of the element
          * @param translationKey translation key of the element
          * @param format chat format of the element
+         * @param font font of the element
          * @return created chat type element
          */
-        public static Element chat(Set<Parameter> parameters, String translationKey, @Nullable TextFormat format, @Nullable NamespacedKey font) {
+        public static Element chat(final Set<Parameter> parameters,
+                                   final String translationKey,
+                                   final @Nullable TextFormat format,
+                                   final @Nullable NamespacedKey font) {
             return new Element(ElementType.CHAT, parameters, translationKey, format, font);
         }
         /**
@@ -179,9 +196,13 @@ public enum ChatType implements NBTSerializable {
          * @param parameters parameters of the element
          * @param translationKey translation key of the element
          * @param format chat format of the element
+         * @param font font of the element
          * @return created chat type element
          */
-        public static Element narration(Set<Parameter> parameters, String translationKey, @Nullable TextFormat format, @Nullable NamespacedKey font) {
+        public static Element narration(final Set<Parameter> parameters,
+                                        final String translationKey,
+                                        final @Nullable TextFormat format,
+                                        final @Nullable NamespacedKey font) {
             return new Element(ElementType.NARRATION, parameters, translationKey, format, font);
         }
 
@@ -189,7 +210,7 @@ public enum ChatType implements NBTSerializable {
         public NBTCompound toNBT() {
             final NBTList parameters = new NBTList(this.parameters.stream().map(Parameter::getName).toList());
             final Map<String, String> styleMap = new HashMap<>();
-            if(format != null) {
+            if (format != null) {
                 Map<ChatStyle, Boolean> styles = format.getStyles();
                 for (Map.Entry<ChatStyle, Boolean> entry : styles.entrySet()) {
                     if (entry.getValue() != null)
@@ -200,7 +221,7 @@ public enum ChatType implements NBTSerializable {
                     styleMap.put("font", font.toString());
             }
             NBTCompound style = new NBTCompound();
-            for(String key : styleMap.keySet())
+            for (String key : styleMap.keySet())
                 style.set(key, styleMap.get(key));
             return new NBTCompound(Map.of(
                     "translation_key", translationKey,

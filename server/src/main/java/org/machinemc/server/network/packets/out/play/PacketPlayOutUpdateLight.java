@@ -24,7 +24,7 @@ public class PacketPlayOutUpdateLight extends PacketOut {
                 PacketPlayOutUpdateLight::new);
     }
 
-    public PacketPlayOutUpdateLight(ServerBuffer buf) {
+    public PacketPlayOutUpdateLight(final ServerBuffer buf) {
         chunkX = buf.readVarInt();
         chunkZ = buf.readVarInt();
         lightData = new LightData(buf);

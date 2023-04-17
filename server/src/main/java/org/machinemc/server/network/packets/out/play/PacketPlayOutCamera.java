@@ -22,7 +22,7 @@ public class PacketPlayOutCamera extends PacketOut {
                 PacketPlayOutCamera::new);
     }
 
-    public PacketPlayOutCamera(ServerBuffer buf) {
+    public PacketPlayOutCamera(final ServerBuffer buf) {
         cameraId = buf.readVarInt();
     }
 

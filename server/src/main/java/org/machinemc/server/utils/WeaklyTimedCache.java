@@ -30,7 +30,7 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     private final long delay;
     private final TimeUnit referenceTime;
 
-    public WeaklyTimedCache(long delay, TimeUnit referenceTime) {
+    public WeaklyTimedCache(final long delay, final TimeUnit referenceTime) {
         delegating = CacheBuilder.newBuilder()
                 .weakValues()
                 .build();
@@ -39,9 +39,14 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     }
 
     /**
+     * Creates nre weakly timed cache from an exisiting builder.
+     * @param builder builder
+     * @param delay delay of removing the entry after it's
+     *              referenced only in the cache itself
+     * @param referenceTime time unit for delay
      * @apiNote automatically assigns weak values to the provided builder
      */
-    public WeaklyTimedCache(CacheBuilder<K, V> builder, long delay, TimeUnit referenceTime) {
+    public WeaklyTimedCache(final CacheBuilder<K, V> builder, final long delay, final TimeUnit referenceTime) {
         delegating = builder
                 .weakValues()
                 .build();
@@ -52,7 +57,7 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     @Override
     public @Nullable V getIfPresent(final @NotNull K key) {
         final V value = delegating.getIfPresent(key);
-        if(value == null) return null;
+        if (value == null) return null;
         executor.schedule(() -> eat(value), delay, referenceTime);
         return value;
     }
@@ -114,7 +119,7 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     @Deprecated
     public V get(final @NotNull K key) throws ExecutionException {
         final V value = delegating.get(key);
-        if(value == null) return null;
+        if (value == null) return null;
         executor.schedule(() -> eat(value), delay, referenceTime);
         return value;
     }
@@ -123,7 +128,7 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     @Deprecated
     public V getUnchecked(final @NotNull K key) {
         final V value = delegating.getUnchecked(key);
-        if(value == null) return null;
+        if (value == null) return null;
         executor.schedule(() -> eat(value), delay, referenceTime);
         return value;
     }
@@ -132,12 +137,12 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     @Deprecated
     public V apply(final @NotNull K key) {
         final V value = delegating.apply(key);
-        if(value == null) return null;
+        if (value == null) return null;
         executor.schedule(() -> eat(value), delay, referenceTime);
         return value;
     }
 
-    private void eat(@SuppressWarnings("unused") V value) {
+    private void eat(final @SuppressWarnings("unused") V value) {
 
     }
 

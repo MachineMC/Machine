@@ -25,7 +25,7 @@ public class PacketPlayOutWorldEvent extends PacketOut {
                 PacketPlayOutWorldEvent::new);
     }
 
-    public PacketPlayOutWorldEvent(ServerBuffer buf) {
+    public PacketPlayOutWorldEvent(final ServerBuffer buf) {
         event = buf.readInt();
         position = buf.readBlockPos();
         data = buf.readInt();

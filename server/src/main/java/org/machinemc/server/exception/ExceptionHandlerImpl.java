@@ -19,38 +19,39 @@ public class ExceptionHandlerImpl implements ExceptionHandler, ServerProperty {
     private final Machine server;
     private final Console console;
 
-    public ExceptionHandlerImpl(Machine server) {
+    public ExceptionHandlerImpl(final Machine server) {
         this.server = server;
         this.console = server.getConsole();
     }
 
     @Override
-    public void handle(Throwable throwable) {
+    public void handle(final Throwable throwable) {
         handle(throwable, null);
     }
 
     @Override
-    public void handle(Throwable throwable, @Nullable String reason) {
-        if(throwable instanceof ClientException clientException) {
+    public void handle(final Throwable throwable, final @Nullable String reason) {
+        if (throwable instanceof ClientException clientException) {
             handle(clientException);
             return;
         }
-        while(throwable.getCause() != null)
-            throwable = throwable.getCause();
-        console.severe(server + " generated " + throwable.getClass().getName(),
-                "Reason: " + (reason != null ? reason : throwable.getMessage()),
+        Throwable initialCause = throwable;
+        while (initialCause.getCause() != null)
+            initialCause = initialCause.getCause();
+        console.severe(server + " generated " + initialCause.getClass().getName(),
+                "Reason: " + (reason != null ? reason : initialCause.getMessage()),
                 "Stack trace: ");
-        console.severe(Arrays.stream(throwable.getStackTrace()).map(Object::toString).toArray(String[]::new));
+        console.severe(Arrays.stream(initialCause.getStackTrace()).map(Object::toString).toArray(String[]::new));
     }
 
     /**
      * Handles client exception specifically.
      * @param exception client exception to handle
      */
-    protected void handle(ClientException exception) {
+    protected void handle(final ClientException exception) {
         final ClientConnection connection = exception.getConnection();
         Throwable throwable = exception;
-        while(throwable.getCause() != null)
+        while (throwable.getCause() != null)
             throwable = throwable.getCause();
         server.getConsole().severe("Client generated " + throwable.getClass().getName(),
                 "Login username: " + connection.getLoginUsername(),

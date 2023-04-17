@@ -23,7 +23,7 @@ public class PacketPlayOutSetTitleText extends PacketOut {
                 PacketPlayOutSetTitleText::new);
     }
 
-    public PacketPlayOutSetTitleText(ServerBuffer buf) {
+    public PacketPlayOutSetTitleText(final ServerBuffer buf) {
         text = buf.readComponent();
     }
 

@@ -23,7 +23,7 @@ public class PacketPlayOutBorderLerpSize extends PacketOut {
                 PacketPlayOutBorderLerpSize::new);
     }
 
-    public PacketPlayOutBorderLerpSize(ServerBuffer buf) {
+    public PacketPlayOutBorderLerpSize(final ServerBuffer buf) {
         oldDiameter = buf.readDouble();
         newDiameter = buf.readDouble();
         speed = buf.readVarLong();

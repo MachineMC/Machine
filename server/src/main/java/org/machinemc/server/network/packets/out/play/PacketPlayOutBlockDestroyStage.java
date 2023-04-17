@@ -25,7 +25,7 @@ public class PacketPlayOutBlockDestroyStage extends PacketOut {
                 PacketPlayOutBlockDestroyStage::new);
     }
 
-    public PacketPlayOutBlockDestroyStage(ServerBuffer buf) {
+    public PacketPlayOutBlockDestroyStage(final ServerBuffer buf) {
         entityId = buf.readVarInt();
         position = buf.readBlockPos();
         destroyStage = buf.readByte();

@@ -50,7 +50,7 @@ public class PacketPlayOutLogin extends PacketOut {
         );
     }
 
-    public PacketPlayOutLogin(ServerBuffer buf) {
+    public PacketPlayOutLogin(final ServerBuffer buf) {
         entityID = buf.readInt();
         isHardcore = buf.readBoolean();
         gamemode = Gamemode.fromID(buf.readByte());

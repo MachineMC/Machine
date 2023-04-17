@@ -18,14 +18,14 @@ import java.util.Optional;
  * Default implementation of the particle.
  */
 @ToString
-public class ParticleImpl implements Particle {
+public final class ParticleImpl implements Particle {
 
     @Getter @Setter
     private ParticleType type;
     @Setter
     private ParticleOptions options;
 
-    private ParticleImpl(ParticleType type) {
+    private ParticleImpl(final ParticleType type) {
         this.type = type;
     }
 
@@ -34,7 +34,7 @@ public class ParticleImpl implements Particle {
      * @param type type of the particle
      * @return particle created from the given type
      */
-    public static Particle of(ParticleType type) {
+    public static Particle of(final ParticleType type) {
         return ParticleFactory.create(type);
     }
 
@@ -44,7 +44,7 @@ public class ParticleImpl implements Particle {
      * @param options options of the particle
      * @return particle created from the given type and options
      */
-    public static Particle of(ParticleType type, @Nullable ParticleOptions options) {
+    public static Particle of(final ParticleType type, final @Nullable ParticleOptions options) {
         ParticleImpl particle = new ParticleImpl(type);
         particle.options = options;
         return particle;
@@ -55,7 +55,7 @@ public class ParticleImpl implements Particle {
      * @param buf buffer with particle id and options
      * @return particle created from the buffer
      */
-    public static Particle fromBuffer(FriendlyByteBuf buf) {
+    public static Particle fromBuffer(final FriendlyByteBuf buf) {
         ParticleType type = ParticleType.fromID(buf.readVarInt());
         return ParticleFactory.create(type, buf);
     }
@@ -68,16 +68,16 @@ public class ParticleImpl implements Particle {
     }
 
     @Override
-    public void write(ServerBuffer buf) {
+    public void write(final ServerBuffer buf) {
         buf.writeVarInt(type.getId());
-        if(options != null)
+        if (options != null)
             buf.write(options);
     }
 
     @Override
     public NBTCompound toNBT() {
         NBTCompound particle = new NBTCompound(Map.of("type", type.getName().getKey()));
-        if(options == null) return particle;
+        if (options == null) return particle;
         particle.putAll(options.toNBT());
         return particle;
     }

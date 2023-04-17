@@ -30,7 +30,7 @@ public class PacketPlayOutResourcePack extends PacketOut {
                 PacketPlayOutResourcePack::new);
     }
 
-    public PacketPlayOutResourcePack(ServerBuffer buf) {
+    public PacketPlayOutResourcePack(final ServerBuffer buf) {
         url = buf.readString(StandardCharsets.UTF_8);
         hash = buf.readString(StandardCharsets.UTF_8);
         forced = buf.readBoolean();

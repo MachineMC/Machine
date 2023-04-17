@@ -29,7 +29,9 @@ public class PlayerProfileImpl implements PlayerProfile {
      * @param textures textures of the player
      * @return new player profile
      */
-    public static PlayerProfile online(String username, UUID uuid, @Nullable PlayerTexturesImpl textures) {
+    public static PlayerProfile online(final String username,
+                                       final UUID uuid,
+                                       final @Nullable PlayerTexturesImpl textures) {
         return new PlayerProfileImpl(
                 username,
                 uuid,
@@ -43,7 +45,7 @@ public class PlayerProfileImpl implements PlayerProfile {
      * @param username username of the player
      * @return new player profile
      */
-    public static PlayerProfile offline(String username) {
+    public static PlayerProfile offline(final String username) {
         return new PlayerProfileImpl(
                 username,
                 MojangAuth.getOfflineUUID(username),

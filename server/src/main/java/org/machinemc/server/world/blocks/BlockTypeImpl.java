@@ -31,26 +31,26 @@ public class BlockTypeImpl implements BlockType {
 
     private final List<BlockHandler> handlers = new CopyOnWriteArrayList<>();
 
-    public BlockTypeImpl(NamespacedKey name,
-                         BlockType.BlockProperties properties,
-                         BlockData defaultBlockData) {
+    public BlockTypeImpl(final NamespacedKey name,
+                         final BlockType.BlockProperties properties,
+                         final BlockData defaultBlockData) {
         this.name = name;
         this.properties = properties;
         blockDataProvider = (state -> defaultBlockData);
         dynamicVisual = false;
     }
 
-    public BlockTypeImpl(NamespacedKey name,
-                         BlockType.BlockProperties properties,
-                         Function<WorldBlock.State, BlockData> blockDataProvider,
-                         boolean dynamicVisual,
-                         BlockHandler defaultHandler) {
+    public BlockTypeImpl(final NamespacedKey name,
+                         final BlockType.BlockProperties properties,
+                         final Function<WorldBlock.State, BlockData> blockDataProvider,
+                         final boolean dynamicVisual,
+                         final BlockHandler defaultHandler) {
         this(name, properties, blockDataProvider, dynamicVisual);
         addHandler(defaultHandler);
     }
 
     @Override
-    public BlockData getBlockData(WorldBlock.@Nullable State block) {
+    public BlockData getBlockData(final WorldBlock.@Nullable State block) {
         return blockDataProvider.apply(block);
     }
 
@@ -65,12 +65,12 @@ public class BlockTypeImpl implements BlockType {
     }
 
     @Override
-    public void addHandler(BlockHandler handler) {
+    public void addHandler(final BlockHandler handler) {
         handlers.add(handler);
     }
 
     @Override
-    public boolean removeHandler(BlockHandler handler) {
+    public boolean removeHandler(final BlockHandler handler) {
         return handlers.remove(handler);
     }
 

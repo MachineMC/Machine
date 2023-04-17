@@ -22,17 +22,18 @@ public class WorldManagerImpl implements WorldManager {
     private final Machine server;
 
     @Override
-    public void addWorld(World world) {
-        if(world.getManagerReference().get() != null && world.getManagerReference().get() != this)
-            throw new IllegalStateException("World '" + world.getName() + "' is already registered in a different WorldManager");
+    public void addWorld(final World world) {
+        if (world.getManagerReference().get() != null && world.getManagerReference().get() != this)
+            throw new IllegalStateException("World '" + world.getName() + "' is already registered "
+                    + "in a different WorldManager");
         world.getManagerReference().set(this);
         worlds.add(world);
     }
 
     @Override
-    public boolean removeWorld(World world) {
-        if(world.getManagerReference().get() != this) return false;
-        if(worlds.remove(world)) {
+    public boolean removeWorld(final World world) {
+        if (world.getManagerReference().get() != this) return false;
+        if (worlds.remove(world)) {
             world.getManagerReference().set(null);
             return true;
         }
@@ -40,21 +41,21 @@ public class WorldManagerImpl implements WorldManager {
     }
 
     @Override
-    public boolean isRegistered(NamespacedKey name) {
+    public boolean isRegistered(final NamespacedKey name) {
         final World world = getWorld(name);
-        if(world == null) return false;
+        if (world == null) return false;
         return isRegistered(world);
     }
 
     @Override
-    public boolean isRegistered(World world) {
+    public boolean isRegistered(final World world) {
         return worlds.contains(world);
     }
 
     @Override
-    public World getWorld(NamespacedKey name) {
-        for(World world : getWorlds()) {
-            if(!(world.getName().equals(name))) continue;
+    public World getWorld(final NamespacedKey name) {
+        for (World world : getWorlds()) {
+            if (!(world.getName().equals(name))) continue;
             return world;
         }
         return null;

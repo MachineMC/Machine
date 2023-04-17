@@ -60,7 +60,7 @@ public abstract class ServerEntity implements Entity {
     @Getter @Setter
     private int portalCooldown;
 
-    public ServerEntity(Machine server, EntityType entityType, UUID uuid) {
+    public ServerEntity(final Machine server, final EntityType entityType, final UUID uuid) {
         this.server = server;
         this.entityType = entityType;
         this.uuid = uuid;
@@ -81,7 +81,7 @@ public abstract class ServerEntity implements Entity {
     }
 
     @Override
-    public void setCustomName(@Nullable Component customName) {
+    public void setCustomName(final @Nullable Component customName) {
         // TODO set custom name metadata
     }
 
@@ -92,7 +92,7 @@ public abstract class ServerEntity implements Entity {
     }
 
     @Override
-    public void setCustomNameVisible(boolean customNameVisible) {
+    public void setCustomNameVisible(final boolean customNameVisible) {
         // TODO metadata
     }
 
@@ -107,12 +107,12 @@ public abstract class ServerEntity implements Entity {
     }
 
     @Override
-    public boolean addTag(String tag) {
+    public boolean addTag(final String tag) {
         return tags.size() < 1024 && tags.add(tag);
     }
 
     @Override
-    public boolean removeTag(String tag) {
+    public boolean removeTag(final String tag) {
         return tags.remove(tag);
     }
 
@@ -171,7 +171,7 @@ public abstract class ServerEntity implements Entity {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void load(NBTCompound nbtCompound) {
+    public void load(final NBTCompound nbtCompound) {
         List<Double> pos = (List<Double>) ((NBTList) nbtCompound.get("Pos")).revert();
         List<Double> motion = (List<Double>) ((NBTList) nbtCompound.get("Motion")).revert();
         List<Float> rotation = (List<Float>) ((NBTList) nbtCompound.get("Rotation")).revert();

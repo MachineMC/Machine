@@ -23,7 +23,7 @@ public class PacketPlayOutCloseContainer extends PacketOut {
                 PacketPlayOutCloseContainer::new);
     }
 
-    public PacketPlayOutCloseContainer(ServerBuffer buf) {
+    public PacketPlayOutCloseContainer(final ServerBuffer buf) {
         windowId = buf.readByte();
     }
 

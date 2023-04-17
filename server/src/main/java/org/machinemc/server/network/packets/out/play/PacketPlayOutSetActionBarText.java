@@ -23,7 +23,7 @@ public class PacketPlayOutSetActionBarText extends PacketOut {
                 PacketPlayOutSetActionBarText::new);
     }
 
-    public PacketPlayOutSetActionBarText(ServerBuffer buf) {
+    public PacketPlayOutSetActionBarText(final ServerBuffer buf) {
         actionBar = buf.readComponent();
     }
 

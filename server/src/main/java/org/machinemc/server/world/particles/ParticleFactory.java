@@ -18,11 +18,14 @@ import java.util.function.Supplier;
 public final class ParticleFactory {
 
     private static final Map<ParticleType, ParticleCreator> CREATOR_MAP = new HashMap<>();
-    private static final Map<Class<? extends ParticleOptions>, Supplier<? extends ParticleOptions>> DEFAULT_OPTIONS_MAP = new HashMap<>();
+    private static final Map<
+            Class<? extends ParticleOptions>,
+            Supplier<? extends ParticleOptions>
+            > DEFAULT_OPTIONS_MAP = new HashMap<>();
 
     static {
-        CREATOR_MAP.put(ParticleType.AMBIENT_ENTITY_EFFECT, ParticleCreator.empty);
-        CREATOR_MAP.put(ParticleType.ANGRY_VILLAGER, ParticleCreator.empty);
+        CREATOR_MAP.put(ParticleType.AMBIENT_ENTITY_EFFECT, ParticleCreator.EMPTY);
+        CREATOR_MAP.put(ParticleType.ANGRY_VILLAGER, ParticleCreator.EMPTY);
         CREATOR_MAP.put(ParticleType.BLOCK, ((type, buf) -> ParticleImpl.of(type, new BlockOptionsImpl(buf))));
         try {
             ClassUtils.loadClasses(ParticleFactory.class.getPackageName());
@@ -40,8 +43,9 @@ public final class ParticleFactory {
      * @param <T> options
      * @throws UnsupportedOperationException if the options class isn't interface
      */
-    public static <T extends ParticleOptions> void registerOption(Class<T> optionsClass, Supplier<T> supplier) {
-        if(!optionsClass.isInterface())
+    public static <T extends ParticleOptions> void registerOption(final Class<T> optionsClass,
+                                                                  final Supplier<T> supplier) {
+        if (!optionsClass.isInterface())
             throw new UnsupportedOperationException();
         DEFAULT_OPTIONS_MAP.put(optionsClass, supplier);
     }
@@ -53,7 +57,7 @@ public final class ParticleFactory {
      * @param buf particle options
      * @return new particle
      */
-    public static Particle create(ParticleType type, ServerBuffer buf) {
+    public static Particle create(final ParticleType type, final ServerBuffer buf) {
         return CREATOR_MAP.get(type).create(type, buf);
     }
 
@@ -62,7 +66,7 @@ public final class ParticleFactory {
      * @param type type of the particle
      * @return new particle
      */
-    public static Particle create(ParticleType type) {
+    public static Particle create(final ParticleType type) {
         return ParticleImpl.of(type, DEFAULT_OPTIONS_MAP.get(type.getOptions()).get());
     }
 

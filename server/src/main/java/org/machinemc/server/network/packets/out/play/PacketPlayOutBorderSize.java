@@ -22,7 +22,7 @@ public class PacketPlayOutBorderSize extends PacketOut {
                 PacketPlayOutBorderSize::new);
     }
 
-    public PacketPlayOutBorderSize(ServerBuffer buf) {
+    public PacketPlayOutBorderSize(final ServerBuffer buf) {
         diameter = buf.readDouble();
     }
 

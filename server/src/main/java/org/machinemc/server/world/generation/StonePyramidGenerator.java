@@ -28,21 +28,21 @@ public class StonePyramidGenerator implements Generator {
 
     private final Biome biome;
 
-    public StonePyramidGenerator(Machine server, long seed) {
+    public StonePyramidGenerator(final Machine server, final long seed) {
         this.server = server;
         this.seed = seed;
         final BlockManager manager = server.getBlockManager();
         final BlockType air = manager.getBlockType(NamespacedKey.minecraft("air"));
         final BlockType stone = manager.getBlockType(NamespacedKey.minecraft("stone"));
         final BlockType sign = manager.getBlockType(NamespacedKey.minecraft("oak_sign"));
-        if(air == null || stone == null || sign == null) throw new IllegalStateException();
+        if (air == null || stone == null || sign == null) throw new IllegalStateException();
         this.air = air;
         this.stone = stone;
         this.sign = sign;
         Biome biome = server.getBiome(NamespacedKey.minecraft("plains"));
-        if(biome == null)
+        if (biome == null)
             biome = server.getBiomeManager().getBiomes().stream().iterator().next();
-        if(biome == null) throw new IllegalStateException();
+        if (biome == null) throw new IllegalStateException();
         this.biome = biome;
     }
 
@@ -52,8 +52,11 @@ public class StonePyramidGenerator implements Generator {
     }
 
     @Override
-    public GeneratedSection populateChunk(int chunkX, int chunkZ, int sectionIndex, World world) {
-        if(sectionIndex < 4) {
+    public GeneratedSection populateChunk(final int chunkX,
+                                          final int chunkZ,
+                                          final int sectionIndex,
+                                          final World world) {
+        if (sectionIndex < 4) {
             return new GeneratedSectionImpl(
                     new BlockType[]{stone},
                     new short[GeneratedSection.BLOCK_DATA_SIZE],
@@ -61,7 +64,7 @@ public class StonePyramidGenerator implements Generator {
                     new short[GeneratedSection.BLOCK_DATA_SIZE],
                     new NBTCompound[GeneratedSection.BLOCK_DATA_SIZE]);
         }
-        if(sectionIndex > 4) {
+        if (sectionIndex > 4) {
             return new GeneratedSectionImpl(
                     new BlockType[]{air},
                     new short[GeneratedSection.BLOCK_DATA_SIZE],
@@ -74,7 +77,7 @@ public class StonePyramidGenerator implements Generator {
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                final int h = Math.abs(x-8) + Math.abs(z-8) - 1;
+                final int h = Math.abs(x - 8) + Math.abs(z - 8) - 1;
                 for (int y = 0; y < 16; y++) {
                     data[Section.index(x, y, z)] = (short) (y < h ? 1 : 0);
                 }

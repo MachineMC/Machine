@@ -6,7 +6,6 @@ import org.machinemc.api.utils.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.world.dimensions.DimensionType;
-import org.machinemc.nbt.NBTCompound;
 
 import java.util.Map;
 

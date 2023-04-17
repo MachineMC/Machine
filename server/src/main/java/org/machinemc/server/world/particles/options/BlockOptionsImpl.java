@@ -32,14 +32,14 @@ public class BlockOptionsImpl implements BlockOptions {
         this.blockData = Material.STONE.createBlockData();
     }
 
-    public BlockOptionsImpl(ServerBuffer buf) {
+    public BlockOptionsImpl(final ServerBuffer buf) {
         final BlockData blockData = BlockDataImpl.getBlockData(buf.readVarInt());
         this.blockData = blockData != null ? blockData : DEFAULT_LOOK.createBlockData();
     }
 
     @Override
     public NBTCompound toNBT() {
-        if(blockData.getMaterial() == null)
+        if (blockData.getMaterial() == null)
             return new NBTCompound(Map.of("Name", DEFAULT_LOOK.getName().toString()));
         return new NBTCompound(Map.of(
                 "Name", blockData.getMaterial().getName().toString()
@@ -48,7 +48,7 @@ public class BlockOptionsImpl implements BlockOptions {
     }
 
     @Override
-    public void write(ServerBuffer buf) {
+    public void write(final ServerBuffer buf) {
         buf.writeVarInt(blockData.getId());
     }
 

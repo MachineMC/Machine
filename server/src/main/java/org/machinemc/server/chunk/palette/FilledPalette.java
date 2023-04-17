@@ -15,12 +15,12 @@ public class FilledPalette implements Palette {
     protected final int value;
 
     @Override
-    public int get(int x, int y, int z) {
+    public int get(final int x, final int y, final int z) {
         return value;
     }
 
     @Override
-    public void getAll(EntryConsumer consumer) {
+    public void getAll(final EntryConsumer consumer) {
         final byte dimension = this.dimension;
         final int value = this.value;
         for (byte x = 0; x < dimension; x++)
@@ -30,32 +30,32 @@ public class FilledPalette implements Palette {
     }
 
     @Override
-    public void getAllPresent(EntryConsumer consumer) {
+    public void getAllPresent(final EntryConsumer consumer) {
         if (value != 0) getAll(consumer);
     }
 
     @Override
-    public void set(int x, int y, int z, int value) {
+    public void set(final int x, final int y, final int z, final int value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void fill(int value) {
+    public void fill(final int value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void setAll(EntrySupplier supplier) {
+    public void setAll(final EntrySupplier supplier) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void replace(int x, int y, int z, int value) {
+    public void replace(final int x, final int y, final int z, final int value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void replaceAll(EntryFunction function) {
+    public void replaceAll(final EntryFunction function) {
         throw new UnsupportedOperationException();
     }
 
@@ -89,7 +89,7 @@ public class FilledPalette implements Palette {
     }
 
     @Override
-    public void write(ServerBuffer buf) {
+    public void write(final ServerBuffer buf) {
         buf.writeByte((byte) 0);
         buf.writeVarInt(value);
         buf.writeVarInt(0);

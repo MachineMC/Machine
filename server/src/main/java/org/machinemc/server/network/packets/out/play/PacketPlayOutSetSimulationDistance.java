@@ -22,7 +22,7 @@ public class PacketPlayOutSetSimulationDistance extends PacketOut {
                 PacketPlayOutSetSimulationDistance::new);
     }
 
-    public PacketPlayOutSetSimulationDistance(ServerBuffer buf) {
+    public PacketPlayOutSetSimulationDistance(final ServerBuffer buf) {
         distance = buf.readVarInt();
     }
 

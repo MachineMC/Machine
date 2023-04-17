@@ -23,7 +23,7 @@ public class PacketLoginOutSetCompression extends PacketOut {
         );
     }
 
-    public PacketLoginOutSetCompression(ServerBuffer buf) {
+    public PacketLoginOutSetCompression(final ServerBuffer buf) {
         threshold = buf.readVarInt();
     }
 

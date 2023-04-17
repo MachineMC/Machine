@@ -26,7 +26,7 @@ public class PacketPlayInChatMessage extends PacketIn {
                 PacketPlayInChatMessage::new);
     }
 
-    public PacketPlayInChatMessage(ServerBuffer buf) {
+    public PacketPlayInChatMessage(final ServerBuffer buf) {
         message = buf.readString(StandardCharsets.UTF_8);
         messageSignature = buf.readSignature();
     }

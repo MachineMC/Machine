@@ -36,7 +36,7 @@ public final class NamespacedKey {
     @Contract("_, _ -> new")
     public static NamespacedKey of(final String namespace, final String key) {
         if (!isValidNamespacedKey(namespace, key))
-            throw new IllegalArgumentException("The key '" + namespace + ":" + key + "'"
+            throw new IllegalArgumentException("The key '" + namespace + ":" + key + "' "
                     + "doesn't match the identifier format.");
         return new NamespacedKey(namespace, key);
     }
@@ -51,7 +51,7 @@ public final class NamespacedKey {
     public static NamespacedKey parse(final String namespacedKey) {
         String[] key = parseNamespacedKey(namespacedKey);
         if (key == null)
-            throw new IllegalArgumentException("The namespaced key '" + namespacedKey + "'"
+            throw new IllegalArgumentException("The namespaced key '" + namespacedKey + "' "
                     + "does not have a separator character ':'");
 
         return NamespacedKey.of(key[0], key[1]);

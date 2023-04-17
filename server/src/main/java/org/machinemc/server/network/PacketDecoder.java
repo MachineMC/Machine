@@ -31,19 +31,19 @@ public class PacketDecoder extends ByteToMessageDecoder {
         final Packet packet;
         try {
             packet = PacketFactory.produce(PacketFactory.getPacketByRawId(buf.readVarInt(), packetState), buf);
-            if(packet == null) return;
+            if (packet == null) return;
         } catch (Throwable throwable) {
             return;
         }
 
         final TranslatorDispatcher dispatcher = connection.getServer().getTranslatorDispatcher();
 
-        if(!dispatcher.playIn(connection, packet)) return;
+        if (!dispatcher.playIn(connection, packet)) return;
         dispatcher.playInAfter(connection, packet);
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         connection.getServer().getExceptionHandler().handle(new ClientException(connection, cause));
     }
 

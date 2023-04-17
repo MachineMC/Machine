@@ -26,7 +26,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
                 PacketPlayOutChangeDifficulty::new);
     }
 
-    public PacketPlayOutChangeDifficulty(ServerBuffer buf) {
+    public PacketPlayOutChangeDifficulty(final ServerBuffer buf) {
         difficulty = Difficulty.fromID(buf.readByte());
         buf.readBoolean();
     }

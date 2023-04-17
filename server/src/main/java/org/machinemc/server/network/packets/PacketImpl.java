@@ -22,6 +22,9 @@ public abstract class PacketImpl implements Packet {
      */
     public abstract byte[] serialize();
 
+    /**
+     * @return clone of the packet
+     */
     public abstract PacketImpl clone();
 
     /**
@@ -52,9 +55,9 @@ public abstract class PacketImpl implements Packet {
      * @param threshold threshold
      * @return serialized compressed packet
      */
-    public byte[] rawCompressedSerialize(int threshold) {
+    public byte[] rawCompressedSerialize(final int threshold) {
         int size = getSize();
-        if(size < threshold) { // Packet is too small to be compressed
+        if (size < threshold) { // Packet is too small to be compressed
             byte[] data = new FriendlyByteBuf().writeVarInt(0) // Empty Data length
                     .writeVarInt(getId())
                     .writeBytes(serialize())
@@ -92,7 +95,9 @@ public abstract class PacketImpl implements Packet {
                     .writeVarInt(getId())
                     .writeBytes(serialize())
                     .bytes());
-        } catch (IOException exception) { return new byte[0]; }
+        } catch (IOException exception) {
+            return new byte[0];
+        }
     }
 
 }

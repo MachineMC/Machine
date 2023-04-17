@@ -30,7 +30,7 @@ public class PacketPlayOutSpawnPlayer extends PacketOut {
                 PacketPlayOutSpawnPlayer::new);
     }
 
-    public PacketPlayOutSpawnPlayer(ServerBuffer buf) {
+    public PacketPlayOutSpawnPlayer(final ServerBuffer buf) {
         entityId = buf.readVarInt();
         uuid = buf.readUUID();
         position = Vector3.of(buf.readDouble(), buf.readDouble(), buf.readDouble());

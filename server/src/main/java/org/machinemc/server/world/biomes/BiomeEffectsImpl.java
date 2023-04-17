@@ -62,7 +62,7 @@ public class BiomeEffectsImpl implements BiomeEffects {
             compound.set("additions_sound", additionsSound.toNBT());
         if (music != null)
             compound.set("music", music.toNBT());
-        if(biomeParticle != null && biomeParticleProbability != null)
+        if (biomeParticle != null && biomeParticleProbability != null)
             compound.set("particle", new NBTCompound(Map.of(
                     "probability", biomeParticleProbability,
                     "options", biomeParticle.toNBT())));
@@ -70,9 +70,20 @@ public class BiomeEffectsImpl implements BiomeEffects {
     }
 
     /**
-     * Sound playing in a biome
+     * Sound playing in a biome.
+     * @param sound mood sound that will play
+     * @param tickDelay delay between the sounds
+     * @param blockSearchExtent Determines the cubic range of possible positions
+     *                          to find place to play the mood sound.
+     *                          The player is at the center of the cubic range,
+     *                          and the edge length is search extent times two
+     * @param offset the higher the value makes the sound source further
+     *               away from the player.
      */
-    public record MoodSoundImpl(NamespacedKey sound, int tickDelay, int blockSearchExtent, double offset) implements MoodSound {
+    public record MoodSoundImpl(NamespacedKey sound,
+                                int tickDelay,
+                                int blockSearchExtent,
+                                double offset) implements MoodSound {
         @Override
         public NBTCompound toNBT() {
             return new NBTCompound(Map.of(
@@ -84,7 +95,9 @@ public class BiomeEffectsImpl implements BiomeEffects {
     }
 
     /**
-     * Additional sound playing in a biome
+     * Additional sound playing in a biome.
+     * @param sound sound that will play
+     * @param tickChance chance of the sound playing
      */
     public record AdditionsSoundImpl(NamespacedKey sound, double tickChance) implements AdditionsSound {
         @Override
@@ -96,9 +109,17 @@ public class BiomeEffectsImpl implements BiomeEffects {
     }
 
     /**
-     * Music playing in a biome
+     * Music playing in a biome.
+     * @param sound sound to play
+     * @param minDelay min delay between music plays
+     * @param maxDelay max delay between music plays
+     * @param replaceCurrentMusic whether the music should replace the music that
+     *                            is currently playing for the player
      */
-    public record MusicImpl(NamespacedKey sound, int minDelay, int maxDelay, boolean replaceCurrentMusic) implements Music {
+    public record MusicImpl(NamespacedKey sound,
+                            int minDelay,
+                            int maxDelay,
+                            boolean replaceCurrentMusic) implements Music {
         @Override
         public NBTCompound toNBT() {
             return new NBTCompound(Map.of(

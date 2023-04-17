@@ -22,7 +22,7 @@ public class PacketPlayOutCenterChunk extends PacketOut {
                 PacketPlayOutCenterChunk::new);
     }
 
-    public PacketPlayOutCenterChunk(ServerBuffer buf) {
+    public PacketPlayOutCenterChunk(final ServerBuffer buf) {
         chunkX = buf.readVarInt();
         chunkZ = buf.readVarInt();
     }

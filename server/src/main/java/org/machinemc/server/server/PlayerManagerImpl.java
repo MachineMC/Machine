@@ -24,22 +24,22 @@ public class PlayerManagerImpl implements PlayerManager {
     private final Machine server;
 
     @Override
-    public void addPlayer(Player player) {
+    public void addPlayer(final Player player) {
         playerMap.putIfAbsent(player.getUuid(), player);
     }
 
     @Override
-    public void removePlayer(Player player) {
+    public void removePlayer(final Player player) {
         playerMap.remove(player.getUuid());
     }
 
     @Override
-    public Player getPlayer(UUID uuid) {
+    public Player getPlayer(final UUID uuid) {
         return playerMap.get(uuid);
     }
 
     @Override
-    public Player getPlayer(String name) {
+    public Player getPlayer(final String name) {
         return playerMap.values().stream().filter(player -> player.getName().equals(name))
                 .findFirst().orElse(null);
     }
@@ -50,7 +50,7 @@ public class PlayerManagerImpl implements PlayerManager {
     }
 
     @Override
-    public Set<Player> getPlayers(Predicate<Player> predicate) {
+    public Set<Player> getPlayers(final Predicate<Player> predicate) {
         return getPlayers().stream().filter(predicate).collect(Collectors.toSet());
     }
 

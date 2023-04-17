@@ -35,8 +35,8 @@ public class MessengerImpl implements Messenger {
 
     // TODO Player Message impl once it's done
     @Override
-    public boolean sendMessage(Player player, Component message, MessageType messageType) {
-        if(Messenger.accepts(player, messageType)) {
+    public boolean sendMessage(final Player player, final Component message, final MessageType messageType) {
+        if (Messenger.accepts(player, messageType)) {
             player.sendPacket(new PacketPlayOutSystemChatMessage(message, false));
             return true;
         }
@@ -44,7 +44,7 @@ public class MessengerImpl implements Messenger {
     }
 
     @Override
-    public void sendRejectionMessage(Player player) {
+    public void sendRejectionMessage(final Player player) {
         player.sendPacket(new PacketPlayOutSystemChatMessage(cannotSendMessage, false));
     }
 

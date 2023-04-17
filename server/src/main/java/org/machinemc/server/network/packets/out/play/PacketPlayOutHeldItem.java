@@ -22,7 +22,7 @@ public class PacketPlayOutHeldItem extends PacketOut {
                 PacketPlayOutHeldItem::new);
     }
 
-    public PacketPlayOutHeldItem(ServerBuffer buf) {
+    public PacketPlayOutHeldItem(final ServerBuffer buf) {
         slot = buf.readByte();
     }
 

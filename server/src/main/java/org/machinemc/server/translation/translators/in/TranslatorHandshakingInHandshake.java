@@ -8,15 +8,15 @@ import org.machinemc.server.network.packets.in.handshaking.PacketHandshakingInHa
 public class TranslatorHandshakingInHandshake extends PacketTranslator<PacketHandshakingInHandshake> {
 
     @Override
-    public boolean translate(ClientConnection connection, PacketHandshakingInHandshake packet) {
+    public boolean translate(final ClientConnection connection, final PacketHandshakingInHandshake packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(ClientConnection connection, PacketHandshakingInHandshake packet) {
-        if(packet.getHandshakeType() == PacketHandshakingInHandshake.HandshakeType.STATUS) {
+    public void translateAfter(final ClientConnection connection, final PacketHandshakingInHandshake packet) {
+        if (packet.getHandshakeType() == PacketHandshakingInHandshake.HandshakeType.STATUS) {
             connection.setState(PlayerConnection.ClientState.STATUS);
-        } else if(packet.getHandshakeType() == PacketHandshakingInHandshake.HandshakeType.LOGIN) {
+        } else if (packet.getHandshakeType() == PacketHandshakingInHandshake.HandshakeType.LOGIN) {
             connection.setState(PlayerConnection.ClientState.LOGIN);
         }
     }

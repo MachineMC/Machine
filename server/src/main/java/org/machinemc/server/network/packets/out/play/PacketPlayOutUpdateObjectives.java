@@ -31,7 +31,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
                 PacketPlayOutUpdateObjectives::new);
     }
 
-    public PacketPlayOutUpdateObjectives(ServerBuffer buf) {
+    public PacketPlayOutUpdateObjectives(final ServerBuffer buf) {
         objectiveName = buf.readString(StandardCharsets.UTF_8);
         action = Action.fromID(buf.readByte());
         if (action != Action.REMOVE) {
@@ -78,7 +78,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
             return ordinal();
         }
 
-        public static Action fromID(@Range(from = 0, to = 2) int id) {
+        public static Action fromID(final @Range(from = 0, to = 2) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Action type");
             return values()[id];
         }
@@ -93,7 +93,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
             return ordinal();
         }
 
-        public static DisplayType fromID(@Range(from = 0, to = 1) int id) {
+        public static DisplayType fromID(final @Range(from = 0, to = 1) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Display type");
             return values()[id];
         }

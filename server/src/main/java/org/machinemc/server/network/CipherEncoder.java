@@ -14,8 +14,8 @@ public class CipherEncoder extends MessageToByteEncoder<ByteBuf> {
     private final ClientConnection connection;
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) {
-        if(connection.encryptionContext == null) {
+    protected void encode(final ChannelHandlerContext ctx, final ByteBuf msg, final ByteBuf out) {
+        if (connection.encryptionContext == null) {
             out.writeBytes(msg);
             return;
         }

@@ -23,7 +23,7 @@ public class PacketPlayOutSetPassengers extends PacketOut {
                 PacketPlayOutSetPassengers::new);
     }
 
-    public PacketPlayOutSetPassengers(ServerBuffer buf) {
+    public PacketPlayOutSetPassengers(final ServerBuffer buf) {
         entityId = buf.readVarInt();
         passengers = buf.readVarIntArray();
     }

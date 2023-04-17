@@ -34,7 +34,7 @@ public class WorldBlockManager {
      * @return world block at given position
      */
     @Synchronized
-    public WorldBlock get(BlockPosition position) {
+    public WorldBlock get(final BlockPosition position) {
         try {
             return cached.get(position, () -> new WorldBlockImpl(
                     world,

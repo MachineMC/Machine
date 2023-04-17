@@ -32,3 +32,9 @@ dependencies {
     implementation(libs.netty.all)
     implementation(libs.mojang.brigadier)
 }
+
+tasks {
+    jar {
+        dependsOn(checkstyleMain)
+    }
+}

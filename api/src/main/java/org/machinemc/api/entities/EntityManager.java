@@ -1,5 +1,6 @@
 package org.machinemc.api.entities;
 
+import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.world.World;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -12,7 +13,7 @@ import java.util.function.Predicate;
 /**
  * Manager of server entities in mutiple worlds.
  */
-public interface EntityManager {
+public interface EntityManager extends ServerProperty {
 
     /**
      * Returns set of entities of certain entity type.

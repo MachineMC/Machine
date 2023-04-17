@@ -23,7 +23,7 @@ public class PacketStatusInPing extends PacketIn {
         );
     }
 
-    public PacketStatusInPing(ServerBuffer buf) {
+    public PacketStatusInPing(final ServerBuffer buf) {
         payload = buf.readLong();
     }
 

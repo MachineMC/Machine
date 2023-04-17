@@ -36,7 +36,7 @@ public abstract class PacketTranslator<T extends Packet> {
      * @return false if packet should be cancelled
      */
     @SuppressWarnings("unchecked")
-    final boolean rawTranslate(ClientConnection connection, Packet packet) {
+    final boolean rawTranslate(final ClientConnection connection, final Packet packet) {
         return translate(connection, (T) packet);
     }
 
@@ -46,7 +46,7 @@ public abstract class PacketTranslator<T extends Packet> {
      * @param packet Packet that has been sent or received
      */
     @SuppressWarnings("unchecked")
-    final void rawTranslateAfter(ClientConnection connection, Packet packet) {
+    final void rawTranslateAfter(final ClientConnection connection, final Packet packet) {
         translateAfter(connection, (T) packet);
     }
 

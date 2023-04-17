@@ -26,7 +26,7 @@ public class PacketPlayOutCombatDeath extends PacketOut {
                 PacketPlayOutCombatDeath::new);
     }
 
-    public PacketPlayOutCombatDeath(ServerBuffer buf) {
+    public PacketPlayOutCombatDeath(final ServerBuffer buf) {
         playerId = buf.readVarInt();
         entityId = buf.readInt();
         deathMessage = buf.readComponent();

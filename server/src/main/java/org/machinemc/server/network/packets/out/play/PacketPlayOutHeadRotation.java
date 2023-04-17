@@ -24,7 +24,7 @@ public class PacketPlayOutHeadRotation extends PacketOut {
                 PacketPlayOutHeadRotation::new);
     }
 
-    public PacketPlayOutHeadRotation(ServerBuffer buf) {
+    public PacketPlayOutHeadRotation(final ServerBuffer buf) {
         entityId = buf.readVarInt();
         angle = buf.readAngle();
     }

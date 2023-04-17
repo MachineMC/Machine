@@ -23,7 +23,7 @@ public class PacketPlayOutDisconnect extends PacketOut {
                 PacketPlayOutDisconnect::new);
     }
 
-    public PacketPlayOutDisconnect(ServerBuffer buf) {
+    public PacketPlayOutDisconnect(final ServerBuffer buf) {
         reason = buf.readComponent();
     }
 

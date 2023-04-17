@@ -12,7 +12,7 @@ import org.machinemc.api.utils.ServerBuffer;
 @ToString
 public class PacketPlayInKeepAlive extends PacketIn {
 
-    private final static int ID = 0x12;
+    private static final int ID = 0x12;
 
     @Getter @Setter
     private long keepAliveId;
@@ -22,7 +22,7 @@ public class PacketPlayInKeepAlive extends PacketIn {
                 PacketPlayInKeepAlive::new);
     }
 
-    public PacketPlayInKeepAlive(ServerBuffer buf) {
+    public PacketPlayInKeepAlive(final ServerBuffer buf) {
         keepAliveId = buf.readLong();
     }
 

@@ -25,7 +25,7 @@ public class PacketPlayOutOpenHorseInventory extends PacketOut {
                 PacketPlayOutOpenHorseInventory::new);
     }
 
-    public PacketPlayOutOpenHorseInventory(ServerBuffer buf) {
+    public PacketPlayOutOpenHorseInventory(final ServerBuffer buf) {
         windowId = buf.readByte();
         slotCount = buf.readVarInt();
         entityId = buf.readInt();

@@ -18,7 +18,7 @@ public class PacketStatusInRequest extends PacketIn {
         );
     }
 
-    public PacketStatusInRequest(ServerBuffer buf) {
+    public PacketStatusInRequest(final ServerBuffer buf) {
 
     }
 

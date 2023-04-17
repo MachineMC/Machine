@@ -22,7 +22,7 @@ public class PacketPlayOutBorderWarningDistance extends PacketOut {
                 PacketPlayOutBorderWarningDistance::new);
     }
 
-    public PacketPlayOutBorderWarningDistance(ServerBuffer buf) {
+    public PacketPlayOutBorderWarningDistance(final ServerBuffer buf) {
         warningBlocks = buf.readVarInt();
     }
 

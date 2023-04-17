@@ -23,7 +23,7 @@ public class PacketPlayOutSetTablistHeaderAndFooter extends PacketOut {
                 PacketPlayOutSetTablistHeaderAndFooter::new);
     }
 
-    public PacketPlayOutSetTablistHeaderAndFooter(ServerBuffer buf) {
+    public PacketPlayOutSetTablistHeaderAndFooter(final ServerBuffer buf) {
         header = buf.readComponent();
         footer = buf.readComponent();
     }

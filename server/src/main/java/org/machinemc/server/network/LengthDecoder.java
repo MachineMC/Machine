@@ -22,7 +22,7 @@ public class LengthDecoder extends ByteToMessageDecoder {
         int position = 0;
         byte currentByte;
 
-        while(in.isReadable()) {
+        while (in.isReadable()) {
             currentByte = in.readByte();
             length |= (currentByte & SEGMENT_BITS) << position;
             if (!((currentByte & CONTINUE_BIT) == 0)) {
@@ -30,7 +30,7 @@ public class LengthDecoder extends ByteToMessageDecoder {
                 if (position >= 32) throw new RuntimeException("Length VarInt for packet is too big");
                 continue;
             }
-            if(!in.isReadable(length)) {
+            if (!in.isReadable(length)) {
                 in.resetReaderIndex();
                 return;
             }

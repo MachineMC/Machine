@@ -24,7 +24,7 @@ public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
                 PacketPlayOutPlaceGhostRecipe::new);
     }
 
-    public PacketPlayOutPlaceGhostRecipe(ServerBuffer buf) {
+    public PacketPlayOutPlaceGhostRecipe(final ServerBuffer buf) {
         windowId = buf.readByte();
         recipe = buf.readNamespacedKey();
     }

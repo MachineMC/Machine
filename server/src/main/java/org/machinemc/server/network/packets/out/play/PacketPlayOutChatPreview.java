@@ -26,7 +26,7 @@ public class PacketPlayOutChatPreview extends PacketOut {
                 PacketPlayOutChatPreview::new);
     }
 
-    public PacketPlayOutChatPreview(ServerBuffer buf) {
+    public PacketPlayOutChatPreview(final ServerBuffer buf) {
         queryId = buf.readVarInt();
         if (buf.readBoolean())
             preview = buf.readComponent();

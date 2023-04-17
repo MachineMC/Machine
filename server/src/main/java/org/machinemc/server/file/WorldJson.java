@@ -23,7 +23,7 @@ import java.io.*;
 @Getter
 public class WorldJson implements ServerFile, ServerProperty {
 
-    public final static String WORLD_FILE_NAME = "world.json";
+    public static final String WORLD_FILE_NAME = "world.json";
 
     private final Machine server;
 
@@ -35,7 +35,7 @@ public class WorldJson implements ServerFile, ServerProperty {
 
     private final File folder;
 
-    public WorldJson(Machine server, File file) throws IOException {
+    public WorldJson(final Machine server, final File file) throws IOException {
         this.server = server;
         folder = file.getParentFile();
         final JsonParser parser = new JsonParser();
@@ -45,7 +45,8 @@ public class WorldJson implements ServerFile, ServerProperty {
         try {
             name = NamespacedKey.parse(json.get("name").getAsString());
         } catch (Exception ignored) {
-            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal name identifier and can't be registered");
+            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal "
+                    + "name identifier and can't be registered");
         }
         this.name = name;
 
@@ -53,11 +54,12 @@ public class WorldJson implements ServerFile, ServerProperty {
         try {
             dimensionKey = NamespacedKey.parse(json.get("dimension").getAsString());
         } catch (Exception ignored) {
-            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal dimension identifier and can't be registered");
+            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses "
+                    + "illegal dimension identifier and can't be registered");
         }
 
         DimensionType dimensionType = server.getDimensionTypeManager().getDimension(dimensionKey);
-        if(dimensionType == null)
+        if (dimensionType == null)
             throw new IllegalStateException("World '" + this.name + "' uses non existing dimension");
         this.dimensionType = dimensionType;
 
@@ -65,7 +67,8 @@ public class WorldJson implements ServerFile, ServerProperty {
         try {
             seedValue = json.get("seed").getAsNumber().longValue();
         } catch (Exception exception) {
-            getServer().getConsole().severe("World '" + this.name + "' has not valid defined seed, defaulting to '1' instead");
+            getServer().getConsole().severe("World '" + this.name + "' has not valid "
+                    + "defined seed, defaulting to '1' instead");
         }
         seed = seedValue;
 

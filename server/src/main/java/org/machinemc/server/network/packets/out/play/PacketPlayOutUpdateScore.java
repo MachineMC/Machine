@@ -30,7 +30,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
                 PacketPlayOutUpdateScore::new);
     }
 
-    public PacketPlayOutUpdateScore(ServerBuffer buf) {
+    public PacketPlayOutUpdateScore(final ServerBuffer buf) {
         entityName = buf.readString(StandardCharsets.UTF_8);
         action = Action.fromID(buf.readByte());
         objectiveName = buf.readString(StandardCharsets.UTF_8);
@@ -74,7 +74,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
             return ordinal();
         }
 
-        public static Action fromID(@Range(from = 0, to = 1) int id) {
+        public static Action fromID(final @Range(from = 0, to = 1) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Action type");
             return values()[id];
         }

@@ -15,7 +15,7 @@ import java.util.UUID;
  */
 public final class FileUtils {
 
-    private static File MACHINE_JAR;
+    private static File machineJar;
 
     static {
         final URL location = Machine.class
@@ -23,9 +23,9 @@ public final class FileUtils {
                 .getCodeSource()
                 .getLocation();
         try {
-            MACHINE_JAR = new File(location.toURI());
+            machineJar = new File(location.toURI());
         } catch (URISyntaxException exception) {
-            MACHINE_JAR = new File(location.getFile());
+            machineJar = new File(location.getFile());
         }
     }
 
@@ -38,7 +38,7 @@ public final class FileUtils {
      * @param file file to create
      * @return true if creation was successful
      */
-    public static boolean createFromDefault(File file) {
+    public static boolean createFromDefault(final File file) {
         return createFromDefaultAndLocate(file, file.getPath());
     }
 
@@ -48,17 +48,18 @@ public final class FileUtils {
      * @param path new path for the file
      * @return true if creation was successful
      */
-    public static boolean createFromDefaultAndLocate(File file, String path) {
-        if(path.endsWith("/")) {
-            final File pathFile = new File(path);
-            if(!pathFile.mkdirs() && !pathFile.exists())
+    public static boolean createFromDefaultAndLocate(final File file, final String path) {
+        String fullPath = path;
+        if (fullPath.endsWith("/")) {
+            final File pathFile = new File(fullPath);
+            if (!pathFile.mkdirs() && !pathFile.exists())
                 return false;
-            path = path + file.getName();
+            fullPath = fullPath + file.getName();
         }
         InputStream in = Machine.CLASS_LOADER.getResourceAsStream(file.getPath());
-        if(in == null) return false;
+        if (in == null) return false;
         try {
-            Files.copy(in, Path.of(path));
+            Files.copy(in, Path.of(fullPath));
             return true;
         } catch (IOException exception) {
             return false;
@@ -69,33 +70,31 @@ public final class FileUtils {
      * @return jar file of the server
      */
     public static File getMachineJar() {
-        return MACHINE_JAR;
+        return machineJar;
     }
 
     /**
-     * Creates uid data file at the given folder
+     * Creates uid data file at the given folder.
      * @param folder folder to create uid file at
      * @return uuid saved in the file
      */
-    public static UUID getOrCreateUUID(File folder) {
+    public static UUID getOrCreateUUID(final File folder) {
         final File uidFile = new File(folder, "uid.dat");
         if (uidFile.exists()) {
             try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(uidFile))) {
                 return new UUID(dataInputStream.readLong(), dataInputStream.readLong());
-            }
-            catch (IOException exception) {
+            } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
         }
         UUID uuid = UUID.randomUUID();
         try {
-            if(!uidFile.exists() && !uidFile.createNewFile())
+            if (!uidFile.exists() && !uidFile.createNewFile())
                 throw new IllegalStateException();
             @Cleanup DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(uidFile));
             dataOutputStream.writeLong(uuid.getMostSignificantBits());
             dataOutputStream.writeLong(uuid.getLeastSignificantBits());
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
         return uuid;

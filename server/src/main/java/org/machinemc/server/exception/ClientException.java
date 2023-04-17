@@ -11,22 +11,22 @@ public class ClientException extends RuntimeException {
     @Getter
     private final ClientConnection connection;
 
-    public ClientException(ClientConnection connection) {
+    public ClientException(final ClientConnection connection) {
         super();
         this.connection = connection;
     }
 
-    public ClientException(ClientConnection connection, String message) {
+    public ClientException(final ClientConnection connection, final String message) {
         super(message);
         this.connection = connection;
     }
 
-    public ClientException(ClientConnection connection, String message, Throwable cause) {
+    public ClientException(final ClientConnection connection, final String message, final Throwable cause) {
         super(message, cause);
         this.connection = connection;
     }
 
-    public ClientException(ClientConnection connection, Throwable cause) {
+    public ClientException(final ClientConnection connection, final Throwable cause) {
         super(cause);
         this.connection = connection;
     }

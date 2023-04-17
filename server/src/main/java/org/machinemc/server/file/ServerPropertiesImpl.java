@@ -44,14 +44,14 @@ public class ServerPropertiesImpl implements ServerProperties {
     private final @Nullable BufferedImage icon;
     private final @Nullable String encodedIcon;
 
-    private final static int ICON_SIZE = 64;
+    private static final int ICON_SIZE = 64;
 
-    public ServerPropertiesImpl(Machine server, File file) throws IOException {
+    public ServerPropertiesImpl(final Machine server, final File file) throws IOException {
         this.server = server;
         final Properties original = new Properties();
 
         final InputStream originalInputStream = getOriginal();
-        if(originalInputStream == null)
+        if (originalInputStream == null)
             throw new IllegalStateException("Default server properties file doesn't exist in the server");
 
         InputStreamReader stream = new InputStreamReader(originalInputStream, StandardCharsets.UTF_8);
@@ -75,7 +75,9 @@ public class ServerPropertiesImpl implements ServerProperties {
         maxPlayers = Integer.parseInt(properties.getProperty("max-players"));
 
         String motdJson = properties.getProperty("motd");
-        motd = motdJson.equals("") ? TextComponent.empty() : getServer().getComponentSerializer().deserializeJson(motdJson);
+        motd = motdJson.equals("")
+                ? TextComponent.empty()
+                : getServer().getComponentSerializer().deserializeJson(motdJson);
 
         NamespacedKey defaultWorldParsed = null;
         try {
@@ -116,7 +118,7 @@ public class ServerPropertiesImpl implements ServerProperties {
         File png = new File(ICON_FILE_NAME);
         BufferedImage icon = null;
         String encodedIcon = null;
-        if(png.exists()) {
+        if (png.exists()) {
             try {
                 icon = new BufferedImage(ICON_SIZE, ICON_SIZE, BufferedImage.TYPE_INT_RGB);
                 icon.createGraphics().drawImage(ImageIO.read(png), 0, 0, ICON_SIZE, ICON_SIZE, null);

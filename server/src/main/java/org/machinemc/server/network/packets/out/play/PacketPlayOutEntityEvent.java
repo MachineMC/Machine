@@ -23,7 +23,7 @@ public class PacketPlayOutEntityEvent extends PacketOut {
                 PacketPlayOutEntityEvent::new);
     }
 
-    public PacketPlayOutEntityEvent(ServerBuffer buf) {
+    public PacketPlayOutEntityEvent(final ServerBuffer buf) {
         entityId = buf.readVarInt();
         event = buf.readByte();
     }

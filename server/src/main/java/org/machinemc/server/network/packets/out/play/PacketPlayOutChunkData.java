@@ -27,7 +27,7 @@ public class PacketPlayOutChunkData extends PacketOut {
                 PacketPlayOutChunkData::new);
     }
 
-    public PacketPlayOutChunkData(ServerBuffer buf) {
+    public PacketPlayOutChunkData(final ServerBuffer buf) {
         chunkX = buf.readInt();
         chunkZ = buf.readInt();
         chunkData = new ChunkData(buf);

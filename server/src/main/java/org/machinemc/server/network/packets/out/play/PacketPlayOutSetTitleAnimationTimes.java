@@ -23,7 +23,7 @@ public class PacketPlayOutSetTitleAnimationTimes extends PacketOut {
                 PacketPlayOutSetTitleAnimationTimes::new);
     }
 
-    public PacketPlayOutSetTitleAnimationTimes(ServerBuffer buf) {
+    public PacketPlayOutSetTitleAnimationTimes(final ServerBuffer buf) {
         fadeIn = buf.readInt();
         stay = buf.readInt();
         fadeOut = buf.readInt();

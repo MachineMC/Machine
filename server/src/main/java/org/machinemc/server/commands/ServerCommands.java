@@ -19,7 +19,7 @@ public final class ServerCommands {
      * @param server server to register commands for
      * @param dispatcher dispatcher to register commands in
      */
-    public static void register(Machine server, CommandDispatcher<CommandExecutor> dispatcher) {
+    public static void register(final Machine server, final CommandDispatcher<CommandExecutor> dispatcher) {
         dispatcher.register(stopCommand(server));
     }
 
@@ -28,7 +28,7 @@ public final class ServerCommands {
      * @param server server to register commands for
      * @return stop command
      */
-    private static LiteralArgumentBuilder<CommandExecutor> stopCommand(Machine server) {
+    private static LiteralArgumentBuilder<CommandExecutor> stopCommand(final Machine server) {
         LiteralArgumentBuilder<CommandExecutor> stopCommand = LiteralArgumentBuilder.literal("stop");
         stopCommand.executes(c -> {
             server.shutdown();

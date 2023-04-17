@@ -24,7 +24,7 @@ public abstract class ServerLivingEntity extends ServerEntity implements LivingE
     private float absorptionAmount;
     private boolean fallFlying;
 
-    public ServerLivingEntity(Machine server, EntityType entityType, UUID uuid) {
+    public ServerLivingEntity(final Machine server, final EntityType entityType, final UUID uuid) {
         super(server, entityType, uuid);
     }
 
@@ -47,7 +47,7 @@ public abstract class ServerLivingEntity extends ServerEntity implements LivingE
     }
 
     @Override
-    public void load(NBTCompound nbtCompound) {
+    public void load(final NBTCompound nbtCompound) {
         super.load(nbtCompound);
         setHealth(nbtCompound.getValue("Health", 0f));
         setHurtTime(nbtCompound.getValue("HurtTime", (short) 0));

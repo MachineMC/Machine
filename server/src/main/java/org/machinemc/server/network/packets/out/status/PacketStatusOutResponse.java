@@ -25,7 +25,7 @@ public class PacketStatusOutResponse extends PacketOut {
     @Getter @Setter
     private String json;
 
-    public PacketStatusOutResponse(ServerBuffer buf) {
+    public PacketStatusOutResponse(final ServerBuffer buf) {
         json = buf.readString(StandardCharsets.UTF_8);
     }
 

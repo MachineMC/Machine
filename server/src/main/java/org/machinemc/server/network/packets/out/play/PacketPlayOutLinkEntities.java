@@ -23,7 +23,7 @@ public class PacketPlayOutLinkEntities extends PacketOut {
                 PacketPlayOutLinkEntities::new);
     }
 
-    public PacketPlayOutLinkEntities(ServerBuffer buf) {
+    public PacketPlayOutLinkEntities(final ServerBuffer buf) {
         attachedEntityId = buf.readInt();
         holdingEntityId = buf.readInt();
     }

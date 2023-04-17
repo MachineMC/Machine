@@ -18,8 +18,8 @@ public class CompressionEncoder extends MessageToByteEncoder<ByteBuf> {
     private final ClientConnection connection;
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) {
-        if(!connection.isCompressed()) {
+    protected void encode(final ChannelHandlerContext ctx, final ByteBuf msg, final ByteBuf out) {
+        if (!connection.isCompressed()) {
             out.writeBytes(msg);
             return;
         }
@@ -30,7 +30,7 @@ public class CompressionEncoder extends MessageToByteEncoder<ByteBuf> {
         final FriendlyByteBuf data = new FriendlyByteBuf();
         final FriendlyByteBuf output = new FriendlyByteBuf(out);
 
-        if(length < connection.getCompressionThreshold()) {
+        if (length < connection.getCompressionThreshold()) {
             data.writeVarInt(0).writeBytes(buf.readBytes(buf.readableBytes()));
             output.writeVarInt(data.readableBytes()).writeBytes(data.readBytes(data.readableBytes()));
             return;

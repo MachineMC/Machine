@@ -27,10 +27,10 @@ public class SignBlock extends BlockTypeImpl implements BlockEntityType {
     }
 
     @Override
-    public BlockData getBlockData(WorldBlock.@Nullable State block) {
-        if(block == null) return Material.OAK_SIGN.createBlockData();
+    public BlockData getBlockData(final WorldBlock.@Nullable State block) {
+        if (block == null) return Material.OAK_SIGN.createBlockData();
         final NBTCompound compound = block.compound();
-        if(!compound.containsKey("rotation")) return Material.OAK_SIGN.createBlockData();
+        if (!compound.containsKey("rotation")) return Material.OAK_SIGN.createBlockData();
         final int rotation = compound.get("rotation", new NBTInt(0)).value();
         final OakSignData data = (OakSignData) Material.OAK_SIGN.createBlockData();
         data.setRotation(rotation);
@@ -43,7 +43,7 @@ public class SignBlock extends BlockTypeImpl implements BlockEntityType {
     }
 
     @Override
-    public void initialize(WorldBlock.State state) {
+    public void initialize(final WorldBlock.State state) {
         final NBTCompound compound = state.compound();
         compound.set("rotation", 0);
     }
@@ -54,14 +54,14 @@ public class SignBlock extends BlockTypeImpl implements BlockEntityType {
     }
 
     @Override
-    public @Nullable BlockEntityBase getBlockEntityBase(WorldBlock.State state) {
+    public @Nullable BlockEntityBase getBlockEntityBase(final WorldBlock.State state) {
         return BlockEntityBase.SIGN;
     }
 
     @Override
-    public @Nullable NBTCompound getClientVisibleNBT(WorldBlock.State state) {
+    public @Nullable NBTCompound getClientVisibleNBT(final WorldBlock.State state) {
         final NBTCompound compound = getBaseClientVisibleNBT(state);
-        if(compound == null) return new NBTCompound();
+        if (compound == null) return new NBTCompound();
 
         compound.set("Text1", "{\"text\":\"" + "Hello World!" + "\"}");
         compound.set("Text2", "{\"text\":\"" + state.position().getX() + "\"}");

@@ -26,9 +26,9 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
                 PacketLoginInEncryptionResponse::new);
     }
 
-    public PacketLoginInEncryptionResponse(ServerBuffer buf) {
+    public PacketLoginInEncryptionResponse(final ServerBuffer buf) {
         secret = buf.readByteArray();
-        if(buf.readBoolean()) {
+        if (buf.readBoolean()) {
             verifyToken = buf.readByteArray();
         } else {
             salt = buf.readLong();
@@ -50,10 +50,10 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
     public byte[] serialize() {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeByteArray(secret);
-        if(verifyToken != null)
+        if (verifyToken != null)
             buf.writeBoolean(true)
                     .writeByteArray(verifyToken);
-        else if(salt != 0 && messageSignature != null)
+        else if (salt != 0 && messageSignature != null)
             buf.writeBoolean(false)
                     .writeLong(salt)
                     .writeByteArray(messageSignature);

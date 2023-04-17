@@ -30,7 +30,7 @@ public class PacketPlayOutServerData extends PacketOut {
                 PacketPlayOutServerData::new);
     }
 
-    public PacketPlayOutServerData(ServerBuffer buf) {
+    public PacketPlayOutServerData(final ServerBuffer buf) {
         if (buf.readBoolean())
             motd = buf.readComponent();
         if (buf.readBoolean())

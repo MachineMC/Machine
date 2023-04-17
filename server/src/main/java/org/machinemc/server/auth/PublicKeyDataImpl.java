@@ -8,6 +8,9 @@ import java.util.Arrays;
 
 /**
  * Default implementation of public key data.
+ * @param publicKey public key
+ * @param signature signature
+ * @param timestamp timestamp of the public key
  */
 public record PublicKeyDataImpl(PublicKey publicKey, byte[] signature, Instant timestamp) implements PublicKeyData {
 
@@ -20,11 +23,11 @@ public record PublicKeyDataImpl(PublicKey publicKey, byte[] signature, Instant t
 
     @Override
     public String toString() {
-        return "PublicKeyData(" +
-                "publicKey=" + publicKey +
-                ", signature=" + Arrays.toString(signature) +
-                ", timestamp=" + timestamp +
-                ')';
+        return "PublicKeyData("
+                + "publicKey=" + publicKey
+                + ", signature=" + Arrays.toString(signature)
+                + ", timestamp=" + timestamp
+                + ')';
     }
 
 }

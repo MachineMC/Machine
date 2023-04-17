@@ -34,14 +34,14 @@ public class PacketPlayOutChatMessage extends PacketOut {
                 PacketPlayOutChatMessage::new);
     }
 
-    public PacketPlayOutChatMessage(ServerBuffer buf) {
+    public PacketPlayOutChatMessage(final ServerBuffer buf) {
         signedMessage = buf.readComponent();
-        if(buf.readBoolean()) // has unsigned content
+        if (buf.readBoolean()) // has unsigned content
             unsignedMessage = buf.readComponent();
         chatType = ChatType.fromID(buf.readVarInt());
         uuid = buf.readUUID();
         displayName = buf.readComponent();
-        if(buf.readBoolean()) // has team
+        if (buf.readBoolean()) // has team
             teamName = buf.readComponent();
         messageSignature = buf.readSignature();
     }
@@ -61,13 +61,13 @@ public class PacketPlayOutChatMessage extends PacketOut {
         FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeComponent(signedMessage)
                 .writeBoolean(unsignedMessage != null);
-        if(unsignedMessage != null)
+        if (unsignedMessage != null)
             buf.writeComponent(unsignedMessage);
         buf.writeVarInt(chatType.getId())
                 .writeUUID(uuid)
                 .writeComponent(displayName)
                 .writeBoolean(teamName != null);
-        if(teamName != null)
+        if (teamName != null)
             buf.writeComponent(teamName);
         return buf.writeSignature(messageSignature)
                 .bytes();

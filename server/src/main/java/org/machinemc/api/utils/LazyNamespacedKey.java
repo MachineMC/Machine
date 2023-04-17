@@ -8,6 +8,10 @@ import org.jetbrains.annotations.Contract;
  */
 public final class LazyNamespacedKey {
 
+    private LazyNamespacedKey() {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Creates namespaced key without parsing the input.
      * <p>
@@ -17,7 +21,7 @@ public final class LazyNamespacedKey {
      * @return namespaced key
      */
     @Contract("_ -> new")
-    public static NamespacedKey lazy(String namespacedKey) {
+    public static NamespacedKey lazy(final String namespacedKey) {
         String[] parts = namespacedKey.split(":");
         StringBuilder key = new StringBuilder();
         for (int i = 1; i < parts.length; i++)
@@ -26,20 +30,20 @@ public final class LazyNamespacedKey {
     }
 
     /**
-     * Creates lazy namespaced key with 'minecraft' namespace
+     * Creates lazy namespaced key with 'minecraft' namespace.
      * @param key key
      * @return namespaced key
      */
-    public static NamespacedKey minecraft(String key) {
+    public static NamespacedKey minecraft(final String key) {
         return new NamespacedKey(NamespacedKey.MINECRAFT_NAMESPACE, key);
     }
 
     /**
-     * Creates lazy namespaced key with 'machine' namespace
+     * Creates lazy namespaced key with 'machine' namespace.
      * @param key key
      * @return namespaced key
      */
-    public static NamespacedKey machine(String key) {
+    public static NamespacedKey machine(final String key) {
         return new NamespacedKey(NamespacedKey.MACHINE_NAMESPACE, key);
     }
 

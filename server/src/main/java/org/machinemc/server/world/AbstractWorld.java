@@ -38,12 +38,12 @@ public abstract class AbstractWorld implements World {
     private Location worldSpawn = Location.of(0, 0, 0, this);
     protected boolean loaded = false;
 
-    public AbstractWorld(Machine server,
-                         NamespacedKey name,
-                         UUID uuid,
-                         DimensionType dimensionType,
-                         WorldType worldType,
-                         long seed) {
+    public AbstractWorld(final Machine server,
+                         final NamespacedKey name,
+                         final UUID uuid,
+                         final DimensionType dimensionType,
+                         final WorldType worldType,
+                         final long seed) {
         this.server = server;
         this.name = name;
         this.uuid = uuid;
@@ -54,7 +54,7 @@ public abstract class AbstractWorld implements World {
     }
 
     @Override
-    public WorldBlock getBlock(BlockPosition position) {
+    public WorldBlock getBlock(final BlockPosition position) {
         return getChunk(position).getBlock(
                 getSectionRelativeCoordinate(position.getX()),
                 position.getY(),
@@ -62,7 +62,7 @@ public abstract class AbstractWorld implements World {
     }
 
     @Override
-    public void setBlock(BlockType blockType, BlockPosition position) {
+    public void setBlock(final BlockType blockType, final BlockPosition position) {
         getChunk(position).setBlock(
                 getSectionRelativeCoordinate(position.getX()),
                 position.getY(),
@@ -71,7 +71,7 @@ public abstract class AbstractWorld implements World {
     }
 
     @Override
-    public void setBiome(Biome biome, BlockPosition position) {
+    public void setBiome(final Biome biome, final BlockPosition position) {
         getChunk(position).setBiome(
                 getSectionRelativeCoordinate(position.getX()),
                 position.getY(),
@@ -80,7 +80,7 @@ public abstract class AbstractWorld implements World {
     }
 
     @Override
-    public Biome getBiome(BlockPosition position) {
+    public Biome getBiome(final BlockPosition position) {
         return getChunk(position).getBiome(
                 getSectionRelativeCoordinate(position.getX()),
                 position.getY(),
@@ -88,21 +88,21 @@ public abstract class AbstractWorld implements World {
     }
 
     @Override
-    public void setDifficulty(Difficulty difficulty) {
+    public void setDifficulty(final Difficulty difficulty) {
         this.difficulty = difficulty;
         PacketOut packet = new PacketPlayOutChangeDifficulty(difficulty);
-        for(Entity entity : getEntities()) {
-            if(!(entity instanceof ServerPlayer player)) continue;
+        for (Entity entity : getEntities()) {
+            if (!(entity instanceof ServerPlayer player)) continue;
             player.sendPacket(packet);
         }
     }
 
     @Override
-    public void setWorldSpawn(Location location) {
+    public void setWorldSpawn(final Location location) {
         this.worldSpawn = location;
         PacketOut packet = new PacketPlayOutWorldSpawnPosition(location);
-        for(Entity entity : getEntities()) {
-            if(!(entity instanceof ServerPlayer player)) continue;
+        for (Entity entity : getEntities()) {
+            if (!(entity instanceof ServerPlayer player)) continue;
             player.sendPacket(packet);
         }
     }

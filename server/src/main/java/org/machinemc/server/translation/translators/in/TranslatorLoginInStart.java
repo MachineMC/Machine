@@ -14,24 +14,24 @@ import org.machinemc.server.network.packets.out.login.PacketLoginOutSuccess;
 public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart> {
 
     @Override
-    public boolean translate(ClientConnection connection, PacketLoginInStart packet) {
+    public boolean translate(final ClientConnection connection, final PacketLoginInStart packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(ClientConnection connection, PacketLoginInStart packet) {
+    public void translateAfter(final ClientConnection connection, final PacketLoginInStart packet) {
         connection.setLoginUsername(packet.getUsername());
-        if(!connection.getServer().isOnline()) {
+        if (!connection.getServer().isOnline()) {
             final PlayerProfile profile = PlayerProfileImpl.offline(packet.getUsername());
             connection.send(new PacketLoginOutSuccess(profile.getUuid(), profile.getUsername(), profile.getTextures()));
-            if(connection.getState() == PlayerConnection.ClientState.DISCONNECTED)
+            if (connection.getState() == PlayerConnection.ClientState.DISCONNECTED)
                 return;
             connection.setState(PlayerConnection.ClientState.PLAY);
             ServerPlayer.spawn(connection.getServer(), profile, connection);
             return;
         }
         OnlineServer onlineServer = connection.getServer().getOnlineServer();
-        if(onlineServer == null) {
+        if (onlineServer == null) {
             connection.disconnect();
             throw new IllegalStateException("Online server hasn't been initialized");
         }

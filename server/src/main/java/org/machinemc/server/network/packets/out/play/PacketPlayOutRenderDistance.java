@@ -23,7 +23,7 @@ public class PacketPlayOutRenderDistance extends PacketOut {
                 PacketPlayOutRenderDistance::new);
     }
 
-    public PacketPlayOutRenderDistance(ServerBuffer buf) {
+    public PacketPlayOutRenderDistance(final ServerBuffer buf) {
         viewDistance = buf.readVarInt();
     }
 

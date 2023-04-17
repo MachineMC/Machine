@@ -24,7 +24,7 @@ public class PacketPlayOutSetHealth extends PacketOut {
                 PacketPlayOutSetHealth::new);
     }
 
-    public PacketPlayOutSetHealth(ServerBuffer buf) {
+    public PacketPlayOutSetHealth(final ServerBuffer buf) {
         health = buf.readFloat();
         food = buf.readVarInt();
         saturation = buf.readFloat();

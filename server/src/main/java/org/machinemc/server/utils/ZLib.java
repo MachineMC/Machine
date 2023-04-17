@@ -20,7 +20,7 @@ public final class ZLib {
      * @return The compressed bytes
      * @throws IOException if an I/O error occurs
      */
-    public static byte[] compress(byte[] data) throws IOException {
+    public static byte[] compress(final byte[] data) throws IOException {
         final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         final DeflaterOutputStream outputStream = new DeflaterOutputStream(bytes);
         outputStream.write(data);
@@ -34,7 +34,7 @@ public final class ZLib {
      * @return The decompressed bytes
      * @throws IOException if an I/O error occurs
      */
-    public static byte[] decompress(byte[] data) throws IOException {
+    public static byte[] decompress(final byte[] data) throws IOException {
         final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         final InflaterOutputStream outputStream = new InflaterOutputStream(bytes);
         outputStream.write(data);

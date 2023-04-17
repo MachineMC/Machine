@@ -28,7 +28,7 @@ public class PacketPlayOutPluginMessage extends PacketOut {
         );
     }
 
-    public PacketPlayOutPluginMessage(ServerBuffer buf) {
+    public PacketPlayOutPluginMessage(final ServerBuffer buf) {
         channel = buf.readNamespacedKey();
         data = new FriendlyByteBuf(buf.finish());
     }
@@ -56,9 +56,14 @@ public class PacketPlayOutPluginMessage extends PacketOut {
         return new PacketPlayOutPluginMessage(new FriendlyByteBuf(serialize()));
     }
 
-    public static NamespacedKey BRAND_CHANNEL = NamespacedKey.minecraft("brand");
+    public static final NamespacedKey BRAND_CHANNEL = NamespacedKey.minecraft("brand");
 
-    public static PacketPlayOutPluginMessage getBrandPacket(String brand) {
+    /**
+     * Returns plugin message packet for the brand channel with given string.
+     * @param brand brand
+     * @return plugin message packet for given brand
+     */
+    public static PacketPlayOutPluginMessage getBrandPacket(final String brand) {
         return new PacketPlayOutPluginMessage(
                 BRAND_CHANNEL,
                 new FriendlyByteBuf().

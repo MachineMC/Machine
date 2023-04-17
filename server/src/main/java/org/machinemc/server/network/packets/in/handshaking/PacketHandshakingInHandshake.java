@@ -29,7 +29,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
         );
     }
 
-    public PacketHandshakingInHandshake(ServerBuffer buf) {
+    public PacketHandshakingInHandshake(final ServerBuffer buf) {
         protocolVersion = buf.readVarInt();
         serverAddress = buf.readString(StandardCharsets.UTF_8);
         serverPort = buf.readShort() & 0xFFFF;
@@ -52,7 +52,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
                 .writeVarInt(protocolVersion)
                 .writeString(serverAddress, StandardCharsets.UTF_8)
                 .writeShort((short) (serverPort & 0xFFFF))
-                .writeVarInt(handshakeType.ID)
+                .writeVarInt(handshakeType.id)
                 .bytes();
     }
 
@@ -67,11 +67,16 @@ public class PacketHandshakingInHandshake extends PacketIn {
         LOGIN(2);
 
         @Getter
-        private final int ID;
+        private final int id;
 
-        public static HandshakeType fromID(@Range(from = 1, to = 2) int ID) {
+        /**
+         * Returns handshake with given id.
+         * @param id id
+         * @return handshake
+         */
+        public static HandshakeType fromID(final @Range(from = 1, to = 2) int id) {
             for (HandshakeType type : HandshakeType.values()) {
-                if (type.getID() == ID) return type;
+                if (type.getId() == id) return type;
             }
             throw new RuntimeException("Unsupported Handshake type");
         }

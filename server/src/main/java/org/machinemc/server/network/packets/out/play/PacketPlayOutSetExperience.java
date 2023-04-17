@@ -23,7 +23,7 @@ public class PacketPlayOutSetExperience extends PacketOut {
                 PacketPlayOutSetExperience::new);
     }
 
-    public PacketPlayOutSetExperience(ServerBuffer buf) {
+    public PacketPlayOutSetExperience(final ServerBuffer buf) {
         experienceBar = buf.readFloat();
         level = buf.readVarInt();
         totalExperience = buf.readVarInt();
