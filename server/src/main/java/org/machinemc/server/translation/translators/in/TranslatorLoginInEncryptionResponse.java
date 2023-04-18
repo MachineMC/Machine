@@ -31,7 +31,7 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
 
     @Override
     public void translateAfter(final ClientConnection connection, final PacketLoginInEncryptionResponse packet) {
-        OnlineServer onlineServer = connection.getServer().getOnlineServer();
+        final OnlineServer onlineServer = connection.getServer().getOnlineServer();
         if (onlineServer == null) {
             connection.disconnect();
             return;
@@ -41,7 +41,7 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
             return;
         }
 
-        SecretKey secretkey = onlineServer.getSecretKey(onlineServer.getKey().getPrivate(), packet.getSecret());
+        final SecretKey secretkey = onlineServer.getSecretKey(onlineServer.getKey().getPrivate(), packet.getSecret());
         connection.setSecretKey(secretkey);
 
         final String serverId = new BigInteger(onlineServer.digestData(
@@ -60,13 +60,15 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
                 }
                 return;
             }
-            UUID authUUID = UUIDUtils.parseUUID(json.get("id").getAsString());
+            final UUID authUUID = UUIDUtils.parseUUID(json.get("id").getAsString());
             if (authUUID == null) {
                 connection.disconnect();
                 return;
             }
-            String authUsername = json.get("name").getAsString();
-            PlayerTexturesImpl playerTextures = PlayerTexturesImpl.buildSkin(json.getAsJsonArray("properties").get(0));
+            final String authUsername = json.get("name").getAsString();
+            final PlayerTexturesImpl playerTextures = PlayerTexturesImpl.buildSkin(
+                    json.getAsJsonArray("properties").get(0)
+            );
             final PlayerProfile profile = PlayerProfileImpl.online(authUsername, authUUID, playerTextures);
             connection.setCompression(256); // TODO should be in properties
             connection.send(new PacketLoginOutSuccess(authUUID, authUsername, profile.getTextures()));

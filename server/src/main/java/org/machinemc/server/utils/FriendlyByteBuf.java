@@ -73,7 +73,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     public byte[] finish() {
         final int length = buf.writerIndex();
         final int reader = buf.readerIndex();
-        byte[] bytes = new byte[length - reader];
+        final byte[] bytes = new byte[length - reader];
         for (int i = 0; i < length - reader; i++)
             bytes[i] = readByte();
         return bytes;
@@ -81,8 +81,8 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public DataOutputStream stream() throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        DataOutputStream stream = new DataOutputStream(buffer);
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        final DataOutputStream stream = new DataOutputStream(buffer);
         stream.write(bytes());
         return stream;
     }
@@ -137,8 +137,8 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public byte[] readByteArray() {
-        int length = readVarInt();
-        byte[] bytes = new byte[length];
+        final int length = readVarInt();
+        final byte[] bytes = new byte[length];
         for (int i = 0; i < length; i++)
             bytes[i] = readByte();
         return bytes;
@@ -147,7 +147,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public FriendlyByteBuf writeByteArray(final byte[] bytes) {
         writeVarInt(bytes.length);
-        for (byte b : bytes)
+        for (final byte b : bytes)
             writeByte(b);
         return this;
     }
@@ -187,8 +187,8 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public long[] readLongArray() {
-        int length = readVarInt();
-        long[] longs = new long[length];
+        final int length = readVarInt();
+        final long[] longs = new long[length];
         for (int i = 0; i < length; i++)
             longs[i] = readLong();
         return longs;
@@ -197,7 +197,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public FriendlyByteBuf writeLongArray(final long[] longs) {
         writeVarInt(longs.length);
-        for (long l : longs)
+        for (final long l : longs)
             writeLong(l);
         return this;
     }
@@ -254,8 +254,8 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public int[] readVarIntArray() {
-        int length = readVarInt();
-        int[] ints = new int[length];
+        final int length = readVarInt();
+        final int[] ints = new int[length];
         for (int i = 0; i < length; i++)
             ints[i] = readVarInt();
         return ints;
@@ -264,7 +264,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public FriendlyByteBuf writeVarIntArray(final int[] ints) {
         writeVarInt(ints.length);
-        for (int i : ints)
+        for (final int i : ints)
             writeVarInt(i);
         return this;
     }
@@ -318,7 +318,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public List<String> readStringList(final Charset charset) {
         final List<String> strings = new ArrayList<>();
-        int length = readVarInt();
+        final int length = readVarInt();
         for (int i = 0; i < length; i++)
             strings.add(readString(charset));
         return strings;
@@ -327,7 +327,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public FriendlyByteBuf writeStringList(final List<String> strings, final Charset charset) {
         writeVarInt(strings.size());
-        for (String string : strings)
+        for (final String string : strings)
             writeString(string, charset);
         return this;
     }
@@ -365,7 +365,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     public NBTCompound readNBT() {
         final byte[] bytes = buf.array();
         final ByteArrayInputStream is = new ByteArrayInputStream(bytes, buf.readerIndex(), bytes.length);
-        NBTCompound compound;
+        final NBTCompound compound;
         try {
             compound = new NBTCompound();
             compound.readAll(is);
@@ -433,8 +433,8 @@ public class FriendlyByteBuf implements ServerBuffer {
         if (!readBoolean())
             return new ItemStack(Material.AIR);
         final Material material = ItemStack.getMaterial(readVarInt());
-        ItemStack itemStack = new ItemStack(material != null ? material : Material.AIR, readByte());
-        NBTCompound compound = readNBT();
+        final ItemStack itemStack = new ItemStack(material != null ? material : Material.AIR, readByte());
+        final NBTCompound compound = readNBT();
         itemStack.setNbtCompound(compound);
         return itemStack;
     }

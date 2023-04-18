@@ -23,8 +23,8 @@ public class Codec implements NBTSerializable {
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound compound = new NBTCompound();
-        for (CodecPart part : codecParts)
+        final NBTCompound compound = new NBTCompound();
+        for (final CodecPart part : codecParts)
             compound.set(part.getCodecType(), part.getCodecNBT());
         return compound;
     }

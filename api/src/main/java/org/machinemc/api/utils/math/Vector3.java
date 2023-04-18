@@ -175,9 +175,9 @@ public class Vector3 implements Cloneable {
      */
     @Contract("_ -> this")
     public Vector3 crossProduct(final Vector3 other) {
-        double x = this.y * other.z - other.y * this.z;
-        double y = this.z * other.x - other.z * this.x;
-        double z = this.x * other.y - other.x * this.y;
+        final double x = this.y * other.z - other.y * this.z;
+        final double y = this.z * other.x - other.z * this.x;
+        final double z = this.x * other.y - other.x * this.y;
         this.x = x;
         this.y = y;
         this.z = z;
@@ -258,11 +258,11 @@ public class Vector3 implements Cloneable {
      */
     @Contract("_ -> this")
     public Vector3 rotateAroundX(final double angle) {
-        double angleCos = Math.cos(angle);
-        double angleSin = Math.sin(angle);
+        final double angleCos = Math.cos(angle);
+        final double angleSin = Math.sin(angle);
 
-        double y = angleCos * getY() - angleSin * getZ();
-        double z = angleSin * getY() + angleCos * getZ();
+        final double y = angleCos * getY() - angleSin * getZ();
+        final double z = angleSin * getY() + angleCos * getZ();
         return setY(y)
                 .setZ(z);
     }
@@ -275,11 +275,11 @@ public class Vector3 implements Cloneable {
      */
     @Contract("_ -> this")
     public Vector3 rotateAroundY(final double angle) {
-        double angleCos = Math.cos(angle);
-        double angleSin = Math.sin(angle);
+        final double angleCos = Math.cos(angle);
+        final double angleSin = Math.sin(angle);
 
-        double x = angleCos * getX() + angleSin * getZ();
-        double z = -angleSin * getX() + angleCos * getZ();
+        final double x = angleCos * getX() + angleSin * getZ();
+        final double z = -angleSin * getX() + angleCos * getZ();
         return setX(x)
                 .setZ(z);
     }
@@ -292,11 +292,11 @@ public class Vector3 implements Cloneable {
      */
     @Contract("_ -> this")
     public Vector3 rotateAroundZ(final double angle) {
-        double angleCos = Math.cos(angle);
-        double angleSin = Math.sin(angle);
+        final double angleCos = Math.cos(angle);
+        final double angleSin = Math.sin(angle);
 
-        double x = angleCos * getX() - angleSin * getY();
-        double y = angleSin * getX() + angleCos * getY();
+        final double x = angleCos * getX() - angleSin * getY();
+        final double y = angleSin * getX() + angleCos * getY();
         return setX(x)
                 .setY(y);
     }
@@ -340,20 +340,20 @@ public class Vector3 implements Cloneable {
      */
     @Contract("_, _ -> this")
     public Vector3 rotateAroundNonUnitAxis(final Vector3 axis, final double angle) throws IllegalArgumentException {
-        double x = getX(), y = getY(), z = getZ();
-        double x2 = axis.getX(), y2 = axis.getY(), z2 = axis.getZ();
+        final double x = getX(), y = getY(), z = getZ();
+        final double x2 = axis.getX(), y2 = axis.getY(), z2 = axis.getZ();
 
-        double cosTheta = Math.cos(angle);
-        double sinTheta = Math.sin(angle);
-        double dotProduct = this.dot(axis);
+        final double cosTheta = Math.cos(angle);
+        final double sinTheta = Math.sin(angle);
+        final double dotProduct = this.dot(axis);
 
-        double xPrime = x2 * dotProduct * (1d - cosTheta)
+        final double xPrime = x2 * dotProduct * (1d - cosTheta)
                 + x * cosTheta
                 + (-z2 * y + y2 * z) * sinTheta;
-        double yPrime = y2 * dotProduct * (1d - cosTheta)
+        final double yPrime = y2 * dotProduct * (1d - cosTheta)
                 + y * cosTheta
                 + (z2 * x - x2 * z) * sinTheta;
-        double zPrime = z2 * dotProduct * (1d - cosTheta)
+        final double zPrime = z2 * dotProduct * (1d - cosTheta)
                 + z * cosTheta
                 + (-y2 * x + x2 * y) * sinTheta;
 
@@ -409,7 +409,7 @@ public class Vector3 implements Cloneable {
      * @return A random vector
      */
     public static Vector3 getRandom() {
-        ThreadLocalRandom random = ThreadLocalRandom.current();
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
         return new Vector3(random.nextDouble(), random.nextDouble(), random.nextDouble());
     }
 

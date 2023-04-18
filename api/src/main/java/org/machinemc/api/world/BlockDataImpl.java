@@ -28,9 +28,8 @@ public class BlockDataImpl extends BlockData {
      * Finishes the registration of the block data to materials.
      */
     public static void finishRegistration() {
-        Integer size = Iterables.getLast(REGISTRY.keySet());
-        registryArray = new BlockDataImpl[++size];
-        for (Integer stateId : REGISTRY.keySet())
+        registryArray = new BlockDataImpl[Iterables.getLast(REGISTRY.keySet()) + 1];
+        for (final Integer stateId : REGISTRY.keySet())
             registryArray[stateId] = REGISTRY.get(stateId);
     }
 
@@ -42,7 +41,7 @@ public class BlockDataImpl extends BlockData {
     public static @Nullable BlockData getBlockData(final int id) {
         if (id == -1) return null;
         if (registryArray.length <= id) return null;
-        BlockDataImpl data = registryArray[id];
+        final BlockDataImpl data = registryArray[id];
         if (data == null) return null;
         return data.clone();
     }
@@ -63,9 +62,9 @@ public class BlockDataImpl extends BlockData {
     @Override
     protected BlockDataImpl setMaterial(final Material material) {
         this.material = material;
-        Map<Integer, BlockData> stateMap = getIdMap();
-        for (Integer stateId : stateMap.keySet()) {
-            BlockData data = stateMap.get(stateId).clone();
+        final Map<Integer, BlockData> stateMap = getIdMap();
+        for (final Integer stateId : stateMap.keySet()) {
+            final BlockData data = stateMap.get(stateId).clone();
             if (!(data instanceof BlockDataImpl blockData))
                 throw new IllegalStateException();
             blockData.material = material;

@@ -49,7 +49,7 @@ public final class NBTUtils {
      */
     public static NBTCompound deserializeNBTFile(final File file) {
         try {
-            NBTCompound compound = new NBTCompound();
+            final NBTCompound compound = new NBTCompound();
             compound.read(file);
             return compound;
         } catch (IOException e) {

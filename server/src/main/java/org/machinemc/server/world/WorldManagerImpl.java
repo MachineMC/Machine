@@ -54,7 +54,7 @@ public class WorldManagerImpl implements WorldManager {
 
     @Override
     public World getWorld(final NamespacedKey name) {
-        for (World world : getWorlds()) {
+        for (final World world : getWorlds()) {
             if (!(world.getName().equals(name))) continue;
             return world;
         }

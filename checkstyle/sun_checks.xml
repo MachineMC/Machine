@@ -174,12 +174,23 @@
         <module name="EqualsHashCode"/>
         <!-- DISABLED FOR MACHINE --> <!-- module name="HiddenField"/ -->
         <module name="IllegalInstantiation"/>
-        <!-- DISBLED FOR MACHINE --> <!-- module name="InnerAssignment"/ -->
+        <!-- DISABLED FOR MACHINE --> <!-- module name="InnerAssignment"/ -->
         <!-- module name="MagicNumber"/ -->
         <!-- DISABLED FOR MACHINE --> <!-- module name="MissingSwitchDefault"/ -->
         <!-- DISABLED FOR MACHINE --> <!-- module name="MultipleVariableDeclarations"/ -->
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
+        <!-- ADDED FOR MACHINE --> <module name="DefaultComesLast"/>
+        <!-- ADDED FOR MACHINE --> <module name="EmptyStatement"/>
+        <!-- ADDED FOR MACHINE --> <module name="EqualsHashCode"/>
+        <!-- ADDED FOR MACHINE --> <module name="FinalLocalVariable">
+            <property name="validateEnhancedForLoopVariable" value="true"/>
+        </module>
+        <!-- ADDED FOR MACHINE --> <module name="SimplifyBooleanExpression"/>
+        <!-- ADDED FOR MACHINE --> <module name="OneStatementPerLine"/>
+        <!-- ADDED FOR MACHINE --> <module name="OverloadMethodsDeclarationOrder"/>
+        <!-- ADDED FOR MACHINE --> <module name="UnnecessaryParentheses"/>
+        <!-- ADDED FOR MACHINE --> <module name="UnusedLocalVariable"/>
 
         <!-- Checks for class design                         -->
         <!-- See https://checkstyle.org/config_design.html -->

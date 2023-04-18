@@ -100,7 +100,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
             connection.disconnect(TranslationComponent.of("disconnect.loginFailed"));
             throw new IllegalStateException("Session is already active");
         }
-        ServerPlayer player = new ServerPlayer(server, profile, connection);
+        final ServerPlayer player = new ServerPlayer(server, profile, connection);
         if (server.getPlayerDataContainer().exist(player.getUuid())) {
             try {
                 final NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player.getUuid());
@@ -130,14 +130,14 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     public void init() {
         super.init();
 
-        NBTCompound codec = new Codec(
+        final NBTCompound codec = new Codec(
                 getServer().getDimensionTypeManager(),
                 getServer().getBiomeManager(),
                 getServer().getMessenger()
         ).toNBT();
 
-        List<String> worlds = new ArrayList<>();
-        for (World world : getServer().getWorldManager().getWorlds())
+        final List<String> worlds = new ArrayList<>();
+        for (final World world : getServer().getWorldManager().getWorlds())
             worlds.add(world.getName().toString());
 
         //noinspection UnstableApiUsage
@@ -176,7 +176,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         // Recipe
         // Player Position
         sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, this));
-        for (Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
+        for (final Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
             if (player == this)
                 continue;
             sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, player));
@@ -274,7 +274,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound nbtCompound = super.toNBT();
+        final NBTCompound nbtCompound = super.toNBT();
         nbtCompound.set("playerGameType", gamemode.getId());
         if (previousGamemode != null)
             nbtCompound.set("previousPlayerGameType", previousGamemode.getId());

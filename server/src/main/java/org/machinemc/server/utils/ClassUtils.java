@@ -35,8 +35,8 @@ public final class ClassUtils {
      * @throws IOException if jar is invalid
      */
     public static void loadClasses(final String basePackage) throws IOException {
-        List<String> classNames = getClasses(basePackage);
-        for (String className : classNames) {
+        final List<String> classNames = getClasses(basePackage);
+        for (final String className : classNames) {
             try {
                 Class.forName(className, true, Machine.CLASS_LOADER);
             } catch (ClassNotFoundException | ExceptionInInitializerError ignored) { }
@@ -50,11 +50,11 @@ public final class ClassUtils {
      * @throws IOException if jar is invalid
      */
     public static List<String> getClasses(final String basePackage) throws IOException {
-        @Cleanup JarFile jar = new JarFile(FileUtils.getMachineJar());
+        final @Cleanup JarFile jar = new JarFile(FileUtils.getMachineJar());
         final String packagePath = basePackage.replace('.', '/') + "/";
-        List<String> classNames = new ArrayList<>();
+        final List<String> classNames = new ArrayList<>();
         for (Iterator<JarEntry> entries = jar.entries().asIterator(); entries.hasNext();) {
-            JarEntry entry = entries.next();
+            final JarEntry entry = entries.next();
             if (entry.getName().startsWith(packagePath) && entry.getName().endsWith(".class"))
                 classNames.add(entry.getName().replace('/', '.')
                         .substring(0, entry.getName().length() - ".class".length()));

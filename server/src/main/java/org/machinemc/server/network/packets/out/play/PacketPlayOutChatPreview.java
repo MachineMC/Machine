@@ -44,7 +44,7 @@ public class PacketPlayOutChatPreview extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeInt(queryId)
                 .writeBoolean(preview != null);
         if (preview != null) {

@@ -39,7 +39,7 @@ public enum Difficulty {
      * @return difficulty with given name
      */
     public static @Nullable Difficulty getByName(final String name) {
-        for (Difficulty value : values()) {
+        for (final Difficulty value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }
         return null;

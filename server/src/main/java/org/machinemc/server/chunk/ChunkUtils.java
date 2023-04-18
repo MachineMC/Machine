@@ -74,8 +74,8 @@ public final class ChunkUtils {
     public static int getBlockIndex(final int x, final int y, final int z) {
         if (x > 15 || x < 0 || z > 15 || z < 0 || y > 4096 || y < 0) throw new UnsupportedOperationException();
         int index = 0;
-        index |= (y << 8);
-        index |= (z << 4);
+        index |= y << 8;
+        index |= z << 4;
         index |= x;
         return index;
     }
@@ -101,14 +101,14 @@ public final class ChunkUtils {
      */
     public static long[] encodeBlocks(final int[] blocks, final int bitsPerEntry) {
         final long maxEntryValue = (1L << bitsPerEntry) - 1;
-        final int valuesPerLong = (64 / bitsPerEntry);
+        final int valuesPerLong = 64 / bitsPerEntry;
         final int magicIndex = 3 * (valuesPerLong - 1);
         final long divideMul = Integer.toUnsignedLong(MAGIC[magicIndex]);
         final long divideAdd = Integer.toUnsignedLong(MAGIC[magicIndex + 1]);
         final int divideShift = MAGIC[magicIndex + 2];
         final int size = (blocks.length + valuesPerLong - 1) / valuesPerLong;
 
-        long[] data = new long[size];
+        final long[] data = new long[size];
 
         for (int i = 0; i < blocks.length; i++) {
             final long value = blocks[i];

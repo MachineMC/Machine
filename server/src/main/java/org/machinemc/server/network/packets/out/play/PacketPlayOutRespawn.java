@@ -60,7 +60,7 @@ public class PacketPlayOutRespawn extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeNamespacedKey(worldType)
                 .writeNamespacedKey(worldName)
                 .writeLong(hashedSeed)

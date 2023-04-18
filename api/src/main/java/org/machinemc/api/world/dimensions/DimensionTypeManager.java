@@ -27,7 +27,7 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @return if the dimension with given name was successfully removed
      */
     default boolean removeDimension(NamespacedKey name) {
-        DimensionType dimensionType = getDimension(name);
+        final DimensionType dimensionType = getDimension(name);
         if (dimensionType == null)
             return false;
         return removeDimension(dimensionType);
@@ -47,7 +47,7 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @return if the dimension with given name is registered in this manager
      */
     default boolean isRegistered(NamespacedKey name) {
-        DimensionType dimensionType = getDimension(name);
+        final DimensionType dimensionType = getDimension(name);
         if (dimensionType == null)
             return false;
         return isRegistered(dimensionType);
@@ -92,7 +92,7 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @return NBT of the given dimension
      */
     default @Nullable NBTCompound getDimensionNBT(NamespacedKey name) {
-        DimensionType dimensionType = getDimension(name);
+        final DimensionType dimensionType = getDimension(name);
         if (dimensionType == null)
             return null;
         return getDimensionNBT(dimensionType);

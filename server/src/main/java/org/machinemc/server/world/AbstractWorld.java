@@ -90,8 +90,8 @@ public abstract class AbstractWorld implements World {
     @Override
     public void setDifficulty(final Difficulty difficulty) {
         this.difficulty = difficulty;
-        PacketOut packet = new PacketPlayOutChangeDifficulty(difficulty);
-        for (Entity entity : getEntities()) {
+        final PacketOut packet = new PacketPlayOutChangeDifficulty(difficulty);
+        for (final Entity entity : getEntities()) {
             if (!(entity instanceof ServerPlayer player)) continue;
             player.sendPacket(packet);
         }
@@ -100,8 +100,8 @@ public abstract class AbstractWorld implements World {
     @Override
     public void setWorldSpawn(final Location location) {
         this.worldSpawn = location;
-        PacketOut packet = new PacketPlayOutWorldSpawnPosition(location);
-        for (Entity entity : getEntities()) {
+        final PacketOut packet = new PacketPlayOutWorldSpawnPosition(location);
+        for (final Entity entity : getEntities()) {
             if (!(entity instanceof ServerPlayer player)) continue;
             player.sendPacket(packet);
         }

@@ -93,7 +93,7 @@ public class LandscapeChunk extends WorldChunk {
                     blockEntityType, new NBTCompound()
             );
             blockEntityType.initialize(state);
-            for (BlockHandler handler : blockType.getHandlers())
+            for (final BlockHandler handler : blockType.getHandlers())
                 handler.onPlace(state);
             segment.setNBT(x, sectionY, z, state.compound());
         } else {
@@ -471,8 +471,8 @@ public class LandscapeChunk extends WorldChunk {
 
     @Override
     public Section.BlockEntity[] getClientBlockEntities() {
-        List<Section.BlockEntity> all = new ArrayList<>();
-        for (Section section : getSections())
+        final List<Section.BlockEntity> all = new ArrayList<>();
+        for (final Section section : getSections())
             all.addAll(section.getClientBlockEntities().values());
         return all.toArray(new Section.BlockEntity[0]);
     }

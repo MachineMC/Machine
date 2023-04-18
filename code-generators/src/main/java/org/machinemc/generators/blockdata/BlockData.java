@@ -56,9 +56,9 @@ public final class BlockData {
 
         final Map<Property, String> defaultState = new HashMap<>();
 
-        JsonObject jsonProperties = json.get("properties").getAsJsonObject();
-        for (Map.Entry<String, JsonElement> entry : jsonProperties.entrySet()) {
-            Property property = generator.getProperties().get(toCamelCase(entry.getKey(), true));
+        final JsonObject jsonProperties = json.get("properties").getAsJsonObject();
+        for (final Map.Entry<String, JsonElement> entry : jsonProperties.entrySet()) {
+            final Property property = generator.getProperties().get(toCamelCase(entry.getKey(), true));
             properties.add(property);
             availableValues.put(property, new ArrayList<>());
             jsonProperties.get(entry.getKey()).getAsJsonArray()
@@ -66,17 +66,17 @@ public final class BlockData {
                     );
         }
 
-        JsonArray jsonStates = json.get("states").getAsJsonArray();
-        for (JsonElement stateElement : jsonStates) {
-            int stateId = stateElement.getAsJsonObject().get("id").getAsInt();
+        final JsonArray jsonStates = json.get("states").getAsJsonArray();
+        for (final JsonElement stateElement : jsonStates) {
+            final int stateId = stateElement.getAsJsonObject().get("id").getAsInt();
             blockDataMap.put(stateId, new ArrayList<>());
-            boolean isDefault = stateElement.getAsJsonObject().get("default") != null;
-            JsonObject stateProperties = stateElement.getAsJsonObject().get("properties").getAsJsonObject();
-            StringBuilder key = new StringBuilder();
-            for (Map.Entry<String, JsonElement> entry : stateProperties.entrySet()) {
+            final boolean isDefault = stateElement.getAsJsonObject().get("default") != null;
+            final JsonObject stateProperties = stateElement.getAsJsonObject().get("properties").getAsJsonObject();
+            final StringBuilder key = new StringBuilder();
+            for (final Map.Entry<String, JsonElement> entry : stateProperties.entrySet()) {
                 key.append(entry.getValue().getAsString());
                 key.append(";");
-                Property property = generator.getProperties().get(toCamelCase(entry.getKey(), true));
+                final Property property = generator.getProperties().get(toCamelCase(entry.getKey(), true));
                 blockDataMap.get(stateId).add(new AbstractMap.SimpleEntry<>(property, entry.getValue().getAsString()));
                 if (isDefault)
                     defaultState.put(property, entry.getValue().getAsString());
@@ -84,7 +84,7 @@ public final class BlockData {
             idMap.put(key.toString().toLowerCase(), stateId);
         }
 
-        BlockData blockData = new BlockData(name);
+        final BlockData blockData = new BlockData(name);
 
         blockData.properties      = properties;
         blockData.availableValues = availableValues;
@@ -101,10 +101,9 @@ public final class BlockData {
      * @return data for the block data class
      */
     public byte[] generate() {
-        String material = id.replaceFirst("minecraft:", "").toUpperCase();
-        ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-        Set<String> interfaces = new LinkedHashSet<>();
-        for (Property property : properties)
+        final ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        final Set<String> interfaces = new LinkedHashSet<>();
+        for (final Property property : properties)
             interfaces.add(property.getInterfacePath().replaceAll("\\.", "/"));
         cw.visit(Opcodes.V17,
                 Opcodes.ACC_PUBLIC,
@@ -126,8 +125,8 @@ public final class BlockData {
                 "Ljava/util/HashMap<Ljava/lang/Integer;" + type(path).getDescriptor() + ">;",
                 null);
         fv.visitEnd();
-        for (Property property : properties) {
-            String descriptor = switch (property.getType()) {
+        for (final Property property : properties) {
+            final String descriptor = switch (property.getType()) {
                 case BOOLEAN -> Type.BOOLEAN_TYPE.getDescriptor();
                 case NUMBER -> Type.INT_TYPE.getDescriptor();
                 case OTHER -> type(property.getPath()).getDescriptor();
@@ -137,9 +136,9 @@ public final class BlockData {
                     descriptor,
                     null,
                     null);
-            AnnotationVisitor av = fv.visitAnnotation("Lorg/machinemc/api/world/PropertyRange;", true);
-            AnnotationVisitor arrayVisitor = av.visitArray("available");
-            for (String value : availableValues.get(property))
+            final AnnotationVisitor av = fv.visitAnnotation("Lorg/machinemc/api/world/PropertyRange;", true);
+            final AnnotationVisitor arrayVisitor = av.visitArray("available");
+            for (final String value : availableValues.get(property))
                 arrayVisitor.visit(value, property.getType() == Property.Type.OTHER ? value : value.toLowerCase());
             arrayVisitor.visitEnd();
             av.visitEnd();
@@ -207,9 +206,9 @@ public final class BlockData {
                 "<init>",
                 "()V",
                 false);
-        for (Property property : properties) {
+        for (final Property property : properties) {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
-            String defaultValue = defaultState.get(property);
+            final String defaultValue = defaultState.get(property);
             switch (property.getType()) {
                 case BOOLEAN -> pushValue(mv, Boolean.parseBoolean(defaultValue.toLowerCase()));
                 case NUMBER -> pushValue(mv, Integer.parseInt(defaultValue));
@@ -233,8 +232,8 @@ public final class BlockData {
         cw.visitEnd();
 
         // all args constructor
-        StringBuilder descriptorBuilder = new StringBuilder().append("(");
-        for (Property property : properties)
+        final StringBuilder descriptorBuilder = new StringBuilder().append("(");
+        for (final Property property : properties)
             descriptorBuilder.append(
                     switch (property.getType()) {
                         case BOOLEAN -> Type.BOOLEAN_TYPE.getDescriptor();
@@ -255,7 +254,7 @@ public final class BlockData {
                 "()V",
                 false);
         int i = 1;
-        for (Property property : properties) {
+        for (final Property property : properties) {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             mv.visitVarInsn(
                     switch (property.getType()) {
@@ -285,7 +284,7 @@ public final class BlockData {
                 new String[0]);
         mv.visitCode();
         i = 0;
-        for (String fieldName : List.of("ID_MAP", "BLOCKDATA_MAP")) {
+        for (final String fieldName : List.of("ID_MAP", "BLOCKDATA_MAP")) {
             mv.visitTypeInsn(Opcodes.NEW, Type.getType(HashMap.class).getInternalName());
             mv.visitInsn(Opcodes.DUP);
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
@@ -301,7 +300,7 @@ public final class BlockData {
                     Type.getType(HashMap.class).getDescriptor());
             i++;
         }
-        for (String key : idMap.keySet()) {
+        for (final String key : idMap.keySet()) {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             pushValue(mv, key);
             pushValue(mv, idMap.get(key));
@@ -334,13 +333,13 @@ public final class BlockData {
                 null,
                 new String[0]);
         mv.visitCode();
-        for (Integer id : blockDataMap.keySet()) {
+        for (final Integer id : blockDataMap.keySet()) {
             mv.visitFieldInsn(Opcodes.GETSTATIC,
                     type(path).getInternalName(),
                     "BLOCKDATA_MAP",
                     Type.getType(HashMap.class).getDescriptor());
-            StringBuilder stateKeyBuilder = new StringBuilder();
-            for (Map.Entry<Property, String> property : blockDataMap.get(id))
+            final StringBuilder stateKeyBuilder = new StringBuilder();
+            for (final Map.Entry<Property, String> property : blockDataMap.get(id))
                 stateKeyBuilder.append(property.getValue().toLowerCase()).append(";");
             pushValue(mv, idMap.get(stateKeyBuilder.toString()));
             mv.visitMethodInsn(Opcodes.INVOKESTATIC,
@@ -350,7 +349,7 @@ public final class BlockData {
                     false);
             mv.visitTypeInsn(Opcodes.NEW, type(path).getInternalName());
             mv.visitInsn(Opcodes.DUP);
-            for (Map.Entry<Property, String> property : blockDataMap.get(id)) {
+            for (final Map.Entry<Property, String> property : blockDataMap.get(id)) {
                 switch (property.getKey().getType()) {
                     case BOOLEAN -> pushValue(mv, Boolean.parseBoolean(property.getValue()));
                     case NUMBER -> pushValue(mv, Integer.parseInt(property.getValue()));
@@ -389,7 +388,7 @@ public final class BlockData {
         pushValue(mv, properties.size());
         mv.visitTypeInsn(Opcodes.ANEWARRAY, Type.getType(Object.class).getInternalName());
         i = 0;
-        for (Property property : properties) {
+        for (final Property property : properties) {
             mv.visitInsn(Opcodes.DUP);
             pushValue(mv, i);
             mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -458,7 +457,7 @@ public final class BlockData {
                 "<init>",
                 "()V",
                 false);
-        for (Property property : properties) {
+        for (final Property property : properties) {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             mv.visitFieldInsn(Opcodes.GETFIELD,
                     type(path).getInternalName(),

@@ -25,7 +25,7 @@ public class FormattedOutputStream extends FilterOutputStream {
     public void write(final int b) throws IOException {
         buf.write(b);
         if (buf.isLineComplete()) {
-            String line = new String(buf.toByteArray(), 0, buf.size() - LINE_SEPARATOR.length);
+            final String line = new String(buf.toByteArray(), 0, buf.size() - LINE_SEPARATOR.length);
             console.log(level, linePrefix + line);
             buf = new EolTrackerByteArrayOutputStream();
         }

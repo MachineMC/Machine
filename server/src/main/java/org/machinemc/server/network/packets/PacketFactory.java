@@ -36,7 +36,7 @@ public final class PacketFactory {
      * @return instance of the packet
      */
     public static @Nullable Packet produce(final Class<? extends Packet> packetClass, final FriendlyByteBuf buf) {
-        PacketCreator<? extends Packet> creator = CREATORS.get(packetClass);
+        final PacketCreator<? extends Packet> creator = CREATORS.get(packetClass);
         if (creator == null) return null;
         return creator.create(buf);
     }
@@ -47,9 +47,9 @@ public final class PacketFactory {
      * @return class of the packet
      */
     public static @Nullable Class<? extends Packet> getPacketInById(final int id) {
-        Class<? extends Packet> in = IN_MAPPING.get(id);
+        final Class<? extends Packet> in = IN_MAPPING.get(id);
         if (in != null) return in;
-        for (Map.Entry<Class<? extends Packet>, Integer> entry : OUT_MAPPING.entrySet()) {
+        for (final Map.Entry<Class<? extends Packet>, Integer> entry : OUT_MAPPING.entrySet()) {
             if (entry.getValue() != id) continue;
             return entry.getKey();
         }
@@ -63,9 +63,9 @@ public final class PacketFactory {
      * @return class of the packet
      */
     public static @Nullable Class<? extends Packet> getPacketByRawId(final int id, final PacketImpl.PacketState state) {
-        Class<? extends Packet> in = IN_MAPPING.get(id | state.getMask());
+        final Class<? extends Packet> in = IN_MAPPING.get(id | state.getMask());
         if (in != null) return in;
-        for (Map.Entry<Class<? extends Packet>, Integer> entry : OUT_MAPPING.entrySet()) {
+        for (final Map.Entry<Class<? extends Packet>, Integer> entry : OUT_MAPPING.entrySet()) {
             if (entry.getValue() != (id | state.getMask())) continue;
             return entry.getKey();
         }
@@ -78,9 +78,9 @@ public final class PacketFactory {
      * @return id of the packet, -1 if it doesn't exist
      */
     public static int getIdByPacket(final Class<? extends Packet> packetClass) {
-        Integer out = OUT_MAPPING.get(packetClass);
+        final Integer out = OUT_MAPPING.get(packetClass);
         if (out != null) return out;
-        for (Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
+        for (final Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
             if (entry.getValue() != packetClass) continue;
             return entry.getKey();
         }
@@ -94,9 +94,9 @@ public final class PacketFactory {
      * @return id of the packet, -1 if it doesn't exist
      */
     public static int getRawIdByPacket(final Class<? extends Packet> packetClass, final PacketImpl.PacketState state) {
-        Integer out = OUT_MAPPING.get(packetClass);
+        final Integer out = OUT_MAPPING.get(packetClass);
         if (out != null) return out & ~state.getMask();
-        for (Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
+        for (final Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
             if (entry.getValue() != packetClass) continue;
             return entry.getKey() & ~state.getMask();
         }
@@ -109,10 +109,10 @@ public final class PacketFactory {
      * @return state of the packets of given class
      */
     public static @Nullable Packet.PacketState getRegisteredState(final Class<? extends Packet> packetClass) {
-        Integer out = OUT_MAPPING.get(packetClass);
+        final Integer out = OUT_MAPPING.get(packetClass);
         if (out != null)
             return Packet.PacketState.fromMask(out >> Packet.PacketState.OFFSET);
-        for (Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
+        for (final Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
             if (entry.getValue() != packetClass) continue;
             return Packet.PacketState.fromMask(entry.getKey() & (0b111 << Packet.PacketState.OFFSET));
         }

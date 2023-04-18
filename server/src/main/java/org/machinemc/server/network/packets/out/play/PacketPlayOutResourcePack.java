@@ -50,7 +50,7 @@ public class PacketPlayOutResourcePack extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(url, StandardCharsets.UTF_8)
                 .writeString(hash, StandardCharsets.UTF_8)
                 .writeBoolean(forced)

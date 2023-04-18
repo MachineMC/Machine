@@ -49,7 +49,7 @@ public final class NamespacedKey {
      */
     @Contract("_ -> new")
     public static NamespacedKey parse(final String namespacedKey) {
-        String[] key = parseNamespacedKey(namespacedKey);
+        final String[] key = parseNamespacedKey(namespacedKey);
         if (key == null)
             throw new IllegalArgumentException("The namespaced key '" + namespacedKey + "' "
                     + "does not have a separator character ':'");
@@ -101,7 +101,7 @@ public final class NamespacedKey {
     public boolean equals(final Object obj) {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (NamespacedKey) obj;
+        final var that = (NamespacedKey) obj;
         return Objects.equals(this.namespace, that.namespace)
                 && Objects.equals(this.key, that.key);
     }
@@ -121,11 +121,11 @@ public final class NamespacedKey {
      * or null if that input doesn't have a separator character ':'
      */
     protected static String @Nullable [] parseNamespacedKey(final String input) {
-        String[] namespacedKey = new String[2];
-        char[] chars = input.toCharArray();
+        final String[] namespacedKey = new String[2];
+        final char[] chars = input.toCharArray();
         StringBuilder builder = new StringBuilder();
         boolean separator = false;
-        for (char c : chars) {
+        for (final char c : chars) {
             if (c == ':') {
                 separator = true;
                 namespacedKey[0] = builder.toString();
@@ -152,13 +152,13 @@ public final class NamespacedKey {
     protected static boolean isValidNamespacedKey(final String namespace, final String key) {
         if (namespace.isEmpty())
             return false;
-        for (char c : namespace.toCharArray()) {
+        for (final char c : namespace.toCharArray()) {
             if (!isValidNamespace(c))
                 return false;
         }
         if (key.isEmpty())
             return false;
-        for (char c : key.toCharArray()) {
+        for (final char c : key.toCharArray()) {
             if (!isValidKey(c))
                 return false;
         }

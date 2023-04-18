@@ -29,7 +29,7 @@ public final class ServerCommands {
      * @return stop command
      */
     private static LiteralArgumentBuilder<CommandExecutor> stopCommand(final Machine server) {
-        LiteralArgumentBuilder<CommandExecutor> stopCommand = LiteralArgumentBuilder.literal("stop");
+        final LiteralArgumentBuilder<CommandExecutor> stopCommand = LiteralArgumentBuilder.literal("stop");
         stopCommand.executes(c -> {
             server.shutdown();
             return 0;

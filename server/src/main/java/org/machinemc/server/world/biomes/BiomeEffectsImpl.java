@@ -42,7 +42,7 @@ public class BiomeEffectsImpl implements BiomeEffects {
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound compound = new NBTCompound(Map.of(
+        final NBTCompound compound = new NBTCompound(Map.of(
                 "fog_color", fogColor,
                 "sky_color", skyColor,
                 "water_color", waterColor,

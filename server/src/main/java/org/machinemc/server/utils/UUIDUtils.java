@@ -44,8 +44,8 @@ public final class UUIDUtils {
      * @return The int array
      */
     public static int[] uuidToIntArray(final UUID uuid) {
-        long most = uuid.getMostSignificantBits();
-        long least = uuid.getLeastSignificantBits();
+        final long most = uuid.getMostSignificantBits();
+        final long least = uuid.getLeastSignificantBits();
         return leastMostToIntArray(most, least);
     }
 
@@ -67,7 +67,7 @@ public final class UUIDUtils {
     public static @Nullable UUID parseUUID(final @Nullable String string) {
         if (string == null)
             return null;
-        Matcher matcher = UUID_PATTERN.matcher(string);
+        final Matcher matcher = UUID_PATTERN.matcher(string);
         if (!matcher.matches())
             return null;
         return UUID.fromString(matcher.replaceFirst(DASHES_UUID_REPLACE));

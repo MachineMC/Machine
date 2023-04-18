@@ -45,7 +45,7 @@ public final class ParticleImpl implements Particle {
      * @return particle created from the given type and options
      */
     public static Particle of(final ParticleType type, final @Nullable ParticleOptions options) {
-        ParticleImpl particle = new ParticleImpl(type);
+        final ParticleImpl particle = new ParticleImpl(type);
         particle.options = options;
         return particle;
     }
@@ -56,7 +56,7 @@ public final class ParticleImpl implements Particle {
      * @return particle created from the buffer
      */
     public static Particle fromBuffer(final FriendlyByteBuf buf) {
-        ParticleType type = ParticleType.fromID(buf.readVarInt());
+        final ParticleType type = ParticleType.fromID(buf.readVarInt());
         return ParticleFactory.create(type, buf);
     }
 
@@ -76,7 +76,7 @@ public final class ParticleImpl implements Particle {
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound particle = new NBTCompound(Map.of("type", type.getName().getKey()));
+        final NBTCompound particle = new NBTCompound(Map.of("type", type.getName().getKey()));
         if (options == null) return particle;
         particle.putAll(options.toNBT());
         return particle;

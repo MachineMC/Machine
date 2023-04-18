@@ -36,7 +36,7 @@ public final class Crypt {
      */
     public static KeyPair generateKeyPair() {
         try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ASYMMETRIC_ALGORITHM);
+            final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ASYMMETRIC_ALGORITHM);
             keyPairGenerator.initialize(ASYMMETRIC_BITS);
             return keyPairGenerator.generateKeyPair();
         } catch (NoSuchAlgorithmException e) {
@@ -48,7 +48,7 @@ public final class Crypt {
      * @return sequence of random 4 bytes used for verification
      */
     public static byte[] nextVerifyToken() {
-        byte[] verifyToken = new byte[4];
+        final byte[] verifyToken = new byte[4];
         ThreadLocalRandom.current().nextBytes(verifyToken);
         return verifyToken;
     }
@@ -61,7 +61,7 @@ public final class Crypt {
      */
     public static SecretKey decryptByteToSecretKey(final PrivateKey privateKey, final byte[] encryptedSecretKey) {
         try {
-            Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGORITHM);
+            final Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             return new SecretKeySpec(cipher.doFinal(encryptedSecretKey), SYMMETRIC_ALGORITHM);
         } catch (Exception exception) {
@@ -84,15 +84,27 @@ public final class Crypt {
         }
     }
 
+    private static byte[] digestData(final byte[]... bytes) {
+        final MessageDigest messageDigest;
+        try {
+            messageDigest = MessageDigest.getInstance(HASH_ALGORITHM);
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException();
+        }
+        for (final byte[] bs : bytes)
+            messageDigest.update(bs);
+        return messageDigest.digest();
+    }
+
     /**
      * Creates public key from encoded key according to the X.509 standard.
      * @param bytes encoded key
      * @return public key
      */
     public static PublicKey pubicKeyFrom(final byte[] bytes) {
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
+        final X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
         try {
-            KeyFactory keyFactory = KeyFactory.getInstance(ASYMMETRIC_ALGORITHM);
+            final KeyFactory keyFactory = KeyFactory.getInstance(ASYMMETRIC_ALGORITHM);
             return keyFactory.generatePublic(spec);
         } catch (InvalidKeySpecException exception) {
             throw new RuntimeException(exception);
@@ -113,24 +125,12 @@ public final class Crypt {
                                                                      Cipher.UNWRAP_MODE}) int mode,
                                    final Key key) {
         try {
-            Cipher cipher = Cipher.getInstance(ENCRYPTION);
+            final Cipher cipher = Cipher.getInstance(ENCRYPTION);
             cipher.init(mode, key, new IvParameterSpec(key.getEncoded()));
             return cipher;
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static byte[] digestData(final byte[]... bytes) {
-        MessageDigest messageDigest;
-        try {
-            messageDigest = MessageDigest.getInstance(HASH_ALGORITHM);
-        } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException();
-        }
-        for (byte[] bs : bytes)
-            messageDigest.update(bs);
-        return messageDigest.digest();
     }
 
 }

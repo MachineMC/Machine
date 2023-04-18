@@ -34,21 +34,21 @@ public interface BlockManager extends ServerProperty {
     void removeBlock(BlockType blockType);
 
     /**
+     * Removes block with provided name from the manager.
+     * @param name name of the block to remove
+     */
+    default void removeBlock(NamespacedKey name) {
+        final BlockType block = getBlockType(name);
+        if (block == null) return;
+        removeBlock(block);
+    }
+
+    /**
      * Removes multiple block types from the manager.
      * @param blockTypes block type to remove
      */
     default void removeBlocks(BlockType... blockTypes) {
         Arrays.stream(blockTypes).forEach(this::removeBlock);
-    }
-
-    /**
-     * Removes block with provided name from the manager.
-     * @param name name of the block to remove
-     */
-    default void removeBlock(NamespacedKey name) {
-        BlockType block = getBlockType(name);
-        if (block == null) return;
-        removeBlock(block);
     }
 
     /**

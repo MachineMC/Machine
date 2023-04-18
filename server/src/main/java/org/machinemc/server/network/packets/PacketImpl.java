@@ -56,9 +56,9 @@ public abstract class PacketImpl implements Packet {
      * @return serialized compressed packet
      */
     public byte[] rawCompressedSerialize(final int threshold) {
-        int size = getSize();
+        final int size = getSize();
         if (size < threshold) { // Packet is too small to be compressed
-            byte[] data = new FriendlyByteBuf().writeVarInt(0) // Empty Data length
+            final byte[] data = new FriendlyByteBuf().writeVarInt(0) // Empty Data length
                     .writeVarInt(getId())
                     .writeBytes(serialize())
                     .bytes();
@@ -67,10 +67,10 @@ public abstract class PacketImpl implements Packet {
                     .writeBytes(data)
                     .bytes();
         }
-        byte[] dataLength = new FriendlyByteBuf()
+        final byte[] dataLength = new FriendlyByteBuf()
                 .writeVarInt(size)
                 .bytes();
-        byte[] compressed = getCompressedPacketData();
+        final byte[] compressed = getCompressedPacketData();
         return new FriendlyByteBuf()
                 .writeVarInt(dataLength.length + compressed.length)
                 .writeVarInt(size)

@@ -50,7 +50,7 @@ public class DimensionTypeImpl implements DimensionType {
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound element = new NBTCompound(Map.ofEntries(
+        final NBTCompound element = new NBTCompound(Map.ofEntries(
                 entry("ambient_light", ambientLight),
                 entry("monster_spawn_block_light_limit", monsterSpawnBlockLightLimit),
                 entry("monster_spawn_light_level", monsterSpawnLightLevel),

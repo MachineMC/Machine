@@ -53,8 +53,8 @@ public enum ToolLevel {
      * @return tool level of given material
      */
     public static @Nullable ToolLevel fromMaterial(final Material material) {
-        for (ToolLevel level : values()) {
-            for (Material tool : level.materials) {
+        for (final ToolLevel level : values()) {
+            for (final Material tool : level.materials) {
                 if (material == tool) return level;
             }
         }
@@ -67,7 +67,7 @@ public enum ToolLevel {
      * @return tool level matching the given speed
      */
     public static @Nullable ToolLevel fromSpeed(final double speed) {
-        for (ToolLevel level : values()) {
+        for (final ToolLevel level : values()) {
             if (level.speed == speed) return level;
         }
         return null;

@@ -162,7 +162,7 @@ public class ClientConnection implements PlayerConnection {
         keepAliveRequest = System.currentTimeMillis();
         keepAliveResponse = System.currentTimeMillis();
 
-        Scheduler.task(((input, session) -> {
+        Scheduler.task((input, session) -> {
             if (state != ClientState.PLAY) {
                 session.stop();
                 return null;
@@ -172,7 +172,7 @@ public class ClientConnection implements PlayerConnection {
             if (keepAliveRequest - keepAliveResponse > NettyServer.READ_IDLE_TIMEOUT)
                 disconnect();
             return null;
-        })).async()
+        }).async()
                 .repeat(true)
                 .period(NettyServer.KEEP_ALIVE_FREQ)
                 .run(nettyServer.getServer().getScheduler());

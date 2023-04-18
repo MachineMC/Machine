@@ -50,7 +50,7 @@ public enum Gamemode {
      * @return gamemode with given name
      */
     public static @Nullable Gamemode getByName(final String name) {
-        for (Gamemode value : values()) {
+        for (final Gamemode value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }
         return null;

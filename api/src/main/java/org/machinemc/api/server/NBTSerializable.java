@@ -21,7 +21,7 @@ public interface NBTSerializable {
      * @return object serialized as NBT Compound
      */
     default NBTCompound serializeNBT(File file) {
-        NBTCompound nbtCompound = toNBT();
+        final NBTCompound nbtCompound = toNBT();
         NBTUtils.serializeNBT(file, nbtCompound);
         return nbtCompound;
     }

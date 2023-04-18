@@ -96,7 +96,7 @@ public enum BlockEntityBase {
      * @return whether the given material is supported by this block entity base
      */
     public boolean supports(final Material material) {
-        for (Material supported : materials) {
+        for (final Material supported : materials) {
             if (supported.equals(material)) return true;
         }
         return false;
@@ -132,7 +132,7 @@ public enum BlockEntityBase {
      * @return block entity base with given name
      */
     public static @Nullable BlockEntityBase getByName(final String name) {
-        for (BlockEntityBase value : values()) {
+        for (final BlockEntityBase value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }
         return null;
@@ -144,8 +144,8 @@ public enum BlockEntityBase {
      * @return block entity base of given material
      */
     public static @Nullable BlockEntityBase getByMaterial(final Material material) {
-        for (BlockEntityBase value : values()) {
-            for (Material supported : value.materials)
+        for (final BlockEntityBase value : values()) {
+            for (final Material supported : value.materials)
                 if (supported.equals(material)) return value;
         }
         return null;

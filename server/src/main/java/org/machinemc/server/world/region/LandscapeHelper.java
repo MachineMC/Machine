@@ -41,7 +41,7 @@ public class LandscapeHelper {
                 .expireAfterAccess(1, TimeUnit.MINUTES)
                 .removalListener(notification -> Scheduler.task((input, session) -> {
                     if (notification.wasEvicted()) {
-                        Landscape landscape = (Landscape) notification.getValue();
+                        final Landscape landscape = (Landscape) notification.getValue();
                         assert landscape != null;
                         try {
                             landscape.flush();

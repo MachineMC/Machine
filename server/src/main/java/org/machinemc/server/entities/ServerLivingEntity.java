@@ -30,7 +30,7 @@ public abstract class ServerLivingEntity extends ServerEntity implements LivingE
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound compound = super.toNBT();
+        final NBTCompound compound = super.toNBT();
         compound.putAll(Map.of(
                 "Health", NBT.convert(health),
                 "HurtTime", NBT.convert(hurtTime),

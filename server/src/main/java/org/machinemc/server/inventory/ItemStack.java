@@ -21,9 +21,9 @@ public class ItemStack implements Item {
     private NBTCompound nbtCompound = new NBTCompound();
 
     static {
-        Material[] materials = Material.values();
+        final Material[] materials = Material.values();
         REGISTRY = new Material[materials.length];
-        for (Material value : materials) {
+        for (final Material value : materials) {
             if (value.getId() >= 0) REGISTRY[value.getId()] = value;
         }
     }
@@ -115,7 +115,7 @@ public class ItemStack implements Item {
 
     @Override
     public ItemStack single() {
-        ItemStack single = clone();
+        final ItemStack single = clone();
         single.amount = 1;
         return single;
     }
@@ -123,7 +123,7 @@ public class ItemStack implements Item {
     @Override
     public ItemStack clone() {
         try {
-            ItemStack itemStack = (ItemStack) super.clone();
+            final ItemStack itemStack = (ItemStack) super.clone();
             itemStack.setNbtCompound(new FriendlyByteBuf().writeNBT(nbtCompound).readNBT());
             return itemStack;
         } catch (CloneNotSupportedException e) {

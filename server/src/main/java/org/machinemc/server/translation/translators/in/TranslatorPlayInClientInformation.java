@@ -14,7 +14,7 @@ public class TranslatorPlayInClientInformation extends PacketTranslator<PacketPl
 
     @Override
     public void translateAfter(final ClientConnection connection, final PacketPlayInClientInformation packet) {
-        ServerPlayer player = connection.getOwner();
+        final ServerPlayer player = connection.getOwner();
         if (player == null)
             return;
         player.setLocale(packet.getLocale());

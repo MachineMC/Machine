@@ -69,10 +69,10 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
 
     @Override
     public void visit(final NBTString nbtString) {
-        String string = nbtString.toString();
-        TextComponent component = text(string.substring(1, string.length() - 1), STRING_COLOR);
-        char quote = string.charAt(0);
-        TextComponent quoteComponent = TextComponent.of(quote + "").modify()
+        final String string = nbtString.toString();
+        final TextComponent component = text(string.substring(1, string.length() - 1), STRING_COLOR);
+        final char quote = string.charAt(0);
+        final TextComponent quoteComponent = TextComponent.of(quote + "").modify()
                 .color(ChatColor.WHITE)
                 .finish();
         quoteComponent.setText(quote + "");
@@ -111,12 +111,12 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
 
     @Override
     public void visit(final NBTByteArray nbtByteArray) {
-        TextComponent dataType = text('B', DATA_TYPE_COLOR);
+        final TextComponent dataType = text('B', DATA_TYPE_COLOR);
         result.append(LEFT_BRACE).append(dataType).append(SEMI_COLON);
-        byte[] bytes = nbtByteArray.value();
+        final byte[] bytes = nbtByteArray.value();
 
         for (int i = 0; i < bytes.length; i++) {
-            TextComponent number = text(bytes[i], NUMBER_COLOR);
+            final TextComponent number = text(bytes[i], NUMBER_COLOR);
             if (i != 0)
                 result.append(ELEMENT_SEPARATOR);
 
@@ -128,12 +128,12 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
 
     @Override
     public void visit(final NBTIntArray nbtIntArray) {
-        TextComponent dataType = text('I', DATA_TYPE_COLOR);
+        final TextComponent dataType = text('I', DATA_TYPE_COLOR);
         result.append(LEFT_BRACE).append(dataType).append(SEMI_COLON);
-        int[] ints = nbtIntArray.value();
+        final int[] ints = nbtIntArray.value();
 
         for (int i = 0; i < ints.length; i++) {
-            TextComponent number = text(ints[i], NUMBER_COLOR);
+            final TextComponent number = text(ints[i], NUMBER_COLOR);
             if (i != 0)
                 result.append(ELEMENT_SEPARATOR);
 
@@ -145,12 +145,12 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
 
     @Override
     public void visit(final NBTLongArray nbtLongArray) {
-        TextComponent dataType = text('L', DATA_TYPE_COLOR);
+        final TextComponent dataType = text('L', DATA_TYPE_COLOR);
         result.append(LEFT_BRACE).append(dataType).append(SEMI_COLON);
-        long[] longs = nbtLongArray.value();
+        final long[] longs = nbtLongArray.value();
 
         for (int i = 0; i < longs.length; i++) {
-            TextComponent number = text(longs[i], NUMBER_COLOR);
+            final TextComponent number = text(longs[i], NUMBER_COLOR);
             if (i != 0)
                 result.append(ELEMENT_SEPARATOR);
 
@@ -168,7 +168,7 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
         }
 
         result.append(LEFT_BRACE);
-        boolean hasIndentation = !indentation.isEmpty();
+        final boolean hasIndentation = !indentation.isEmpty();
         if (hasIndentation)
             result.append("\n");
 
@@ -194,14 +194,14 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
         }
 
         result.append(LEFT_CURLY_BRACE);
-        boolean hasIndentation = !indentation.isEmpty();
+        final boolean hasIndentation = !indentation.isEmpty();
         if (hasIndentation)
             result.append("\n");
-        List<String> keys = new ArrayList<>(nbtCompound.keySet());
+        final List<String> keys = new ArrayList<>(nbtCompound.keySet());
         Collections.sort(keys);
 
         for (int i = 0; i < keys.size(); i++) {
-            String key = keys.get(i);
+            final String key = keys.get(i);
             if (i != 0)
                 result.append(ELEMENT_SEPARATOR).append(hasIndentation ? "\n" : " ");
 
@@ -248,8 +248,8 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
             return TextComponent.of(string).modify().color(KEY_COLOR).finish();
         }
         final String escaped = NBTString.quoteAndEscape(string);
-        char quote = escaped.charAt(0);
-        TextComponent quoteComponent = TextComponent.of(quote + "").modify()
+        final char quote = escaped.charAt(0);
+        final TextComponent quoteComponent = TextComponent.of(quote + "").modify()
                 .color(ChatColor.WHITE)
                 .finish();
         return (TextComponent) TextComponent.of("")

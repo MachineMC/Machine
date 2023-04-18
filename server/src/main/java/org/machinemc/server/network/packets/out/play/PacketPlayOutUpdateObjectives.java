@@ -52,7 +52,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(objectiveName, StandardCharsets.UTF_8)
                 .writeByte((byte) action.getId());
         if (action != Action.REMOVE) {

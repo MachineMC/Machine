@@ -1,0 +1,63 @@
+# Machine Style Guide
+
+This guide provides instructions on the code style to follow when making
+contributions to the Machine project. Its purpose is to prohibit poor
+coding practices and suggest ways to minimize the need for extra maintenance.
+
+Generally, we adhere to the formal [Sun code conventions for Java](https://www.oracle.com/java/technologies/javase/codeconventions-contents.html),
+subject to the following changes:
+- Documentation Changes:
+  - Documentation for constructors, fields, and packages is not mandatory.
+  - Overridden methods don't need to be documented for classes that are not final.
+  - Comments and documentation must be indented to the same level as the surrounding code.
+- Code Changes:
+  - Length:
+    - The maximum line length is now 120 characters.
+    - There is no maximum limit on the length of a method.
+    - Only one statement is permitted per line.
+  - Switches:
+    - Variable assignments inside switch cases are allowed.
+    - Default case is not enforced.
+    - Default case has to be the last case in the switch block.
+  - Variables:
+    - Multiple variables can be declared on a single line.
+    - A local variable or parameter can have the same name as a field in the same class.
+    - Local variables that do not change must be declared as final.
+    - Enhanced for loop variables has to be declared as final.
+    - Unused local variables are not permitted.
+  - Annotations:
+    - Override annotations are required.
+    - Annotations have to follow compact, no array style.
+  - Overloaded methods must be declared adjacent to each other.
+  - Public, mutable, non-static fields are allowed.
+  - Empty statements are not allowed.
+  - Star imports are allowed.
+  - Unnecessary parentheses are not permitted.
+  - Boolean expressions have to be as simple as possible.
+  - If a class overrides either the equals or hashCode methods, it must override both methods.
+
+To perform a style check on your code, execute the `other/checkstyleMain` task within the module containing the code.
+
+### Recommendations
+- Prevent Stream API if not dealing with large collections of data, use classic loop instead.
+- It is recommended to minimize the use of labels as excessive labels can make it difficult to keep track of the nesting context.
+- It is advisable to refrain from using nullable primitive types since they can negatively impact performance.
+- When chaining arguments, it is recommended to wrap them at the dot (.) to improve code readability;
+  for example:
+  ```java
+  System.out.println(message
+      .substring(0, 5)
+      .toUpperCase()
+      .concat(" ")
+      .concat(message.substring(6))
+  ```
+- When splitting method or constructor arguments across multiple lines, it is recommended to keep the first argument on the same line as the method declaration;
+  for example:
+  ```java
+  public ServerWorld(final File folder,
+                     final Machine server,
+                     final NamespacedKey name,
+                     final DimensionType dimensionType,
+                     final WorldType worldType,
+                     final long seed) {
+  ```

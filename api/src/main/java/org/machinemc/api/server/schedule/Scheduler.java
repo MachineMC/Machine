@@ -52,7 +52,7 @@ public class Scheduler {
         running = true;
         sessions.clear();
         while (!Thread.interrupted() && running) {
-            TaskSession next = syncQueue.take();
+            final TaskSession next = syncQueue.take();
             if (running && next.wrapped != null)
                 next.wrapped.run(next.input, next);
         }
@@ -68,7 +68,7 @@ public class Scheduler {
         running = false;
         syncQueue.clear();
         syncQueue.put(new TaskSession((input, session) -> null)); // unblocking
-        for (TaskSession session : sessions)
+        for (final TaskSession session : sessions)
             session.terminate();
     }
 
@@ -172,7 +172,7 @@ public class Scheduler {
          */
         @Contract("_ -> this")
         public TaskBuilder then(final TaskRunnable<?> next) {
-            TaskSession nextSession = new TaskSession(next);
+            final TaskSession nextSession = new TaskSession(next);
             nextSession.previous = current;
             current.future = nextSession;
             current = nextSession;

@@ -67,13 +67,13 @@ public class EntityManagerImpl implements EntityManager {
 
     @Override
     public Set<Entity> getEntities() {
-        Set<Entity> entities = new LinkedHashSet<>(entityMap.values());
+        final Set<Entity> entities = new LinkedHashSet<>(entityMap.values());
         return Collections.unmodifiableSet(entities);
     }
 
     @Override
     public Set<Entity> getEntities(final World world) {
-        return getEntities((entity -> entity.getWorld().equals(world)));
+        return getEntities(entity -> entity.getWorld().equals(world));
     }
 
     @Override

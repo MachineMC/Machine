@@ -37,7 +37,7 @@ public class DimensionsJson implements ServerFile, ServerProperty {
 
         final DimensionType original = DimensionTypeImpl.createDefault();
 
-        for (Map.Entry<String, JsonElement> dimensionKey : dimensions.entrySet()) {
+        for (final Map.Entry<String, JsonElement> dimensionKey : dimensions.entrySet()) {
             final NamespacedKey key;
             try {
                 key = NamespacedKey.parse(dimensionKey.getKey());

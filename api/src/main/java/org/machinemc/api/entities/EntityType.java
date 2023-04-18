@@ -43,7 +43,7 @@ public enum EntityType {
      * @return entity type with given name
      */
     public static @Nullable EntityType getByName(final String name) {
-        for (EntityType value : values()) {
+        for (final EntityType value : values()) {
             if (value.name().equalsIgnoreCase(name)
                     || value.identifier.getKey().equalsIgnoreCase(name)
                     || value.typeName.equalsIgnoreCase(name))

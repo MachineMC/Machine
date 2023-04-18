@@ -98,7 +98,7 @@ public class ServerConsole implements Console {
         };
         final String date = now();
         final LineReader reader = this.reader;
-        for (String message : messages) {
+        for (final String message : messages) {
             final String formatted = colors ? "[" + date + "] " + prefix + ChatUtils.consoleFormatted(message) + RESET
                     : "[" + date + "] " + prefix + message;
             if (reader != null && running) {

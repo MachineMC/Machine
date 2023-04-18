@@ -70,7 +70,7 @@ public class CodeGenerator {
      * @param data data of the class
      */
     public void addClass(final String dotPath, final byte[] data) throws IOException {
-        ZipEntry e = new ZipEntry(type(dotPath).getInternalName() + ".class");
+        final ZipEntry e = new ZipEntry(type(dotPath).getInternalName() + ".class");
         zip.putNextEntry(e);
         zip.write(data, 0, data.length);
         zip.closeEntry();

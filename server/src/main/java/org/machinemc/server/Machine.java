@@ -156,13 +156,13 @@ public final class Machine implements Server {
         // Setting up console
         try {
             console = new ServerConsole(this, colors);
-            System.setOut(new PrintStream(new FormattedOutputStream((
-                    (ServerConsole) console),
+            System.setOut(new PrintStream(new FormattedOutputStream(
+                    (ServerConsole) console,
                     Level.INFO,
                     "[stdout] "
             )));
-            System.setErr(new PrintStream(new FormattedOutputStream((
-                    (ServerConsole) console),
+            System.setErr(new PrintStream(new FormattedOutputStream(
+                    (ServerConsole) console,
                     Level.SEVERE,
                     "[stderr] "
             )));
@@ -176,7 +176,7 @@ public final class Machine implements Server {
         exceptionHandler = new ExceptionHandlerImpl(this);
 
         // Setting up server properties
-        File propertiesFile = new File(ServerPropertiesImpl.PROPERTIES_FILE_NAME);
+        final File propertiesFile = new File(ServerPropertiesImpl.PROPERTIES_FILE_NAME);
         if (!propertiesFile.exists()) {
             FileUtils.createFromDefault(propertiesFile);
             FileUtils.createFromDefault(new File(ServerPropertiesImpl.ICON_FILE_NAME));
@@ -214,7 +214,7 @@ public final class Machine implements Server {
 
         // Loading dimensions json file
         dimensionTypeManager = new DimensionTypeManagerImpl(this);
-        File dimensionsFile = new File(DimensionsJson.DIMENSIONS_FILE_NAME);
+        final File dimensionsFile = new File(DimensionsJson.DIMENSIONS_FILE_NAME);
         if (!dimensionsFile.exists())
             FileUtils.createFromDefault(dimensionsFile);
         Set<DimensionType> dimensions = new LinkedHashSet<>();
@@ -230,7 +230,7 @@ public final class Machine implements Server {
                     + "loading default dimension instead");
             dimensionTypeManager.addDimension(DimensionTypeImpl.createDefault());
         } else {
-            for (DimensionType dimension : dimensions)
+            for (final DimensionType dimension : dimensions)
                 dimensionTypeManager.addDimension(dimension);
         }
         console.info("Registered " + dimensionTypeManager.getDimensions().size() + " dimension types");
@@ -253,7 +253,7 @@ public final class Machine implements Server {
 
         worldManager = new WorldManagerImpl(this);
         try {
-            for (Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
+            for (final Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
                 if (!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;
                 if (path.getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
                 if (!path.getParent().getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
@@ -293,7 +293,7 @@ public final class Machine implements Server {
                     + "using '" + defaultWorld.getName() + "' instead");
         }
 
-        for (World world : worldManager.getWorlds()) {
+        for (final World world : worldManager.getWorlds()) {
             try {
                 world.load();
             } catch (Exception exception) {
@@ -314,11 +314,11 @@ public final class Machine implements Server {
         console.info("Loaded all packet translators");
 
         try {
-            Scheduler.task(((input, session) -> {
+            Scheduler.task((input, session) -> {
                 connection = new NettyServer(this);
                 connection.start();
                 return null;
-            })).async().run(scheduler);
+            }).async().run(scheduler);
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
             System.exit(2);
@@ -364,7 +364,7 @@ public final class Machine implements Server {
         console.stop();
         console.info("Shutting down...");
         console.info("Saving player data...");
-        for (Player player : playerManager.getPlayers()) {
+        for (final Player player : playerManager.getPlayers()) {
             try {
                 player.getConnection().disconnect(TranslationComponent.of("disconnect.closed")).sync();
             } catch (Exception exception) {
@@ -378,7 +378,7 @@ public final class Machine implements Server {
         } catch (Exception ignored) { }
         console.info("Connection has been closed");
         console.info("Saving worlds...");
-        for (World world : worldManager.getWorlds()) {
+        for (final World world : worldManager.getWorlds()) {
             try {
                 world.save();
             } catch (Exception exception) {
@@ -399,12 +399,12 @@ public final class Machine implements Server {
      * @return MOTD json of the server
      */
     public String statusJson() {
-        JsonObject json = new JsonObject();
-        JsonObject versionJson = new JsonObject();
+        final JsonObject json = new JsonObject();
+        final JsonObject versionJson = new JsonObject();
         versionJson.addProperty("name", SERVER_IMPLEMENTATION_VERSION);
         versionJson.addProperty("protocol", SERVER_IMPLEMENTATION_PROTOCOL);
         json.add("version", versionJson);
-        JsonObject playersJson = new JsonObject();
+        final JsonObject playersJson = new JsonObject();
         playersJson.addProperty("max", properties.getMaxPlayers());
         playersJson.addProperty("online", 0);
         json.add("players", playersJson);

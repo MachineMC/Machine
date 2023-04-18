@@ -38,7 +38,7 @@ public enum ParticleType {
      * @return particle type with given name
      */
     public static @Nullable ParticleType getByName(final String name) {
-        for (ParticleType value : values()) {
+        for (final ParticleType value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }
         return null;

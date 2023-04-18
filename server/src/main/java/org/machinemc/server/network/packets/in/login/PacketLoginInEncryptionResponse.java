@@ -48,7 +48,7 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeByteArray(secret);
         if (verifyToken != null)
             buf.writeBoolean(true)

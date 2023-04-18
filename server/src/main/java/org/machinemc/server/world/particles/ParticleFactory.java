@@ -26,7 +26,7 @@ public final class ParticleFactory {
     static {
         CREATOR_MAP.put(ParticleType.AMBIENT_ENTITY_EFFECT, ParticleCreator.EMPTY);
         CREATOR_MAP.put(ParticleType.ANGRY_VILLAGER, ParticleCreator.EMPTY);
-        CREATOR_MAP.put(ParticleType.BLOCK, ((type, buf) -> ParticleImpl.of(type, new BlockOptionsImpl(buf))));
+        CREATOR_MAP.put(ParticleType.BLOCK, (type, buf) -> ParticleImpl.of(type, new BlockOptionsImpl(buf)));
         try {
             ClassUtils.loadClasses(ParticleFactory.class.getPackageName());
         } catch (IOException ignored) { }

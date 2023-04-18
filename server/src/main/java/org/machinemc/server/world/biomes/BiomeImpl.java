@@ -39,7 +39,7 @@ public class BiomeImpl implements Biome {
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound element = new NBTCompound(Map.of(
+        final NBTCompound element = new NBTCompound(Map.of(
                 "depth", depth,
                 "temperature", temperature,
                 "scale", scale,

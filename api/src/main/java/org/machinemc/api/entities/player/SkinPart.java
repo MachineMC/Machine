@@ -31,7 +31,7 @@ public enum SkinPart {
      * @return skin part with given name
      */
     public static @Nullable SkinPart getByName(final String name) {
-        for (SkinPart value : values()) {
+        for (final SkinPart value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }
         return null;
@@ -44,7 +44,7 @@ public enum SkinPart {
      */
     public static @Range(from = 0, to = 255) int skinMask(final SkinPart... parts) {
         int mask = 0;
-        for (SkinPart part : parts)
+        for (final SkinPart part : parts)
             mask |= part.mask;
         return mask;
     }
@@ -55,8 +55,8 @@ public enum SkinPart {
      * @return set of skin parts of given skin mask
      */
     public static Set<SkinPart> fromMask(final @Range(from = 0, to = 127) int mask) {
-        Set<SkinPart> set = new HashSet<>();
-        for (SkinPart skinPart : values()) {
+        final Set<SkinPart> set = new HashSet<>();
+        for (final SkinPart skinPart : values()) {
             if ((skinPart.mask & mask) == skinPart.mask) set.add(skinPart);
             if (skinPart.mask > mask) return set;
         }

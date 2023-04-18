@@ -75,7 +75,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
          * @return handshake
          */
         public static HandshakeType fromID(final @Range(from = 1, to = 2) int id) {
-            for (HandshakeType type : HandshakeType.values()) {
+            for (final HandshakeType type : HandshakeType.values()) {
                 if (type.getId() == id) return type;
             }
             throw new RuntimeException("Unsupported Handshake type");

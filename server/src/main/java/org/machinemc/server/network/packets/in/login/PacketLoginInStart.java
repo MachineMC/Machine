@@ -50,7 +50,7 @@ public class PacketLoginInStart extends PacketIn {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(username, StandardCharsets.UTF_8)
                 .writeBoolean(publicKeyData != null);
         if (publicKeyData != null)

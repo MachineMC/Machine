@@ -58,7 +58,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeComponent(signedMessage)
                 .writeBoolean(unsignedMessage != null);
         if (unsignedMessage != null)

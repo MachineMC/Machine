@@ -104,7 +104,7 @@ public interface PlayerConnection extends ServerProperty {
         @Contract(pure = true)
         public static ClientState[] fromState(final Packet.PacketState state) {
             final Set<ClientState> clientStates = new LinkedHashSet<>();
-            for (ClientState clientState : values()) {
+            for (final ClientState clientState : values()) {
                 if (clientState.in == state || clientState.out == state)
                     clientStates.add(clientState);
             }

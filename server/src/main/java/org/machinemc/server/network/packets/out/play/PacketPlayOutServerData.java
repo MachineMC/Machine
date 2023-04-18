@@ -51,7 +51,7 @@ public class PacketPlayOutServerData extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeBoolean(motd != null);
         if (motd != null)
             buf.writeComponent(motd);

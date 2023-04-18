@@ -35,7 +35,7 @@ public class ChunkData implements Writable {
         buf.writeNBT(this.heightmaps);
         buf.writeByteArray(data);
         buf.writeVarInt(blockEntities.length);
-        for (Section.BlockEntity blockEntity : blockEntities)
+        for (final Section.BlockEntity blockEntity : blockEntities)
             blockEntity.write(buf);
     }
 

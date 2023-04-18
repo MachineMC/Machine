@@ -70,6 +70,15 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     }
 
     @Override
+    @Deprecated
+    public V get(final @NotNull K key) throws ExecutionException {
+        final V value = delegating.get(key);
+        if (value == null) return null;
+        executor.schedule(() -> eat(value), delay, referenceTime);
+        return value;
+    }
+
+    @Override
     public ImmutableMap<K, V> getAllPresent(final @NotNull Iterable<? extends K> keys) {
         return delegating.getAllPresent(keys);
     }
@@ -113,15 +122,6 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     @Override
     public void cleanUp() {
         delegating.cleanUp();
-    }
-
-    @Override
-    @Deprecated
-    public V get(final @NotNull K key) throws ExecutionException {
-        final V value = delegating.get(key);
-        if (value == null) return null;
-        executor.schedule(() -> eat(value), delay, referenceTime);
-        return value;
     }
 
     @Override

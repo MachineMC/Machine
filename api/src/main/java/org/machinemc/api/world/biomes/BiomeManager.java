@@ -24,7 +24,7 @@ public interface BiomeManager extends CodecPart, ServerProperty {
      * @return if the biome with given name was successfully removed
      */
     default boolean removeDimension(NamespacedKey name) {
-        Biome biome = getBiome(name);
+        final Biome biome = getBiome(name);
         if (biome == null)
             return false;
         return removeBiome(biome);
@@ -44,7 +44,7 @@ public interface BiomeManager extends CodecPart, ServerProperty {
      * @return if the biome with given name is registered in this manager
      */
     default boolean isRegistered(NamespacedKey name) {
-        Biome biome = getBiome(name);
+        final Biome biome = getBiome(name);
         if (biome == null)
             return false;
         return isRegistered(biome);
@@ -89,7 +89,7 @@ public interface BiomeManager extends CodecPart, ServerProperty {
      * @return NBT of the given dimension
      */
     default @Nullable NBTCompound getBiomeNBT(NamespacedKey name) {
-        Biome biome = getBiome(name);
+        final Biome biome = getBiome(name);
         if (biome == null)
             return null;
         return getBiomeNBT(biome);

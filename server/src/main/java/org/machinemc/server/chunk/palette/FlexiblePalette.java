@@ -102,7 +102,7 @@ public class FlexiblePalette implements Palette {
 
     @Override
     public void setAll(final EntrySupplier supplier) {
-        int[] cache = WRITE_CACHE.get();
+        final int[] cache = WRITE_CACHE.get();
         final int dimension = dimension();
         int fillValue = -1;
         int count = 0;
@@ -148,9 +148,9 @@ public class FlexiblePalette implements Palette {
 
     @Override
     public void replaceAll(final EntryFunction function) {
-        int[] cache = WRITE_CACHE.get();
-        AtomicInteger arrayIndex = new AtomicInteger();
-        AtomicInteger count = new AtomicInteger();
+        final int[] cache = WRITE_CACHE.get();
+        final AtomicInteger arrayIndex = new AtomicInteger();
+        final AtomicInteger count = new AtomicInteger();
         getAll((x, y, z, value) -> {
             final int newValue = function.apply(x, y, z, value);
             final int index = arrayIndex.getPlain();
@@ -185,7 +185,7 @@ public class FlexiblePalette implements Palette {
 
     @Override
     public Palette clone() {
-        FlexiblePalette palette;
+        final FlexiblePalette palette;
         try {
             palette = (FlexiblePalette) super.clone();
         } catch (CloneNotSupportedException e) {
@@ -194,9 +194,9 @@ public class FlexiblePalette implements Palette {
         palette.values = values.clone();
         palette.paletteToValueList = new IntegerList();
         palette.valueToPaletteMap = new IntObjectHashMap<>();
-        for (int i : paletteToValueList.toArray())
+        for (final int i : paletteToValueList.toArray())
             palette.paletteToValueList.add(i);
-        for (int i : valueToPaletteMap.keySet())
+        for (final int i : valueToPaletteMap.keySet())
             palette.valueToPaletteMap.put(i, valueToPaletteMap.get(i));
         palette.count = count;
         palette.bitsPerEntry = bitsPerEntry;
@@ -208,11 +208,11 @@ public class FlexiblePalette implements Palette {
         buf.writeByte(bitsPerEntry);
         if (bitsPerEntry <= maxBitsPerEntry()) {
             buf.writeVarInt(paletteToValueList.size());
-            for (int i : paletteToValueList.toArray())
+            for (final int i : paletteToValueList.toArray())
                 buf.writeVarInt(i);
         }
         buf.writeVarInt(values.length);
-        for (long l : values)
+        for (final long l : values)
             buf.writeLong(l);
     }
 
@@ -292,7 +292,7 @@ public class FlexiblePalette implements Palette {
         // https://wiki.vg/Chunk_Format#Direct
         final byte cappedBitsPerEntry = newBitsPerEntry > maxBitsPerEntry() ? 15 : newBitsPerEntry;
 
-        FlexiblePalette palette = new FlexiblePalette(adaptivePalette, cappedBitsPerEntry);
+        final FlexiblePalette palette = new FlexiblePalette(adaptivePalette, cappedBitsPerEntry);
         palette.paletteToValueList = paletteToValueList;
         palette.valueToPaletteMap = valueToPaletteMap;
         getAll(palette::set);

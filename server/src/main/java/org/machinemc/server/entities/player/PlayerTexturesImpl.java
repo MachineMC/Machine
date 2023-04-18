@@ -36,14 +36,16 @@ public record PlayerTexturesImpl(String value,
      */
     public static PlayerTexturesImpl buildSkin(final String value,
                                                final @Nullable String signature) throws MalformedURLException {
-        JsonElement decoded = new JsonParser().parse(new String(Base64.getDecoder().decode(value)));
+        final JsonElement decoded = new JsonParser().parse(new String(Base64.getDecoder().decode(value)));
         if (!decoded.isJsonObject()) throw new JsonSyntaxException("Texture value of the skin contains "
                 + "malformed JSON format");
-        JsonObject textures = decoded.getAsJsonObject().getAsJsonObject("textures");
-        JsonObject skinJson = textures.getAsJsonObject("SKIN");
-        URL skinUrl = new URL(skinJson.get("url").getAsString());
-        URL capeUrl = textures.has("CAPE") ? new URL(textures.getAsJsonObject("CAPE").get("url").getAsString()) : null;
-        SkinModel skinModel = skinJson.has("metadata")
+        final JsonObject textures = decoded.getAsJsonObject().getAsJsonObject("textures");
+        final JsonObject skinJson = textures.getAsJsonObject("SKIN");
+        final URL skinUrl = new URL(skinJson.get("url").getAsString());
+        final URL capeUrl = textures.has("CAPE")
+                ? new URL(textures.getAsJsonObject("CAPE").get("url").getAsString())
+                : null;
+        final SkinModel skinModel = skinJson.has("metadata")
                 ? SkinModel.valueOf(skinJson.get("metadata")
                         .getAsJsonObject()
                         .get("model")
@@ -61,7 +63,7 @@ public record PlayerTexturesImpl(String value,
     public static @Nullable PlayerTexturesImpl buildSkin(final JsonElement jsonElement) {
         if (!jsonElement.isJsonObject())
             return null;
-        JsonObject texturesJson = jsonElement.getAsJsonObject();
+        final JsonObject texturesJson = jsonElement.getAsJsonObject();
         if (!(texturesJson.has("value") && texturesJson.has("signature")))
             return null;
         try {

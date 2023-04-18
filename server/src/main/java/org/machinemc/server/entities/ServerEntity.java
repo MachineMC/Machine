@@ -136,7 +136,7 @@ public abstract class ServerEntity implements Entity {
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound compound = new NBTCompound(Map.ofEntries(
+        final NBTCompound compound = new NBTCompound(Map.ofEntries(
                 entry("Pos", NBTUtils.list(location.getX(), location.getY(), location.getZ())),
                 entry("Motion", NBTUtils.list(0, 0, 0)), // TODO implement motion
                 entry("Rotation", NBTUtils.list(location.getYaw(), location.getPitch())),
@@ -197,7 +197,7 @@ public abstract class ServerEntity implements Entity {
         if (nbtCompound.containsKey("UUID"))
             uuid = nbtCompound.getUUID("UUID");
         if (nbtCompound.containsKey("CustomName")) {
-            String string = nbtCompound.getValue("CustomName");
+            final String string = nbtCompound.getValue("CustomName");
             setCustomName(getServer().getComponentSerializer().deserializeJson(string));
         }
         setCustomNameVisible(nbtCompound.getValue("CustomNameVisible", 0) == 1);
@@ -208,8 +208,8 @@ public abstract class ServerEntity implements Entity {
         setHasVisualFire(nbtCompound.getValue("HasVisualFire", 0) == 1);
         if (nbtCompound.containsKey("Tags")) {
             tags.clear();
-            List<String> nbtStrings = (List<String>) ((NBTList) nbtCompound.get("Tags")).revert();
-            int i = Math.min(nbtStrings.size(), 1024);
+            final List<String> nbtStrings = (List<String>) ((NBTList) nbtCompound.get("Tags")).revert();
+            final int i = Math.min(nbtStrings.size(), 1024);
             for (int j = 0; j < i; j++)
                 tags.add(nbtStrings.get(j));
         }

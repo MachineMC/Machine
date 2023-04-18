@@ -36,7 +36,7 @@ public enum Hand {
      * @return hand with given name
      */
     public static @Nullable Hand getByName(final String name) {
-        for (Hand value : values()) {
+        for (final Hand value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }
         return null;

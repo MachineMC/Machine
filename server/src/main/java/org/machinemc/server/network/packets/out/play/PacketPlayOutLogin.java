@@ -54,7 +54,7 @@ public class PacketPlayOutLogin extends PacketOut {
         entityID = buf.readInt();
         isHardcore = buf.readBoolean();
         gamemode = Gamemode.fromID(buf.readByte());
-        byte gamemodeId = buf.readByte();
+        final byte gamemodeId = buf.readByte();
         previousGamemode = gamemodeId == -1 ? null : Gamemode.fromID(gamemodeId);
         dimensions = buf.readStringList(StandardCharsets.UTF_8);
         this.dimensionCodec = buf.readNBT();
@@ -87,7 +87,7 @@ public class PacketPlayOutLogin extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeInt(entityID)
                 .writeBoolean(isHardcore)
                 .writeByte((byte) gamemode.getId())

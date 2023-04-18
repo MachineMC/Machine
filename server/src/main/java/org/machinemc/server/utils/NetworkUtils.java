@@ -23,9 +23,9 @@ public final class NetworkUtils {
      */
     public static boolean available(final @Range(from = 0, to = 65536) int port) {
         try {
-            @Cleanup ServerSocket serverSocket = new ServerSocket(port);
+            final @Cleanup ServerSocket serverSocket = new ServerSocket(port);
             serverSocket.setReuseAddress(true);
-            @Cleanup DatagramSocket datagramSocket = new DatagramSocket(port);
+            final @Cleanup DatagramSocket datagramSocket = new DatagramSocket(port);
             datagramSocket.setReuseAddress(true);
             return true;
         } catch (IOException e) {

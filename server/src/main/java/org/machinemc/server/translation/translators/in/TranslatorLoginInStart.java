@@ -30,13 +30,13 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
             ServerPlayer.spawn(connection.getServer(), profile, connection);
             return;
         }
-        OnlineServer onlineServer = connection.getServer().getOnlineServer();
+        final OnlineServer onlineServer = connection.getServer().getOnlineServer();
         if (onlineServer == null) {
             connection.disconnect();
             throw new IllegalStateException("Online server hasn't been initialized");
         }
-        byte[] publicKey = onlineServer.getKey().getPublic().getEncoded();
-        byte[] verifyToken = onlineServer.nextVerifyToken();
+        final byte[] publicKey = onlineServer.getKey().getPublic().getEncoded();
+        final byte[] verifyToken = onlineServer.nextVerifyToken();
 
         connection.setPublicKeyData(packet.getPublicKeyData());
         connection.send(new PacketLoginOutEncryptionRequest(publicKey, verifyToken));

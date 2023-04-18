@@ -29,12 +29,12 @@ public class LightData implements Writable {
         emptySkyMask = BitSet.valueOf(buf.readLongArray());
         emptyBlockMask = BitSet.valueOf(buf.readLongArray());
 
-        int skyLights = buf.readVarInt();
+        final int skyLights = buf.readVarInt();
         skyLight = new ArrayList<>(skyLights);
         for (int i = 0; i < skyLights; i++)
             skyLight.add(buf.readByteArray());
 
-        int blockLights = buf.readVarInt();
+        final int blockLights = buf.readVarInt();
         blockLight = new ArrayList<>(blockLights);
         for (int i = 0; i < blockLights; i++)
             blockLight.add(buf.readByteArray());
@@ -55,11 +55,11 @@ public class LightData implements Writable {
         buf.writeLongArray(emptyBlockMask.toLongArray());
 
         buf.writeVarInt(skyLight.size());
-        for (byte[] bytes : skyLight)
+        for (final byte[] bytes : skyLight)
             buf.writeByteArray(bytes);
 
         buf.writeVarInt(blockLight.size());
-        for (byte[] bytes : blockLight)
+        for (final byte[] bytes : blockLight)
             buf.writeByteArray(bytes);
     }
 

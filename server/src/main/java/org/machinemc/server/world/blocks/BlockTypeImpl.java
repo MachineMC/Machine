@@ -36,7 +36,7 @@ public class BlockTypeImpl implements BlockType {
                          final BlockData defaultBlockData) {
         this.name = name;
         this.properties = properties;
-        blockDataProvider = (state -> defaultBlockData);
+        blockDataProvider = state -> defaultBlockData;
         dynamicVisual = false;
     }
 

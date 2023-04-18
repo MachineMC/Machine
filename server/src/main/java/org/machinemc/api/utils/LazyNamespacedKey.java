@@ -22,8 +22,8 @@ public final class LazyNamespacedKey {
      */
     @Contract("_ -> new")
     public static NamespacedKey lazy(final String namespacedKey) {
-        String[] parts = namespacedKey.split(":");
-        StringBuilder key = new StringBuilder();
+        final String[] parts = namespacedKey.split(":");
+        final StringBuilder key = new StringBuilder();
         for (int i = 1; i < parts.length; i++)
             key.append(parts[i]);
         return new NamespacedKey(parts[0], key.toString());

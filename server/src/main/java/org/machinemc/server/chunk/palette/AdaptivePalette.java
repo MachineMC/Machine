@@ -79,7 +79,7 @@ public class AdaptivePalette implements Palette {
 
     @Override
     public void setAll(final EntrySupplier supplier) {
-        Palette newPalette = new FlexiblePalette(this);
+        final Palette newPalette = new FlexiblePalette(this);
         newPalette.setAll(supplier);
         palette = newPalette;
     }
@@ -119,7 +119,7 @@ public class AdaptivePalette implements Palette {
     @Override
     public Palette clone() {
         try {
-            AdaptivePalette adaptivePalette = (AdaptivePalette) super.clone();
+            final AdaptivePalette adaptivePalette = (AdaptivePalette) super.clone();
             adaptivePalette.palette = palette.clone();
             return adaptivePalette;
         } catch (CloneNotSupportedException e) {

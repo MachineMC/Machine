@@ -39,9 +39,9 @@ public class WorldJson implements ServerFile, ServerProperty {
         this.server = server;
         folder = file.getParentFile();
         final JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
+        final JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
 
-        NamespacedKey name;
+        final NamespacedKey name;
         try {
             name = NamespacedKey.parse(json.get("name").getAsString());
         } catch (Exception ignored) {
@@ -50,7 +50,7 @@ public class WorldJson implements ServerFile, ServerProperty {
         }
         this.name = name;
 
-        NamespacedKey dimensionKey;
+        final NamespacedKey dimensionKey;
         try {
             dimensionKey = NamespacedKey.parse(json.get("dimension").getAsString());
         } catch (Exception ignored) {
@@ -58,7 +58,7 @@ public class WorldJson implements ServerFile, ServerProperty {
                     + "illegal dimension identifier and can't be registered");
         }
 
-        DimensionType dimensionType = server.getDimensionTypeManager().getDimension(dimensionKey);
+        final DimensionType dimensionType = server.getDimensionTypeManager().getDimension(dimensionKey);
         if (dimensionType == null)
             throw new IllegalStateException("World '" + this.name + "' uses non existing dimension");
         this.dimensionType = dimensionType;
@@ -112,7 +112,7 @@ public class WorldJson implements ServerFile, ServerProperty {
      * @return newly created and registered world
      */
     public World buildWorld() {
-        AbstractWorld world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
+        final AbstractWorld world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
         world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
         world.setDifficulty(server.getProperties().getDefaultDifficulty());
         return world;

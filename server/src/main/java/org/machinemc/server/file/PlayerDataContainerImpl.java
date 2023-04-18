@@ -38,7 +38,7 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
 
     @Override
     public NBTCompound getPlayerData(final UUID uuid) {
-        File playerDataFile = getPlayerDataFile(uuid, true);
+        final File playerDataFile = getPlayerDataFile(uuid, true);
         return NBTUtils.deserializeNBTFile(playerDataFile);
     }
 
@@ -49,7 +49,7 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
      * @return player's data file
      */
     private File getPlayerDataFile(final UUID uuid, final boolean create) {
-        File playerDataFile = new File(new File(DEFAULT_PLAYER_DATA_FOLDER), uuid + ".dat");
+        final File playerDataFile = new File(new File(DEFAULT_PLAYER_DATA_FOLDER), uuid + ".dat");
         if (!create) return playerDataFile;
         try {
             if (!playerDataFolder.exists() && !playerDataFolder.mkdirs())

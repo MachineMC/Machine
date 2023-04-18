@@ -41,7 +41,7 @@ public class IntegerList {
 
     public IntegerList(final Collection<Integer> list) {
         this(list.size());
-        for (Integer value : list) {
+        for (final Integer value : list) {
             add(value);
         }
     }
@@ -88,7 +88,7 @@ public class IntegerList {
     public final void addAll(final Collection<Integer> list) {
         ensureCapacity(size + list.size());
         int current = 0;
-        for (int x : list) {
+        for (final int x : list) {
             data[size + current] = x;
             current++;
         }
@@ -134,7 +134,7 @@ public class IntegerList {
             throw new IndexOutOfBoundsException();
         }
 
-        int previous = data[index];
+        final int previous = data[index];
         data[index] = value;
         return previous;
     }
@@ -145,7 +145,7 @@ public class IntegerList {
      * @return removed value
      */
     public final int removeAt(final int index) {
-        int value = get(index);
+        final int value = get(index);
         System.arraycopy(data, index + 1, data, index, size - index - 1);
         data[size - 1] = 0;
         size--;
@@ -167,7 +167,7 @@ public class IntegerList {
 
         System.arraycopy(data, toIndex, data, fromIndex, size - toIndex);
         Arrays.fill(data, size - (toIndex - fromIndex), size, 0);
-        size -= (toIndex - fromIndex);
+        size -= toIndex - fromIndex;
     }
 
     /**
@@ -355,7 +355,7 @@ public class IntegerList {
         int resultIdx = 0;
         boolean calculatedPreciseResultSize = false;
         for (int i = 0; i < size; i++) {
-            int codePoint = data[i];
+            final int codePoint = data[i];
             // Calculate the precise result size if we encounter
             // a code point > 0xFFFF
             if (!calculatedPreciseResultSize
@@ -365,7 +365,7 @@ public class IntegerList {
             }
             // This will throw IllegalArgumentException if
             // the code point is not a valid Unicode code point
-            int charsWritten = Character.toChars(codePoint, resultArray, resultIdx);
+            final int charsWritten = Character.toChars(codePoint, resultArray, resultIdx);
             resultIdx += charsWritten;
         }
         return resultArray;

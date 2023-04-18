@@ -46,10 +46,10 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
 
     public PacketPlayOutPlayerInfo(final ServerBuffer buf) {
         action = Action.fromID(buf.readVarInt());
-        int playerAmount = buf.readVarInt();
+        final int playerAmount = buf.readVarInt();
         playerInfoDataArray = new PlayerInfoData[playerAmount];
         for (int i = 0; i < playerAmount; i++) {
-            UUID uuid = buf.readUUID();
+            final UUID uuid = buf.readUUID();
             String name = null;
             PlayerTextures skin = null;
             Gamemode gamemode = null;
@@ -91,10 +91,10 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf();
+        final FriendlyByteBuf buf = new FriendlyByteBuf();
         buf.writeVarInt(action.getId())
                 .writeVarInt(playerInfoDataArray.length);
-        for (PlayerInfoData playerInfoData : playerInfoDataArray)
+        for (final PlayerInfoData playerInfoData : playerInfoDataArray)
             playerInfoData.write(action, buf);
         return buf.bytes();
     }

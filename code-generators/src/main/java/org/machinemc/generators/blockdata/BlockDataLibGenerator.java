@@ -23,13 +23,13 @@ public class BlockDataLibGenerator extends CodeGenerator {
     @Override
     public void generate() throws IOException {
         System.out.println("Generating the " + super.getLibraryName() + " library");
-        JsonObject json = getSource().getAsJsonObject();
-        for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+        final JsonObject json = getSource().getAsJsonObject();
+        for (final Map.Entry<String, JsonElement> entry : json.entrySet()) {
             if (entry.getValue().getAsJsonObject().get("properties") == null) continue;
-            JsonObject properties = entry.getValue().getAsJsonObject().get("properties").getAsJsonObject();
-            for (Map.Entry<String, JsonElement> propertyEntry : properties.entrySet()) {
-                Property property = new Property(toCamelCase(propertyEntry.getKey(), true));
-                for (JsonElement propertyValue : propertyEntry.getValue().getAsJsonArray())
+            final JsonObject properties = entry.getValue().getAsJsonObject().get("properties").getAsJsonObject();
+            for (final Map.Entry<String, JsonElement> propertyEntry : properties.entrySet()) {
+                final Property property = new Property(toCamelCase(propertyEntry.getKey(), true));
+                for (final JsonElement propertyValue : propertyEntry.getValue().getAsJsonArray())
                     property.addValue(propertyValue.getAsString());
                 if (this.properties.get(property.getName()) != null) {
                     this.properties.get(property.getName()).merge(property);
@@ -40,14 +40,14 @@ public class BlockDataLibGenerator extends CodeGenerator {
         }
         System.out.println("Loaded " + properties.keySet().size() + " blockdata properties");
         System.out.println("Generating the property and property interface classes...");
-        for (Property property : properties.values()) {
+        for (final Property property : properties.values()) {
             addClass(property.getInterfacePath(), property.generateInterface());
             if (property.getType() != Property.Type.OTHER) continue;
             addClass(property.getPath(), property.generate());
         }
         System.out.println("Loading and generating individual block classes...");
-        for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
-            BlockData blockData = BlockData.create(this, entry.getKey(), entry.getValue().getAsJsonObject());
+        for (final Map.Entry<String, JsonElement> entry : json.entrySet()) {
+            final BlockData blockData = BlockData.create(this, entry.getKey(), entry.getValue().getAsJsonObject());
             if (blockData == null) continue;
             addClass(blockData.getPath(), blockData.generate());
         }
@@ -61,17 +61,20 @@ public class BlockDataLibGenerator extends CodeGenerator {
      * @return camel case text
      */
     public static String toCamelCase(final String text, final boolean capitalizeFirst) {
-        String[] words = text.split("[\\W_]+");
-        StringBuilder builder = new StringBuilder();
+        final String[] words = text.split("[\\W_]+");
+        final StringBuilder builder = new StringBuilder();
         boolean capitalize = capitalizeFirst;
-        for (String word : words) {
+        for (final String word : words) {
+            final String formattedWord;
             if (capitalize)
-                word = word.isEmpty() ? word : Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase();
+                formattedWord = word.isEmpty()
+                        ? word
+                        : Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase();
             else {
-                word = word.toLowerCase();
+                formattedWord = word.toLowerCase();
                 capitalize = true;
             }
-            builder.append(word);
+            builder.append(formattedWord);
         }
         return builder.toString();
     }

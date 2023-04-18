@@ -27,9 +27,9 @@ public class DefaultLandscapeHandler implements LandscapeHandler {
         if (blockManager.isRegistered(NamespacedKey.minecraft("air"))) {
             defaultBlock = NamespacedKey.minecraft("air");
         } else {
-            Set<BlockType> blockTypes = blockManager.getBlocks();
+            final Set<BlockType> blockTypes = blockManager.getBlocks();
             if (blockTypes.size() == 0) throw new IllegalStateException();
-            for (BlockType blockType : blockTypes) {
+            for (final BlockType blockType : blockTypes) {
                 if (blockType.getProperties().isAir()) {
                     defaultBlock = blockType.getName();
                     break;
@@ -39,7 +39,7 @@ public class DefaultLandscapeHandler implements LandscapeHandler {
                 defaultBlock = blockTypes.iterator().next().getName();
         }
 
-        Set<Biome> biomes = biomeManager.getBiomes();
+        final Set<Biome> biomes = biomeManager.getBiomes();
         if (biomes.size() == 0) throw new IllegalStateException();
         defaultBiome = biomes.iterator().next().getName();
 

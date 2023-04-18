@@ -112,12 +112,12 @@ public final class Location implements Cloneable, Writable {
             return this;
         }
 
-        double theta = Math.atan2(-x, z);
+        final double theta = Math.atan2(-x, z);
         yaw = (float) Math.toDegrees((theta + pii) % pii);
 
-        double x2 = Math.pow(x, 2);
-        double z2 = Math.pow(z, 2);
-        double xz = Math.sqrt(x2 + z2);
+        final double x2 = Math.pow(x, 2);
+        final double z2 = Math.pow(z, 2);
+        final double xz = Math.sqrt(x2 + z2);
         pitch = (float) Math.toDegrees(Math.atan(-vector.getY() / xz));
 
         return this;

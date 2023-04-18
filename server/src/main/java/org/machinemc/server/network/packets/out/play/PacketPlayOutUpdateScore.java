@@ -50,7 +50,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(entityName, StandardCharsets.UTF_8)
                 .writeVarInt(action.getId())
                 .writeString(objectiveName, StandardCharsets.UTF_8);

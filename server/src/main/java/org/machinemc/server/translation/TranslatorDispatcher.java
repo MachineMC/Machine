@@ -39,10 +39,10 @@ public class TranslatorDispatcher {
      * @return created dispatcher with all server's translators loaded
      */
     public static TranslatorDispatcher createDefault(final Machine server) throws ClassNotFoundException, IOException {
-        TranslatorDispatcher dispatcher = new TranslatorDispatcher(server);
-        List<String> classes = ClassUtils.getClasses(TranslatorDispatcher.class.getPackageName());
-        for (String className : classes) {
-            Class<?> translatorClass = Class.forName(className);
+        final TranslatorDispatcher dispatcher = new TranslatorDispatcher(server);
+        final List<String> classes = ClassUtils.getClasses(TranslatorDispatcher.class.getPackageName());
+        for (final String className : classes) {
+            final Class<?> translatorClass = Class.forName(className);
             if (translatorClass.getSuperclass() == null
                     || !translatorClass.getSuperclass().equals(PacketTranslator.class))
                 continue;
@@ -143,7 +143,7 @@ public class TranslatorDispatcher {
      */
     public boolean playIn(final ClientConnection connection, final Packet packet) {
         boolean result = true;
-        for (PacketTranslator<? extends Packet> translator : inTranslators.get(packet.getClass()))
+        for (final PacketTranslator<? extends Packet> translator : inTranslators.get(packet.getClass()))
             result = translator.rawTranslate(connection, packet);
         return result;
     }
@@ -156,7 +156,7 @@ public class TranslatorDispatcher {
      */
     public boolean playOut(final ClientConnection connection, final Packet packet) {
         boolean result = true;
-        for (PacketTranslator<? extends Packet> translator : outTranslators.get(packet.getClass()))
+        for (final PacketTranslator<? extends Packet> translator : outTranslators.get(packet.getClass()))
             result = translator.rawTranslate(connection, packet);
         return result;
     }
@@ -179,7 +179,7 @@ public class TranslatorDispatcher {
      * @param packet packet
      */
     public void playInAfter(final ClientConnection connection, final Packet packet) {
-        for (PacketTranslator<? extends Packet> translator : inTranslators.get(packet.getClass()))
+        for (final PacketTranslator<? extends Packet> translator : inTranslators.get(packet.getClass()))
             translator.rawTranslateAfter(connection, packet);
     }
 
@@ -189,7 +189,7 @@ public class TranslatorDispatcher {
      * @param packet packet
      */
     public void playOutAfter(final ClientConnection connection, final Packet packet) {
-        for (PacketTranslator<? extends Packet> translator : outTranslators.get(packet.getClass()))
+        for (final PacketTranslator<? extends Packet> translator : outTranslators.get(packet.getClass()))
             translator.rawTranslateAfter(connection, packet);
     }
 

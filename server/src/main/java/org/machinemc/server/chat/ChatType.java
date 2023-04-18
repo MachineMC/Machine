@@ -145,7 +145,7 @@ public enum ChatType implements NBTSerializable {
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound element = new NBTCompound(Map.of(
+        final NBTCompound element = new NBTCompound(Map.of(
                 "chat", chatElement.toNBT(),
                 "narration", narrationElement.toNBT()
         ));
@@ -211,8 +211,8 @@ public enum ChatType implements NBTSerializable {
             final NBTList parameters = new NBTList(this.parameters.stream().map(Parameter::getName).toList());
             final Map<String, String> styleMap = new HashMap<>();
             if (format != null) {
-                Map<ChatStyle, Boolean> styles = format.getStyles();
-                for (Map.Entry<ChatStyle, Boolean> entry : styles.entrySet()) {
+                final Map<ChatStyle, Boolean> styles = format.getStyles();
+                for (final Map.Entry<ChatStyle, Boolean> entry : styles.entrySet()) {
                     if (entry.getValue() != null)
                         styleMap.put(entry.getKey().name().toLowerCase(Locale.ENGLISH), entry.getValue().toString());
                 }
@@ -220,8 +220,8 @@ public enum ChatType implements NBTSerializable {
                 if (font != null)
                     styleMap.put("font", font.toString());
             }
-            NBTCompound style = new NBTCompound();
-            for (String key : styleMap.keySet())
+            final NBTCompound style = new NBTCompound();
+            for (final String key : styleMap.keySet())
                 style.set(key, styleMap.get(key));
             return new NBTCompound(Map.of(
                     "translation_key", translationKey,

@@ -35,7 +35,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
      * @return new manager
      */
     public static DimensionTypeManager createDefault(final Machine server) {
-        DimensionTypeManagerImpl manager = new DimensionTypeManagerImpl(server);
+        final DimensionTypeManagerImpl manager = new DimensionTypeManagerImpl(server);
         manager.addDimension(DimensionTypeImpl.createDefault());
         return manager;
     }
@@ -70,7 +70,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
 
     @Override
     public DimensionType getDimension(final NamespacedKey name) {
-        for (DimensionType dimensionType : getDimensions()) {
+        for (final DimensionType dimensionType : getDimensions()) {
             if (!(dimensionType.getName().equals(name))) continue;
             return dimensionType;
         }
@@ -84,7 +84,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
 
     @Override
     public int getDimensionId(final DimensionType dimensionType) {
-        for (Map.Entry<Integer, DimensionType> entry : dimensionTypes.entrySet()) {
+        for (final Map.Entry<Integer, DimensionType> entry : dimensionTypes.entrySet()) {
             if (entry.getValue().equals(dimensionType))
                 return entry.getKey();
         }
@@ -100,7 +100,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
     public NBTCompound getDimensionNBT(final DimensionType dimensionType) {
         if (!isRegistered(dimensionType))
             throw new IllegalStateException();
-        NBTCompound nbtCompound = dimensionType.toNBT();
+        final NBTCompound nbtCompound = dimensionType.toNBT();
         return new NBTCompound(Map.of(
                 "name", dimensionType.getName().toString(),
                 "id", getDimensionId(dimensionType),

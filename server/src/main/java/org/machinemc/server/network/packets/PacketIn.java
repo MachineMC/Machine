@@ -17,7 +17,7 @@ public abstract class PacketIn extends PacketImpl {
                                    final PacketState state,
                                    final PacketCreator<? extends PacketIn> creator) {
         if (!PacketState.in().contains(state)) throw new IllegalStateException();
-        int fullId = id | state.getMask();
+        final int fullId = id | state.getMask();
         PacketFactory.IN_MAPPING.put(fullId, packetClass);
         PacketFactory.CREATORS.put(packetClass, creator);
     }

@@ -255,7 +255,7 @@ public class Vector2 implements Cloneable {
      * @return A random vector
      */
     public static Vector2 getRandom() {
-        ThreadLocalRandom random = ThreadLocalRandom.current();
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
         return new Vector2(random.nextDouble(), random.nextDouble());
     }
 

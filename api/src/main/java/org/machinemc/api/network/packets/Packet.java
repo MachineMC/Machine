@@ -85,7 +85,7 @@ public interface Packet extends Cloneable {
          * @return packet state with given mask
          */
         public static @Nullable PacketState fromMask(final @Range(from = 0, to = 0b111) int mask) {
-            for (PacketState state : values()) {
+            for (final PacketState state : values()) {
                 if (state.mask == mask) return state;
             }
             return null;

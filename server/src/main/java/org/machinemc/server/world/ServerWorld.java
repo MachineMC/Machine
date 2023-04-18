@@ -101,7 +101,7 @@ public class ServerWorld extends AbstractWorld {
                         256)  // TODO auto save limit should be configurable
         );
         worldBlockManager = new WorldBlockManager(this,
-                (position -> {
+                position -> {
                     getChunk(position); // loads the chunk in case it's not generated yet
                     final Segment segment = getSegment(position);
                     BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(
@@ -116,7 +116,7 @@ public class ServerWorld extends AbstractWorld {
                         if (blockType == null) throw new IllegalStateException();
                     }
                     return blockType;
-                })
+                }
         );
     }
 
@@ -183,7 +183,7 @@ public class ServerWorld extends AbstractWorld {
         final int tasks = 3;
         for (int i = 0; i <= tasks; i++) {
             final int index = i;
-            Scheduler.task(((input, session) -> {
+            Scheduler.task((input, session) -> {
                 final int start = index * chunksPerTask;
                 final int end = (index + 1) * chunksPerTask;
                 for (int j = start; j < end; j++) {
@@ -192,7 +192,7 @@ public class ServerWorld extends AbstractWorld {
                     chunk.sendChunk(player);
                 }
                 return null;
-            })).async().run(scheduler);
+            }).async().run(scheduler);
         }
     }
 
@@ -403,7 +403,7 @@ public class ServerWorld extends AbstractWorld {
                 // Biome generation
                 if (biomePalette.length != 1) {
                     final Map<Biome, Integer> idMap = new HashMap<>();
-                    for (Biome biome : biomePalette)
+                    for (final Biome biome : biomePalette)
                         idMap.put(biome, getServer().getBiomeManager().getBiomeId(biome));
                     segment.setAllBiomes((x, y, z) -> {
                         final Biome biome = biomePalette[biomesData[Section.index(x, y, z)]];
@@ -436,7 +436,7 @@ public class ServerWorld extends AbstractWorld {
                                              final @Nullable NBTCompound generatorData) {
         final WorldBlock.State state = new WorldBlock.State(this, position, entityBlockType, new NBTCompound());
         entityBlockType.initialize(state);
-        for (BlockHandler handler : entityBlockType.getHandlers())
+        for (final BlockHandler handler : entityBlockType.getHandlers())
             handler.onGeneration(state);
         if (generatorData != null)
             state.compound().putAll(generatorData.clone());

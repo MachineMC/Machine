@@ -43,7 +43,7 @@ public class PacketPlayOutSpawnExperienceOrb extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeVarInt(entityId)
                 .writeDouble(position.getX())
                 .writeDouble(position.getY())

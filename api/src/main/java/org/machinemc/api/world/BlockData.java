@@ -24,15 +24,6 @@ public abstract class BlockData implements Cloneable {
     }
 
     /**
-     * Returns id of the block data.
-     * @param blockData block data to get id from
-     * @return id of the given block data
-     */
-    public static int getId(final BlockData blockData) {
-        return BlockDataImpl.getId(blockData);
-    }
-
-    /**
      * @return material of the block data
      */
     public abstract @Nullable Material getMaterial();
@@ -48,6 +39,15 @@ public abstract class BlockData implements Cloneable {
      */
     @Contract("_ -> this")
     protected abstract BlockData setMaterial(Material material);
+
+    /**
+     * Returns id of the block data.
+     * @param blockData block data to get id from
+     * @return id of the given block data
+     */
+    public static int getId(final BlockData blockData) {
+        return BlockDataImpl.getId(blockData);
+    }
 
     /**
      * @return id of the block data used by Minecraft protocol
@@ -84,8 +84,8 @@ public abstract class BlockData implements Cloneable {
         if (this == o) return true;
         if (!(o instanceof BlockData blockData)) return false;
         if (getMaterial() != blockData.getMaterial()) return false;
-        Object[] original = getData();
-        Object[] compare = blockData.getData();
+        final Object[] original = getData();
+        final Object[] compare = blockData.getData();
         if (original.length != compare.length) return false;
         for (int i = 0; i < original.length; i++) {
             if (original[i] != compare[i]) return false;

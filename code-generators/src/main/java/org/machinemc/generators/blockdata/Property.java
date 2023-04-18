@@ -40,7 +40,7 @@ public class Property {
      * @param other other property to merge
      */
     public void merge(final Property other) {
-        for (String value : other.values)
+        for (final String value : other.values)
             addValue(value);
     }
 
@@ -49,7 +49,7 @@ public class Property {
      * @return enum class data of this property
      */
     public byte[] generate() {
-        ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        final ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         cw.visit(Opcodes.V17,
                 Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL | Opcodes.ACC_SUPER | Opcodes.ACC_ENUM,
                 type(path).getInternalName(),
@@ -58,8 +58,8 @@ public class Property {
                 new String[0]);
 
         // Fields
-        for (String value : values) {
-            FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC
+        for (final String value : values) {
+            final FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC
                             | Opcodes.ACC_STATIC
                             | Opcodes.ACC_FINAL
                             | Opcodes.ACC_ENUM,
@@ -98,7 +98,7 @@ public class Property {
                 null,
                 new String[0]);
         int i = 0;
-        for (String value : values) {
+        for (final String value : values) {
             mv.visitTypeInsn(Opcodes.NEW, type(path).getInternalName());
             mv.visitInsn(Opcodes.DUP);
             pushValue(mv, value.toUpperCase());
@@ -138,7 +138,7 @@ public class Property {
         pushValue(mv, values.size());
         mv.visitTypeInsn(Opcodes.ANEWARRAY, type(path).getInternalName());
         i = 0;
-        for (String value : values) {
+        for (final String value : values) {
             mv.visitInsn(Opcodes.DUP);
             pushValue(mv, i);
             mv.visitFieldInsn(Opcodes.GETSTATIC,
@@ -196,7 +196,7 @@ public class Property {
         mv.visitEnd();
         cw.visitEnd();
 
-        FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE
+        final FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE
                         | Opcodes.ACC_STATIC
                         | Opcodes.ACC_FINAL
                         | Opcodes.ACC_SYNTHETIC,
@@ -216,13 +216,13 @@ public class Property {
      * @return data for interface of this property
      */
     public byte[] generateInterface() {
-        String interfacePath = "org.machinemc.api.world.blockdata.interfaces.Has" + name;
-        String descriptor = switch (getType()) {
+        final String interfacePath = "org.machinemc.api.world.blockdata.interfaces.Has" + name;
+        final String descriptor = switch (getType()) {
             case BOOLEAN -> org.objectweb.asm.Type.BOOLEAN_TYPE.getDescriptor();
             case NUMBER -> org.objectweb.asm.Type.INT_TYPE.getDescriptor();
             case OTHER -> type(path).getDescriptor();
         };
-        ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        final ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         cw.visit(Opcodes.V17,
                 Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE,
                 type(interfacePath).getInternalName(),
@@ -259,7 +259,7 @@ public class Property {
         if (type != null)
             return type;
         boolean isBoolean = true;
-        for (String value : values) {
+        for (final String value : values) {
             if (!(value.equalsIgnoreCase("true")
                     || value.equalsIgnoreCase("false"))) {
                 isBoolean = false;
@@ -270,8 +270,7 @@ public class Property {
             type = Type.BOOLEAN;
             return Type.BOOLEAN;
         }
-        boolean isNumber = true;
-        for (String value : values) {
+        for (final String value : values) {
             try {
                 Integer.parseInt(value);
             } catch (NumberFormatException exception) {

@@ -33,7 +33,7 @@ public class BiomeManagerImpl implements BiomeManager {
      * @return newly created manager
      */
     public static BiomeManager createDefault(final Machine server) {
-        BiomeManagerImpl manager = new BiomeManagerImpl(server);
+        final BiomeManagerImpl manager = new BiomeManagerImpl(server);
         manager.addBiome(BiomeImpl.createDefault());
         return manager;
     }
@@ -57,7 +57,7 @@ public class BiomeManagerImpl implements BiomeManager {
 
     @Override
     public @Nullable Biome getBiome(final NamespacedKey name) {
-        for (Biome biome : getBiomes()) {
+        for (final Biome biome : getBiomes()) {
             if (!(biome.getName().equals(name))) continue;
             return biome;
         }
@@ -71,7 +71,7 @@ public class BiomeManagerImpl implements BiomeManager {
 
     @Override
     public int getBiomeId(final Biome biome) {
-        for (Map.Entry<Integer, Biome> entry : biomes.entrySet()) {
+        for (final Map.Entry<Integer, Biome> entry : biomes.entrySet()) {
             if (entry.getValue().equals(biome))
                 return entry.getKey();
         }
@@ -87,7 +87,7 @@ public class BiomeManagerImpl implements BiomeManager {
     public NBTCompound getBiomeNBT(final Biome biome) {
         if (!isRegistered(biome))
             throw new IllegalStateException();
-        NBTCompound nbtCompound = biome.toNBT();
+        final NBTCompound nbtCompound = biome.toNBT();
         return new NBTCompound(Map.of(
                 "name", biome.getName().toString(),
                 "id", getBiomeId(biome),

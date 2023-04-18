@@ -56,7 +56,7 @@ public final class FileUtils {
                 return false;
             fullPath = fullPath + file.getName();
         }
-        InputStream in = Machine.CLASS_LOADER.getResourceAsStream(file.getPath());
+        final InputStream in = Machine.CLASS_LOADER.getResourceAsStream(file.getPath());
         if (in == null) return false;
         try {
             Files.copy(in, Path.of(fullPath));
@@ -87,11 +87,11 @@ public final class FileUtils {
                 throw new RuntimeException(exception);
             }
         }
-        UUID uuid = UUID.randomUUID();
+        final UUID uuid = UUID.randomUUID();
         try {
             if (!uidFile.exists() && !uidFile.createNewFile())
                 throw new IllegalStateException();
-            @Cleanup DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(uidFile));
+            final @Cleanup DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(uidFile));
             dataOutputStream.writeLong(uuid.getMostSignificantBits());
             dataOutputStream.writeLong(uuid.getLeastSignificantBits());
         } catch (IOException exception) {
