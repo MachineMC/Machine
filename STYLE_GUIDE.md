@@ -41,7 +41,6 @@ To perform a style check on your code, execute the `other/checkstyleMain` task w
 ### Recommendations
 - Prevent Stream API if not dealing with large collections of data, use classic loop instead.
 - It is recommended to minimize the use of labels as excessive labels can make it difficult to keep track of the nesting context.
-- It is advisable to refrain from using nullable primitive types since they can negatively impact performance.
 - When chaining arguments, it is recommended to wrap them at the dot (.) to improve code readability;
   for example:
   ```java
