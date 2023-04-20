@@ -39,7 +39,6 @@ subject to the following changes:
 To perform a style check on your code, execute the `other/checkstyleMain` task within the module containing the code.
 
 ### Recommendations
-- Prevent Stream API if not dealing with large collections of data, use classic loop instead.
 - It is recommended to minimize the use of labels as excessive labels can make it difficult to keep track of the nesting context.
 - When chaining arguments, it is recommended to wrap them at the dot (.) to improve code readability;
   for example:
