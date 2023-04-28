@@ -3,7 +3,7 @@
 
 # Machine
 
-[![license](https://img.shields.io/github/license/machinemc/machine?style=for-the-badge&color=657185)](../LICENSE)
+[![license](https://img.shields.io/github/license/machinemc/machine?style=for-the-badge&color=657185)](LICENSE)
 
 Machine is a Minecraft Server software that is completely free and open source.
 It was created from scratch without any code from Mojang.
