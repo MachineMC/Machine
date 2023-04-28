@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.world;
 
 import com.google.common.base.Objects;
@@ -19,17 +33,8 @@ public abstract class BlockData implements Cloneable {
      * @param id id of the block data
      * @return new instance of the block data with the given id
      */
-    public static BlockData getBlockData(int id) {
+    public static BlockData getBlockData(final int id) {
         return BlockDataImpl.getBlockData(id);
-    }
-
-    /**
-     * Returns id of the block data
-     * @param blockData block data to get id from
-     * @return id of the given block data
-     */
-    public static int getId(BlockData blockData) {
-        return BlockDataImpl.getId(blockData);
     }
 
     /**
@@ -50,6 +55,15 @@ public abstract class BlockData implements Cloneable {
     protected abstract BlockData setMaterial(Material material);
 
     /**
+     * Returns id of the block data.
+     * @param blockData block data to get id from
+     * @return id of the given block data
+     */
+    public static int getId(final BlockData blockData) {
+        return BlockDataImpl.getId(blockData);
+    }
+
+    /**
      * @return id of the block data used by Minecraft protocol
      */
     public abstract int getId();
@@ -61,6 +75,9 @@ public abstract class BlockData implements Cloneable {
      */
     protected abstract Object[] getData();
 
+    /**
+     * @return clone of this block data
+     */
     public BlockData clone() {
         try {
             return (BlockData) super.clone();
@@ -71,21 +88,21 @@ public abstract class BlockData implements Cloneable {
 
     @Override
     public String toString() {
-        if(getMaterial() != null)
+        if (getMaterial() != null)
             return getMaterial().getName().getKey() + Arrays.toString(getData());
         return "none" + Arrays.toString(getData());
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof BlockData blockData)) return false;
-        if(getMaterial() != blockData.getMaterial()) return false;
-        Object[] original = getData();
-        Object[] compare = blockData.getData();
-        if(original.length != compare.length) return false;
-        for(int i = 0; i < original.length; i++) {
-            if(original[i] != compare[i]) return false;
+        if (getMaterial() != blockData.getMaterial()) return false;
+        final Object[] original = getData();
+        final Object[] compare = blockData.getData();
+        if (original.length != compare.length) return false;
+        for (int i = 0; i < original.length; i++) {
+            if (original[i] != compare[i]) return false;
         }
         return true;
     }

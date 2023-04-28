@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.world.biomes;
 
 import lombok.Getter;
@@ -20,7 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BiomeManagerImpl implements BiomeManager {
 
-    protected final AtomicInteger ID_COUNTER = new AtomicInteger(0);
+    protected final AtomicInteger idCounter = new AtomicInteger(0);
     private static final String CODEC_TYPE = "minecraft:worldgen/biome";
 
     private final Map<Integer, Biome> biomes = new ConcurrentHashMap<>();
@@ -32,46 +46,46 @@ public class BiomeManagerImpl implements BiomeManager {
      * @param server server to create manager for
      * @return newly created manager
      */
-    public static BiomeManager createDefault(Machine server) {
-        BiomeManagerImpl manager = new BiomeManagerImpl(server);
+    public static BiomeManager createDefault(final Machine server) {
+        final BiomeManagerImpl manager = new BiomeManagerImpl(server);
         manager.addBiome(BiomeImpl.createDefault());
         return manager;
     }
 
     @Override
-    public void addBiome(Biome biome) {
-        if(isRegistered(biome))
+    public void addBiome(final Biome biome) {
+        if (isRegistered(biome.getName()))
             throw new IllegalStateException("Biome '" + biome.getName() + "' is already registered");
-        biomes.put(ID_COUNTER.getAndIncrement(), biome);
+        biomes.put(idCounter.getAndIncrement(), biome);
     }
 
     @Override
-    public boolean removeBiome(Biome biome) {
+    public boolean removeBiome(final Biome biome) {
         return biomes.remove(getBiomeId(biome)) == null;
     }
 
     @Override
-    public boolean isRegistered(Biome biome) {
+    public boolean isRegistered(final Biome biome) {
         return biomes.containsValue(biome);
     }
 
     @Override
-    public @Nullable Biome getBiome(NamespacedKey name) {
-        for(Biome biome : getBiomes()) {
-            if(!(biome.getName().equals(name))) continue;
+    public @Nullable Biome getBiome(final NamespacedKey name) {
+        for (final Biome biome : getBiomes()) {
+            if (!(biome.getName().equals(name))) continue;
             return biome;
         }
         return null;
     }
 
     @Override
-    public @Nullable Biome getById(int id) {
+    public @Nullable Biome getById(final int id) {
         return biomes.get(id);
     }
 
     @Override
-    public int getBiomeId(Biome biome) {
-        for (Map.Entry<Integer, Biome> entry : biomes.entrySet()) {
+    public int getBiomeId(final Biome biome) {
+        for (final Map.Entry<Integer, Biome> entry : biomes.entrySet()) {
             if (entry.getValue().equals(biome))
                 return entry.getKey();
         }
@@ -84,10 +98,10 @@ public class BiomeManagerImpl implements BiomeManager {
     }
 
     @Override
-    public NBTCompound getBiomeNBT(Biome biome) {
-        if(!isRegistered(biome))
+    public NBTCompound getBiomeNBT(final Biome biome) {
+        if (!isRegistered(biome))
             throw new IllegalStateException();
-        NBTCompound nbtCompound = biome.toNBT();
+        final NBTCompound nbtCompound = biome.toNBT();
         return new NBTCompound(Map.of(
                 "name", biome.getName().toString(),
                 "id", getBiomeId(biome),

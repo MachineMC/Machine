@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.chunk;
 
 import org.jetbrains.annotations.Nullable;
@@ -68,6 +82,7 @@ public interface Chunk extends ServerProperty {
      * @param x x
      * @param y y
      * @param z z
+     * @param blockType new block type
      */
     void setBlock(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, BlockType blockType);
 
@@ -96,7 +111,10 @@ public interface Chunk extends ServerProperty {
      * @param z z
      * @param compound new nbt
      */
-    void setBlockNBT(@Range(from = 0, to = 15) int x, int y, @Range(from = 0, to = 15) int z, @Nullable NBTCompound compound);
+    void setBlockNBT(@Range(from = 0, to = 15) int x,
+                     int y,
+                     @Range(from = 0, to = 15) int z,
+                     @Nullable NBTCompound compound);
 
     /**
      * Returns a biome at given location in this chunk.

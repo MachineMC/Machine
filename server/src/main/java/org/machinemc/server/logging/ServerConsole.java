@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.logging;
 
 import com.mojang.brigadier.ParseResults;
@@ -70,7 +84,7 @@ public class ServerConsole implements Console {
     public static final String RESET = "\033[0m";
     public static final String EMPTY = "";
 
-    public ServerConsole(Machine server, boolean colors) {
+    public ServerConsole(final Machine server, final boolean colors) {
         this.server = server;
         this.colors = colors;
         try {
@@ -84,28 +98,36 @@ public class ServerConsole implements Console {
     }
 
     @Override
-    public void log(Level level, String... messages) {
+    public void log(final Level level, final String... messages) {
         final String prefix = switch (level.intValue()) {
-            case 700 -> (colors && configColor != null ? asciiColor(configColor) : EMPTY) + configPrefix + ": "; // Config value
-            case 800 -> (colors && infoColor != null ? asciiColor(infoColor) : EMPTY) + infoPrefix + ": "; // Info value
-            case 900 -> (colors && warningColor != null ? asciiColor(warningColor) : EMPTY) + warningPrefix + ": "; // Warning value
-            case 1000 -> (colors && severeColor != null ? asciiColor(severeColor) : EMPTY) + severePrefix + ": "; // Severe value
+            case 700 -> (colors && configColor != null ? asciiColor(configColor) : EMPTY)
+                    + configPrefix + ": "; // Config value
+            case 800 -> (colors && infoColor != null ? asciiColor(infoColor) : EMPTY)
+                    + infoPrefix + ": "; // Info value
+            case 900 -> (colors && warningColor != null ? asciiColor(warningColor) : EMPTY)
+                    + warningPrefix + ": "; // Warning value
+            case 1000 -> (colors && severeColor != null ? asciiColor(severeColor) : EMPTY)
+                    + severePrefix + ": "; // Severe value
             default -> "";
         };
         final String date = now();
         final LineReader reader = this.reader;
-        for(String message : messages) {
+        for (final String message : messages) {
             final String formatted = colors ? "[" + date + "] " + prefix + ChatUtils.consoleFormatted(message) + RESET
                     : "[" + date + "] " + prefix + message;
-            if(reader != null && running) {
+            if (reader != null && running) {
                 reader.printAbove(formatted);
             } else
                 terminal.writer().println(formatted);
         }
     }
 
+    /**
+     * Sends a message to the console.
+     * @param message message to send
+     */
     public void sendMessage(final Component message) {
-        if(colors)
+        if (colors)
             info(ChatUtils.consoleFormatted(message));
         else
             info(message.toLegacyString());
@@ -113,7 +135,7 @@ public class ServerConsole implements Console {
 
     @Override
     public void start() {
-        if(running) throw new IllegalStateException("The console is already running");
+        if (running) throw new IllegalStateException("The console is already running");
         running = true;
         reader = LineReaderBuilder.builder()
                 .completer(completer)
@@ -122,9 +144,9 @@ public class ServerConsole implements Console {
                 .terminal(terminal)
                 .build();
         final LineReader reader = this.reader;
-        if(reader == null) return;
+        if (reader == null) return;
         Scheduler.task((i, session) -> {
-            while(running) {
+            while (running) {
                 try {
                     final String command = reader.readLine(prompt);
                     execute(command);
@@ -140,15 +162,15 @@ public class ServerConsole implements Console {
     }
 
     @Override
-    public int execute(String input) {
-        input = CommandExecutor.formatCommandInput(input);
-        if(input.length() == 0) return 0;
-        final ParseResults<CommandExecutor> parse = server.getCommandDispatcher().parse(input, this);
-        final String[] parts = input.split(" ");
+    public int execute(final String input) {
+        final String formattedInput = CommandExecutor.formatCommandInput(input);
+        if (formattedInput.length() == 0) return 0;
+        final ParseResults<CommandExecutor> parse = server.getCommandDispatcher().parse(formattedInput, this);
+        final String[] parts = formattedInput.split(" ");
         try {
             return server.getCommandDispatcher().execute(parse);
         } catch (CommandSyntaxException exception) {
-            if(exception.getCursor() == 0) {
+            if (exception.getCursor() == 0) {
                 sendMessage(TextComponent.of("Unknown command '" + parts[0] + "'").modify()
                         .color(ChatColor.RED)
                         .finish());
@@ -157,8 +179,8 @@ public class ServerConsole implements Console {
             sendMessage(TextComponent.of(exception.getRawMessage().getString()).modify()
                     .color(ChatColor.RED)
                     .finish());
-            sendMessage(TextComponent.of(input.substring(0, exception.getCursor()))
-                    .append(TextComponent.of(input.substring(exception.getCursor())).modify()
+            sendMessage(TextComponent.of(formattedInput.substring(0, exception.getCursor()))
+                    .append(TextComponent.of(formattedInput.substring(exception.getCursor())).modify()
                             .color(ChatColor.RED)
                             .underlined(true)
                             .finish())

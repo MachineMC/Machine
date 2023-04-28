@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network;
 
 import io.netty.buffer.ByteBuf;
@@ -22,7 +36,7 @@ public class LengthDecoder extends ByteToMessageDecoder {
         int position = 0;
         byte currentByte;
 
-        while(in.isReadable()) {
+        while (in.isReadable()) {
             currentByte = in.readByte();
             length |= (currentByte & SEGMENT_BITS) << position;
             if (!((currentByte & CONTINUE_BIT) == 0)) {
@@ -30,7 +44,7 @@ public class LengthDecoder extends ByteToMessageDecoder {
                 if (position >= 32) throw new RuntimeException("Length VarInt for packet is too big");
                 continue;
             }
-            if(!in.isReadable(length)) {
+            if (!in.isReadable(length)) {
                 in.resetReaderIndex();
                 return;
             }

@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network.packets;
 
 import org.machinemc.api.network.packets.Packet;
@@ -14,10 +28,10 @@ import java.util.Map;
  */
 public final class PacketFactory {
 
-    final static Map<Class<? extends Packet>, PacketCreator<? extends Packet>> CREATORS = new HashMap<>();
+    static final Map<Class<? extends Packet>, PacketCreator<? extends Packet>> CREATORS = new HashMap<>();
 
-    final static Map<Integer, Class<? extends Packet>> IN_MAPPING = new HashMap<>();
-    final static Map<Class<? extends Packet>, Integer> OUT_MAPPING = new HashMap<>();
+    static final Map<Integer, Class<? extends Packet>> IN_MAPPING = new HashMap<>();
+    static final Map<Class<? extends Packet>, Integer> OUT_MAPPING = new HashMap<>();
 
     static {
         try {
@@ -35,8 +49,8 @@ public final class PacketFactory {
      * @param buf buffer containing the packet data
      * @return instance of the packet
      */
-    public static @Nullable Packet produce(final Class<? extends Packet> packetClass, FriendlyByteBuf buf) {
-        PacketCreator<? extends Packet> creator = CREATORS.get(packetClass);
+    public static @Nullable Packet produce(final Class<? extends Packet> packetClass, final FriendlyByteBuf buf) {
+        final PacketCreator<? extends Packet> creator = CREATORS.get(packetClass);
         if (creator == null) return null;
         return creator.create(buf);
     }
@@ -46,27 +60,27 @@ public final class PacketFactory {
      * @param id id of the packet, including the mask of packet state
      * @return class of the packet
      */
-    public static @Nullable Class<? extends Packet> getPacketInById(int id) {
-        Class<? extends Packet> in = IN_MAPPING.get(id);
-        if(in != null) return in;
-        for(Map.Entry<Class<? extends Packet>, Integer> entry : OUT_MAPPING.entrySet()) {
-            if(entry.getValue() != id) continue;
+    public static @Nullable Class<? extends Packet> getPacketInById(final int id) {
+        final Class<? extends Packet> in = IN_MAPPING.get(id);
+        if (in != null) return in;
+        for (final Map.Entry<Class<? extends Packet>, Integer> entry : OUT_MAPPING.entrySet()) {
+            if (entry.getValue() != id) continue;
             return entry.getKey();
         }
         return null;
     }
 
     /**
-     * Returns class of the packet using on Mojang mapping
+     * Returns class of the packet using on Mojang mapping.
      * @param id id of the packet
      * @param state state of the packet
      * @return class of the packet
      */
-    public static @Nullable Class<? extends Packet> getPacketByRawId(int id, PacketImpl.PacketState state) {
-        Class<? extends Packet> in = IN_MAPPING.get(id | state.getMask());
-        if(in != null) return in;
-        for(Map.Entry<Class<? extends Packet>, Integer> entry : OUT_MAPPING.entrySet()) {
-            if(entry.getValue() != (id | state.getMask())) continue;
+    public static @Nullable Class<? extends Packet> getPacketByRawId(final int id, final PacketImpl.PacketState state) {
+        final Class<? extends Packet> in = IN_MAPPING.get(id | state.getMask());
+        if (in != null) return in;
+        for (final Map.Entry<Class<? extends Packet>, Integer> entry : OUT_MAPPING.entrySet()) {
+            if (entry.getValue() != (id | state.getMask())) continue;
             return entry.getKey();
         }
         return null;
@@ -77,11 +91,11 @@ public final class PacketFactory {
      * @param packetClass class of the packet
      * @return id of the packet, -1 if it doesn't exist
      */
-    public static int getIdByPacket(Class<? extends Packet> packetClass) {
-        Integer out = OUT_MAPPING.get(packetClass);
-        if(out != null) return out;
-        for(Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
-            if(entry.getValue() != packetClass) continue;
+    public static int getIdByPacket(final Class<? extends Packet> packetClass) {
+        final Integer out = OUT_MAPPING.get(packetClass);
+        if (out != null) return out;
+        for (final Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
+            if (entry.getValue() != packetClass) continue;
             return entry.getKey();
         }
         return -1;
@@ -93,11 +107,11 @@ public final class PacketFactory {
      * @param state state of the packet
      * @return id of the packet, -1 if it doesn't exist
      */
-    public static int getRawIdByPacket(Class<? extends Packet> packetClass, PacketImpl.PacketState state) {
-        Integer out = OUT_MAPPING.get(packetClass);
-        if(out != null) return out & ~state.getMask();
-        for(Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
-            if(entry.getValue() != packetClass) continue;
+    public static int getRawIdByPacket(final Class<? extends Packet> packetClass, final PacketImpl.PacketState state) {
+        final Integer out = OUT_MAPPING.get(packetClass);
+        if (out != null) return out & ~state.getMask();
+        for (final Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
+            if (entry.getValue() != packetClass) continue;
             return entry.getKey() & ~state.getMask();
         }
         return -1;
@@ -108,12 +122,12 @@ public final class PacketFactory {
      * @param packetClass class of the packet
      * @return state of the packets of given class
      */
-    public static @Nullable Packet.PacketState getRegisteredState(Class<? extends Packet> packetClass) {
-        Integer out = OUT_MAPPING.get(packetClass);
-        if(out != null)
+    public static @Nullable Packet.PacketState getRegisteredState(final Class<? extends Packet> packetClass) {
+        final Integer out = OUT_MAPPING.get(packetClass);
+        if (out != null)
             return Packet.PacketState.fromMask(out >> Packet.PacketState.OFFSET);
-        for(Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
-            if(entry.getValue() != packetClass) continue;
+        for (final Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {
+            if (entry.getValue() != packetClass) continue;
             return Packet.PacketState.fromMask(entry.getKey() & (0b111 << Packet.PacketState.OFFSET));
         }
         return null;

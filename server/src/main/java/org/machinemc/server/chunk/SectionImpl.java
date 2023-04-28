@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.chunk;
 
 import lombok.*;
@@ -56,16 +70,16 @@ public class SectionImpl implements Section {
 
     @Override
     @Synchronized
-    public void mergeData(NBTCompound compound) {
+    public void mergeData(final NBTCompound compound) {
         dataSupplier.get().putAll(compound.clone());
     }
 
     @Override
     @Synchronized
-    public void setData(@Nullable NBTCompound compound) {
+    public void setData(final @Nullable NBTCompound compound) {
         final NBTCompound original = dataSupplier.get();
         original.clear();
-        if(compound != null) original.putAll(compound.clone());
+        if (compound != null) original.putAll(compound.clone());
     }
 
     @Override
@@ -77,7 +91,7 @@ public class SectionImpl implements Section {
     }
 
     @Override
-    public void write(ServerBuffer buf) {
+    public void write(final ServerBuffer buf) {
         buf.writeShort((short) blockPalette.count());
         blockPalette.write(buf);
         biomePalette.write(buf);

@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network;
 
 import io.netty.buffer.ByteBuf;
@@ -19,8 +33,8 @@ public class CompressionDecoder extends ByteToMessageDecoder {
     private final ClientConnection connection;
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
-        if(!connection.isCompressed()) {
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) {
+        if (!connection.isCompressed()) {
             out.add(in.readBytes(in.readableBytes()));
             return;
         }
@@ -29,7 +43,7 @@ public class CompressionDecoder extends ByteToMessageDecoder {
         final int length = buf.readVarInt();
 
         // Is not compressed
-        if(length == 0) {
+        if (length == 0) {
             out.add(in.readBytes(in.readableBytes()));
             return;
         }

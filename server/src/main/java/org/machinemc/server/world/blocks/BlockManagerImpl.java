@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.world.blocks;
 
 import lombok.Getter;
@@ -21,7 +35,7 @@ public class BlockManagerImpl implements BlockManager {
     @Getter
     private final Machine server;
 
-    public BlockManagerImpl(Machine server) {
+    public BlockManagerImpl(final Machine server) {
         this.server = server;
     }
 
@@ -30,7 +44,7 @@ public class BlockManagerImpl implements BlockManager {
      * @param server server to create manager for
      * @return newly created manager
      */
-    public static BlockManager createDefault(Machine server) {
+    public static BlockManager createDefault(final Machine server) {
         final BlockManagerImpl manager = new BlockManagerImpl(server);
         manager.addBlocks(
                 new BlockTypeImpl(NamespacedKey.minecraft("air"), BlockTypeImpl.BlockProperties.builder()
@@ -45,29 +59,29 @@ public class BlockManagerImpl implements BlockManager {
     }
 
     @Override
-    public void addBlock(BlockType blockType) {
-        if(blocks.containsKey(blockType.getName()))
+    public void addBlock(final BlockType blockType) {
+        if (isRegistered(blockType.getName()))
             throw new IllegalStateException("Block '" + blockType.getName() + "' is already registered");
         blocks.put(blockType.getName(), blockType);
     }
 
     @Override
-    public void removeBlock(BlockType blockType) {
+    public void removeBlock(final BlockType blockType) {
         blocks.remove(blockType.getName());
     }
 
     @Override
-    public boolean isRegistered(NamespacedKey name) {
+    public boolean isRegistered(final NamespacedKey name) {
         return blocks.containsKey(name);
     }
 
     @Override
-    public boolean isRegistered(BlockType blockType) {
+    public boolean isRegistered(final BlockType blockType) {
         return blocks.containsValue(blockType);
     }
 
     @Override
-    public @Nullable BlockType getBlockType(NamespacedKey name) {
+    public @Nullable BlockType getBlockType(final NamespacedKey name) {
         return blocks.get(name);
     }
 

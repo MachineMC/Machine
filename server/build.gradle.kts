@@ -43,12 +43,14 @@ application {
 }
 
 tasks {
-    jar {
-        manifest {
-            attributes["Main-Class"] = application.mainClass
-        }
+    distTar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
-    buildAll {
+    distZip {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+    jar {
+        dependsOn(checkstyleMain)
         manifest {
             attributes["Main-Class"] = application.mainClass
         }

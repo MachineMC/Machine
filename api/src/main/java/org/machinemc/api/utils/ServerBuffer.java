@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.utils;
 
 import org.machinemc.nbt.NBTCompound;
@@ -55,7 +69,7 @@ public interface ServerBuffer extends Cloneable {
     DataOutputStream stream() throws IOException;
 
     /**
-     * Writes the bytes of this buffer in a data output stream
+     * Writes the bytes of this buffer in a data output stream.
      * @param stream stream to write into
      * @return given stream
      * @throws IOException if an I/O error occurs during writing the bytes
@@ -64,7 +78,7 @@ public interface ServerBuffer extends Cloneable {
     DataOutputStream writeToStream(DataOutputStream stream) throws IOException;
 
     /**
-     * Writes a writable object into this buffer
+     * Writes a writable object into this buffer.
      * @param writable object to write
      * @return this
      */
@@ -311,6 +325,7 @@ public interface ServerBuffer extends Cloneable {
     Component readComponent();
 
     /**
+     * @param serializer serializer to use
      * @return next component using a component serializer
      */
     @Contract("_ -> new")
@@ -444,8 +459,14 @@ public interface ServerBuffer extends Cloneable {
     @Contract("_ -> this")
     ServerBuffer setWriterIndex(int index);
 
+    /**
+     * Deallocates this buffer.
+     */
     void release();
 
+    /**
+     * @return clone of this buffer
+     */
     ServerBuffer clone();
 
 }

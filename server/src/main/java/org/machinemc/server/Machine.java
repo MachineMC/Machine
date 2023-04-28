@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server;
 
 import com.google.gson.Gson;
@@ -63,7 +77,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class Machine implements Server {
+public final class Machine implements Server {
 
     public static final String SERVER_BRAND = "Machine";
     public static final String SERVER_IMPLEMENTATION_VERSION = "1.19.2";
@@ -130,29 +144,42 @@ public class Machine implements Server {
     protected World defaultWorld;
 
     static {
-        Factories.BUFFER_FACTORY = FriendlyByteBuf::new;
-        Factories.ITEM_FACTORY = ItemStack::new;
-        Factories.PARTICLE_FACTORY = ParticleFactory::create;
+        Factories.bufferFactory = FriendlyByteBuf::new;
+        Factories.itemFactory = ItemStack::new;
+        Factories.particleFactory = ParticleFactory::create;
     }
 
-    public static void main(String[] args) throws Exception {
-        if(System.console() == null) return;
+    /**
+     * Machine entry point.
+     * @param args java arguments
+     */
+    public static void main(final String[] args) throws Exception {
+        if (System.console() == null) return;
         new Machine(args);
     }
 
-    private Machine(String[] args) throws Exception {
+    private Machine(final String[] args) throws Exception {
 
         final Set<String> arguments = Set.of(args);
         final long start = System.currentTimeMillis();
 
         final boolean colors = !arguments.contains("nocolors");
-        componentSerializer = new ComponentSerializerImpl(); // TODO register other server related component types (NBTComponent, ScoreComponent, SelectorComponent)
+        // TODO register other server related component types (NBTComponent, ScoreComponent, SelectorComponent)
+        componentSerializer = new ComponentSerializerImpl();
 
         // Setting up console
         try {
             console = new ServerConsole(this, colors);
-            System.setOut(new PrintStream(new FormattedOutputStream(((ServerConsole) console), Level.INFO, "[stdout] ")));
-            System.setErr(new PrintStream(new FormattedOutputStream(((ServerConsole) console), Level.SEVERE, "[stderr] ")));
+            System.setOut(new PrintStream(new FormattedOutputStream(
+                    (ServerConsole) console,
+                    Level.INFO,
+                    "[stdout] "
+            )));
+            System.setErr(new PrintStream(new FormattedOutputStream(
+                    (ServerConsole) console,
+                    Level.SEVERE,
+                    "[stderr] "
+            )));
         } catch (Exception e) {
             System.out.println("Failed to load server console");
             e.printStackTrace();
@@ -163,8 +190,8 @@ public class Machine implements Server {
         exceptionHandler = new ExceptionHandlerImpl(this);
 
         // Setting up server properties
-        File propertiesFile = new File(ServerPropertiesImpl.PROPERTIES_FILE_NAME);
-        if(!propertiesFile.exists()) {
+        final File propertiesFile = new File(ServerPropertiesImpl.PROPERTIES_FILE_NAME);
+        if (!propertiesFile.exists()) {
             FileUtils.createFromDefault(propertiesFile);
             FileUtils.createFromDefault(new File(ServerPropertiesImpl.ICON_FILE_NAME));
         }
@@ -183,12 +210,12 @@ public class Machine implements Server {
             System.exit(2);
         }
 
-        if(properties.isOnline()) {
+        if (properties.isOnline()) {
             onlineServer = new OnlineServerImpl(this);
         } else {
-            console.warning("The server will make no attempt to authenticate usernames and encrypt packets. Beware. " +
-                    "While this makes the game possible to play without internet access, it also opens up " +
-                    "the ability for others to connect with any username they choose.");
+            console.warning("The server will make no attempt to authenticate usernames and encrypt packets. Beware. "
+                    + "While this makes the game possible to play without internet access, it also opens up "
+                    + "the ability for others to connect with any username they choose.");
         }
 
         commandDispatcher = new CommandDispatcher<>();
@@ -201,8 +228,8 @@ public class Machine implements Server {
 
         // Loading dimensions json file
         dimensionTypeManager = new DimensionTypeManagerImpl(this);
-        File dimensionsFile = new File(DimensionsJson.DIMENSIONS_FILE_NAME);
-        if(!dimensionsFile.exists())
+        final File dimensionsFile = new File(DimensionsJson.DIMENSIONS_FILE_NAME);
+        if (!dimensionsFile.exists())
             FileUtils.createFromDefault(dimensionsFile);
         Set<DimensionType> dimensions = new LinkedHashSet<>();
         try {
@@ -212,11 +239,12 @@ public class Machine implements Server {
         }
 
         // Registering all dimensions from the file into the manager
-        if(dimensions.size() == 0) {
-            console.warning("There are no defined dimensions in the dimensions file, loading default dimension instead");
+        if (dimensions.size() == 0) {
+            console.warning("There are no defined dimensions in the dimensions file, "
+                    + "loading default dimension instead");
             dimensionTypeManager.addDimension(DimensionTypeImpl.createDefault());
         } else {
-            for(DimensionType dimension : dimensions)
+            for (final DimensionType dimension : dimensions)
                 dimensionTypeManager.addDimension(dimension);
         }
         console.info("Registered " + dimensionTypeManager.getDimensions().size() + " dimension types");
@@ -239,7 +267,7 @@ public class Machine implements Server {
 
         worldManager = new WorldManagerImpl(this);
         try {
-            for (Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
+            for (final Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
                 if (!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;
                 if (path.getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
                 if (!path.getParent().getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
@@ -260,7 +288,7 @@ public class Machine implements Server {
             exceptionHandler.handle(exception, "Failed to load the server worlds from server directory");
         }
 
-        if(worldManager.getWorlds().size() == 0) {
+        if (worldManager.getWorlds().size() == 0) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             try {
                 final File worldJson = new File(WorldJson.WORLD_FILE_NAME);
@@ -273,12 +301,13 @@ public class Machine implements Server {
             }
         }
         defaultWorld = worldManager.getWorld(properties.getDefaultWorld());
-        if(defaultWorld == null) {
+        if (defaultWorld == null) {
             defaultWorld = worldManager.getWorlds().stream().iterator().next();
-            console.warning("Default world in the server properties doesn't exist, using '" + defaultWorld.getName() + "' instead");
+            console.warning("Default world in the server properties doesn't exist, "
+                    + "using '" + defaultWorld.getName() + "' instead");
         }
 
-        for(World world : worldManager.getWorlds()) {
+        for (final World world : worldManager.getWorlds()) {
             try {
                 world.load();
             } catch (Exception exception) {
@@ -299,11 +328,11 @@ public class Machine implements Server {
         console.info("Loaded all packet translators");
 
         try {
-            Scheduler.task(((input, session) -> {
+            Scheduler.task((input, session) -> {
                 connection = new NettyServer(this);
                 connection.start();
                 return null;
-            })).async().run(scheduler);
+            }).async().run(scheduler);
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
             System.exit(2);
@@ -349,7 +378,7 @@ public class Machine implements Server {
         console.stop();
         console.info("Shutting down...");
         console.info("Saving player data...");
-        for(Player player : playerManager.getPlayers()) {
+        for (final Player player : playerManager.getPlayers()) {
             try {
                 player.getConnection().disconnect(TranslationComponent.of("disconnect.closed")).sync();
             } catch (Exception exception) {
@@ -363,7 +392,7 @@ public class Machine implements Server {
         } catch (Exception ignored) { }
         console.info("Connection has been closed");
         console.info("Saving worlds...");
-        for(World world : worldManager.getWorlds()) {
+        for (final World world : worldManager.getWorlds()) {
             try {
                 world.save();
             } catch (Exception exception) {
@@ -384,12 +413,12 @@ public class Machine implements Server {
      * @return MOTD json of the server
      */
     public String statusJson() {
-        JsonObject json = new JsonObject();
-        JsonObject versionJson = new JsonObject();
+        final JsonObject json = new JsonObject();
+        final JsonObject versionJson = new JsonObject();
         versionJson.addProperty("name", SERVER_IMPLEMENTATION_VERSION);
         versionJson.addProperty("protocol", SERVER_IMPLEMENTATION_PROTOCOL);
         json.add("version", versionJson);
-        JsonObject playersJson = new JsonObject();
+        final JsonObject playersJson = new JsonObject();
         playersJson.addProperty("max", properties.getMaxPlayers());
         playersJson.addProperty("online", 0);
         json.add("players", playersJson);

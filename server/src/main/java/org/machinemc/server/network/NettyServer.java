@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -24,8 +38,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NettyServer implements ServerConnection {
 
-    public final static int READ_IDLE_TIMEOUT = 30000;
-    public final static int KEEP_ALIVE_FREQ = 20000;
+    public static final int READ_IDLE_TIMEOUT = 30000;
+    public static final int KEEP_ALIVE_FREQ = 20000;
 
     private final EventLoopGroup bossGroup = new NioEventLoopGroup();
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -63,14 +77,14 @@ public class NettyServer implements ServerConnection {
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
         bindFuture = bootstrap.bind(port).addListener(future -> {
-            if(future.isSuccess()) running = true;
+            if (future.isSuccess()) running = true;
         });
         return bindFuture;
     }
 
     @Override
     public ChannelFuture close() {
-        if(bindFuture == null) throw new UnsupportedOperationException("Server hasn't been started yet");
+        if (bindFuture == null) throw new UnsupportedOperationException("Server hasn't been started yet");
         final ChannelFuture future = bindFuture.channel().close();
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
@@ -78,12 +92,12 @@ public class NettyServer implements ServerConnection {
     }
 
     @Override
-    public void broadcastPacket(Packet packet) {
+    public void broadcastPacket(final Packet packet) {
         getClients().forEach(connection -> connection.send(packet));
     }
 
     @Override
-    public ChannelFuture disconnect(PlayerConnection connection) {
+    public ChannelFuture disconnect(final PlayerConnection connection) {
         return connection.disconnect(TranslationComponent.of("disconnect.disconnected"));
     }
 
@@ -92,7 +106,7 @@ public class NettyServer implements ServerConnection {
      */
     class Initializer extends ChannelInitializer<SocketChannel> {
         @Override
-        public void initChannel(@NotNull SocketChannel ch) {
+        public void initChannel(final @NotNull SocketChannel ch) {
             final ClientConnection connection = new ClientConnection(NettyServer.this, ch);
             ch.config().setKeepAlive(true);
             ch.pipeline().addLast(

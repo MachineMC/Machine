@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.chunk;
 
 import org.machinemc.api.chunk.Chunk;
@@ -49,7 +63,7 @@ public final class ChunkUtils {
      * @param xyz the coordinate to convert
      * @return the chunk X, Y or Z coordinate
      */
-    public static int getChunkCoordinate(int xyz) {
+    public static int getChunkCoordinate(final int xyz) {
         return xyz >> CHUNK_SIZE_BITS;
     }
 
@@ -60,7 +74,7 @@ public final class ChunkUtils {
      * @param xyz global coordinate
      * @return section coordinate
      */
-    public static int getSectionRelativeCoordinate(int xyz) {
+    public static int getSectionRelativeCoordinate(final int xyz) {
         return xyz & 0xF;
     }
 
@@ -71,11 +85,11 @@ public final class ChunkUtils {
      * @param z z
      * @return an index which can be used to store and retrieve later data linked to a block position
      */
-    public static int getBlockIndex(int x, int y, int z) {
-        if(x > 15 || x < 0 || z > 15 || z < 0 || y > 4096 || y < 0) throw new UnsupportedOperationException();
+    public static int getBlockIndex(final int x, final int y, final int z) {
+        if (x > 15 || x < 0 || z > 15 || z < 0 || y > 4096 || y < 0) throw new UnsupportedOperationException();
         int index = 0;
-        index |= (y << 8);
-        index |= (z << 4);
+        index |= y << 8;
+        index |= z << 4;
         index |= x;
         return index;
     }
@@ -86,7 +100,7 @@ public final class ChunkUtils {
      * @param chunkZ the chunk Z
      * @return the position of the block
      */
-    public static BlockPosition getBlockPosition(int index, int chunkX, int chunkZ) {
+    public static BlockPosition getBlockPosition(final int index, final int chunkX, final int chunkZ) {
         final int x = (index & 0xF) + Chunk.CHUNK_SIZE_X * chunkX;
         final int y = index >> 8;
         final int z = (index & 0xF0) + Chunk.CHUNK_SIZE_Z * chunkZ;
@@ -99,16 +113,16 @@ public final class ChunkUtils {
      * @param bitsPerEntry bits per entry
      * @return encoded blocks
      */
-    public static long[] encodeBlocks(int[] blocks, int bitsPerEntry) {
+    public static long[] encodeBlocks(final int[] blocks, final int bitsPerEntry) {
         final long maxEntryValue = (1L << bitsPerEntry) - 1;
-        final int valuesPerLong = (64 / bitsPerEntry);
+        final int valuesPerLong = 64 / bitsPerEntry;
         final int magicIndex = 3 * (valuesPerLong - 1);
         final long divideMul = Integer.toUnsignedLong(MAGIC[magicIndex]);
         final long divideAdd = Integer.toUnsignedLong(MAGIC[magicIndex + 1]);
         final int divideShift = MAGIC[magicIndex + 2];
         final int size = (blocks.length + valuesPerLong - 1) / valuesPerLong;
 
-        long[] data = new long[size];
+        final long[] data = new long[size];
 
         for (int i = 0; i < blocks.length; i++) {
             final long value = blocks[i];

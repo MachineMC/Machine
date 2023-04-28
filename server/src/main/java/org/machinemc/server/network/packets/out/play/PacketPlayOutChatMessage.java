@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network.packets.out.play;
 
 import lombok.AllArgsConstructor;
@@ -34,14 +48,14 @@ public class PacketPlayOutChatMessage extends PacketOut {
                 PacketPlayOutChatMessage::new);
     }
 
-    public PacketPlayOutChatMessage(ServerBuffer buf) {
+    public PacketPlayOutChatMessage(final ServerBuffer buf) {
         signedMessage = buf.readComponent();
-        if(buf.readBoolean()) // has unsigned content
+        if (buf.readBoolean()) // has unsigned content
             unsignedMessage = buf.readComponent();
         chatType = ChatType.fromID(buf.readVarInt());
         uuid = buf.readUUID();
         displayName = buf.readComponent();
-        if(buf.readBoolean()) // has team
+        if (buf.readBoolean()) // has team
             teamName = buf.readComponent();
         messageSignature = buf.readSignature();
     }
@@ -58,16 +72,16 @@ public class PacketPlayOutChatMessage extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeComponent(signedMessage)
                 .writeBoolean(unsignedMessage != null);
-        if(unsignedMessage != null)
+        if (unsignedMessage != null)
             buf.writeComponent(unsignedMessage);
         buf.writeVarInt(chatType.getId())
                 .writeUUID(uuid)
                 .writeComponent(displayName)
                 .writeBoolean(teamName != null);
-        if(teamName != null)
+        if (teamName != null)
             buf.writeComponent(teamName);
         return buf.writeSignature(messageSignature)
                 .bytes();

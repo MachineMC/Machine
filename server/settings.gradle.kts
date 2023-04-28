@@ -9,3 +9,6 @@ dependencyResolutionManagement {
         }
     }
 }
+
+include(":api")
+project(":api").projectDir = file("../api")

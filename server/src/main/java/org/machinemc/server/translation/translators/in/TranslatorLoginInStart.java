@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.translation.translators.in;
 
 import org.machinemc.api.auth.OnlineServer;
@@ -14,29 +28,29 @@ import org.machinemc.server.network.packets.out.login.PacketLoginOutSuccess;
 public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart> {
 
     @Override
-    public boolean translate(ClientConnection connection, PacketLoginInStart packet) {
+    public boolean translate(final ClientConnection connection, final PacketLoginInStart packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(ClientConnection connection, PacketLoginInStart packet) {
+    public void translateAfter(final ClientConnection connection, final PacketLoginInStart packet) {
         connection.setLoginUsername(packet.getUsername());
-        if(!connection.getServer().isOnline()) {
+        if (!connection.getServer().isOnline()) {
             final PlayerProfile profile = PlayerProfileImpl.offline(packet.getUsername());
             connection.send(new PacketLoginOutSuccess(profile.getUuid(), profile.getUsername(), profile.getTextures()));
-            if(connection.getState() == PlayerConnection.ClientState.DISCONNECTED)
+            if (connection.getState() == PlayerConnection.ClientState.DISCONNECTED)
                 return;
             connection.setState(PlayerConnection.ClientState.PLAY);
             ServerPlayer.spawn(connection.getServer(), profile, connection);
             return;
         }
-        OnlineServer onlineServer = connection.getServer().getOnlineServer();
-        if(onlineServer == null) {
+        final OnlineServer onlineServer = connection.getServer().getOnlineServer();
+        if (onlineServer == null) {
             connection.disconnect();
             throw new IllegalStateException("Online server hasn't been initialized");
         }
-        byte[] publicKey = onlineServer.getKey().getPublic().getEncoded();
-        byte[] verifyToken = onlineServer.nextVerifyToken();
+        final byte[] publicKey = onlineServer.getKey().getPublic().getEncoded();
+        final byte[] verifyToken = onlineServer.nextVerifyToken();
 
         connection.setPublicKeyData(packet.getPublicKeyData());
         connection.send(new PacketLoginOutEncryptionRequest(publicKey, verifyToken));

@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network.packets;
 
 import org.machinemc.api.network.packets.Packet;
@@ -22,6 +36,9 @@ public abstract class PacketImpl implements Packet {
      */
     public abstract byte[] serialize();
 
+    /**
+     * @return clone of the packet
+     */
     public abstract PacketImpl clone();
 
     /**
@@ -52,10 +69,10 @@ public abstract class PacketImpl implements Packet {
      * @param threshold threshold
      * @return serialized compressed packet
      */
-    public byte[] rawCompressedSerialize(int threshold) {
-        int size = getSize();
-        if(size < threshold) { // Packet is too small to be compressed
-            byte[] data = new FriendlyByteBuf().writeVarInt(0) // Empty Data length
+    public byte[] rawCompressedSerialize(final int threshold) {
+        final int size = getSize();
+        if (size < threshold) { // Packet is too small to be compressed
+            final byte[] data = new FriendlyByteBuf().writeVarInt(0) // Empty Data length
                     .writeVarInt(getId())
                     .writeBytes(serialize())
                     .bytes();
@@ -64,10 +81,10 @@ public abstract class PacketImpl implements Packet {
                     .writeBytes(data)
                     .bytes();
         }
-        byte[] dataLength = new FriendlyByteBuf()
+        final byte[] dataLength = new FriendlyByteBuf()
                 .writeVarInt(size)
                 .bytes();
-        byte[] compressed = getCompressedPacketData();
+        final byte[] compressed = getCompressedPacketData();
         return new FriendlyByteBuf()
                 .writeVarInt(dataLength.length + compressed.length)
                 .writeVarInt(size)
@@ -92,7 +109,9 @@ public abstract class PacketImpl implements Packet {
                     .writeVarInt(getId())
                     .writeBytes(serialize())
                     .bytes());
-        } catch (IOException exception) { return new byte[0]; }
+        } catch (IOException exception) {
+            return new byte[0];
+        }
     }
 
 }

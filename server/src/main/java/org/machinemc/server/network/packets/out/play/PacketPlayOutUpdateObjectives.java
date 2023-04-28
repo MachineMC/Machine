@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network.packets.out.play;
 
 import com.google.common.base.Preconditions;
@@ -31,7 +45,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
                 PacketPlayOutUpdateObjectives::new);
     }
 
-    public PacketPlayOutUpdateObjectives(ServerBuffer buf) {
+    public PacketPlayOutUpdateObjectives(final ServerBuffer buf) {
         objectiveName = buf.readString(StandardCharsets.UTF_8);
         action = Action.fromID(buf.readByte());
         if (action != Action.REMOVE) {
@@ -52,7 +66,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(objectiveName, StandardCharsets.UTF_8)
                 .writeByte((byte) action.getId());
         if (action != Action.REMOVE) {
@@ -78,7 +92,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
             return ordinal();
         }
 
-        public static Action fromID(@Range(from = 0, to = 2) int id) {
+        public static Action fromID(final @Range(from = 0, to = 2) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Action type");
             return values()[id];
         }
@@ -93,7 +107,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
             return ordinal();
         }
 
-        public static DisplayType fromID(@Range(from = 0, to = 1) int id) {
+        public static DisplayType fromID(final @Range(from = 0, to = 1) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Display type");
             return values()[id];
         }

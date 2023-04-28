@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.entities.player;
 
 import lombok.AccessLevel;
@@ -29,7 +43,9 @@ public class PlayerProfileImpl implements PlayerProfile {
      * @param textures textures of the player
      * @return new player profile
      */
-    public static PlayerProfile online(String username, UUID uuid, @Nullable PlayerTexturesImpl textures) {
+    public static PlayerProfile online(final String username,
+                                       final UUID uuid,
+                                       final @Nullable PlayerTexturesImpl textures) {
         return new PlayerProfileImpl(
                 username,
                 uuid,
@@ -43,7 +59,7 @@ public class PlayerProfileImpl implements PlayerProfile {
      * @param username username of the player
      * @return new player profile
      */
-    public static PlayerProfile offline(String username) {
+    public static PlayerProfile offline(final String username) {
         return new PlayerProfileImpl(
                 username,
                 MojangAuth.getOfflineUUID(username),

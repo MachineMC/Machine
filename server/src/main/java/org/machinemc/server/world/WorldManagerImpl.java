@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.world;
 
 import lombok.Getter;
@@ -22,17 +36,18 @@ public class WorldManagerImpl implements WorldManager {
     private final Machine server;
 
     @Override
-    public void addWorld(World world) {
-        if(world.getManagerReference().get() != null && world.getManagerReference().get() != this)
-            throw new IllegalStateException("World '" + world.getName() + "' is already registered in a different WorldManager");
+    public void addWorld(final World world) {
+        if (world.getManagerReference().get() != null && world.getManagerReference().get() != this)
+            throw new IllegalStateException("World '" + world.getName() + "' is already registered "
+                    + "in a different WorldManager");
         world.getManagerReference().set(this);
         worlds.add(world);
     }
 
     @Override
-    public boolean removeWorld(World world) {
-        if(world.getManagerReference().get() != this) return false;
-        if(worlds.remove(world)) {
+    public boolean removeWorld(final World world) {
+        if (world.getManagerReference().get() != this) return false;
+        if (worlds.remove(world)) {
             world.getManagerReference().set(null);
             return true;
         }
@@ -40,21 +55,21 @@ public class WorldManagerImpl implements WorldManager {
     }
 
     @Override
-    public boolean isRegistered(NamespacedKey name) {
+    public boolean isRegistered(final NamespacedKey name) {
         final World world = getWorld(name);
-        if(world == null) return false;
+        if (world == null) return false;
         return isRegistered(world);
     }
 
     @Override
-    public boolean isRegistered(World world) {
+    public boolean isRegistered(final World world) {
         return worlds.contains(world);
     }
 
     @Override
-    public World getWorld(NamespacedKey name) {
-        for(World world : getWorlds()) {
-            if(!(world.getName().equals(name))) continue;
+    public World getWorld(final NamespacedKey name) {
+        for (final World world : getWorlds()) {
+            if (!(world.getName().equals(name))) continue;
             return world;
         }
         return null;
