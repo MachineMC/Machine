@@ -11,7 +11,7 @@ much appreciated!
 
 ### General Information
 - Adhere to the project's style guide, which is comprehensively
-described in the `STYLE_GUIDE.md` file.
+described in the [STYLE_GUIDE.md](STYLE_GUIDE.md) file.
 - Test your modifications carefully, make sure they don't cause
 side effects that may cause unintentional behaviour.
 - Contributions must not include any malicious code intended to cause harm to
@@ -66,13 +66,16 @@ When designing implementations, ensure that you:
   such as unexpected exceptions.
 
 ### Licensing
-In order to contribute code, it must be licensed under **GPLv3**;
+In order to contribute code, it must be licensed under [**GPLv3**](LICENSE);
 it is either your property, or you have express permission to provide
 and license it to us.
 
 Third-party code may be accepted in the following circumstances:
 - It is under a compatible license and part of a public, freely-available resource.
 - You have been granted permission to include it.
+
+All code files should start with the [Machine project header](HEADER.txt).
+For Java files, this is done automatically when the project is built.
 
 ### Lombok
 Throughout the project, we use [Lombok](https://projectlombok.org/)
