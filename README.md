@@ -5,12 +5,8 @@
 
 [![license](https://img.shields.io/github/license/machinemc/machine?style=for-the-badge&color=657185)](LICENSE)
 
-Machine is a Minecraft Server software that is completely free and open source.
-It was created from scratch without any code from Mojang.
-
-One key difference between vanilla Minecraft servers and Machine is that our
-software does not come with any default features. However, we offer a
-comprehensive API that allows you to easily create anything you desire.
+Machine is a fast and lightweight Minecraft Server implementation that is completely free and open source.
+It was created from scratch with modern API that allows you to easily create anything you desire.
 
 **[!]** Right now Machine is heavily in development and is not ready to use in
 a production environment.
@@ -36,26 +32,14 @@ without any cost or restriction.
 Machine's codebase is clean and straightforward, making it easier for
 users to understand how the server works and to modify it as needed.
 
-**Advantages:**
-* Remove the overhead of vanilla features
-* Multi-threaded
-* Open-source
-* Modern API
-
-**Disadvantages:**
-* Does not work with Bukkit plugins
-* Does not work with older clients
-* Bad for vanilla experience
-* It takes longer to develop something playable
-
 ## Building
 * Configure ITJ Gradle to use JDK 17.
 * Reload all gradle projects & run newly created task `buildAll` in group `build` of the root Machine project.
 
 ## Credits
-* The [contributors](https://github.com/MachineMC/Machine/graphs/contributors) of the project. ❤️
-* [The Minecraft Coalition](https://wiki.vg/) and [`#mcdevs`](https://github.com/mcdevs) - protocol and file formats research.
-* [The Minecraft Wiki](https://minecraft.gamepedia.com/Minecraft_Wiki) for all their useful info.
+* The [contributors](https://github.com/MachineMC/Machine/graphs/contributors) of the project.
+* [The Minecraft Coalition](https://wiki.vg/)
+* [The Minecraft Wiki](https://minecraft.gamepedia.com/Minecraft_Wiki)
 * [Minestom](https://github.com/Minestom) and [Krypton](https://github.com/KryptonMC) projects for inspiration when designing both api and implementation.
 
 ## Contributing
