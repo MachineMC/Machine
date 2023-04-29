@@ -20,16 +20,19 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 
+import javax.annotation.processing.Generated;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class CodeGenerator {
+public abstract class CodeGenerator {
 
     public static final String PREFIX = "machine-";
     @Getter
@@ -40,34 +43,37 @@ public class CodeGenerator {
 
     protected ZipOutputStream zip;
     protected final JsonParser parser = new JsonParser();
+
+    @Getter
+    private final File jar;
+    private String jsonFile;
     @Getter(AccessLevel.PROTECTED) @Setter(AccessLevel.PROTECTED)
-    private JsonObject source;
+    private JsonObject json;
 
-    @Getter(AccessLevel.PROTECTED)
-    private boolean exists = false;
-
-    protected CodeGenerator(final @NotNull File outputDir, final String libraryName) throws IOException {
+    protected CodeGenerator(final @NotNull File outputDir, final String libraryName) {
         this.libraryName = libraryName;
-        final File jar = new File(outputDir.getPath() + "/" + PREFIX + libraryName + ".jar");
-        if (jar.exists()) {
-            exists = true;
-            return;
-        }
-        if (!jar.createNewFile())
-            throw new IOException("Failed to create the jar file for " + libraryName + " Machine Library");
-        zip = new ZipOutputStream(new FileOutputStream(jar));
-        source = null;
+        jar = new File(outputDir.getPath() + "/" + PREFIX + libraryName + ".jar");
     }
 
     protected CodeGenerator(final File outputDir,
                             final String libraryName,
-                            final String jsonFile) throws IOException {
+                            final String jsonFile) {
         this(outputDir, libraryName);
-        if (exists) return;
+        this.jsonFile = jsonFile;
+    }
+
+    /**
+     * Loads the json and zip stream for the generator.
+     */
+    public void load() throws Throwable {
+        if (!jar.exists() && !jar.createNewFile())
+            throw new IOException("Failed to create the jar file for " + libraryName + " Machine Library");
+        zip = new ZipOutputStream(new FileOutputStream(jar));
+        if (jsonFile == null) return;
         final InputStream stream = getClass().getClassLoader().getResourceAsStream(jsonFile);
         if (stream == null)
             throw new FileNotFoundException();
-        source = parser.parse(new InputStreamReader(stream)).getAsJsonObject();
+        json = parser.parse(new InputStreamReader(stream)).getAsJsonObject();
     }
 
     /**
@@ -95,7 +101,7 @@ public class CodeGenerator {
      * @param dotPath dot path
      * @return type
      */
-    public Type type(final @NotNull String dotPath) {
+    public static Type type(final @NotNull String dotPath) {
         return Type.getType("L" + dotPath.replace(".", "/") + ";");
     }
 
@@ -104,7 +110,7 @@ public class CodeGenerator {
      * @param type type
      * @return array type
      */
-    public Type array(final @NotNull Type type) {
+    public static Type array(final @NotNull Type type) {
         return Type.getType("[" + type.getDescriptor());
     }
 
@@ -112,10 +118,8 @@ public class CodeGenerator {
      * Creates new class writer with default options.
      * @return new class writer
      */
-    public ClassWriter createWriter() {
-        return new ClassWriter(
-                Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS
-        );
+    public static ClassWriter createWriter() {
+        return new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
     }
 
     /**
@@ -123,7 +127,7 @@ public class CodeGenerator {
      * @param mv visitor
      * @param o value
      */
-    public void pushValue(final MethodVisitor mv, final Object o) {
+    public static void pushValue(final MethodVisitor mv, final Object o) {
         int value;
         if (o instanceof Boolean)
             value = (Boolean) o ? 1 : 0;
@@ -143,6 +147,52 @@ public class CodeGenerator {
             mv.visitIntInsn(Opcodes.SIPUSH, value);
         else
             mv.visitLdcInsn(value);
+    }
+
+    /**
+     * Visits the generated annotation for the class visitor.
+     * @param cv class visitor
+     * @param codeGenerator code generator that generated the annotated class
+     */
+    public static void visitGeneratedAnnotation(final ClassVisitor cv,
+                                                final Class<? extends CodeGenerator> codeGenerator) {
+        final AnnotationVisitor av = cv.visitAnnotation(Type.getType(Generated.class).getDescriptor(), true);
+
+        final AnnotationVisitor valueVisitor = av.visitArray("value");
+        valueVisitor.visit("0", codeGenerator.getName());
+        valueVisitor.visitEnd();
+
+        final TimeZone tz = TimeZone.getTimeZone("UTC");
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        df.setTimeZone(tz);
+        av.visit("date", df.format(Date.from(Instant.now())));
+
+        av.visitEnd();
+    }
+
+    /**
+     * Converts string to camel case.
+     * @param text text to convert
+     * @param capitalizeFirst whether the first letter should be capitalize
+     * @return camel case text
+     */
+    public static String toCamelCase(final String text, final boolean capitalizeFirst) {
+        final String[] words = text.split("[\\W_]+");
+        final StringBuilder builder = new StringBuilder();
+        boolean capitalize = capitalizeFirst;
+        for (final String word : words) {
+            final String formattedWord;
+            if (capitalize)
+                formattedWord = word.isEmpty()
+                        ? word
+                        : Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase();
+            else {
+                formattedWord = word.toLowerCase();
+                capitalize = true;
+            }
+            builder.append(formattedWord);
+        }
+        return builder.toString();
     }
 
 }
