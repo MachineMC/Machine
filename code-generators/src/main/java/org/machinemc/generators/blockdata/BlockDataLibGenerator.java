@@ -19,6 +19,10 @@ import com.google.gson.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.machinemc.generators.CodeGenerator;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,12 +41,30 @@ public class BlockDataLibGenerator extends CodeGenerator {
     @Override
     public void generate() throws IOException {
         System.out.println("Generating the " + super.getLibraryName() + " library");
+
+        final ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        cw.visit(Opcodes.V17,
+                Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE,
+                type("org.machinemc.api.world.blockdata.BlockDataProperty").getInternalName(),
+                null,
+                org.objectweb.asm.Type.getInternalName(Object.class),
+                new String[0]);
+        CodeGenerator.visitGeneratedAnnotation(cw, BlockDataLibGenerator.class);
+        final MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
+                "getName",
+                "()" + Type.getType(String.class).getDescriptor(),
+                null,
+                new String[0]);
+        mv.visitEnd();
+        cw.visitEnd();
+        addClass("org.machinemc.api.world.blockdata.BlockDataProperty", cw.toByteArray());
+
         final JsonObject json = getSource().getAsJsonObject();
         for (final Map.Entry<String, JsonElement> entry : json.entrySet()) {
             if (entry.getValue().getAsJsonObject().get("properties") == null) continue;
             final JsonObject properties = entry.getValue().getAsJsonObject().get("properties").getAsJsonObject();
             for (final Map.Entry<String, JsonElement> propertyEntry : properties.entrySet()) {
-                final Property property = new Property(toCamelCase(propertyEntry.getKey(), true));
+                final Property property = new Property(propertyEntry.getKey());
                 for (final JsonElement propertyValue : propertyEntry.getValue().getAsJsonArray())
                     property.addValue(propertyValue.getAsString());
                 if (this.properties.get(property.getName()) != null) {
@@ -66,31 +88,6 @@ public class BlockDataLibGenerator extends CodeGenerator {
             addClass(blockData.getPath(), blockData.generate());
         }
         super.generate();
-    }
-
-    /**
-     * Converts string to camel case.
-     * @param text text to convert
-     * @param capitalizeFirst whether the first letter should be capitalize
-     * @return camel case text
-     */
-    public static String toCamelCase(final String text, final boolean capitalizeFirst) {
-        final String[] words = text.split("[\\W_]+");
-        final StringBuilder builder = new StringBuilder();
-        boolean capitalize = capitalizeFirst;
-        for (final String word : words) {
-            final String formattedWord;
-            if (capitalize)
-                formattedWord = word.isEmpty()
-                        ? word
-                        : Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase();
-            else {
-                formattedWord = word.toLowerCase();
-                capitalize = true;
-            }
-            builder.append(formattedWord);
-        }
-        return builder.toString();
     }
 
 }

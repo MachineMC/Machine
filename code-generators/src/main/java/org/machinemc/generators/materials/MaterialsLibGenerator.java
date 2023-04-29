@@ -70,6 +70,8 @@ public class MaterialsLibGenerator extends CodeGenerator {
                 Type.getInternalName(Enum.class),
                 new String[0]);
 
+        CodeGenerator.visitGeneratedAnnotation(cw, MaterialsLibGenerator.class);
+
         // Fields
         for (final String value : itemsMap.keySet()) {
             final FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC

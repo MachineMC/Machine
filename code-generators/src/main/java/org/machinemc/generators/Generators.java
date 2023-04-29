@@ -43,9 +43,9 @@ public final class Generators {
             final CodeGenerator blockdata = new BlockDataLibGenerator(outputDir);
             if (!blockdata.isExists()) blockdata.generate();
 
-        } catch (Exception exception) {
+        } catch (Throwable throwable) {
             System.out.println("Machine Library Generator unexpectedly ended.");
-            exception.printStackTrace();
+            throw new RuntimeException(throwable);
         }
     }
 

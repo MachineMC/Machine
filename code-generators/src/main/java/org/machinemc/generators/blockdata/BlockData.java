@@ -18,11 +18,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Getter;
+import org.machinemc.generators.CodeGenerator;
 import org.objectweb.asm.*;
 
 import java.util.*;
 
-import static org.machinemc.generators.blockdata.BlockDataLibGenerator.toCamelCase;
+import static org.machinemc.generators.CodeGenerator.*;
 
 public final class BlockData {
 
@@ -72,7 +73,7 @@ public final class BlockData {
 
         final JsonObject jsonProperties = json.get("properties").getAsJsonObject();
         for (final Map.Entry<String, JsonElement> entry : jsonProperties.entrySet()) {
-            final Property property = generator.getProperties().get(toCamelCase(entry.getKey(), true));
+            final Property property = generator.getProperties().get(entry.getKey());
             properties.add(property);
             availableValues.put(property, new ArrayList<>());
             jsonProperties.get(entry.getKey()).getAsJsonArray()
@@ -90,7 +91,7 @@ public final class BlockData {
             for (final Map.Entry<String, JsonElement> entry : stateProperties.entrySet()) {
                 key.append(entry.getValue().getAsString());
                 key.append(";");
-                final Property property = generator.getProperties().get(toCamelCase(entry.getKey(), true));
+                final Property property = generator.getProperties().get(entry.getKey());
                 blockDataMap.get(stateId).add(new AbstractMap.SimpleEntry<>(property, entry.getValue().getAsString()));
                 if (isDefault)
                     defaultState.put(property, entry.getValue().getAsString());
@@ -118,13 +119,14 @@ public final class BlockData {
         final ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         final Set<String> interfaces = new LinkedHashSet<>();
         for (final Property property : properties)
-            interfaces.add(property.getInterfacePath().replaceAll("\\.", "/"));
+            interfaces.add(type(property.getInterfacePath()).getInternalName());
         cw.visit(Opcodes.V17,
                 Opcodes.ACC_PUBLIC,
                 type(path).getInternalName(),
                 null,
                 type(BLOCKDATA_CLASS).getInternalName(),
                 interfaces.toArray(new String[0]));
+        CodeGenerator.visitGeneratedAnnotation(cw, BlockDataLibGenerator.class);
 
         // Fields
         FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL,
@@ -161,7 +163,7 @@ public final class BlockData {
             cw.visitEnd();
             // Getter
             MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
-                    "get" + toCamelCase(property.getName(), true),
+                    "get" + property.getFormattedName(),
                     "()" + descriptor,
                     null,
                     new String[0]);
@@ -183,7 +185,7 @@ public final class BlockData {
             cw.visitEnd();
             // Setter
             mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
-                    "set" + toCamelCase(property.getName(), true),
+                    "set" + property.getFormattedName(),
                     "(" + descriptor + ")" + type(path).getDescriptor(),
                     null,
                     new String[0]);
@@ -531,36 +533,6 @@ public final class BlockData {
 
         cw.visitEnd();
         return cw.toByteArray();
-    }
-
-    private Type type(final String dotPath) {
-        return Type.getType("L" + dotPath.replace(".", "/") + ";");
-    }
-
-    private Type array(final Type type) {
-        return Type.getType("[" + type.getDescriptor());
-    }
-
-    private void pushValue(final MethodVisitor mv, final Object o) {
-        int value;
-        if (o instanceof Boolean)
-            value = (Boolean) o ? 1 : 0;
-        else if (o instanceof Character)
-            value = (Character) o;
-        else if (o instanceof Number)
-            value = ((Number) o).intValue();
-        else {
-            mv.visitLdcInsn(o);
-            return;
-        }
-        if (0 <= value && value <= 5)
-            mv.visitInsn(Opcodes.ICONST_0 + value);
-        else if (Byte.MIN_VALUE <= value && value <= Byte.MAX_VALUE)
-            mv.visitIntInsn(Opcodes.BIPUSH, value);
-        else if (Short.MIN_VALUE <= value && value <= Short.MAX_VALUE)
-            mv.visitIntInsn(Opcodes.SIPUSH, value);
-        else
-            mv.visitLdcInsn(value);
     }
 
 }
