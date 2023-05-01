@@ -21,7 +21,6 @@ import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockData;
-import org.machinemc.api.world.BlockDataImpl;
 import org.machinemc.server.world.particles.ParticleFactory;
 import org.machinemc.api.world.particles.options.BlockOptions;
 
@@ -47,7 +46,7 @@ public class BlockOptionsImpl implements BlockOptions {
     }
 
     public BlockOptionsImpl(final ServerBuffer buf) {
-        final BlockData blockData = BlockDataImpl.getBlockData(buf.readVarInt());
+        final BlockData blockData = BlockData.getBlockData(buf.readVarInt());
         this.blockData = blockData != null ? blockData : DEFAULT_LOOK.createBlockData();
     }
 
