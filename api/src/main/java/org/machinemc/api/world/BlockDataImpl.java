@@ -29,8 +29,8 @@ import java.util.*;
 // This class is used by the code generators, edit with caution.
 class BlockDataImpl extends BlockData {
 
-    private static final Map<Integer, BlockDataImpl> REGISTRY = new TreeMap<>();
-    private static BlockDataImpl[] registryArray = new BlockDataImpl[0];
+    private static final Map<Integer, BlockDataImpl> TEMP_REGISTRY = new TreeMap<>();
+    private static BlockDataImpl[] registryArray;
 
     @Getter
     private Material material;
@@ -40,9 +40,11 @@ class BlockDataImpl extends BlockData {
      * Finishes the registration of the block data to materials.
      */
     public static void finishRegistration() {
-        registryArray = new BlockDataImpl[Iterables.getLast(REGISTRY.keySet()) + 1];
-        for (final Integer stateId : REGISTRY.keySet())
-            registryArray[stateId] = REGISTRY.get(stateId);
+        canRegister();
+        registryArray = new BlockDataImpl[Iterables.getLast(TEMP_REGISTRY.keySet()) + 1];
+        for (final Integer stateId : TEMP_REGISTRY.keySet())
+            registryArray[stateId] = TEMP_REGISTRY.get(stateId);
+        TEMP_REGISTRY.clear();
     }
 
     /**
@@ -55,7 +57,40 @@ class BlockDataImpl extends BlockData {
         if (registryArray.length <= id) return null;
         final BlockDataImpl data = registryArray[id];
         if (data == null) return null;
-        return data.clone();
+        if (data.id != -1) return data.clone();
+
+        final BlockDataImpl clone = (BlockDataImpl) data.clone();
+        final Object[][] available = clone.getAcceptedProperties();
+        final int[] weights = new int[available.length];
+
+        for (int i = 0; i < weights.length; i++) {
+            int weight = 1;
+            for (int j = i + 1; j < available.length; j++)
+                weight *= available[j].length;
+            weights[i] = weight;
+        }
+
+        final Object[] newData = new Object[available.length];
+        for (int i = 0; i < newData.length; i++)
+            newData[i] = available[i][0];
+
+        int diff = id - clone.firstStateID();
+        int i = 0;
+        while (diff != 0) {
+            final Object[] properties = available[i];
+            for (final Object property : properties) {
+                newData[i] = property;
+                diff -= weights[i];
+                if (diff < 0) {
+                    diff += weights[i];
+                    break;
+                }
+            }
+            i++;
+        }
+
+        clone.loadProperties(newData);
+        return clone;
     }
 
     protected BlockDataImpl(final int id) {
@@ -67,26 +102,39 @@ class BlockDataImpl extends BlockData {
     }
 
     @Override
-    protected BlockDataImpl setMaterial(final Material material) {
-        this.material = material;
-        final Map<Integer, BlockData> stateMap = getIdMap();
-        for (final Integer stateId : stateMap.keySet()) {
-            final BlockData data = stateMap.get(stateId).clone();
-            if (!(data instanceof BlockDataImpl blockData))
-                throw new IllegalStateException();
-            blockData.material = material;
-            REGISTRY.put(stateId, blockData);
+    protected void register() {
+        canRegister();
+        if (id != -1) {
+            TEMP_REGISTRY.put(id, this);
+            return;
         }
-        return this;
+
+        int id = firstStateID();
+        final Object[][] available = getAcceptedProperties();
+
+        for (int i = 0; i < available.length; i++) {
+            int weight = 1;
+            for (int j = i + 1; j < available.length; j++)
+                weight *= available[j].length;
+            id += weight * (available[i].length - 1);
+        }
+
+        for (int i = firstStateID(); i < id; i++) TEMP_REGISTRY.put(i, this);
     }
 
     /**
-     * Returns id of the block data.
-     * @param blockData block data to get id from
-     * @return id of the given block data
+     * Checks whether registrations of new block data are allowed.
+     * @throws UnsupportedOperationException if registrations had already finished
      */
-    public static int getId(final BlockData blockData) {
-        return blockData.getId();
+    private static void canRegister() {
+        if (registryArray == null) return;
+        throw new UnsupportedOperationException("Registration has been already finished");
+    }
+
+    @Override
+    protected BlockDataImpl setMaterial(final Material material) {
+        this.material = material;
+        return this;
     }
 
     @Override
@@ -132,13 +180,6 @@ class BlockDataImpl extends BlockData {
     }
 
     /**
-     * @return all block data states for material of this block data mapped to ids
-     */
-    protected @Unmodifiable Map<Integer, BlockData> getIdMap() {
-        return Map.of(id, this);
-    }
-
-    /**
      * Returns all data used by the block data (block data properties)
      * in order of their names. {@link BlockDataImpl#getDataNames()}
      * @return block data properties
@@ -180,6 +221,16 @@ class BlockDataImpl extends BlockData {
      */
     protected int firstStateID() {
         return id;
+    }
+
+    /**
+     * Loads properties to the block data, their order has to match
+     * the order of their keys, {@link BlockDataImpl#getDataNames()}.
+     * The array needs to provide all properties with correct types.
+     * @param properties properties to load
+     */
+    protected void loadProperties(final Object[] properties) {
+
     }
 
     @Override

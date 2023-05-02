@@ -121,7 +121,7 @@ public final class BlockData {
         for (final Property property : properties)
             interfaces.add(type(property.getInterfacePath()).getInternalName());
         cw.visit(Opcodes.V17,
-                Opcodes.ACC_PUBLIC,
+                Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
                 type(path).getInternalName(),
                 null,
                 type(BLOCKDATA_CLASS).getInternalName(),
@@ -129,19 +129,13 @@ public final class BlockData {
         CodeGenerator.visitGeneratedAnnotation(cw, BlockDataLibGenerator.class);
 
         // Fields
-        FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL,
-                "BLOCKDATA_MAP",
-                Type.getType(HashMap.class).getDescriptor(),
-                "Ljava/util/HashMap<Ljava/lang/Integer;" + type(path).getDescriptor() + ">;",
-                null);
-        fv.visitEnd();
         for (final Property property : properties) {
             final String descriptor = switch (property.getType()) {
                 case BOOLEAN -> Type.BOOLEAN_TYPE.getDescriptor();
                 case NUMBER -> Type.INT_TYPE.getDescriptor();
                 case OTHER -> type(property.getPath()).getDescriptor();
             };
-            fv = cw.visitField(Opcodes.ACC_PRIVATE,
+            final FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE,
                     toCamelCase(property.getName(), false),
                     descriptor,
                     null,
@@ -280,86 +274,6 @@ public final class BlockData {
                         case OTHER -> type(property.getPath()).getDescriptor();
                     });
             i++;
-        }
-        mv.visitInsn(Opcodes.RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-        cw.visitEnd();
-
-        // Static block
-        mv = cw.visitMethod(Opcodes.ACC_STATIC,
-                "<clinit>",
-                "()V",
-                null,
-                new String[0]);
-        mv.visitCode();
-        mv.visitTypeInsn(Opcodes.NEW, Type.getType(HashMap.class).getInternalName());
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
-                Type.getType(HashMap.class).getInternalName(),
-                "<init>",
-                "()V",
-                false);
-        mv.visitVarInsn(Opcodes.ASTORE, i);
-        mv.visitVarInsn(Opcodes.ALOAD, i);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC,
-                type(path).getInternalName(),
-                "BLOCKDATA_MAP",
-                Type.getType(HashMap.class).getDescriptor());
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                type(path).getInternalName(),
-                "initBlockDataMap",
-                "()V",
-                false);
-        mv.visitInsn(Opcodes.RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-        cw.visitEnd();
-
-        // Init block data map method
-        mv = cw.visitMethod(Opcodes.ACC_PROTECTED | Opcodes.ACC_STATIC,
-                "initBlockDataMap",
-                "()V",
-                null,
-                new String[0]);
-        mv.visitCode();
-        for (final Integer id : blockDataMap.keySet()) {
-            mv.visitFieldInsn(Opcodes.GETSTATIC,
-                    type(path).getInternalName(),
-                    "BLOCKDATA_MAP",
-                    Type.getType(HashMap.class).getDescriptor());
-            final StringBuilder stateKeyBuilder = new StringBuilder();
-            for (final Map.Entry<Property, String> property : blockDataMap.get(id))
-                stateKeyBuilder.append(property.getValue().toLowerCase()).append(";");
-            pushValue(mv, idMap.get(stateKeyBuilder.toString()));
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    Type.getType(Integer.class).getInternalName(),
-                    "valueOf",
-                    "(I)Ljava/lang/Integer;",
-                    false);
-            mv.visitTypeInsn(Opcodes.NEW, type(path).getInternalName());
-            mv.visitInsn(Opcodes.DUP);
-            for (final Map.Entry<Property, String> property : blockDataMap.get(id)) {
-                switch (property.getKey().getType()) {
-                    case BOOLEAN -> pushValue(mv, Boolean.parseBoolean(property.getValue()));
-                    case NUMBER -> pushValue(mv, Integer.parseInt(property.getValue()));
-                    case OTHER -> mv.visitFieldInsn(Opcodes.GETSTATIC,
-                            type(property.getKey().getPath()).getInternalName(),
-                            property.getValue().toUpperCase(),
-                            type(property.getKey().getPath()).getDescriptor());
-                }
-            }
-            mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
-                    type(path).getInternalName(),
-                    "<init>",
-                    descriptorBuilder.toString(),
-                    false);
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                    Type.getType(HashMap.class).getInternalName(),
-                    "put",
-                    "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
-                    false);
-            mv.visitInsn(Opcodes.POP);
         }
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
@@ -505,20 +419,56 @@ public final class BlockData {
         mv.visitEnd();
         cw.visitEnd();
 
-        // getIdMap method
+        // loadProperties method
         mv = cw.visitMethod(Opcodes.ACC_PROTECTED,
-                "getIdMap",
-                "()" + Type.getType(Map.class).getDescriptor(),
+                "loadProperties",
+                "(" + Type.getType(Object[].class).getDescriptor() + ")V",
                 null,
                 new String[0]);
         mv.visitAnnotation(Type.getType(Override.class).getDescriptor(), true).visitEnd();
         mv.visitEnd();
         mv.visitCode();
-        mv.visitFieldInsn(Opcodes.GETSTATIC,
-                type(path).getInternalName(),
-                "BLOCKDATA_MAP",
-                Type.getType(HashMap.class).getDescriptor());
-        mv.visitInsn(Opcodes.ARETURN);
+
+        int j = 0;
+        for (final Property property : properties) {
+
+            mv.visitVarInsn(Opcodes.ALOAD, 0);
+            mv.visitVarInsn(Opcodes.ALOAD, 1);
+            pushValue(mv, j);
+            mv.visitInsn(Opcodes.AALOAD);
+            mv.visitTypeInsn(Opcodes.CHECKCAST, (
+                    switch (property.getType()) {
+                        case BOOLEAN -> Type.getType(Boolean.class);
+                        case NUMBER -> Type.getType(Integer.class);
+                        case OTHER -> type(property.getPath()); }
+            ).getInternalName());
+
+            if (property.getType() == Property.Type.BOOLEAN)
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getType(Boolean.class).getInternalName(),
+                        "booleanValue",
+                        "()Z",
+                        false);
+            else if (property.getType() == Property.Type.NUMBER)
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getType(Integer.class).getInternalName(),
+                        "intValue",
+                        "()I",
+                        false);
+
+            mv.visitFieldInsn(Opcodes.PUTFIELD,
+                    type(path).getInternalName(),
+                    toCamelCase(property.getName(), false), (
+                            switch (property.getType()) {
+                                case BOOLEAN -> Type.BOOLEAN_TYPE;
+                                case NUMBER -> Type.INT_TYPE;
+                                case OTHER -> type(property.getPath()); }
+                    ).getDescriptor());
+
+            j++;
+        }
+
+        mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
         cw.visitEnd();

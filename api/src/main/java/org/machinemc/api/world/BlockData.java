@@ -47,6 +47,12 @@ public abstract class BlockData implements Cloneable {
     }
 
     /**
+     * Registers the block data to the block data registry.
+     */
+    @ApiStatus.Internal
+    protected abstract void register();
+
+    /**
      * @return material of the block data
      */
     public abstract @Nullable Material getMaterial();
@@ -54,14 +60,6 @@ public abstract class BlockData implements Cloneable {
     /**
      * Changes base material for the block data and all its
      * variants.
-     * <p>
-     * For example changing material for oak log block data would
-     * change the returned value of {@link #getMaterial()} for all
-     * rotations of the oak log.
-     * <p>
-     * This can lead to unexpected behaviour because then
-     * {@code Material.OAK_LOG.createBlockData().getMaterial()} would return
-     * different material than the one it was created from.
      * @param material new material
      * @return this
      */
