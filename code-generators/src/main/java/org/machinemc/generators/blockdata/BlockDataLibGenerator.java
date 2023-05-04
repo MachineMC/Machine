@@ -22,7 +22,6 @@ import org.machinemc.generators.CodeGenerator;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +50,7 @@ public class BlockDataLibGenerator extends CodeGenerator {
         CodeGenerator.visitGeneratedAnnotation(cw, BlockDataLibGenerator.class);
         final MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
                 "getName",
-                "()" + Type.getType(String.class).getDescriptor(),
+                "()Ljava/lang/String;",
                 null,
                 new String[0]);
         mv.visitEnd();

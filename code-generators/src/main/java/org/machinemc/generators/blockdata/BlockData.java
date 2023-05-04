@@ -427,7 +427,7 @@ public final class BlockData {
         // loadProperties method
         mv = cw.visitMethod(Opcodes.ACC_PROTECTED,
                 "loadProperties",
-                "(" + Type.getType(Object[].class).getDescriptor() + ")V",
+                "([Ljava/lang/Object;)V",
                 null,
                 new String[0]);
         mv.visitAnnotation(Type.getType(Override.class).getDescriptor(), true).visitEnd();

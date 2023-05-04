@@ -32,21 +32,24 @@ public final class Generators {
      */
     public static void run(final File projectDir) {
         try {
-            if (projectDir.isFile()) return;
-            final File outputDir = new File(projectDir.getPath() + "/libs");
-            if (!outputDir.exists() && !outputDir.mkdirs())
-                throw new IOException("Folder for Machine libraries could not be created");
-
-            final CodeGenerator materials = new MaterialsLibGenerator(outputDir);
-            if (!materials.isExists()) materials.generate();
-
-            final CodeGenerator blockdata = new BlockDataLibGenerator(outputDir);
-            if (!blockdata.isExists()) blockdata.generate();
-
+            run0(projectDir);
         } catch (Throwable throwable) {
             System.out.println("Machine Library Generator unexpectedly ended.");
             throw new RuntimeException(throwable);
         }
+    }
+
+    private static void run0(final File projectDir) throws Throwable {
+        if (projectDir.isFile()) return;
+        final File outputDir = new File(projectDir.getPath() + "/libs");
+        if (!outputDir.exists() && !outputDir.mkdirs())
+            throw new IOException("Folder for Machine libraries could not be created");
+
+        final CodeGenerator materials = new MaterialsLibGenerator(outputDir);
+        if (!materials.isExists()) materials.generate();
+
+        final CodeGenerator blockdata = new BlockDataLibGenerator(outputDir);
+        if (!blockdata.isExists()) blockdata.generate();
     }
 
 }

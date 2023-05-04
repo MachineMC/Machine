@@ -17,13 +17,6 @@ repositories {
 
 dependencies {
 
-    sequenceOf(
-        "machine-materials",
-        "machine-blockdata",
-    ).forEach {
-        implementation(files("/libs/$it.jar"))
-    }
-
     implementation(libs.machine.nbt)
     implementation(libs.machine.scriptive)
     implementation(libs.jetbrains.annotations) // overrides default compileOnly

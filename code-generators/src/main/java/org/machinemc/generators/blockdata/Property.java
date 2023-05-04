@@ -147,7 +147,7 @@ public class Property {
         // getName method
         mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
                 "getName",
-                "()" + org.objectweb.asm.Type.getType(String.class).getDescriptor(),
+                "()Ljava/lang/String;",
                 null,
                 new String[0]);
         mv.visitAnnotation(org.objectweb.asm.Type.getType(Override.class).getDescriptor(), true).visitEnd();
