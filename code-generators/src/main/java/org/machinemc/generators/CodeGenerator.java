@@ -116,9 +116,7 @@ public class CodeGenerator {
      * @return new class writer
      */
     public static ClassWriter createWriter() {
-        return new ClassWriter(
-                Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS
-        );
+        return new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
     }
 
     /**

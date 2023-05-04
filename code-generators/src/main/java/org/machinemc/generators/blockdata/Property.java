@@ -64,7 +64,7 @@ public class Property {
      * @return enum class data of this property
      */
     public byte[] generate() {
-        final ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        final ClassWriter cw = createWriter();
         cw.visit(Opcodes.V17,
                 Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL | Opcodes.ACC_SUPER | Opcodes.ACC_ENUM,
                 type(path).getInternalName(),

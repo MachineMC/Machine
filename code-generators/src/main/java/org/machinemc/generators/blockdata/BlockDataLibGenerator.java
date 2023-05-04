@@ -26,8 +26,7 @@ import org.objectweb.asm.Type;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class BlockDataLibGenerator extends CodeGenerator {
 
@@ -42,7 +41,7 @@ public class BlockDataLibGenerator extends CodeGenerator {
     public void generate() throws IOException {
         System.out.println("Generating the " + super.getLibraryName() + " library");
 
-        final ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = createWriter();
         cw.visit(Opcodes.V17,
                 Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE,
                 type("org.machinemc.api.world.blockdata.BlockDataProperty").getInternalName(),
@@ -56,6 +55,7 @@ public class BlockDataLibGenerator extends CodeGenerator {
                 null,
                 new String[0]);
         mv.visitEnd();
+        cw.visitEnd();
         cw.visitEnd();
         addClass("org.machinemc.api.world.blockdata.BlockDataProperty", cw.toByteArray());
 
@@ -81,9 +81,40 @@ public class BlockDataLibGenerator extends CodeGenerator {
             if (property.getType() != Property.Type.OTHER) continue;
             addClass(property.getPath(), property.generate());
         }
+
+        final Map<String, Set<BlockDataGroup>> groupMap = new HashMap<>();
+        System.out.println("Generating groups of special blocks...");
+        for (final BlockDataGroup group : BlockDataGroup.values()) {
+            cw = createWriter();
+            final List<String> extending = new ArrayList<>();
+            for (final String propertyName : group.getProperties())
+                extending.add(type(properties.get(propertyName).getInterfacePath()).getInternalName());
+            cw.visit(Opcodes.V17,
+                    Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE,
+                    type(group.getPath()).getInternalName(),
+                    null,
+                    org.objectweb.asm.Type.getInternalName(Object.class),
+                    extending.toArray(new String[0]));
+            CodeGenerator.visitGeneratedAnnotation(cw, BlockDataLibGenerator.class);
+            cw.visitEnd();
+            addClass(group.getPath(), cw.toByteArray());
+
+            for (final String blockName : group.getBlocks()) {
+                groupMap.putIfAbsent(blockName, new LinkedHashSet<>());
+                final Set<BlockDataGroup> groups = groupMap.get(blockName);
+                groups.add(group);
+            }
+        }
         System.out.println("Loading and generating individual block classes...");
         for (final Map.Entry<String, JsonElement> entry : json.entrySet()) {
-            final BlockData blockData = BlockData.create(this, entry.getKey(), entry.getValue().getAsJsonObject());
+            final BlockData blockData = BlockData.create(
+                    this,
+                    entry.getKey(),
+                    entry.getValue().getAsJsonObject(),
+                    groupMap.containsKey(entry.getKey())
+                            ? groupMap.get(entry.getKey()).toArray(new BlockDataGroup[0])
+                            : null
+            );
             if (blockData == null) continue;
             addClass(blockData.getPath(), blockData.generate());
         }

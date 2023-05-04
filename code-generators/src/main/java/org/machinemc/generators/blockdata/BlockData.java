@@ -18,6 +18,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.generators.CodeGenerator;
 import org.objectweb.asm.*;
 
@@ -32,23 +33,22 @@ public final class BlockData {
 
     @Getter
     private final String name;
-    private final String id;
 
     // Linked HashMaps are important, system depends on order!
-    private Set<Property> properties                    = new LinkedHashSet<>();
-    private Map<Property, List<String>> availableValues = new LinkedHashMap<>();
-    private Map<String, Integer> idMap                  = new LinkedHashMap<>();
+    private Set<Property> properties                    = new LinkedHashSet<>(); // used properties by this block data
+    private Map<Property, List<String>> availableValues = new LinkedHashMap<>(); // available values for the properties
 
-    private Map<Integer, List<Map.Entry<Property, String>>> blockDataMap = new LinkedHashMap<>();
+    private BlockDataGroup[] groups = new BlockDataGroup[0];
 
     private Map<Property, String> defaultState = new HashMap<>();
+
+    private int startingState = -1;
 
     @Getter
     private final String path;
 
     private BlockData(final String id) {
         this.name = toCamelCase(id.replaceFirst("minecraft:", ""), true);
-        this.id = id;
         path = "org.machinemc.api.world." + this.name + "Data";
     }
 
@@ -57,19 +57,22 @@ public final class BlockData {
      * @param generator generator to use
      * @param name name of the block data
      * @param json json report file
+     * @param groups groups of the block data
      * @return block data
      */
-    public static BlockData create(final BlockDataLibGenerator generator, final String name, final JsonObject json) {
+    public static BlockData create(final BlockDataLibGenerator generator,
+                                   final String name,
+                                   final JsonObject json,
+                                   final @Nullable BlockDataGroup[] groups) {
         if (json.get("properties") == null) return null;
 
         // Linked HashMaps are important, system depends on order!
         final Set<Property> properties                    = new LinkedHashSet<>();
         final Map<Property, List<String>> availableValues = new LinkedHashMap<>();
-        final Map<String, Integer> idMap                  = new LinkedHashMap<>();
-
-        final Map<Integer, List<Map.Entry<Property, String>>> blockDataMap = new LinkedHashMap<>();
 
         final Map<Property, String> defaultState = new HashMap<>();
+
+        int startingState = -1;
 
         final JsonObject jsonProperties = json.get("properties").getAsJsonObject();
         for (final Map.Entry<String, JsonElement> entry : jsonProperties.entrySet()) {
@@ -84,30 +87,30 @@ public final class BlockData {
         final JsonArray jsonStates = json.get("states").getAsJsonArray();
         for (final JsonElement stateElement : jsonStates) {
             final int stateId = stateElement.getAsJsonObject().get("id").getAsInt();
-            blockDataMap.put(stateId, new ArrayList<>());
+            if (stateId < startingState || startingState == -1)
+                startingState = stateId;
             final boolean isDefault = stateElement.getAsJsonObject().get("default") != null;
             final JsonObject stateProperties = stateElement.getAsJsonObject().get("properties").getAsJsonObject();
-            final StringBuilder key = new StringBuilder();
-            for (final Map.Entry<String, JsonElement> entry : stateProperties.entrySet()) {
-                key.append(entry.getValue().getAsString());
-                key.append(";");
-                final Property property = generator.getProperties().get(entry.getKey());
-                blockDataMap.get(stateId).add(new AbstractMap.SimpleEntry<>(property, entry.getValue().getAsString()));
-                if (isDefault)
-                    defaultState.put(property, entry.getValue().getAsString());
+            if (isDefault) {
+                for (final Map.Entry<String, JsonElement> entry : stateProperties.entrySet())
+                    defaultState.put(
+                            generator.getProperties().get(entry.getKey()),
+                            entry.getValue().getAsString()
+                    );
             }
-            idMap.put(key.toString().toLowerCase(), stateId);
         }
 
         final BlockData blockData = new BlockData(name);
 
         blockData.properties      = properties;
         blockData.availableValues = availableValues;
-        blockData.idMap           = idMap;
 
-        blockData.blockDataMap = blockDataMap;
+        if (groups != null)
+            blockData.groups = groups;
 
         blockData.defaultState = defaultState;
+
+        blockData.startingState = startingState;
         return blockData;
     }
 
@@ -116,10 +119,12 @@ public final class BlockData {
      * @return data for the block data class
      */
     public byte[] generate() {
-        final ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        final ClassWriter cw = createWriter();
         final Set<String> interfaces = new LinkedHashSet<>();
         for (final Property property : properties)
             interfaces.add(type(property.getInterfacePath()).getInternalName());
+        for (final BlockDataGroup group : groups)
+            interfaces.add(type(group.getPath()).getInternalName());
         cw.visit(Opcodes.V17,
                 Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
                 type(path).getInternalName(),
@@ -413,7 +418,7 @@ public final class BlockData {
         mv.visitAnnotation(Type.getType(Override.class).getDescriptor(), true).visitEnd();
         mv.visitEnd();
         mv.visitCode();
-        pushValue(mv, idMap.values().iterator().next());
+        pushValue(mv, startingState);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
