@@ -35,16 +35,16 @@ public class MaterialsLibGenerator extends CodeGenerator {
     @Getter
     private final String path = MATERIAL_CLASS;
 
-    public MaterialsLibGenerator(final File outputDir) throws IOException {
+    public MaterialsLibGenerator(final File outputDir) {
         super(outputDir, "materials", "registries.json");
     }
 
     @Override
     public void generate() throws IOException {
         System.out.println("Generating the " + super.getLibraryName() + " library");
-        setSource(getSource().get("minecraft:item").getAsJsonObject()
+        setJson(getJson().get("minecraft:item").getAsJsonObject()
                 .get("entries").getAsJsonObject());
-        for (final Map.Entry<String, JsonElement> entry : getSource().entrySet())
+        for (final Map.Entry<String, JsonElement> entry : getJson().entrySet())
             handleEntry(entry, true);
 
         // Getting the BlockData information
@@ -69,6 +69,8 @@ public class MaterialsLibGenerator extends CodeGenerator {
                 null,
                 Type.getInternalName(Enum.class),
                 new String[0]);
+
+        CodeGenerator.visitGeneratedAnnotation(cw, MaterialsLibGenerator.class);
 
         // Fields
         for (final String value : itemsMap.keySet()) {
@@ -151,7 +153,11 @@ public class MaterialsLibGenerator extends CodeGenerator {
                 "setMaterial",
                 "(" + type(path).getDescriptor() + ")" + type(iBlockDataPath).getDescriptor(),
                 false);
-        mv.visitInsn(Opcodes.POP);
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                type(iBlockDataPath).getInternalName(),
+                "register",
+                "()V",
+                false);
         mv.visitJumpInsn(Opcodes.GOTO, end);
 
         mv.visitLabel(end);

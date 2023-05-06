@@ -20,13 +20,6 @@ dependencies {
 
     implementation(project(":api"))
 
-    sequenceOf(
-        "machine-materials",
-        "machine-blockdata",
-    ).forEach {
-        implementation(files("libs/$it.jar"))
-    }
-
     implementation(libs.google.guava)
     implementation(libs.google.gson)
     implementation(libs.netty.all)

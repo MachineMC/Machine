@@ -20,7 +20,7 @@ import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
 import org.machinemc.api.auth.OnlineServer;
-import org.machinemc.api.world.Material;
+import org.machinemc.api.world.*;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
@@ -50,9 +50,6 @@ import org.machinemc.server.network.packets.PacketFactory;
 import org.machinemc.server.server.PlayerManagerImpl;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.server.world.*;
-import org.machinemc.api.world.BlockDataImpl;
-import org.machinemc.api.world.World;
-import org.machinemc.api.world.WorldManager;
 import org.machinemc.api.world.biomes.BiomeManager;
 import org.machinemc.server.world.biomes.BiomeManagerImpl;
 import org.machinemc.api.world.blocks.BlockManager;
@@ -222,7 +219,7 @@ public final class Machine implements Server {
         ServerCommands.register(this, commandDispatcher);
 
         Arrays.stream(Material.values()).forEach(Material::createBlockData);
-        BlockDataImpl.finishRegistration();
+        BlockData.finishRegistration();
         blockManager = BlockManagerImpl.createDefault(this);
         console.info("Loaded materials and block data");
 

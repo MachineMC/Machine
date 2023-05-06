@@ -15,20 +15,20 @@
 package org.machinemc.generators.blockdata;
 
 import lombok.Getter;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.machinemc.generators.CodeGenerator;
+import org.objectweb.asm.*;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static org.machinemc.generators.blockdata.BlockDataLibGenerator.toCamelCase;
+import static org.machinemc.generators.CodeGenerator.*;
 
 public class Property {
 
     @Getter
     private final String name;
+    @Getter
+    private final String formattedName;
     @Getter
     private final String path;
     @Getter
@@ -37,7 +37,8 @@ public class Property {
 
     public Property(final String name) {
         this.name = name;
-        path = "org.machinemc.api.world.blockdata." + name + "Property";
+        this.formattedName = toCamelCase(name, true);
+        path = "org.machinemc.api.world.blockdata." + formattedName + "Property";
     }
 
     /**
@@ -63,13 +64,14 @@ public class Property {
      * @return enum class data of this property
      */
     public byte[] generate() {
-        final ClassWriter cw = new ClassWriter(Opcodes.ASM9 | ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        final ClassWriter cw = createWriter();
         cw.visit(Opcodes.V17,
                 Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL | Opcodes.ACC_SUPER | Opcodes.ACC_ENUM,
                 type(path).getInternalName(),
                 null,
                 org.objectweb.asm.Type.getInternalName(Enum.class),
-                new String[0]);
+                new String[]{type("org.machinemc.api.world.blockdata.BlockDataProperty").getInternalName()});
+        CodeGenerator.visitGeneratedAnnotation(cw, BlockDataLibGenerator.class);
 
         // Fields
         for (final String value : values) {
@@ -138,6 +140,21 @@ public class Property {
                 "$VALUES",
                 array(type(path)).getDescriptor());
         mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        cw.visitEnd();
+
+        // getName method
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
+                "getName",
+                "()Ljava/lang/String;",
+                null,
+                new String[0]);
+        mv.visitAnnotation(org.objectweb.asm.Type.getType(Override.class).getDescriptor(), true).visitEnd();
+        mv.visitEnd();
+        mv.visitCode();
+        pushValue(mv, name);
+        mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
         cw.visitEnd();
@@ -230,7 +247,7 @@ public class Property {
      * @return data for interface of this property
      */
     public byte[] generateInterface() {
-        final String interfacePath = "org.machinemc.api.world.blockdata.interfaces.Has" + name;
+        final String interfacePath = "org.machinemc.api.world.blockdata.interfaces.Has" + formattedName;
         final String descriptor = switch (getType()) {
             case BOOLEAN -> org.objectweb.asm.Type.BOOLEAN_TYPE.getDescriptor();
             case NUMBER -> org.objectweb.asm.Type.INT_TYPE.getDescriptor();
@@ -243,14 +260,15 @@ public class Property {
                 null,
                 org.objectweb.asm.Type.getInternalName(Object.class),
                 new String[0]);
+        CodeGenerator.visitGeneratedAnnotation(cw, BlockDataLibGenerator.class);
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
-                "get" + toCamelCase(name, true),
+                "get" + formattedName,
                 "()" + descriptor,
                 null,
                 new String[0]);
         mv.visitEnd();
         mv = cw.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
-                "set" + toCamelCase(name, true),
+                "set" + formattedName,
                 "(" + descriptor + ")V",
                 null,
                 new String[0]);
@@ -263,7 +281,7 @@ public class Property {
      * @return dot path of the interface for this property
      */
     public String getInterfacePath() {
-        return "org.machinemc.api.world.blockdata.interfaces.Has" + name;
+        return "org.machinemc.api.world.blockdata.interfaces.Has" + formattedName;
     }
 
     /**
@@ -294,36 +312,6 @@ public class Property {
         }
         type = Type.NUMBER;
         return Type.NUMBER;
-    }
-
-    private org.objectweb.asm.Type type(final String dotPath) {
-        return org.objectweb.asm.Type.getType("L" + dotPath.replace(".", "/") + ";");
-    }
-
-    private org.objectweb.asm.Type array(final org.objectweb.asm.Type type) {
-        return org.objectweb.asm.Type.getType("[" + type.getDescriptor());
-    }
-
-    private void pushValue(final MethodVisitor mv, final Object o) {
-        int value;
-        if (o instanceof Boolean)
-            value = (Boolean) o ? 1 : 0;
-        else if (o instanceof Character)
-            value = (Character) o;
-        else if (o instanceof Number)
-            value = ((Number) o).intValue();
-        else {
-            mv.visitLdcInsn(o);
-            return;
-        }
-        if (0 <= value && value <= 5)
-            mv.visitInsn(Opcodes.ICONST_0 + value);
-        else if (Byte.MIN_VALUE <= value && value <= Byte.MAX_VALUE)
-            mv.visitIntInsn(Opcodes.BIPUSH, value);
-        else if (Short.MIN_VALUE <= value && value <= Short.MAX_VALUE)
-            mv.visitIntInsn(Opcodes.SIPUSH, value);
-        else
-            mv.visitLdcInsn(value);
     }
 
     public enum Type {
