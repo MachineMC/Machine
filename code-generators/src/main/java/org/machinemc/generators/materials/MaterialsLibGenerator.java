@@ -35,16 +35,16 @@ public class MaterialsLibGenerator extends CodeGenerator {
     @Getter
     private final String path = MATERIAL_CLASS;
 
-    public MaterialsLibGenerator(final File outputDir) throws IOException {
+    public MaterialsLibGenerator(final File outputDir) {
         super(outputDir, "materials", "registries.json");
     }
 
     @Override
     public void generate() throws IOException {
         System.out.println("Generating the " + super.getLibraryName() + " library");
-        setSource(getSource().get("minecraft:item").getAsJsonObject()
+        setJson(getJson().get("minecraft:item").getAsJsonObject()
                 .get("entries").getAsJsonObject());
-        for (final Map.Entry<String, JsonElement> entry : getSource().entrySet())
+        for (final Map.Entry<String, JsonElement> entry : getJson().entrySet())
             handleEntry(entry, true);
 
         // Getting the BlockData information

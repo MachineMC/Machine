@@ -32,7 +32,7 @@ public class BlockDataLibGenerator extends CodeGenerator {
     @Getter(AccessLevel.PROTECTED)
     private final Map<String, Property> properties = new LinkedHashMap<>();
 
-    public BlockDataLibGenerator(final File outputDir) throws IOException {
+    public BlockDataLibGenerator(final File outputDir) {
         super(outputDir, "blockdata", "blocks.json");
     }
 
@@ -58,7 +58,7 @@ public class BlockDataLibGenerator extends CodeGenerator {
         cw.visitEnd();
         addClass("org.machinemc.api.world.blockdata.BlockDataProperty", cw.toByteArray());
 
-        final JsonObject json = getSource().getAsJsonObject();
+        final JsonObject json = getJson().getAsJsonObject();
         for (final Map.Entry<String, JsonElement> entry : json.entrySet()) {
             if (entry.getValue().getAsJsonObject().get("properties") == null) continue;
             final JsonObject properties = entry.getValue().getAsJsonObject().get("properties").getAsJsonObject();

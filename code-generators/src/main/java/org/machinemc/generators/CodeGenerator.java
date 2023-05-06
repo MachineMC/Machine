@@ -32,7 +32,7 @@ import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class CodeGenerator {
+public abstract class CodeGenerator {
 
     public static final String PREFIX = "machine-";
     @Getter
@@ -43,34 +43,37 @@ public class CodeGenerator {
 
     protected ZipOutputStream zip;
     protected final JsonParser parser = new JsonParser();
+
+    @Getter
+    private final File jar;
+    private String jsonFile;
     @Getter(AccessLevel.PROTECTED) @Setter(AccessLevel.PROTECTED)
-    private JsonObject source;
+    private JsonObject json;
 
-    @Getter(AccessLevel.PROTECTED)
-    private boolean exists = false;
-
-    protected CodeGenerator(final @NotNull File outputDir, final String libraryName) throws IOException {
+    protected CodeGenerator(final @NotNull File outputDir, final String libraryName) {
         this.libraryName = libraryName;
-        final File jar = new File(outputDir.getPath() + "/" + PREFIX + libraryName + ".jar");
-        if (jar.exists()) {
-            exists = true;
-            return;
-        }
-        if (!jar.createNewFile())
-            throw new IOException("Failed to create the jar file for " + libraryName + " Machine Library");
-        zip = new ZipOutputStream(new FileOutputStream(jar));
-        source = null;
+        jar = new File(outputDir.getPath() + "/" + PREFIX + libraryName + ".jar");
     }
 
     protected CodeGenerator(final File outputDir,
                             final String libraryName,
-                            final String jsonFile) throws IOException {
+                            final String jsonFile) {
         this(outputDir, libraryName);
-        if (exists) return;
+        this.jsonFile = jsonFile;
+    }
+
+    /**
+     * Loads the json and zip stream for the generator.
+     */
+    public void load() throws Throwable {
+        if (!jar.exists() && !jar.createNewFile())
+            throw new IOException("Failed to create the jar file for " + libraryName + " Machine Library");
+        zip = new ZipOutputStream(new FileOutputStream(jar));
+        if (jsonFile == null) return;
         final InputStream stream = getClass().getClassLoader().getResourceAsStream(jsonFile);
         if (stream == null)
             throw new FileNotFoundException();
-        source = parser.parse(new InputStreamReader(stream)).getAsJsonObject();
+        json = parser.parse(new InputStreamReader(stream)).getAsJsonObject();
     }
 
     /**
