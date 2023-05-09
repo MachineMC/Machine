@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.world.blocks;
 
 import com.google.common.base.Preconditions;
@@ -79,7 +93,7 @@ public enum BlockEntityBase {
 
     private final Material[] materials;
 
-    BlockEntityBase(Material... materials) {
+    BlockEntityBase(final Material... materials) {
         this.materials = materials;
     }
 
@@ -95,8 +109,8 @@ public enum BlockEntityBase {
      * @param material material
      * @return whether the given material is supported by this block entity base
      */
-    public boolean supports(Material material) {
-        for (Material supported : materials) {
+    public boolean supports(final Material material) {
+        for (final Material supported : materials) {
             if (supported.equals(material)) return true;
         }
         return false;
@@ -121,7 +135,7 @@ public enum BlockEntityBase {
      * @param id id of the difficulty
      * @return difficulty for given id
      */
-    public static BlockEntityBase fromID(@Range(from = 0, to = 37) int id) {
+    public static BlockEntityBase fromID(final @Range(from = 0, to = 37) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported block entity base");
         return values()[id];
     }
@@ -131,8 +145,8 @@ public enum BlockEntityBase {
      * @param name name of the block entity base
      * @return block entity base with given name
      */
-    public static @Nullable BlockEntityBase getByName(String name) {
-        for (BlockEntityBase value : values()) {
+    public static @Nullable BlockEntityBase getByName(final String name) {
+        for (final BlockEntityBase value : values()) {
             if (value.name().equalsIgnoreCase(name)) return value;
         }
         return null;
@@ -143,10 +157,10 @@ public enum BlockEntityBase {
      * @param material material supported by the block entity base
      * @return block entity base of given material
      */
-    public static @Nullable BlockEntityBase getByMaterial(Material material) {
-        for (BlockEntityBase value : values()) {
-            for (Material supported : value.materials)
-                if(supported.equals(material)) return value;
+    public static @Nullable BlockEntityBase getByMaterial(final Material material) {
+        for (final BlockEntityBase value : values()) {
+            for (final Material supported : value.materials)
+                if (supported.equals(material)) return value;
         }
         return null;
     }

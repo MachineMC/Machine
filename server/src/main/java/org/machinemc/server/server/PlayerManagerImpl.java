@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.server;
 
 import lombok.Getter;
@@ -24,22 +38,22 @@ public class PlayerManagerImpl implements PlayerManager {
     private final Machine server;
 
     @Override
-    public void addPlayer(Player player) {
+    public void addPlayer(final Player player) {
         playerMap.putIfAbsent(player.getUuid(), player);
     }
 
     @Override
-    public void removePlayer(Player player) {
+    public void removePlayer(final Player player) {
         playerMap.remove(player.getUuid());
     }
 
     @Override
-    public Player getPlayer(UUID uuid) {
+    public Player getPlayer(final UUID uuid) {
         return playerMap.get(uuid);
     }
 
     @Override
-    public Player getPlayer(String name) {
+    public Player getPlayer(final String name) {
         return playerMap.values().stream().filter(player -> player.getName().equals(name))
                 .findFirst().orElse(null);
     }
@@ -50,7 +64,7 @@ public class PlayerManagerImpl implements PlayerManager {
     }
 
     @Override
-    public Set<Player> getPlayers(Predicate<Player> predicate) {
+    public Set<Player> getPlayers(final Predicate<Player> predicate) {
         return getPlayers().stream().filter(predicate).collect(Collectors.toSet());
     }
 

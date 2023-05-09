@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network.packets.in.handshaking;
 
 import lombok.AllArgsConstructor;
@@ -29,7 +43,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
         );
     }
 
-    public PacketHandshakingInHandshake(ServerBuffer buf) {
+    public PacketHandshakingInHandshake(final ServerBuffer buf) {
         protocolVersion = buf.readVarInt();
         serverAddress = buf.readString(StandardCharsets.UTF_8);
         serverPort = buf.readShort() & 0xFFFF;
@@ -52,7 +66,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
                 .writeVarInt(protocolVersion)
                 .writeString(serverAddress, StandardCharsets.UTF_8)
                 .writeShort((short) (serverPort & 0xFFFF))
-                .writeVarInt(handshakeType.ID)
+                .writeVarInt(handshakeType.id)
                 .bytes();
     }
 
@@ -67,11 +81,16 @@ public class PacketHandshakingInHandshake extends PacketIn {
         LOGIN(2);
 
         @Getter
-        private final int ID;
+        private final int id;
 
-        public static HandshakeType fromID(@Range(from = 1, to = 2) int ID) {
-            for (HandshakeType type : HandshakeType.values()) {
-                if (type.getID() == ID) return type;
+        /**
+         * Returns handshake with given id.
+         * @param id id
+         * @return handshake
+         */
+        public static HandshakeType fromID(final @Range(from = 1, to = 2) int id) {
+            for (final HandshakeType type : HandshakeType.values()) {
+                if (type.getId() == id) return type;
             }
             throw new RuntimeException("Unsupported Handshake type");
         }

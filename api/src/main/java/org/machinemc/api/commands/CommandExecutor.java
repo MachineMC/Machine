@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.commands;
 
 import org.jetbrains.annotations.Nullable;
@@ -21,23 +35,47 @@ public interface CommandExecutor {
      */
     int execute(String input);
 
+    /**
+     * Sends a message to the command executor.
+     * @param message message to send
+     */
     default void sendMessage(final String message) {
         sendMessage(ChatUtils.stringToComponent(message));
     }
 
+    /**
+     * Sends a message to the command executor.
+     * @param message message to send
+     */
     default void sendMessage(final Component message) {
         sendMessage(null, message);
     }
 
+    /**
+     * Sends a message to the command executor.
+     * @param sender sender uuid
+     * @param message message to send
+     */
     default void sendMessage(final @Nullable UUID sender, final String message) {
         sendMessage(sender, ChatUtils.stringToComponent(message));
     }
 
+    /**
+     * Sends a message to the command executor.
+     * @param sender sender uuid
+     * @param message message to send
+     */
     default void sendMessage(final @Nullable UUID sender, final Component message) {
         sendMessage(sender, message, MessageType.SYSTEM);
     }
 
-    void sendMessage(final @Nullable UUID sender, final Component message, final MessageType type);
+    /**
+     * Sends a message to the command executor.
+     * @param sender sender uuid
+     * @param message message to send
+     * @param type type of the message
+     */
+    void sendMessage(@Nullable UUID sender, Component message, MessageType type);
 
     /**
      * Formats the input as a Minecraft command - removes all leading,
@@ -46,9 +84,9 @@ public interface CommandExecutor {
      * @return formatted command input
      */
     static String formatCommandInput(String input) {
-        if(input.isBlank()) return "";
+        if (input.isBlank()) return "";
         input = input.trim();
-        while(input.contains("  "))
+        while (input.contains("  "))
             input = input.replace("  ", " ");
         return input;
     }

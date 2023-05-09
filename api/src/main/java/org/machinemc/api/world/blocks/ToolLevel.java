@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.world.blocks;
 
 import lombok.Getter;
@@ -35,24 +49,27 @@ public enum ToolLevel {
     private final double speed;
     private final Material[] materials;
 
-    ToolLevel(double speed, Material... materials) {
+    ToolLevel(final double speed, final Material... materials) {
         this.speed = speed;
         this.materials = materials;
     }
 
+    /**
+     * @return all materials of the tool level
+     */
     public Material[] getMaterials() {
         return materials.clone();
     }
 
     /**
-     * Returns the tool level of given material
+     * Returns the tool level of given material.
      * @param material material to check for
      * @return tool level of given material
      */
-    public static @Nullable ToolLevel fromMaterial(Material material) {
-        for(ToolLevel level : values()) {
-            for(Material tool : level.materials) {
-                if(material == tool) return level;
+    public static @Nullable ToolLevel fromMaterial(final Material material) {
+        for (final ToolLevel level : values()) {
+            for (final Material tool : level.materials) {
+                if (material == tool) return level;
             }
         }
         return null;
@@ -63,19 +80,19 @@ public enum ToolLevel {
      * @param speed general mining speed of the tool level
      * @return tool level matching the given speed
      */
-    public static @Nullable ToolLevel fromSpeed(double speed) {
-        for(ToolLevel level : values()) {
-            if(level.speed == speed) return level;
+    public static @Nullable ToolLevel fromSpeed(final double speed) {
+        for (final ToolLevel level : values()) {
+            if (level.speed == speed) return level;
         }
         return null;
     }
 
     /**
-     * Calculates speed of material as shears
+     * Calculates speed of material as shears.
      * @param material material to check for
      * @return mining speed of the material as shears
      */
-    public static double shearsSpeed(Material material) {
+    public static double shearsSpeed(final Material material) {
         return switch (material) {
             case VINE, GLOW_LICHEN -> 1;
             case WHITE_WOOL, ORANGE_WOOL, MAGENTA_WOOL,
@@ -88,17 +105,17 @@ public enum ToolLevel {
                     BIRCH_LEAVES, DARK_OAK_LEAVES,
                     FLOWERING_AZALEA_LEAVES, JUNGLE_LEAVES,
                     MANGROVE_LEAVES, OAK_LEAVES,
-                    SPRUCE_LEAVES-> 15;
+                    SPRUCE_LEAVES -> 15;
             default -> 2;
         };
     }
 
     /**
-     * Calculates speed of material as sword
+     * Calculates speed of material as sword.
      * @param material material to check for
      * @return mining speed of the material as sword
      */
-    public static double swordSpeed(Material material) {
+    public static double swordSpeed(final Material material) {
         return material == Material.COBWEB ? 15 : 1.5;
     }
 

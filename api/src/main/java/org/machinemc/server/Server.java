@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server;
 
 import com.google.gson.Gson;
@@ -47,9 +61,9 @@ public interface Server {
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      */
     static ServerBuffer createServerBuffer() {
-        if(Factories.BUFFER_FACTORY == null)
+        if (Factories.bufferFactory == null)
             throw new UnsupportedOperationException();
-        return Factories.BUFFER_FACTORY.create();
+        return Factories.bufferFactory.create();
     }
 
     /**
@@ -61,9 +75,9 @@ public interface Server {
      * @throws IllegalStateException if the material can't have item form
      */
     static Item createItem(Material material, byte amount) {
-        if(Factories.ITEM_FACTORY == null)
+        if (Factories.itemFactory == null)
             throw new UnsupportedOperationException();
-        return Factories.ITEM_FACTORY.create(material, amount);
+        return Factories.itemFactory.create(material, amount);
     }
 
     /**
@@ -85,9 +99,9 @@ public interface Server {
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      */
     static Particle createParticle(ParticleType type) {
-        if(Factories.PARTICLE_FACTORY == null)
+        if (Factories.particleFactory == null)
             throw new UnsupportedOperationException();
-        return Factories.PARTICLE_FACTORY.create(type);
+        return Factories.particleFactory.create(type);
     }
 
     /**
@@ -211,7 +225,7 @@ public interface Server {
     void shutdown();
 
     /**
-     * Sends a message using server's console
+     * Sends a message using server's console.
      * @param level logging level of the message
      * @param messages message to send
      */

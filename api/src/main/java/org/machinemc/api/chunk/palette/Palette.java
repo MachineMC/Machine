@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.chunk.palette;
 
 import org.machinemc.api.utils.Writable;
@@ -97,6 +111,9 @@ public interface Palette extends Writable, Cloneable {
         return dimension * dimension * dimension;
     }
 
+    /**
+     * @return clone of this palette
+     */
     Palette clone();
 
     /**
@@ -104,6 +121,13 @@ public interface Palette extends Writable, Cloneable {
      */
     @FunctionalInterface
     interface EntrySupplier {
+        /**
+         * Sets new entry in the palette.
+         * @param x x coordinate
+         * @param y y coordinate
+         * @param z z coordinate
+         * @return new value
+         */
         int get(int x, int y, int z);
     }
 
@@ -112,6 +136,13 @@ public interface Palette extends Writable, Cloneable {
      */
     @FunctionalInterface
     interface EntryConsumer {
+        /**
+         * Accepts the entry in the palette.
+         * @param x x coordinate
+         * @param y y coordinate
+         * @param z z coordinate
+         * @param value value
+         */
         void accept(int x, int y, int z, int value);
     }
 
@@ -120,6 +151,14 @@ public interface Palette extends Writable, Cloneable {
      */
     @FunctionalInterface
     interface EntryFunction {
+        /**
+         * Replaces the entry in the palette.
+         * @param x x coordinate
+         * @param y y coordinate
+         * @param z z coordinate
+         * @param value old value
+         * @return new value
+         */
         int apply(int x, int y, int z, int value);
     }
 

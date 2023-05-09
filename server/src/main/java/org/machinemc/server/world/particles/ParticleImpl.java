@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.world.particles;
 
 import lombok.Getter;
@@ -18,14 +32,14 @@ import java.util.Optional;
  * Default implementation of the particle.
  */
 @ToString
-public class ParticleImpl implements Particle {
+public final class ParticleImpl implements Particle {
 
     @Getter @Setter
     private ParticleType type;
     @Setter
     private ParticleOptions options;
 
-    private ParticleImpl(ParticleType type) {
+    private ParticleImpl(final ParticleType type) {
         this.type = type;
     }
 
@@ -34,7 +48,7 @@ public class ParticleImpl implements Particle {
      * @param type type of the particle
      * @return particle created from the given type
      */
-    public static Particle of(ParticleType type) {
+    public static Particle of(final ParticleType type) {
         return ParticleFactory.create(type);
     }
 
@@ -44,8 +58,8 @@ public class ParticleImpl implements Particle {
      * @param options options of the particle
      * @return particle created from the given type and options
      */
-    public static Particle of(ParticleType type, @Nullable ParticleOptions options) {
-        ParticleImpl particle = new ParticleImpl(type);
+    public static Particle of(final ParticleType type, final @Nullable ParticleOptions options) {
+        final ParticleImpl particle = new ParticleImpl(type);
         particle.options = options;
         return particle;
     }
@@ -55,8 +69,8 @@ public class ParticleImpl implements Particle {
      * @param buf buffer with particle id and options
      * @return particle created from the buffer
      */
-    public static Particle fromBuffer(FriendlyByteBuf buf) {
-        ParticleType type = ParticleType.fromID(buf.readVarInt());
+    public static Particle fromBuffer(final FriendlyByteBuf buf) {
+        final ParticleType type = ParticleType.fromID(buf.readVarInt());
         return ParticleFactory.create(type, buf);
     }
 
@@ -68,16 +82,16 @@ public class ParticleImpl implements Particle {
     }
 
     @Override
-    public void write(ServerBuffer buf) {
+    public void write(final ServerBuffer buf) {
         buf.writeVarInt(type.getId());
-        if(options != null)
+        if (options != null)
             buf.write(options);
     }
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound particle = new NBTCompound(Map.of("type", type.getName().getKey()));
-        if(options == null) return particle;
+        final NBTCompound particle = new NBTCompound(Map.of("type", type.getName().getKey()));
+        if (options == null) return particle;
         particle.putAll(options.toNBT());
         return particle;
     }

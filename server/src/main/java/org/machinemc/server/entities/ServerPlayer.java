@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.entities;
 
 import com.google.common.hash.Hashing;
@@ -12,6 +26,7 @@ import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.entities.player.Hand;
 import org.machinemc.api.entities.player.PlayerProfile;
 import org.machinemc.api.entities.player.SkinPart;
+import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.world.Difficulty;
@@ -28,16 +43,15 @@ import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.server.server.codec.Codec;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 /**
- * Default implementation of player
+ * Default implementation of player.
  */
-public class ServerPlayer extends ServerLivingEntity implements Player {
+public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Getter
     private final ClientConnection connection;
@@ -66,12 +80,12 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
     @Getter
     private Component playerListName;
 
-    private ServerPlayer(Machine server, PlayerProfile profile, ClientConnection connection) {
+    private ServerPlayer(final Machine server, final PlayerProfile profile, final ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUuid());
         this.profile = profile;
-        if(connection.getOwner() != null)
+        if (connection.getOwner() != null)
             throw new IllegalStateException("There can't be multiple players with the same ClientConnection");
-        if(connection.getClientState() != ClientConnection.ClientState.PLAY)
+        if (connection.getState() != PlayerConnection.ClientState.PLAY)
             throw new IllegalStateException("Player's connection has to be in play state");
         connection.setOwner(this);
         connection.startKeepingAlive();
@@ -89,31 +103,34 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
      * @param connection connection of the player
      * @return created player instance
      */
-    public static ServerPlayer spawn(Machine server, PlayerProfile profile, ClientConnection connection) {
+    public static ServerPlayer spawn(final Machine server,
+                                     final PlayerProfile profile,
+                                     final ClientConnection connection) {
         final PlayerManager manager = server.getPlayerManager();
-        if(connection.getClientState() != ClientConnection.ClientState.PLAY) {
+        if (connection.getState() != PlayerConnection.ClientState.PLAY) {
             throw new IllegalStateException("Player can't be initialized if their connection isn't in play state");
         }
-        if(manager.getPlayer(profile.getUsername()) != null || manager.getPlayer(profile.getUuid()) != null) {
+        if (manager.getPlayer(profile.getUsername()) != null || manager.getPlayer(profile.getUuid()) != null) {
             connection.disconnect(TranslationComponent.of("disconnect.loginFailed"));
             throw new IllegalStateException("Session is already active");
         }
-        ServerPlayer player = new ServerPlayer(server, profile, connection);
-        if(server.getPlayerDataContainer().exist(player.getUuid())) {
+        final ServerPlayer player = new ServerPlayer(server, profile, connection);
+        if (server.getPlayerDataContainer().exist(player.getUuid())) {
             try {
                 final NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player.getUuid());
                 if (nbtCompound != null)
                     player.load(nbtCompound);
             } catch (Exception exception) {
-                server.getConsole().warning("Failed to load player data for " + player.getName() + " (" + player.getUuid() + ")");
+                server.getConsole().warning("Failed to load player data for " + player.getName()
+                        + " (" + player.getUuid() + ")");
                 server.getExceptionHandler().handle(exception);
             }
         }
         try {
             manager.addPlayer(player);
-            final TranslationComponent joinMessage = TranslationComponent.of("multiplayer.player.joined", TextComponent.of(player.getName())).modify()
-                    .color(ChatColor.YELLOW)
-                    .finish();
+            final TranslationComponent joinMessage = TranslationComponent.of(
+                    "multiplayer.player.joined", TextComponent.of(player.getName())
+            ).modify().color(ChatColor.YELLOW).finish();
             manager.getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(joinMessage));
             server.getConsole().info(ChatColor.YELLOW + player.getDisplayName().toLegacyString() + " joined the game");
             player.init();
@@ -127,14 +144,14 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
     public void init() {
         super.init();
 
-        NBTCompound codec = new Codec(
+        final NBTCompound codec = new Codec(
                 getServer().getDimensionTypeManager(),
                 getServer().getBiomeManager(),
                 getServer().getMessenger()
         ).toNBT();
 
-        List<String> worlds = new ArrayList<>();
-        for(World world : getServer().getWorldManager().getWorlds())
+        final List<String> worlds = new ArrayList<>();
+        for (final World world : getServer().getWorldManager().getWorlds())
             worlds.add(world.getName().toString());
 
         //noinspection UnstableApiUsage
@@ -173,7 +190,7 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
         // Recipe
         // Player Position
         sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, this));
-        for (Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
+        for (final Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
             if (player == this)
                 continue;
             sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, player));
@@ -192,23 +209,20 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public void remove() {
-        try {
-            if(connection.getClientState() != ClientConnection.ClientState.DISCONNECTED)
-                throw new IllegalStateException("You can't remove player from server until the connection is closed");
-            super.remove();
-            getWorld().unloadPlayer(this);
-            getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this));
-            getServer().getPlayerManager().removePlayer(this);
-            final TranslationComponent leaveMessage = TranslationComponent.of("multiplayer.player.left", TranslationComponent.of(getName())).modify()
-                    .color(ChatColor.YELLOW)
-                    .finish();
-            getServer().getPlayerManager().getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(leaveMessage));
-            getServer().getConsole().info(ChatColor.YELLOW + getDisplayName().toLegacyString() + " left the game");
-            save();
-        }
-        catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
+        if (connection.getState() != PlayerConnection.ClientState.DISCONNECTED)
+            throw new IllegalStateException("You can't remove player from server until the connection is closed");
+        super.remove();
+        getWorld().unloadPlayer(this);
+        getServer().getConnection().broadcastPacket(
+                new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this)
+        );
+        getServer().getPlayerManager().removePlayer(this);
+        final TranslationComponent leaveMessage = TranslationComponent.of(
+                "multiplayer.player.left", TranslationComponent.of(getName())
+        ).modify().color(ChatColor.YELLOW).finish();
+        getServer().getPlayerManager().getPlayers().forEach(serverPlayer -> serverPlayer.sendMessage(leaveMessage));
+        getServer().getConsole().info(ChatColor.YELLOW + getDisplayName().toLegacyString() + " left the game");
+        save();
     }
 
     @Override
@@ -217,31 +231,29 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
     }
 
     @Override
-    public void setDisplayName(@Nullable Component displayName) {
+    public void setDisplayName(final @Nullable Component displayName) {
         this.displayName = displayName == null ? TextComponent.of(getName()) : displayName;
     }
 
     @Override
-    public void setPlayerListName(@Nullable Component playerListName) {
-        if (playerListName == null)
-            playerListName = TextComponent.of(getName());
-        this.playerListName = playerListName;
-        try {
-            getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME, this));
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
+    public void setPlayerListName(final @Nullable Component playerListName) {
+        this.playerListName = playerListName != null ? playerListName : TextComponent.of(getName());
+        getServer().getConnection().broadcastPacket(
+                new PacketPlayOutPlayerInfo(
+                        PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME,
+                        this)
+        );
     }
 
     @Override
-    public void setGamemode(Gamemode gamemode) {
+    public void setGamemode(final Gamemode gamemode) {
         previousGamemode = this.gamemode;
         this.gamemode = gamemode;
         sendGamemodeChange(gamemode);
     }
 
     @Override
-    public int execute(String input) {
+    public int execute(final String input) {
         return 0;
     }
 
@@ -251,32 +263,32 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
     }
 
     /**
-     * Sends packet to change difficulty
+     * Sends packet to change difficulty.
      * @param difficulty new difficulty
      */
-    private void sendDifficultyChange(Difficulty difficulty) {
+    private void sendDifficultyChange(final Difficulty difficulty) {
         sendPacket(new PacketPlayOutChangeDifficulty(difficulty));
     }
 
     /**
-     * Sends packet to change world spawn
+     * Sends packet to change world spawn.
      * @param location new world spawn
      */
-    private void sendWorldSpawnChange(Location location) {
+    private void sendWorldSpawnChange(final Location location) {
         sendPacket(new PacketPlayOutWorldSpawnPosition(location));
     }
 
     /**
-     * Sends packet to change gamemode
+     * Sends packet to change gamemode.
      * @param gamemode new gamemode
      */
-    private void sendGamemodeChange(Gamemode gamemode) {
+    private void sendGamemodeChange(final Gamemode gamemode) {
         sendPacket(new PacketPlayOutGameEvent(PacketPlayOutGameEvent.Event.CHANGE_GAMEMODE, gamemode.getId()));
     }
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound nbtCompound = super.toNBT();
+        final NBTCompound nbtCompound = super.toNBT();
         nbtCompound.set("playerGameType", gamemode.getId());
         if (previousGamemode != null)
             nbtCompound.set("previousPlayerGameType", previousGamemode.getId());
@@ -284,19 +296,18 @@ public class ServerPlayer extends ServerLivingEntity implements Player {
     }
 
     @Override
-    public void load(NBTCompound nbtCompound) {
+    public void load(final NBTCompound nbtCompound) {
         super.load(nbtCompound);
-        gamemode = Gamemode.fromID(nbtCompound.getValue("playerGameType", Gamemode.SURVIVAL.getId())); // TODO replace with default gamemode from server.properties
-        previousGamemode = nbtCompound.containsKey("previousPlayerGameType") ? Gamemode.fromID(nbtCompound.getValue("previousPlayerGameType")) : null;
+        // TODO replace with default gamemode from server.properties
+        gamemode = Gamemode.fromID(nbtCompound.getValue("playerGameType", Gamemode.SURVIVAL.getId()));
+        previousGamemode = nbtCompound.containsKey("previousPlayerGameType")
+                ? Gamemode.fromID(nbtCompound.getValue("previousPlayerGameType"))
+                : null;
     }
 
     @Override
-    public void sendPacket(Packet packet) {
-        try {
-            getConnection().sendPacket(packet);
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
+    public void sendPacket(final Packet packet) {
+        getConnection().send(packet);
     }
 
     @Override

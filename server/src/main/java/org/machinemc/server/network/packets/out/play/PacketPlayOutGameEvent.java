@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network.packets.out.play;
 
 import com.google.common.base.Preconditions;
@@ -25,7 +39,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
                 PacketPlayOutGameEvent::new);
     }
 
-    public PacketPlayOutGameEvent(ServerBuffer buf) {
+    public PacketPlayOutGameEvent(final ServerBuffer buf) {
         event = Event.fromID(buf.readByte());
         value = buf.readFloat();
     }
@@ -67,11 +81,19 @@ public class PacketPlayOutGameEvent extends PacketOut {
         PLAY_ELDER_GUARDIAN_APPEARANCE,
         ENABLE_RESPAWN_SCREEN;
 
+        /**
+         * @return id of the event
+         */
         public byte getId() {
             return (byte) ordinal();
         }
 
-        public static Event fromID(@Range(from = 0, to = 11) int id) {
+        /**
+         * Returns event with given id.
+         * @param id id
+         * @return event
+         */
+        public static Event fromID(final @Range(from = 0, to = 11) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Event type");
             return values()[id];
         }

@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.logging;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -15,13 +29,15 @@ import java.util.List;
 
 /**
  * Default console completer for Machine server.
+ * @param server server
+ * @param console console
  */
 public record ConsoleCompleter(Machine server, ServerConsole console) implements Completer, ServerProperty {
 
     @Override
-    public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
+    public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
         final CommandDispatcher<CommandExecutor> dispatcher = server.getCommandDispatcher();
-        if(line.wordIndex() == 0) {
+        if (line.wordIndex() == 0) {
             final String commandString = line.word().toLowerCase();
             candidates.addAll(dispatcher.getRoot().getChildren().stream()
                     .map(CommandNode::getName)

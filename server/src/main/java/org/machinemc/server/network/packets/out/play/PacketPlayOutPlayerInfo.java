@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network.packets.out.play;
 
 import com.google.common.base.Preconditions;
@@ -32,24 +46,24 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                 PacketPlayOutPlayerInfo::new);
     }
 
-    public PacketPlayOutPlayerInfo(Action action, PlayerInfoData ... playerInfoDataArray) {
+    public PacketPlayOutPlayerInfo(final Action action, final PlayerInfoData... playerInfoDataArray) {
         this.action = action;
         this.playerInfoDataArray = playerInfoDataArray;
     }
 
-    public PacketPlayOutPlayerInfo(Action action, Player ... players) {
+    public PacketPlayOutPlayerInfo(final Action action, final Player... players) {
         this.action = action;
         playerInfoDataArray = new PlayerInfoData[players.length];
         for (int i = 0; i < players.length; i++)
             playerInfoDataArray[i] = new PlayerInfoData(players[i]);
     }
 
-    public PacketPlayOutPlayerInfo(ServerBuffer buf) {
+    public PacketPlayOutPlayerInfo(final ServerBuffer buf) {
         action = Action.fromID(buf.readVarInt());
-        int playerAmount = buf.readVarInt();
+        final int playerAmount = buf.readVarInt();
         playerInfoDataArray = new PlayerInfoData[playerAmount];
         for (int i = 0; i < playerAmount; i++) {
-            UUID uuid = buf.readUUID();
+            final UUID uuid = buf.readUUID();
             String name = null;
             PlayerTextures skin = null;
             Gamemode gamemode = null;
@@ -71,9 +85,11 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                 case UPDATE_GAMEMODE -> gamemode = Gamemode.fromID(buf.readVarInt());
                 case UPDATE_LATENCY -> latency = buf.readVarInt();
                 case UPDATE_DISPLAY_NAME -> displayName = buf.readComponent();
-                case REMOVE_PLAYER -> {}
+                case REMOVE_PLAYER -> {
+                }
             }
-            playerInfoDataArray[i] = new PlayerInfoData(uuid, name, skin, gamemode, latency, displayName, publicKeyData);
+            playerInfoDataArray[i] = new PlayerInfoData(uuid, name, skin, gamemode,
+                    latency, displayName, publicKeyData);
         }
     }
 
@@ -89,10 +105,10 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf();
+        final FriendlyByteBuf buf = new FriendlyByteBuf();
         buf.writeVarInt(action.getId())
                 .writeVarInt(playerInfoDataArray.length);
-        for (PlayerInfoData playerInfoData : playerInfoDataArray)
+        for (final PlayerInfoData playerInfoData : playerInfoDataArray)
             playerInfoData.write(action, buf);
         return buf.bytes();
     }
@@ -109,26 +125,63 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
         UPDATE_DISPLAY_NAME,
         REMOVE_PLAYER;
 
+        /**
+         * @return id of the action
+         */
         public int getId() {
             return ordinal();
         }
 
-        public static Action fromID(@Range(from = 0, to = 4) int id) {
+        /**
+         * Returns action with a given id.
+         *
+         * @param id id
+         * @return action
+         */
+        public static Action fromID(final @Range(from = 0, to = 4) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Action type");
             return values()[id];
         }
 
     }
 
-    public record PlayerInfoData(UUID uuid, @Nullable String name, @Nullable PlayerTextures playerTextures, @Nullable Gamemode gamemode, int latency,
-                                 @Nullable Component listName, @Nullable PublicKeyData publicKeyData) {
+    /**
+     * Player info packet data.
+     *
+     * @param uuid           uuid of the player
+     * @param name           name of the player
+     * @param playerTextures textures of the player
+     * @param gamemode       gamemode of the player
+     * @param latency        latency of the player
+     * @param listName       name displayed in player list
+     * @param publicKeyData  public key data
+     */
+    public record PlayerInfoData(UUID uuid,
+                                 @Nullable String name,
+                                 @Nullable PlayerTextures playerTextures,
+                                 @Nullable Gamemode gamemode,
+                                 int latency,
+                                 @Nullable Component listName,
+                                 @Nullable PublicKeyData publicKeyData) {
 
-        public PlayerInfoData(Player player) {
-            this(player.getUuid(), player.getName(), player.getProfile().getTextures(), player.getGamemode(), player.getLatency(),
-                    player.getPlayerListName(), player.getServer().isOnline() ? player.getConnection().getPublicKeyData() : null);
+        public PlayerInfoData(final Player player) {
+            this(player.getUuid(),
+                    player.getName(),
+                    player.getProfile().getTextures(),
+                    player.getGamemode(),
+                    player.getLatency(),
+                    player.getPlayerListName(),
+                    player.getServer().isOnline() ? player.getConnection().getPublicKeyData() : null);
         }
 
-        public void write(Action action, FriendlyByteBuf buf) {
+        /**
+         * Writes the data to the buf for the packet depending on
+         * the provided action.
+         *
+         * @param action action
+         * @param buf    buffer to write into
+         */
+        public void write(final Action action, final FriendlyByteBuf buf) {
             buf.writeUUID(uuid);
             switch (action) {
                 case ADD_PLAYER -> {
@@ -155,7 +208,8 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     if (listName != null)
                         buf.writeComponent(listName);
                 }
-                case REMOVE_PLAYER -> {}
+                case REMOVE_PLAYER -> {
+                }
             }
         }
     }

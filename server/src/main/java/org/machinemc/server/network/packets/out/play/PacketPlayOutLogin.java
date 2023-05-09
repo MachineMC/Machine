@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network.packets.out.play;
 
 import lombok.AllArgsConstructor;
@@ -50,11 +64,11 @@ public class PacketPlayOutLogin extends PacketOut {
         );
     }
 
-    public PacketPlayOutLogin(ServerBuffer buf) {
+    public PacketPlayOutLogin(final ServerBuffer buf) {
         entityID = buf.readInt();
         isHardcore = buf.readBoolean();
         gamemode = Gamemode.fromID(buf.readByte());
-        byte gamemodeId = buf.readByte();
+        final byte gamemodeId = buf.readByte();
         previousGamemode = gamemodeId == -1 ? null : Gamemode.fromID(gamemodeId);
         dimensions = buf.readStringList(StandardCharsets.UTF_8);
         this.dimensionCodec = buf.readNBT();
@@ -87,7 +101,7 @@ public class PacketPlayOutLogin extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeInt(entityID)
                 .writeBoolean(isHardcore)
                 .writeByte((byte) gamemode.getId())

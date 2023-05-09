@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.logging;
 
 import org.machinemc.api.logging.Console;
@@ -16,7 +30,7 @@ public class FormattedOutputStream extends FilterOutputStream {
     private final String linePrefix;
     private EolTrackerByteArrayOutputStream buf = new EolTrackerByteArrayOutputStream();
 
-    public FormattedOutputStream(Console console, Level level, String linePrefix) {
+    public FormattedOutputStream(final Console console, final Level level, final String linePrefix) {
         super(console.getOutputStream());
         this.level = level;
         this.console = console;
@@ -24,10 +38,10 @@ public class FormattedOutputStream extends FilterOutputStream {
     }
 
     @Override
-    public void write(int b) throws IOException {
+    public void write(final int b) throws IOException {
         buf.write(b);
         if (buf.isLineComplete()) {
-            String line = new String(buf.toByteArray(), 0, buf.size() - LINE_SEPARATOR.length);
+            final String line = new String(buf.toByteArray(), 0, buf.size() - LINE_SEPARATOR.length);
             console.log(level, linePrefix + line);
             buf = new EolTrackerByteArrayOutputStream();
         }

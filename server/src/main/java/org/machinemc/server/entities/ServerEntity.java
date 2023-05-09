@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.entities;
 
 import lombok.Getter;
@@ -60,7 +74,7 @@ public abstract class ServerEntity implements Entity {
     @Getter @Setter
     private int portalCooldown;
 
-    public ServerEntity(Machine server, EntityType entityType, UUID uuid) {
+    public ServerEntity(final Machine server, final EntityType entityType, final UUID uuid) {
         this.server = server;
         this.entityType = entityType;
         this.uuid = uuid;
@@ -81,7 +95,7 @@ public abstract class ServerEntity implements Entity {
     }
 
     @Override
-    public void setCustomName(@Nullable Component customName) {
+    public void setCustomName(final @Nullable Component customName) {
         // TODO set custom name metadata
     }
 
@@ -92,7 +106,7 @@ public abstract class ServerEntity implements Entity {
     }
 
     @Override
-    public void setCustomNameVisible(boolean customNameVisible) {
+    public void setCustomNameVisible(final boolean customNameVisible) {
         // TODO metadata
     }
 
@@ -107,12 +121,12 @@ public abstract class ServerEntity implements Entity {
     }
 
     @Override
-    public boolean addTag(String tag) {
+    public boolean addTag(final String tag) {
         return tags.size() < 1024 && tags.add(tag);
     }
 
     @Override
-    public boolean removeTag(String tag) {
+    public boolean removeTag(final String tag) {
         return tags.remove(tag);
     }
 
@@ -136,7 +150,7 @@ public abstract class ServerEntity implements Entity {
 
     @Override
     public NBTCompound toNBT() {
-        NBTCompound compound = new NBTCompound(Map.ofEntries(
+        final NBTCompound compound = new NBTCompound(Map.ofEntries(
                 entry("Pos", NBTUtils.list(location.getX(), location.getY(), location.getZ())),
                 entry("Motion", NBTUtils.list(0, 0, 0)), // TODO implement motion
                 entry("Rotation", NBTUtils.list(location.getYaw(), location.getPitch())),
@@ -171,7 +185,7 @@ public abstract class ServerEntity implements Entity {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void load(NBTCompound nbtCompound) {
+    public void load(final NBTCompound nbtCompound) {
         List<Double> pos = (List<Double>) ((NBTList) nbtCompound.get("Pos")).revert();
         List<Double> motion = (List<Double>) ((NBTList) nbtCompound.get("Motion")).revert();
         List<Float> rotation = (List<Float>) ((NBTList) nbtCompound.get("Rotation")).revert();
@@ -197,7 +211,7 @@ public abstract class ServerEntity implements Entity {
         if (nbtCompound.containsKey("UUID"))
             uuid = nbtCompound.getUUID("UUID");
         if (nbtCompound.containsKey("CustomName")) {
-            String string = nbtCompound.getValue("CustomName");
+            final String string = nbtCompound.getValue("CustomName");
             setCustomName(getServer().getComponentSerializer().deserializeJson(string));
         }
         setCustomNameVisible(nbtCompound.getValue("CustomNameVisible", 0) == 1);
@@ -208,8 +222,8 @@ public abstract class ServerEntity implements Entity {
         setHasVisualFire(nbtCompound.getValue("HasVisualFire", 0) == 1);
         if (nbtCompound.containsKey("Tags")) {
             tags.clear();
-            List<String> nbtStrings = (List<String>) ((NBTList) nbtCompound.get("Tags")).revert();
-            int i = Math.min(nbtStrings.size(), 1024);
+            final List<String> nbtStrings = (List<String>) ((NBTList) nbtCompound.get("Tags")).revert();
+            final int i = Math.min(nbtStrings.size(), 1024);
             for (int j = 0; j < i; j++)
                 tags.add(nbtStrings.get(j));
         }

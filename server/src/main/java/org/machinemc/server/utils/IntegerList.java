@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.utils;
 
 import java.util.*;
@@ -8,87 +22,114 @@ import java.util.*;
  */
 public class IntegerList {
 
-    private final static int[] EMPTY_DATA = new int[0];
+    private static final int[] EMPTY_DATA = new int[0];
 
     private static final int INITIAL_SIZE = 4;
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
 
-    private int[] _data;
+    private int[] data;
 
-    private int _size;
+    private int size;
 
     public IntegerList() {
-        _data = EMPTY_DATA;
+        data = EMPTY_DATA;
     }
 
-    public IntegerList(int capacity) {
+    public IntegerList(final int capacity) {
         if (capacity < 0) {
             throw new IllegalArgumentException();
         }
 
         if (capacity == 0) {
-            _data = EMPTY_DATA;
-        }
-        else {
-            _data = new int[capacity];
+            data = EMPTY_DATA;
+        } else {
+            data = new int[capacity];
         }
     }
 
-    public IntegerList(IntegerList list) {
-        _data = list._data.clone();
-        _size = list._size;
+    public IntegerList(final IntegerList list) {
+        data = list.data.clone();
+        size = list.size;
     }
 
-    public IntegerList(Collection<Integer> list) {
+    public IntegerList(final Collection<Integer> list) {
         this(list.size());
-        for (Integer value : list) {
+        for (final Integer value : list) {
             add(value);
         }
     }
 
-    public final void add(int value) {
-        if (_data.length == _size) {
-            ensureCapacity(_size + 1);
+    /**
+     * Adds new value to this integer list.
+     * @param value value to add
+     */
+    public final void add(final int value) {
+        if (data.length == size) {
+            ensureCapacity(size + 1);
         }
 
-        _data[_size] = value;
-        _size++;
+        data[size] = value;
+        size++;
     }
 
-    public final void addAll(int[] array) {
-        ensureCapacity(_size + array.length);
-        System.arraycopy(array, 0, _data, _size, array.length);
-        _size += array.length;
+    /**
+     * Adds all integers from integer array to this
+     * integer list.
+     * @param array array to add
+     */
+    public final void addAll(final int[] array) {
+        ensureCapacity(size + array.length);
+        System.arraycopy(array, 0, data, size, array.length);
+        size += array.length;
     }
 
-    public final void addAll(IntegerList list) {
-        ensureCapacity(_size + list._size);
-        System.arraycopy(list._data, 0, _data, _size, list._size);
-        _size += list._size;
+    /**
+     * Adds all integers from another integer list to this
+     * integer list.
+     * @param list integer list to add
+     */
+    public final void addAll(final IntegerList list) {
+        ensureCapacity(size + list.size);
+        System.arraycopy(list.data, 0, data, size, list.size);
+        size += list.size;
     }
 
-    public final void addAll(Collection<Integer> list) {
-        ensureCapacity(_size + list.size());
+    /**
+     * Adds all integers from given collection to this list.
+     * @param list list to add
+     */
+    public final void addAll(final Collection<Integer> list) {
+        ensureCapacity(size + list.size());
         int current = 0;
-        for (int x : list) {
-            _data[_size + current] = x;
+        for (final int x : list) {
+            data[size + current] = x;
             current++;
         }
-        _size += list.size();
+        size += list.size();
     }
 
-    public final int get(int index) {
-        if (index < 0 || index >= _size) {
+    /**
+     * Returns value at specific index.
+     * @param index index
+     * @return value at given index
+     */
+    public final int get(final int index) {
+        if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException();
         }
 
-        return _data[index];
+        return data[index];
     }
 
-    public final boolean contains(int value) {
-        for (int i = 0; i < _size; i++) {
-            if (_data[i] == value) {
+    /**
+     * Checks whether the list contains the given value.
+     * @param value value
+     * @return whether the list contains the value
+     */
+    public final boolean contains(final int value) {
+        for (int i = 0; i < size; i++) {
+            if (data[i] == value) {
                 return true;
             }
         }
@@ -96,68 +137,103 @@ public class IntegerList {
         return false;
     }
 
-    public final int set(int index, int value) {
-        if (index < 0 || index >= _size) {
+    /**
+     * Sets new entry at given index.
+     * @param index index
+     * @param value new value
+     * @return previous value
+     */
+    public final int set(final int index, final int value) {
+        if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException();
         }
 
-        int previous = _data[index];
-        _data[index] = value;
+        final int previous = data[index];
+        data[index] = value;
         return previous;
     }
 
-    public final int removeAt(int index) {
-        int value = get(index);
-        System.arraycopy(_data, index + 1, _data, index, _size - index - 1);
-        _data[_size - 1] = 0;
-        _size--;
+    /**
+     * Removes entry at specific index.
+     * @param index index
+     * @return removed value
+     */
+    public final int removeAt(final int index) {
+        final int value = get(index);
+        System.arraycopy(data, index + 1, data, index, size - index - 1);
+        data[size - 1] = 0;
+        size--;
         return value;
     }
 
-    public final void removeRange(int fromIndex, int toIndex) {
-        if (fromIndex < 0 || toIndex < 0 || fromIndex > _size || toIndex > _size) {
+    /**
+     * Removes all entries between two indices.
+     * @param fromIndex start index
+     * @param toIndex end index
+     */
+    public final void removeRange(final int fromIndex, final int toIndex) {
+        if (fromIndex < 0 || toIndex < 0 || fromIndex > size || toIndex > size) {
             throw new IndexOutOfBoundsException();
         }
         if (fromIndex > toIndex) {
             throw new IllegalArgumentException();
         }
 
-        System.arraycopy(_data, toIndex, _data, fromIndex, _size - toIndex);
-        Arrays.fill(_data, _size - (toIndex - fromIndex), _size, 0);
-        _size -= (toIndex - fromIndex);
+        System.arraycopy(data, toIndex, data, fromIndex, size - toIndex);
+        Arrays.fill(data, size - (toIndex - fromIndex), size, 0);
+        size -= toIndex - fromIndex;
     }
 
+    /**
+     * @return whether the list is empty
+     */
     public final boolean isEmpty() {
-        return _size == 0;
+        return size == 0;
     }
 
+    /**
+     * @return size of this list
+     */
     public final int size() {
-        return _size;
+        return size;
     }
 
+    /**
+     * Trims the size of backing data array.
+     */
     public final void trimToSize() {
-        if (_data.length == _size) {
+        if (data.length == size) {
             return;
         }
 
-        _data = Arrays.copyOf(_data, _size);
+        data = Arrays.copyOf(data, size);
     }
 
+    /**
+     * Clears the list.
+     */
     public final void clear() {
-        Arrays.fill(_data, 0, _size, 0);
-        _size = 0;
+        Arrays.fill(data, 0, size, 0);
+        size = 0;
     }
 
+    /**
+     * Converts the integer list to an array.
+     * @return array copy for this list
+     */
     public final int[] toArray() {
-        if (_size == 0) {
+        if (size == 0) {
             return EMPTY_DATA;
         }
 
-        return Arrays.copyOf(_data, _size);
+        return Arrays.copyOf(data, size);
     }
 
+    /**
+     * Sorts the integer list.
+     */
     public final void sort() {
-        Arrays.sort(_data, 0, _size);
+        Arrays.sort(data, 0, size);
     }
 
     /**
@@ -179,22 +255,21 @@ public class IntegerList {
      * @return {@code true} if the specified object is equal to this list
      */
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == this) {
             return true;
         }
 
-        if (!(o instanceof IntegerList)) {
+        if (!(o instanceof IntegerList other)) {
             return false;
         }
 
-        IntegerList other = (IntegerList)o;
-        if (_size != other._size) {
+        if (size != other.size) {
             return false;
         }
 
-        for (int i = 0; i < _size; i++) {
-            if (_data[i] != other._data[i]) {
+        for (int i = 0; i < size; i++) {
+            if (data[i] != other.data[i]) {
                 return false;
             }
         }
@@ -214,8 +289,8 @@ public class IntegerList {
     @Override
     public int hashCode() {
         int hashCode = 1;
-        for (int i = 0; i < _size; i++) {
-            hashCode = 31*hashCode + _data[i];
+        for (int i = 0; i < size; i++) {
+            hashCode = 31 * hashCode + data[i];
         }
 
         return hashCode;
@@ -229,32 +304,45 @@ public class IntegerList {
         return Arrays.toString(toArray());
     }
 
-    public final int binarySearch(int key) {
-        return Arrays.binarySearch(_data, 0, _size, key);
+    /**
+     * Searches a range of the specified array of ints for the
+     * specified value using the binary search algorithm.
+     * @param key key
+     * @return found value
+     */
+    public final int binarySearch(final int key) {
+        return Arrays.binarySearch(data, 0, size, key);
     }
 
-    public final int binarySearch(int fromIndex, int toIndex, int key) {
-        if (fromIndex < 0 || toIndex < 0 || fromIndex > _size || toIndex > _size) {
+    /**
+     * Searches a range of the specified array of ints for
+     * the specified value using the binary search algorithm.
+     * @param fromIndex start index
+     * @param toIndex end index
+     * @param key key
+     * @return found value
+     */
+    public final int binarySearch(final int fromIndex, final int toIndex, final int key) {
+        if (fromIndex < 0 || toIndex < 0 || fromIndex > size || toIndex > size) {
             throw new IndexOutOfBoundsException();
         }
         if (fromIndex > toIndex) {
             throw new IllegalArgumentException();
         }
 
-        return Arrays.binarySearch(_data, fromIndex, toIndex, key);
+        return Arrays.binarySearch(data, fromIndex, toIndex, key);
     }
 
-    private void ensureCapacity(int capacity) {
+    private void ensureCapacity(final int capacity) {
         if (capacity < 0 || capacity > MAX_ARRAY_SIZE) {
             throw new OutOfMemoryError();
         }
 
         int newLength;
-        if (_data.length == 0) {
+        if (data.length == 0) {
             newLength = INITIAL_SIZE;
-        }
-        else {
-            newLength = _data.length;
+        } else {
+            newLength = data.length;
         }
 
         while (newLength < capacity) {
@@ -264,33 +352,34 @@ public class IntegerList {
             }
         }
 
-        _data = Arrays.copyOf(_data, newLength);
+        data = Arrays.copyOf(data, newLength);
     }
 
-    /** Convert the int list to a char array where values > 0x7FFFF take 2 bytes. TODO?????
+    /** Convert the int list to a char array where values > 0x7FFFF take 2 bytes.
      *  If all values are less
-     *  than the 0x7FFF 16-bit code point limit (1 bit taken to indicatethen this is just a char array
+     *  than the 0x7FFF 16-bit code point limit (1 bit taken to indicate then this is just a char array
      *  of 16-bit char as usual. For values in the supplementary range, encode
      * them as two UTF-16 code units.
+     * @return integer list converted as character array
      */
     public final char[] toCharArray() {
         // Optimize for the common case (all data values are
         // < 0xFFFF) to avoid an extra scan
-        char[] resultArray = new char[_size];
+        char[] resultArray = new char[size];
         int resultIdx = 0;
         boolean calculatedPreciseResultSize = false;
-        for (int i = 0; i < _size; i++) {
-            int codePoint = _data[i];
+        for (int i = 0; i < size; i++) {
+            final int codePoint = data[i];
             // Calculate the precise result size if we encounter
             // a code point > 0xFFFF
-            if (!calculatedPreciseResultSize &&
-                    Character.isSupplementaryCodePoint(codePoint)) {
+            if (!calculatedPreciseResultSize
+                    && Character.isSupplementaryCodePoint(codePoint)) {
                 resultArray = Arrays.copyOf(resultArray, charArraySize());
                 calculatedPreciseResultSize = true;
             }
             // This will throw IllegalArgumentException if
             // the code point is not a valid Unicode code point
-            int charsWritten = Character.toChars(codePoint, resultArray, resultIdx);
+            final int charsWritten = Character.toChars(codePoint, resultArray, resultIdx);
             resultIdx += charsWritten;
         }
         return resultArray;
@@ -298,8 +387,8 @@ public class IntegerList {
 
     private int charArraySize() {
         int result = 0;
-        for (int i = 0; i < _size; i++) {
-            result += Character.charCount(_data[i]);
+        for (int i = 0; i < size; i++) {
+            result += Character.charCount(data[i]);
         }
         return result;
     }

@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.server.schedule;
 
 import lombok.AccessLevel;
@@ -36,7 +50,7 @@ public class Scheduler {
      * Creates scheduler for the current thread.
      * @param threadPoolSize thread pool size for the executor
      */
-    public Scheduler(int threadPoolSize) {
+    public Scheduler(final int threadPoolSize) {
         syncQueue = new LinkedBlockingQueue<>();
         threadPoolExecutor = Executors.newScheduledThreadPool(threadPoolSize, Executors.defaultThreadFactory());
     }
@@ -52,8 +66,8 @@ public class Scheduler {
         running = true;
         sessions.clear();
         while (!Thread.interrupted() && running) {
-            TaskSession next = syncQueue.take();
-            if(running && next.wrapped != null)
+            final TaskSession next = syncQueue.take();
+            if (running && next.wrapped != null)
                 next.wrapped.run(next.input, next);
         }
     }
@@ -68,12 +82,17 @@ public class Scheduler {
         running = false;
         syncQueue.clear();
         syncQueue.put(new TaskSession((input, session) -> null)); // unblocking
-        for(TaskSession session : sessions)
+        for (final TaskSession session : sessions)
             session.terminate();
     }
 
+    /**
+     * Creates new task builder for the provided task.
+     * @param task task
+     * @return task builder
+     */
     @Contract("_ -> new")
-    public static TaskBuilder task(TaskRunnable<?> task) {
+    public static TaskBuilder task(final TaskRunnable<?> task) {
         return new TaskBuilder(new TaskSession(task));
     }
 
@@ -86,13 +105,14 @@ public class Scheduler {
         private TaskSession current;
         private final List<TaskSession> tasks = new ArrayList<>();
 
-        protected TaskBuilder(TaskSession startPoint) {
+        protected TaskBuilder(final TaskSession startPoint) {
             this.startPoint = startPoint;
             current = startPoint;
         }
 
         /**
          * Makes the task run synchronized on the scheduler's main thread.
+         * @return task builder
          */
         @Contract("-> this")
         public TaskBuilder sync() {
@@ -101,50 +121,60 @@ public class Scheduler {
 
         /**
          * Makes the task run asynchronously.
+         * @return task builder
          */
         @Contract("-> this")
         public TaskBuilder async() {
             return execution(TaskSession.Execution.ASYNC);
         }
 
+        /**
+         * Changes the execution of the task.
+         * @param execution execution
+         * @return taks builder
+         */
         @Contract("_ -> this")
-        private TaskBuilder execution(TaskSession.Execution execution) {
+        private TaskBuilder execution(final TaskSession.Execution execution) {
             current.execution = execution;
             return this;
         }
 
         /**
          * @param repeat true if the task should repeat itself until it's cancel from inside
+         * @return task builder
          */
         @Contract("_ -> this")
-        public TaskBuilder repeat(boolean repeat) {
+        public TaskBuilder repeat(final boolean repeat) {
             current.repeating = repeat;
             return this;
         }
 
         /**
          * @param delay delay the task should have before the first execution
+         * @return task builder
          */
         @Contract("_ -> this")
-        public TaskBuilder delay(long delay) {
+        public TaskBuilder delay(final long delay) {
             current.delay = delay;
             return this;
         }
 
         /**
          * @param period how big should be the delay between next task repetition
+         * @return task builder
          */
         @Contract("_ -> this")
-        public TaskBuilder period(long period) {
+        public TaskBuilder period(final long period) {
             current.period = period;
             return this;
         }
 
         /**
          * @param unit time unit of the delays
+         * @return task builder
          */
         @Contract("_ -> this")
-        public TaskBuilder unit(TimeUnit unit) {
+        public TaskBuilder unit(final TimeUnit unit) {
             current.unit = unit;
             return this;
         }
@@ -152,10 +182,11 @@ public class Scheduler {
         /**
          * Adds next task to the chain.
          * @param next next task
+         * @return task builder
          */
         @Contract("_ -> this")
-        public TaskBuilder then(TaskRunnable<?> next) {
-            TaskSession nextSession = new TaskSession(next);
+        public TaskBuilder then(final TaskRunnable<?> next) {
+            final TaskSession nextSession = new TaskSession(next);
             nextSession.previous = current;
             current.future = nextSession;
             current = nextSession;
@@ -163,10 +194,10 @@ public class Scheduler {
         }
 
         /**
-         * Runs the task on given shceduler.
+         * Runs the task on given scheduler.
          * @param scheduler scheduler to run the task on
          */
-        public void run(Scheduler scheduler) {
+        public void run(final Scheduler scheduler) {
             startPoint.run(scheduler);
         }
 

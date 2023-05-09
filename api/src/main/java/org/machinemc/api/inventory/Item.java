@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.inventory;
 
 import org.machinemc.nbt.NBTCompound;
@@ -38,7 +52,7 @@ public interface Item extends Writable, Cloneable {
     }
 
     /**
-     * Creates new instance of the classic item implementation with the amount
+     * Creates new instance of the classic item implementation with the amount.
      * of 1.
      * @param material material of the item
      * @return new item
@@ -61,7 +75,7 @@ public interface Item extends Writable, Cloneable {
     void setMaterial(Material material);
 
     /**
-     * Creates copy of this item with new material
+     * Creates copy of this item with new material.
      * @param material new material
      * @return new item
      */
@@ -79,7 +93,7 @@ public interface Item extends Writable, Cloneable {
     void setAmount(byte amount);
 
     /**
-     * Creates copy of this item with different amount
+     * Creates copy of this item with different amount.
      * @param amount new amount
      * @return new item
      */
@@ -97,7 +111,7 @@ public interface Item extends Writable, Cloneable {
     void setNbtCompound(NBTCompound compound);
 
     /**
-     * Creates copy of this item with new nbt compound
+     * Creates copy of this item with new nbt compound.
      * @param compound new compound
      * @return new item
      */
@@ -116,7 +130,7 @@ public interface Item extends Writable, Cloneable {
     void setType(Material material);
 
     /**
-     * Creates copy of this item with new material
+     * Creates copy of this item with new material.
      * @param type new material
      * @return new item
      */
@@ -160,6 +174,10 @@ public interface Item extends Writable, Cloneable {
     @Contract(pure = true)
     Item single();
 
+    /**
+     * Writes the item in to a buffer.
+     * @param buf buffer to write into
+     */
     default void write(ServerBuffer buf) {
         buf.writeSlot(this);
     }

@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.world.blocks;
 
 import lombok.Synchronized;
@@ -59,19 +73,30 @@ public class WorldBlockImpl implements WorldBlock {
     @Override
     @Synchronized
     public NBTCompound getNBT() {
-        return world.getChunk(position).getBlockNBT(ChunkUtils.getSectionRelativeCoordinate(position.getX()), position.getY(), ChunkUtils.getSectionRelativeCoordinate(position.getZ()));
+        return world.getChunk(position).getBlockNBT(
+                ChunkUtils.getSectionRelativeCoordinate(position.getX()),
+                position.getY(),
+                ChunkUtils.getSectionRelativeCoordinate(position.getZ()));
     }
 
     @Override
     @Synchronized
     public void mergeNBT(final NBTCompound compound) {
-        world.getChunk(position).mergeBlockNBT(ChunkUtils.getSectionRelativeCoordinate(position.getX()), position.getY(), ChunkUtils.getSectionRelativeCoordinate(position.getZ()), compound);
+        world.getChunk(position).mergeBlockNBT(
+                ChunkUtils.getSectionRelativeCoordinate(position.getX()),
+                position.getY(),
+                ChunkUtils.getSectionRelativeCoordinate(position.getZ()),
+                compound);
     }
 
     @Override
     @Synchronized
     public void setNBT(final @Nullable NBTCompound compound) {
-        world.getChunk(position).setBlockNBT(ChunkUtils.getSectionRelativeCoordinate(position.getX()), position.getY(), ChunkUtils.getSectionRelativeCoordinate(position.getZ()), compound);
+        world.getChunk(position).setBlockNBT(
+                ChunkUtils.getSectionRelativeCoordinate(position.getX()),
+                position.getY(),
+                ChunkUtils.getSectionRelativeCoordinate(position.getZ()),
+                compound);
     }
 
     @Override
@@ -79,21 +104,21 @@ public class WorldBlockImpl implements WorldBlock {
     public BlockData getBlockData() {
         final State state = asState();
         BlockData visual = getBlockType().getBlockData(state);
-        for(final BlockHandler blockHandler : state.blockType().getHandlers())
+        for (final BlockHandler blockHandler : state.blockType().getHandlers())
             visual = blockHandler.onVisualRequest(state, visual);
         return visual;
     }
 
     @Override
     public String toString() {
-        return "WorldBlock[" +
-                world +
-                ", " + position +
-                ']';
+        return "WorldBlock["
+                + world
+                + ", " + position
+                + ']';
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof WorldBlockImpl that)) return false;
         return position.equals(that.position) && world.equals(that.world);

@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.utils;
 
 import com.google.common.cache.*;
@@ -30,7 +44,7 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     private final long delay;
     private final TimeUnit referenceTime;
 
-    public WeaklyTimedCache(long delay, TimeUnit referenceTime) {
+    public WeaklyTimedCache(final long delay, final TimeUnit referenceTime) {
         delegating = CacheBuilder.newBuilder()
                 .weakValues()
                 .build();
@@ -39,9 +53,14 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     }
 
     /**
+     * Creates nre weakly timed cache from an exisiting builder.
+     * @param builder builder
+     * @param delay delay of removing the entry after it's
+     *              referenced only in the cache itself
+     * @param referenceTime time unit for delay
      * @apiNote automatically assigns weak values to the provided builder
      */
-    public WeaklyTimedCache(CacheBuilder<K, V> builder, long delay, TimeUnit referenceTime) {
+    public WeaklyTimedCache(final CacheBuilder<K, V> builder, final long delay, final TimeUnit referenceTime) {
         delegating = builder
                 .weakValues()
                 .build();
@@ -52,7 +71,7 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     @Override
     public @Nullable V getIfPresent(final @NotNull K key) {
         final V value = delegating.getIfPresent(key);
-        if(value == null) return null;
+        if (value == null) return null;
         executor.schedule(() -> eat(value), delay, referenceTime);
         return value;
     }
@@ -60,6 +79,15 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     @Override
     public V get(final @NotNull K key, final @NotNull Callable<? extends V> valueLoader) throws ExecutionException {
         final V value = delegating.get(key, valueLoader);
+        executor.schedule(() -> eat(value), delay, referenceTime);
+        return value;
+    }
+
+    @Override
+    @Deprecated
+    public V get(final @NotNull K key) throws ExecutionException {
+        final V value = delegating.get(key);
+        if (value == null) return null;
         executor.schedule(() -> eat(value), delay, referenceTime);
         return value;
     }
@@ -112,18 +140,9 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
 
     @Override
     @Deprecated
-    public V get(final @NotNull K key) throws ExecutionException {
-        final V value = delegating.get(key);
-        if(value == null) return null;
-        executor.schedule(() -> eat(value), delay, referenceTime);
-        return value;
-    }
-
-    @Override
-    @Deprecated
     public V getUnchecked(final @NotNull K key) {
         final V value = delegating.getUnchecked(key);
-        if(value == null) return null;
+        if (value == null) return null;
         executor.schedule(() -> eat(value), delay, referenceTime);
         return value;
     }
@@ -132,12 +151,12 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     @Deprecated
     public V apply(final @NotNull K key) {
         final V value = delegating.apply(key);
-        if(value == null) return null;
+        if (value == null) return null;
         executor.schedule(() -> eat(value), delay, referenceTime);
         return value;
     }
 
-    private void eat(@SuppressWarnings("unused") V value) {
+    private void eat(final @SuppressWarnings("unused") V value) {
 
     }
 

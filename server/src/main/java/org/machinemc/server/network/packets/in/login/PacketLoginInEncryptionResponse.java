@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network.packets.in.login;
 
 import lombok.AllArgsConstructor;
@@ -26,9 +40,9 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
                 PacketLoginInEncryptionResponse::new);
     }
 
-    public PacketLoginInEncryptionResponse(ServerBuffer buf) {
+    public PacketLoginInEncryptionResponse(final ServerBuffer buf) {
         secret = buf.readByteArray();
-        if(buf.readBoolean()) {
+        if (buf.readBoolean()) {
             verifyToken = buf.readByteArray();
         } else {
             salt = buf.readLong();
@@ -48,12 +62,12 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeByteArray(secret);
-        if(verifyToken != null)
+        if (verifyToken != null)
             buf.writeBoolean(true)
                     .writeByteArray(verifyToken);
-        else if(salt != 0 && messageSignature != null)
+        else if (salt != 0 && messageSignature != null)
             buf.writeBoolean(false)
                     .writeLong(salt)
                     .writeByteArray(messageSignature);
