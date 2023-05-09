@@ -33,6 +33,7 @@ public final class ParticleType<O extends ParticleOption> {
     public static final ParticleType<DustParticleOption> DUST;
     public static final ParticleType<BlockParticleOption> FALLING_DUST;
     public static final ParticleType<ItemParticleOption> ITEM;
+    public static final ParticleType<VibrationParticleOption> VIBRATION;
 
     private static final Map<NamespacedKey, ParticleType<?>> REGISTRY = new HashMap<>();
 
@@ -61,6 +62,10 @@ public final class ParticleType<O extends ParticleOption> {
                 NamespacedKey.minecraft("item"),
                 42,
                 type -> new ItemParticleOption());
+        VIBRATION = new ParticleType<>(
+                NamespacedKey.minecraft("vibration"),
+                43,
+                type -> new VibrationParticleOption());
     }
 
     /**

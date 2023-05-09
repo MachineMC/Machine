@@ -21,6 +21,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
 import org.machinemc.api.auth.OnlineServer;
 import org.machinemc.api.world.*;
+import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
@@ -34,10 +35,7 @@ import org.machinemc.server.entities.EntityManagerImpl;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.file.*;
-import org.machinemc.server.file.DimensionsJson;
-import org.machinemc.server.file.PlayerDataContainerImpl;
-import org.machinemc.server.file.ServerPropertiesImpl;
-import org.machinemc.server.file.WorldJson;
+import org.machinemc.server.file.*;
 import org.machinemc.server.logging.FormattedOutputStream;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.server.network.NettyServer;
@@ -50,6 +48,7 @@ import org.machinemc.server.server.PlayerManagerImpl;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.server.world.*;
 import org.machinemc.api.world.biomes.BiomeManager;
+import org.machinemc.server.world.biomes.BiomeImpl;
 import org.machinemc.server.world.biomes.BiomeManagerImpl;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.server.world.blocks.BlockManagerImpl;
@@ -244,8 +243,28 @@ public final class Machine implements Server {
 
         messenger = new MessengerImpl(this);
 
-        // TODO Implement biomes json
-        biomeManager = BiomeManagerImpl.createDefault(this);
+        // Loading biomes json file
+        biomeManager = new BiomeManagerImpl(this);
+        final File biomesFile = new File(BiomesJson.BIOMES_FILE_NAME);
+        if (!biomesFile.exists())
+            FileUtils.createFromDefault(biomesFile);
+        Set<Biome> biomes = new LinkedHashSet<>();
+        try {
+            biomes = new BiomesJson(this, biomesFile).biomes();
+        } catch (Exception exception) {
+            console.severe("Failed to load the biomes file");
+        }
+
+        // Registering all biomes from the file into the manager
+        if (biomes.size() == 0) {
+            console.warning("There are no defined biomes in the biomes file, "
+                    + "loading default biome instead");
+            biomeManager.addBiome(BiomeImpl.createDefault());
+        } else {
+            for (final Biome biome : biomes)
+                biomeManager.addBiome(biome);
+        }
+        console.info("Registered " + biomeManager.getBiomes().size() + " biomes");
 
         entityManager = EntityManagerImpl.createDefault(this);
 

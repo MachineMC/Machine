@@ -43,18 +43,14 @@ public class DustParticleOption implements ParticleOption {
 
     @Override
     public void load(final NBTCompound compound) {
-        final NBTList colors;
-        if (compound.containsKey("color") && compound.get("color").tag() == NBT.Tag.LIST)
-            colors = compound.get("color").value();
-        else
-            colors = new NBTList();
+        final NBTList colors = compound.getList("color");
         if (colors.size() < 3)
             color = DEFAULT_COLOR;
         else {
             final int[] rgb = new int[3];
             for (int i = 0; i < rgb.length; i++) {
                 final Object value = colors.get(i).value();
-                if (value instanceof Integer c) rgb[i] = c * 255;
+                if (value instanceof Number c) rgb[i] = (int) (c.floatValue() * 255);
             }
             color = new Color(rgb[0], rgb[1], rgb[2]);
         }

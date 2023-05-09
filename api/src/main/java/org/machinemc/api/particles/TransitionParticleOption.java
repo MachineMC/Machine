@@ -44,34 +44,26 @@ public class TransitionParticleOption implements ParticleOption {
 
     @Override
     public void load(final NBTCompound compound) {
-        final NBTList fromColor;
-        if (compound.containsKey("fromColor") && compound.get("fromColor").tag() == NBT.Tag.LIST)
-            fromColor = compound.get("fromColor").value();
-        else
-            fromColor = new NBTList();
+        final NBTList fromColor = compound.getList("fromColor");
         if (fromColor.size() < 3)
             from = DEFAULT_COLOR;
         else {
             final int[] rgb = new int[3];
             for (int i = 0; i < rgb.length; i++) {
                 final Object value = fromColor.get(i).value();
-                if (value instanceof Integer c) rgb[i] = c * 255;
+                if (value instanceof Number c) rgb[i] = (int) (c.floatValue() * 255);
             }
             from = new Color(rgb[0], rgb[1], rgb[2]);
         }
 
-        final NBTList toColor;
-        if (compound.containsKey("toColor") && compound.get("toColor").tag() == NBT.Tag.LIST)
-            toColor = compound.get("toColor").value();
-        else
-            toColor = new NBTList();
+        final NBTList toColor = compound.getList("toColor");
         if (toColor.size() < 3)
             to = DEFAULT_COLOR;
         else {
             final int[] rgb = new int[3];
             for (int i = 0; i < rgb.length; i++) {
                 final Object value = toColor.get(i).value();
-                if (value instanceof Integer c) rgb[i] = c * 255;
+                if (value instanceof Number c) rgb[i] = (int) (c.floatValue() * 255);
             }
             to = new Color(rgb[0], rgb[1], rgb[2]);
         }

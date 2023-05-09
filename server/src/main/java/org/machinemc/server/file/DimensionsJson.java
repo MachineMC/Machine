@@ -63,7 +63,7 @@ public class DimensionsJson implements ServerFile, ServerProperty {
 
             final JsonObject dimension = dimensionKey.getValue().getAsJsonObject();
 
-            Number fixedTime = dimension.get("fixed_time") != null
+            Number fixedTime = dimension.has("fixed_time")
                     ? dimension.get("fixed_time").getAsNumber()
                     : original.getFixedTime();
             if (fixedTime != null && fixedTime.intValue() == -1) fixedTime = null; // nullable option
@@ -84,53 +84,53 @@ public class DimensionsJson implements ServerFile, ServerProperty {
 
             this.dimensions.add(DimensionTypeImpl.builder()
                     .name(key)
-                    .natural(dimension.get("natural") != null
+                    .natural(dimension.has("natural")
                             ? dimension.get("natural").getAsBoolean()
                             : original.isNatural())
-                    .ambientLight(dimension.get("ambient_light") != null
-                            ? dimension.get("ambient_light").getAsNumber().floatValue()
+                    .ambientLight(dimension.has("ambient_light")
+                            ? dimension.get("ambient_light").getAsFloat()
                             : original.getAmbientLight())
-                    .ceilingEnabled(dimension.get("has_ceiling") != null
+                    .ceilingEnabled(dimension.has("has_ceiling")
                             ? dimension.get("has_ceiling").getAsBoolean()
                             : original.isCeilingEnabled())
-                    .skylightEnabled(dimension.get("has_skylight") != null
+                    .skylightEnabled(dimension.has("has_skylight")
                             ? dimension.get("has_skylight").getAsBoolean()
                             : original.isSkylightEnabled())
                     .fixedTime(fixedTime != null ? fixedTime.longValue() : null) // nullable option
-                    .raidCapable(dimension.get("has_raids") != null
+                    .raidCapable(dimension.has("has_raids")
                             ? dimension.get("has_raids").getAsBoolean()
                             : original.isRaidCapable())
-                    .respawnAnchorSafe(dimension.get("respawn_anchor_works") != null
+                    .respawnAnchorSafe(dimension.has("respawn_anchor_works")
                             ? dimension.get("respawn_anchor_works").getAsBoolean()
                             : original.isRespawnAnchorSafe())
-                    .ultrawarm(dimension.get("ultrawarm") != null
+                    .ultrawarm(dimension.has("ultrawarm")
                             ? dimension.get("ultrawarm").getAsBoolean()
                             : original.isUltrawarm())
-                    .bedSafe(dimension.get("bed_works") != null
+                    .bedSafe(dimension.has("bed_works")
                             ? dimension.get("bed_works").getAsBoolean()
                             : original.isBedSafe())
                     .effects(effects)
-                    .piglinSafe(dimension.get("piglin_safe") != null
+                    .piglinSafe(dimension.has("piglin_safe")
                             ? dimension.get("piglin_safe").getAsBoolean()
                             : original.isPiglinSafe())
-                    .minY(dimension.get("min_y") != null
-                            ? dimension.get("min_y").getAsNumber().intValue()
+                    .minY(dimension.has("min_y")
+                            ? dimension.get("min_y").getAsInt()
                             : original.getMinY())
-                    .height(dimension.get("height") != null
-                            ? dimension.get("height").getAsNumber().intValue()
+                    .height(dimension.has("height")
+                            ? dimension.get("height").getAsInt()
                             : original.getHeight())
-                    .logicalHeight(dimension.get("logical_height") != null
-                            ? dimension.get("logical_height").getAsNumber().intValue()
+                    .logicalHeight(dimension.has("logical_height")
+                            ? dimension.get("logical_height").getAsInt()
                             : original.getLogicalHeight())
-                    .coordinateScale(dimension.get("coordinate_scale") != null
-                            ? dimension.get("coordinate_scale").getAsNumber().intValue()
+                    .coordinateScale(dimension.has("coordinate_scale")
+                            ? dimension.get("coordinate_scale").getAsInt()
                             : original.getCoordinateScale())
                     .infiniburn(infiniburn)
-                    .monsterSpawnBlockLightLimit(dimension.get("monster_spawn_block_light_limit") != null
-                                    ? dimension.get("monster_spawn_block_light_limit").getAsNumber().intValue()
+                    .monsterSpawnBlockLightLimit(dimension.has("monster_spawn_block_light_limit")
+                                    ? dimension.get("monster_spawn_block_light_limit").getAsInt()
                                     : original.getMonsterSpawnBlockLightLimit())
-                    .monsterSpawnLightLevel(dimension.get("monster_spawn_light_level") != null
-                                    ? dimension.get("monster_spawn_light_level").getAsNumber().intValue()
+                    .monsterSpawnLightLevel(dimension.has("monster_spawn_light_level")
+                                    ? dimension.get("monster_spawn_light_level").getAsInt()
                                     : original.getMonsterSpawnLightLevel())
                     .build());
         }
