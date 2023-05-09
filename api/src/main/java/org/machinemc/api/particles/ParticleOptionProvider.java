@@ -12,19 +12,20 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.api.world.particles;
-
-import org.machinemc.api.server.NBTSerializable;
-import org.machinemc.api.utils.Writable;
+package org.machinemc.api.particles;
 
 /**
- * Represents an option for the particle type.
+ * Creates particle options for newly initiated particles.
+ * @param <O> provided options
  */
-public interface ParticleOptions extends NBTSerializable, Writable, Cloneable {
+@FunctionalInterface
+public interface ParticleOptionProvider<O extends ParticleOption> {
 
     /**
-     * @return clone of this particle options
+     * Creates new particle options instance.
+     * @param particleType type of particle to create the options for
+     * @return new particle options
      */
-    ParticleOptions clone();
+    O create(ParticleType<O> particleType);
 
 }

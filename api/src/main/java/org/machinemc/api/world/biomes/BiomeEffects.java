@@ -14,9 +14,9 @@
  */
 package org.machinemc.api.world.biomes;
 
+import org.machinemc.api.particles.Particle;
 import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.api.world.particles.Particle;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -87,7 +87,7 @@ public interface BiomeEffects extends NBTSerializable {
     /**
      * @return particle of the biome
      */
-    @Nullable Particle getBiomeParticle();
+    @Nullable Particle<?> getBiomeParticle();
 
     /**
      * Modifier of the grass color.

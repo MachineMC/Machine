@@ -38,7 +38,6 @@ import org.machinemc.server.file.DimensionsJson;
 import org.machinemc.server.file.PlayerDataContainerImpl;
 import org.machinemc.server.file.ServerPropertiesImpl;
 import org.machinemc.server.file.WorldJson;
-import org.machinemc.server.inventory.ItemStack;
 import org.machinemc.server.logging.FormattedOutputStream;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.server.network.NettyServer;
@@ -58,7 +57,6 @@ import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.server.world.dimensions.DimensionTypeImpl;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
 import org.machinemc.server.world.dimensions.DimensionTypeManagerImpl;
-import org.machinemc.server.world.particles.ParticleFactory;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.server.utils.ClassUtils;
 import org.machinemc.server.utils.FileUtils;
@@ -142,8 +140,6 @@ public final class Machine implements Server {
 
     static {
         Factories.bufferFactory = FriendlyByteBuf::new;
-        Factories.itemFactory = ItemStack::new;
-        Factories.particleFactory = ParticleFactory::create;
     }
 
     /**

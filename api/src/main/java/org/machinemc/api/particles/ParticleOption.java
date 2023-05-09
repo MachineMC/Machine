@@ -12,37 +12,45 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.api.world.particles;
+package org.machinemc.api.particles;
 
-import org.machinemc.server.Server;
 import org.machinemc.api.server.NBTSerializable;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
-
-import java.util.Optional;
+import org.machinemc.nbt.NBTCompound;
 
 /**
- * Represents a playable particle.
+ * Represents additional options of a particle.
  */
-public interface Particle extends NBTSerializable, Writable {
+public interface ParticleOption extends NBTSerializable, Writable {
 
     /**
-     * Creates new instance of the classic particle implementation.
-     * @param type type of the particle
-     * @return new particle
-     * @throws UnsupportedOperationException if the creator hasn't been initialized
+     * Loads data from a compound to the options.
+     * @param compound compound to load from
      */
-    static Particle of(ParticleType type) {
-        return Server.createParticle(type);
+    void load(NBTCompound compound);
+
+    /**
+     * Particle options implementation for particles that have no
+     * additional data.
+     */
+    class SimpleOptions implements ParticleOption {
+
+        @Override
+        public NBTCompound toNBT() {
+            return new NBTCompound();
+        }
+
+        @Override
+        public void write(final ServerBuffer buf) {
+
+        }
+
+        @Override
+        public void load(final NBTCompound compound) {
+
+        }
+
     }
-
-    /**
-     * @return type used by the particle
-     */
-    ParticleType getType();
-
-    /**
-     * @return options used by the particle
-     */
-    Optional<ParticleOptions> getOptions();
 
 }

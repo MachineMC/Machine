@@ -34,7 +34,7 @@ import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
 import org.machinemc.server.auth.MessageSignatureImpl;
 import org.machinemc.server.auth.PublicKeyDataImpl;
 import org.machinemc.server.entities.player.PlayerTexturesImpl;
-import org.machinemc.server.inventory.ItemStack;
+import org.machinemc.api.inventory.ItemStack;
 
 import java.io.*;
 import java.nio.charset.Charset;
