@@ -14,25 +14,40 @@
  */
 package org.machinemc.api.world;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.With;
+import lombok.*;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
-import org.machinemc.api.utils.math.Vector3;
 import org.jetbrains.annotations.Contract;
 
 /**
  * Represents the location in the world.
  */
-@Data
-@With
-@AllArgsConstructor(staticName = "of")
-public final class Location implements Cloneable, Writable {
+@ToString
+@EqualsAndHashCode(callSuper = true)
+public final class Location extends EntityPosition implements Cloneable, Writable {
 
-    private double x, y, z;
-    private float yaw, pitch;
+    @Getter @Setter
     private World world;
+
+    /**
+     * Creates new location.
+     * @param x x-coordinate of the location
+     * @param y y-coordinate of the location
+     * @param z z-coordinate of the location
+     * @param yaw yaw of the location
+     * @param pitch pitch of the location
+     * @param world world of the location
+     * @return new location
+     */
+    @Contract("_, _, _, _, _, _ -> new")
+    public static Location of(final double x,
+                              final double y,
+                              final double z,
+                              final float yaw,
+                              final float pitch,
+                              final World world) {
+        return new Location(x, y, z, yaw, pitch, world);
+    }
 
     /**
      * Creates new location.
@@ -59,15 +74,45 @@ public final class Location implements Cloneable, Writable {
     }
 
     /**
+     * Creates new location from entity position.
+     * @param entityPosition entity position of the location
+     * @param world world of the location
+     * @return new location
+     */
+    @Contract("_, _ -> new")
+    public static Location of(final EntityPosition entityPosition, final World world) {
+        return new Location(entityPosition, world);
+    }
+
+    /**
      * Creates new location from a server buffer.
      * @param buf buffer with encoded location
      * @param world world of the location
      * @return decoded location
      */
     @Contract("_, _ -> new")
-    public static Location from(final ServerBuffer buf, final World world) {
+    public static Location read(final ServerBuffer buf, final World world) {
         return new Location(buf.readDouble(), buf.readDouble(), buf.readDouble(),
                 buf.readAngle(), buf.readAngle(), world);
+    }
+
+    /**
+     * Location in a world.
+     * @param x x-coordinate of the location
+     * @param y y-coordinate of the location
+     * @param z z-coordinate of the location
+     * @param yaw yaw of the location
+     * @param pitch pitch of the location
+     * @param world world of the location
+     */
+    public Location(final double x,
+                    final double y,
+                    final double z,
+                    final float yaw,
+                    final float pitch,
+                    final World world) {
+        super(x, y, z, yaw, pitch);
+        this.world = world;
     }
 
     /**
@@ -91,138 +136,29 @@ public final class Location implements Cloneable, Writable {
     }
 
     /**
-     * Gets a unit-vector pointing in the direction that this Location is
-     * facing.
-     * @return a vector pointing the direction of this location's {@link Location#getPitch()}
-     * and {@link Location#getYaw()}
+     * Location in the world from a entity position.
+     * @param entityPosition entity position of the location
+     * @param world world of the location
      */
-    public Vector3 getDirection() {
-        final Vector3 vector = new Vector3();
-        final double rotX = this.getYaw();
-        final double rotY = this.getPitch();
-
-        vector.setY(-Math.sin(Math.toRadians(rotY)));
-        final double xz = Math.cos(Math.toRadians(rotY));
-
-        vector.setX(-xz * Math.sin(Math.toRadians(rotX)));
-        vector.setZ(xz * Math.cos(Math.toRadians(rotX)));
-        return vector;
+    public Location(final EntityPosition entityPosition, final World world) {
+        this(entityPosition.getX(), entityPosition.getY(), entityPosition.getZ(),
+                entityPosition.getYaw(), entityPosition.getPitch(), world);
     }
 
     /**
-     * Sets the {@link #getYaw() yaw} and {@link #getPitch() pitch} to point
-     * in the direction of the vector.
-     * @param vector the direction vector
-     * @return the same location
+     * Returns clone of this location but with specified world.
+     * @param world world of the new location
+     * @return new location
      */
-    @Contract("_ -> this")
-    public Location setDirection(final Vector3 vector) {
-        final double pii = 2 * Math.PI;
-        final double x = vector.getX();
-        final double z = vector.getZ();
-
-        if (x == 0 && z == 0) {
-            pitch = vector.getY() > 0 ? -90 : 90;
-            return this;
-        }
-
-        final double theta = Math.atan2(-x, z);
-        yaw = (float) Math.toDegrees((theta + pii) % pii);
-
-        final double x2 = Math.pow(x, 2);
-        final double z2 = Math.pow(z, 2);
-        final double xz = Math.sqrt(x2 + z2);
-        pitch = (float) Math.toDegrees(Math.atan(-vector.getY() / xz));
-
-        return this;
-    }
-
-    /**
-     * Offsets the location by a vector.
-     * @param vector The vector.
-     * @return this.
-     */
-    @Contract("_ -> this")
-    public Location offset(final Vector3 vector) {
-        x += vector.getX();
-        y += vector.getY();
-        z += vector.getZ();
-        return this;
-    }
-
-    /**
-     * @return x-coordinate of the location as whole number
-     */
-    public int getBlockX() {
-        return (int) Math.floor(x);
-    }
-
-    /**
-     * @return y-coordinate of the location as whole number
-     */
-    public int getBlockY() {
-        return (int) Math.floor(y);
-    }
-
-    /**
-     * @return z-coordinate of the location as whole number
-     */
-    public int getBlockZ() {
-        return (int) Math.floor(z);
-    }
-
-    /**
-     * Converts the location to a block position, information about
-     * world of the location will be lost by this operation.
-     * @return block position of this location
-     */
-    @Contract(pure = true)
-    public BlockPosition toBlockPosition() {
-        return new BlockPosition(getBlockX(), getBlockY(), getBlockZ());
-    }
-
-    /**
-     * Converts this location to a vector.
-     * @return vector of this location
-     */
-    @Contract(pure = true)
-    public Vector3 toVector() {
-        return Vector3.of(getBlockX(), getBlockY(), getBlockZ());
-    }
-
-    /**
-     * Writes the coordinates of the location to the buffer.
-     * @param buf buffer to write into
-     */
-    public void writePos(final ServerBuffer buf) {
-        buf.writeDouble(x).writeDouble(y).writeDouble(z);
-    }
-
-    /**
-     * Writes the rotation of the location to the buffer.
-     * @param buf buffer to write into
-     */
-    public void writeRot(final ServerBuffer buf) {
-        buf.writeAngle(yaw).writeAngle(pitch);
-    }
-
-    /**
-     * Writes the location to the buffer.
-     * @param buf buffer to write into
-     */
-    @Override
-    public void write(final ServerBuffer buf) {
-        writePos(buf);
-        writeRot(buf);
+    public Location withWorld(final World world) {
+        final Location clone = clone();
+        clone.world = world;
+        return clone;
     }
 
     @Override
     public Location clone() {
-        try {
-            return (Location) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+        return new Location(getX(), getY(), getZ(), getYaw(), getPitch(), world);
     }
 
 }

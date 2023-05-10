@@ -121,7 +121,7 @@ public interface Entity extends ServerProperty, NBTSerializable, Nameable {
     void setTicksFrozen(int ticksFrozen);
 
     /**
-     * @return location of the entity
+     * @return clone of the location of the entity
      */
     Location getLocation();
 
@@ -129,6 +129,11 @@ public interface Entity extends ServerProperty, NBTSerializable, Nameable {
      * @param location new location
      */
     void setLocation(Location location);
+
+    /**
+     * @return previous location of the entity
+     */
+    Location getPreviousLocation();
 
     /**
      * @return fall distance of the entity

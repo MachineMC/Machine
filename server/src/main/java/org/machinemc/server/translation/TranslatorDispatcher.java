@@ -57,8 +57,8 @@ public class TranslatorDispatcher {
         final List<String> classes = ClassUtils.getClasses(TranslatorDispatcher.class.getPackageName());
         for (final String className : classes) {
             final Class<?> translatorClass = Class.forName(className);
-            if (translatorClass.getSuperclass() == null
-                    || !translatorClass.getSuperclass().equals(PacketTranslator.class))
+            if (!PacketTranslator.class.isAssignableFrom(translatorClass)
+                    || translatorClass.equals(PacketTranslator.class))
                 continue;
             PacketTranslator<?> translator = null;
             try {

@@ -61,8 +61,9 @@ public abstract class ServerEntity implements Entity {
     private boolean hasVisualFire;
     @Getter @Setter
     private int ticksFrozen;
-    @Getter @Setter
     private Location location;
+    @Getter
+    private Location previousLocation;
     @Getter @Setter
     private float fallDistance;
     @Getter @Setter
@@ -81,6 +82,11 @@ public abstract class ServerEntity implements Entity {
         entityId = EntityUtils.getEmptyID();
         location = new Location(0, 0, 0, getServer().getDefaultWorld());
         active = false;
+    }
+
+    @Override
+    public Location getLocation() {
+        return location.clone();
     }
 
     @Override
@@ -128,6 +134,14 @@ public abstract class ServerEntity implements Entity {
     @Override
     public boolean removeTag(final String tag) {
         return tags.remove(tag);
+    }
+
+    @Override
+    public void setLocation(final Location location) {
+        if (location.getWorld() == null)
+            location.setWorld(getWorld());
+        this.previousLocation = this.location;
+        this.location = location;
     }
 
     @Override

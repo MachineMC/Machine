@@ -12,29 +12,28 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.translation.translators.in;
+package org.machinemc.server.translation.translators.in.status;
 
-import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.translation.PacketTranslator;
-import org.machinemc.server.network.packets.in.status.PacketStatusInPing;
-import org.machinemc.server.network.packets.out.status.PacketStatusOutPong;
+import org.machinemc.server.network.ClientConnection;
+import org.machinemc.server.network.packets.in.status.PacketStatusInRequest;
+import org.machinemc.server.network.packets.out.status.PacketStatusOutResponse;
 
-public class TranslatorStatusInPing extends PacketTranslator<PacketStatusInPing> {
+public class TranslatorStatusInRequest extends PacketTranslator<PacketStatusInRequest> {
 
     @Override
-    public boolean translate(final ClientConnection connection, final PacketStatusInPing packet) {
+    public boolean translate(final ClientConnection connection, final PacketStatusInRequest packet) {
         return true;
     }
 
     @Override
-    public void translateAfter(final ClientConnection connection, final PacketStatusInPing packet) {
-        connection.send(new PacketStatusOutPong(packet.getPayload()));
-        connection.disconnect();
+    public void translateAfter(final ClientConnection connection, final PacketStatusInRequest packet) {
+        connection.send(new PacketStatusOutResponse(connection.getServer().statusJson()));
     }
 
     @Override
-    public Class<PacketStatusInPing> packetClass() {
-        return PacketStatusInPing.class;
+    public Class<PacketStatusInRequest> packetClass() {
+        return PacketStatusInRequest.class;
     }
 
 }
