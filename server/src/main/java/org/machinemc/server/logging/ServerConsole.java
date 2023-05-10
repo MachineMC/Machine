@@ -60,7 +60,7 @@ public class ServerConsole extends BaseConsole {
     }
 
     @Override
-    public void log(Level level, String... messages) {
+    public void log(final Level level, final String... messages) {
         final LineReader reader = this.reader;
         log(message -> {
             if (reader != null && isRunning()) {

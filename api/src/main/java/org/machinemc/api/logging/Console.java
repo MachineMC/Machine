@@ -111,14 +111,14 @@ public interface Console extends ServerProperty, CommandExecutor {
     void stop();
 
     /**
-     * Get the input stream used for the console
+     * Get the input stream used for the console.
      * @return input stream
      */
     InputStream getInputStream();
 
 
     /**
-     * Get the output stream used for the console
+     * Get the output stream used for the console.
      * @return output stream
      */
     OutputStream getOutputStream();

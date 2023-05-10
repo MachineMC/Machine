@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.logging;
 
 import com.mojang.brigadier.ParseResults;
@@ -51,7 +65,7 @@ public abstract class BaseConsole implements Console {
     @Getter @Setter
     private String prompt = "> ";
 
-    public BaseConsole(Machine server, boolean colors) {
+    public BaseConsole(final Machine server, final boolean colors) {
         this.server = server;
         this.colors = colors;
     }
@@ -69,15 +83,15 @@ public abstract class BaseConsole implements Console {
     }
 
     @Override
-    public int execute(String input) {
-        input = CommandExecutor.formatCommandInput(input);
-        if(input.length() == 0) return 0;
-        final ParseResults<CommandExecutor> parse = server.getCommandDispatcher().parse(input, this);
-        final String[] parts = input.split(" ");
+    public int execute(final String input) {
+        final String formattedInput = CommandExecutor.formatCommandInput(input);
+        if (formattedInput.length() == 0) return 0;
+        final ParseResults<CommandExecutor> parse = server.getCommandDispatcher().parse(formattedInput, this);
+        final String[] parts = formattedInput.split(" ");
         try {
             return server.getCommandDispatcher().execute(parse);
         } catch (CommandSyntaxException exception) {
-            if(exception.getCursor() == 0) {
+            if (exception.getCursor() == 0) {
                 sendMessage(TextComponent.of("Unknown command '" + parts[0] + "'").modify()
                         .color(ChatColor.RED)
                         .finish());
@@ -86,8 +100,8 @@ public abstract class BaseConsole implements Console {
             sendMessage(TextComponent.of(exception.getRawMessage().getString()).modify()
                     .color(ChatColor.RED)
                     .finish());
-            sendMessage(TextComponent.of(input.substring(0, exception.getCursor()))
-                    .append(TextComponent.of(input.substring(exception.getCursor())).modify()
+            sendMessage(TextComponent.of(formattedInput.substring(0, exception.getCursor()))
+                    .append(TextComponent.of(formattedInput.substring(exception.getCursor())).modify()
                             .color(ChatColor.RED)
                             .underlined(true)
                             .finish())
@@ -99,8 +113,8 @@ public abstract class BaseConsole implements Console {
     }
 
     @Override
-    public void sendMessage(@Nullable UUID sender, Component message, MessageType type) {
-        if(colors)
+    public void sendMessage(final @Nullable UUID sender, final Component message, final MessageType type) {
+        if (colors)
             info(ChatUtils.consoleFormatted(message));
         else
             info(message.toLegacyString());
@@ -113,12 +127,12 @@ public abstract class BaseConsole implements Console {
      * @param level the logging level to use
      * @param messages the messages to log
      */
-    protected void log(Logger logger, Level level, String... messages) {
+    protected void log(final Logger logger, final Level level, final String... messages) {
         final String prefix = getPrefix(level);
         final String date = now();
-        for (String message : messages) {
-            final String formatted = colors ? "[" + date + "] " + prefix + ChatUtils.consoleFormatted(message) + ServerConsole.RESET
-                    : "[" + date + "] " + prefix + message;
+        for (final String message : messages) {
+            final String formatted = colors ? "[" + date + "] " + prefix + ChatUtils.consoleFormatted(message)
+                    + ServerConsole.RESET : "[" + date + "] " + prefix + message;
             logger.log(formatted);
         }
     }
@@ -129,12 +143,16 @@ public abstract class BaseConsole implements Console {
      * @param level the logging level to get the prefix for
      * @return the logging prefix for the given level
      */
-    protected String getPrefix(Level level) {
+    protected String getPrefix(final Level level) {
         return switch (level.intValue()) {
-            case 700 -> (colors && configColor != null ? asciiColor(configColor) : ServerConsole.EMPTY) + configPrefix + ": "; // Config value
-            case 800 -> (colors && infoColor != null ? asciiColor(infoColor) : ServerConsole.EMPTY) + infoPrefix + ": "; // Info value
-            case 900 -> (colors && warningColor != null ? asciiColor(warningColor) : ServerConsole.EMPTY) + warningPrefix + ": "; // Warning value
-            case 1000 -> (colors && severeColor != null ? asciiColor(severeColor) : ServerConsole.EMPTY) + severePrefix + ": "; // Severe value
+            case 700 -> (colors && configColor != null ? asciiColor(configColor) : ServerConsole.EMPTY)
+                    + configPrefix + ": "; // Config value
+            case 800 -> (colors && infoColor != null ? asciiColor(infoColor) : ServerConsole.EMPTY)
+                    + infoPrefix + ": "; // Info value
+            case 900 -> (colors && warningColor != null ? asciiColor(warningColor) : ServerConsole.EMPTY)
+                    + warningPrefix + ": "; // Warning value
+            case 1000 -> (colors && severeColor != null ? asciiColor(severeColor) : ServerConsole.EMPTY)
+                    + severePrefix + ": "; // Severe value
             default -> "";
         };
     }

@@ -168,7 +168,9 @@ public final class Machine implements Server {
 
         // Setting up console
         try {
-            console = simpleConsole || System.console() == null ? new SimpleConsole(this, colors, System.out, System.in) : new ServerConsole(this, colors);
+            console = simpleConsole || System.console() == null
+                    ? new SimpleConsole(this, colors, System.out, System.in)
+                    : new ServerConsole(this, colors);
             System.setOut(new PrintStream(new FormattedOutputStream(
                     console,
                     Level.INFO,

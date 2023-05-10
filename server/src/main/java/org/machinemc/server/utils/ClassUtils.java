@@ -68,14 +68,15 @@ public final class ClassUtils {
         return getDirClasses(basePackage);
     }
 
-    private static List<String> getJarClasses(String basePackage) throws IOException {
+    private static List<String> getJarClasses(final String basePackage) throws IOException {
         final @Cleanup JarFile jar = new JarFile(FileUtils.getMachineJar());
         final String packagePath = basePackage.replace('.', '/') + "/";
         final List<String> classNames = new ArrayList<>();
-        for (Iterator<JarEntry> entries = jar.entries().asIterator(); entries.hasNext(); ) {
+        for (Iterator<JarEntry> entries = jar.entries().asIterator(); entries.hasNext();) {
             final JarEntry entry = entries.next();
             if (entry.getName().startsWith(packagePath) && entry.getName().endsWith(".class"))
-                classNames.add(entry.getName().replace('/', '.').substring(0, entry.getName().length() - ".class".length()));
+                classNames.add(entry.getName().replace('/', '.')
+                        .substring(0, entry.getName().length() - ".class".length()));
         }
         return classNames;
     }
