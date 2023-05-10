@@ -77,8 +77,7 @@ public class FriendlyByteBuf implements ServerBuffer {
         final int reader = buf.readerIndex();
         buf.readerIndex(0);
         final byte[] bytes = new byte[length];
-        for (int i = 0; i < length; i++)
-            bytes[i] = readByte();
+        buf.readBytes(bytes);
         buf.readerIndex(reader);
         return bytes;
     }
@@ -88,8 +87,7 @@ public class FriendlyByteBuf implements ServerBuffer {
         final int length = buf.writerIndex();
         final int reader = buf.readerIndex();
         final byte[] bytes = new byte[length - reader];
-        for (int i = 0; i < length - reader; i++)
-            bytes[i] = readByte();
+        buf.readBytes(bytes);
         return bytes;
     }
 
@@ -138,8 +136,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public byte[] readBytes(final int length) {
         final byte[] result = new byte[length];
-        for (int i = 0; i < length; i++)
-            result[i] = readByte();
+        buf.readBytes(result);
         return result;
     }
 
@@ -153,8 +150,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     public byte[] readByteArray() {
         final int length = readVarInt();
         final byte[] bytes = new byte[length];
-        for (int i = 0; i < length; i++)
-            bytes[i] = readByte();
+        buf.readBytes(bytes);
         return bytes;
     }
 

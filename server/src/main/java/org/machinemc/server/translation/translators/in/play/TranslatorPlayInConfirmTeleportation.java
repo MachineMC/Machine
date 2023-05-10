@@ -14,6 +14,7 @@
  */
 package org.machinemc.server.translation.translators.in.play;
 
+import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.play.PacketPlayInConfirmTeleportation;
@@ -28,10 +29,7 @@ public class TranslatorPlayInConfirmTeleportation extends PacketTranslator<Packe
             return false;
         if (!player.isTeleporting() || player.getTeleportId() != packet.getTeleportId()) {
             player.setTeleporting(false);
-            // connection.disconnect(TranslationComponent.of("multiplayer.disconnect.invalid_player_movement"));
-            System.out.println(player.isTeleporting() + " "
-                    + player.getTeleportId() + "="
-                    + packet.getTeleportId());
+            connection.disconnect(TranslationComponent.of("multiplayer.disconnect.invalid_player_movement"));
             return false;
         }
         player.setTeleporting(false);
