@@ -39,6 +39,18 @@ public abstract class BlockData implements Cloneable {
     }
 
     /**
+     * Parses the block data text from {@link BlockData#toString()}.
+     * <p>
+     * Returns null in case the provided text doesn't match any
+     * block data loaded by the server.
+     * @param text text to parse
+     * @return parsed block data or null if the text is invalid
+     */
+    public static @Nullable BlockData parse(final String text) {
+        return BlockDataImpl.parse(text);
+    }
+
+    /**
      * Finishes the registration of the block data to materials.
      */
     @ApiStatus.Internal
@@ -55,7 +67,7 @@ public abstract class BlockData implements Cloneable {
     /**
      * @return material of the block data
      */
-    public abstract @Nullable Material getMaterial();
+    public abstract Material getMaterial();
 
     /**
      * Changes base material for the block data and all its

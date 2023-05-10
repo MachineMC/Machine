@@ -19,8 +19,11 @@ import com.google.common.collect.Iterables;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.machinemc.api.utils.NamespacedKey;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Default block data implementation without any special
@@ -35,17 +38,6 @@ class BlockDataImpl extends BlockData {
     @Getter
     private Material material;
     private final int id;
-
-    /**
-     * Finishes the registration of the block data to materials.
-     */
-    public static void finishRegistration() {
-        canRegister();
-        registryArray = new BlockDataImpl[Iterables.getLast(TEMP_REGISTRY.keySet()) + 1];
-        for (final Integer stateId : TEMP_REGISTRY.keySet())
-            registryArray[stateId] = TEMP_REGISTRY.get(stateId);
-        TEMP_REGISTRY.clear();
-    }
 
     /**
      * Returns new instance of block data from id (mapped by vanilla server reports).
@@ -91,6 +83,73 @@ class BlockDataImpl extends BlockData {
 
         clone.loadProperties(newData);
         return clone;
+    }
+
+    private static final Pattern BLOCK_DATA_PATTERN = Pattern.compile(
+            "([a-z0-9.-_]+:[a-z0-9.-_/]+)\\[(([a-z0-9.-_]+=[a-z0-9.-_]+,? ?)*)]"
+    );
+
+    /**
+     * Parses the block data text from {@link BlockData#toString()}.
+     * <p>
+     * Returns null in case the provided text doesn't match any
+     * block data loaded by the server.
+     * @param text text to parse
+     * @return parsed block data or null if the text is invalid
+     */
+    public static @Nullable BlockData parse(final String text) {
+        final String lowercase = text.toLowerCase();
+        final Matcher matcher = BLOCK_DATA_PATTERN.matcher(lowercase);
+        if (!matcher.matches()) return null;
+        if (matcher.groupCount() < 2) return null;
+
+        final Material material;
+        try {
+            material = Material.valueOf(NamespacedKey.parse(matcher.group(1)).getKey().toUpperCase());
+        } catch (Throwable throwable) {
+            return null;
+        }
+        final BlockDataImpl blockData = (BlockDataImpl) material.createBlockData();
+
+        if (blockData == null) return null;
+        if (blockData.getData().length == 0) return blockData;
+
+        final Map<String, String> properties = new LinkedHashMap<>(blockData.getDataMap());
+        for (final String property : matcher.group(2).replace(" ", "").split(",")) {
+            if (property.length() == 0) continue;
+            final String[] keyAndValue = property.split("=");
+            if (!properties.containsKey(keyAndValue[0])) continue;
+            properties.replace(keyAndValue[0], keyAndValue[1]);
+        }
+
+        final Object[] data = new Object[properties.size()];
+        final Object[][] available = blockData.getAcceptedProperties();
+
+        int i = 0;
+        for (final String property : properties.values()) {
+            Object matched = available[i][0];
+            for (final Object availableProperty : available[i]) {
+                if (!availableProperty.toString().toLowerCase().matches(property)) continue;
+                matched = availableProperty;
+                break;
+            }
+            data[i] = matched;
+            i++;
+        }
+
+        blockData.loadProperties(data);
+        return blockData;
+    }
+
+    /**
+     * Finishes the registration of the block data to materials.
+     */
+    public static void finishRegistration() {
+        canRegister();
+        registryArray = new BlockDataImpl[Iterables.getLast(TEMP_REGISTRY.keySet()) + 1];
+        for (final Integer stateId : TEMP_REGISTRY.keySet())
+            registryArray[stateId] = TEMP_REGISTRY.get(stateId);
+        TEMP_REGISTRY.clear();
     }
 
     protected BlockDataImpl(final int id) {
@@ -235,9 +294,19 @@ class BlockDataImpl extends BlockData {
 
     @Override
     public String toString() {
-        if (getMaterial() != null)
-            return getMaterial().getName().getKey() + Arrays.toString(getData());
-        return "none" + Arrays.toString(getData());
+        final StringBuilder builder = new StringBuilder();
+        builder.append(getMaterial().getName().toString());
+        builder.append('[');
+        final int size = getData().length;
+        int i = 0;
+        for (final Map.Entry<String, String> entry : getDataMap().entrySet()) {
+            i++;
+            builder.append(entry.getKey()).append("=").append(entry.getValue());
+            if (i == size) break;
+            builder.append(", ");
+        }
+        builder.append(']');
+        return builder.toString();
     }
 
     @Override

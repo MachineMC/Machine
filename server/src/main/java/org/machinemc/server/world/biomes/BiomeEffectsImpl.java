@@ -16,9 +16,9 @@ package org.machinemc.server.world.biomes;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.machinemc.api.particles.Particle;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.biomes.BiomeEffects;
-import org.machinemc.api.world.particles.Particle;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.nbt.NBTCompound;
 
@@ -52,7 +52,7 @@ public class BiomeEffectsImpl implements BiomeEffects {
     private final @Nullable AdditionsSound additionsSound;
     private final @Nullable Music music;
     private final @Nullable Float biomeParticleProbability;
-    private final @Nullable Particle biomeParticle;
+    private final @Nullable Particle<?> biomeParticle;
 
     @Override
     public NBTCompound toNBT() {

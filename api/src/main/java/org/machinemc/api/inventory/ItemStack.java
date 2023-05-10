@@ -12,13 +12,11 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.inventory;
+package org.machinemc.api.inventory;
 
 import lombok.Data;
 import lombok.Synchronized;
-import org.machinemc.api.inventory.Item;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.Material;
 
@@ -136,13 +134,10 @@ public class ItemStack implements Item {
 
     @Override
     public ItemStack clone() {
-        try {
-            final ItemStack itemStack = (ItemStack) super.clone();
-            itemStack.setNbtCompound(new FriendlyByteBuf().writeNBT(nbtCompound).readNBT());
-            return itemStack;
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
+        final ItemStack clone = new ItemStack(material);
+        clone.setAmount(amount);
+        clone.setNbtCompound(nbtCompound.clone());
+        return clone;
     }
 
     @Override
