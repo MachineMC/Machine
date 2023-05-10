@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.logging;
 
 import lombok.Getter;
@@ -33,7 +47,7 @@ public class ServerConsole extends BaseConsole {
     public static final String RESET = "\033[0m";
     public static final String EMPTY = "";
 
-    public ServerConsole(Machine server, boolean colors) {
+    public ServerConsole(final Machine server, final boolean colors) {
         super(server, colors);
         try {
             terminal = TerminalBuilder.terminal();
@@ -46,7 +60,7 @@ public class ServerConsole extends BaseConsole {
     }
 
     @Override
-    public void log(Level level, String... messages) {
+    public void log(final Level level, final String... messages) {
         final LineReader reader = this.reader;
         log(message -> {
             if(reader != null && isRunning()) {
@@ -66,9 +80,9 @@ public class ServerConsole extends BaseConsole {
                 .terminal(terminal)
                 .build();
         final LineReader reader = this.reader;
-        if(reader == null) return;
+        if (reader == null) return;
         Scheduler.task((i, session) -> {
-            while(isRunning()) {
+            while (isRunning()) {
                 try {
                     final String command = reader.readLine(getPrompt());
                     execute(command);

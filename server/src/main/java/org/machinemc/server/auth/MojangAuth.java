@@ -1,8 +1,21 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.auth;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import lombok.experimental.UtilityClass;
 import org.machinemc.server.entities.player.PlayerTexturesImpl;
 import org.machinemc.server.utils.UUIDUtils;
 
@@ -19,13 +32,19 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Utility class for interacting with Mojang auth.
  */
-@UtilityClass
-public class MojangAuth {
+public final class MojangAuth {
 
     // TODO Ability to change these in java arguments on start
-    public static final String AUTH_URL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=%s&serverId=%s";
-    public static final String USER_PROFILE_URL = "https://api.mojang.com/users/profiles/minecraft/%s";
-    public static final String MINECRAFT_PROFILE_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=false";
+    public static final String AUTH_URL
+            = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=%s&serverId=%s";
+    public static final String USER_PROFILE_URL
+            = "https://api.mojang.com/users/profiles/minecraft/%s";
+    public static final String MINECRAFT_PROFILE_URL
+            = "https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=false";
+
+    private MojangAuth() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Checks for auth data created by client if the game is
@@ -34,14 +53,15 @@ public class MojangAuth {
      * @param username player's username
      * @return obtained json
      */
-    public static CompletableFuture<JsonObject> getAuthData(String serverId, String username) {
+    public static CompletableFuture<JsonObject> getAuthData(final String serverId, final String username) {
         final String url = String.format(MojangAuth.AUTH_URL, username, serverId);
         return CompletableFuture.supplyAsync(() -> {
             try {
-                HttpRequest request = HttpRequest.newBuilder(new URI(url))
+                final HttpRequest request = HttpRequest.newBuilder(new URI(url))
                         .timeout(Duration.ofSeconds(5))
                         .GET().build();
-                HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                final HttpResponse<String> response = HttpClient.newHttpClient()
+                        .send(request, HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() == HttpURLConnection.HTTP_OK)
                     return (JsonObject) new JsonParser().parse(response.body());
             } catch (Exception ignored) { }
@@ -54,7 +74,7 @@ public class MojangAuth {
      * @param username player's nickname
      * @return offline mode uuid
      */
-    public static UUID getOfflineUUID(String username) {
+    public static UUID getOfflineUUID(final String username) {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + username).getBytes(StandardCharsets.UTF_8));
     }
 
@@ -63,17 +83,18 @@ public class MojangAuth {
      * @param username username of the account
      * @return online UUID of account, null if the account doesn't exist
      */
-    public static CompletableFuture<UUID> getUUID(String username) {
+    public static CompletableFuture<UUID> getUUID(final String username) {
         final String url = String.format(USER_PROFILE_URL, username);
         return CompletableFuture.supplyAsync(() -> {
             try {
-                HttpRequest request = HttpRequest.newBuilder(new URI(url))
+                final HttpRequest request = HttpRequest.newBuilder(new URI(url))
                         .timeout(Duration.ofSeconds(5))
                         .GET().build();
-                HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                final HttpResponse<String> response = HttpClient.newHttpClient()
+                        .send(request, HttpResponse.BodyHandlers.ofString());
                 if (!(response.statusCode() == HttpURLConnection.HTTP_OK))
                     return null;
-                JsonObject json = (JsonObject) new JsonParser().parse(response.body());
+                final JsonObject json = (JsonObject) new JsonParser().parse(response.body());
                 return UUIDUtils.parseUUID(json.get("id").getAsString());
             } catch (Exception ignored) { }
             return null;
@@ -85,18 +106,19 @@ public class MojangAuth {
      * @param uuid online uuid of the account
      * @return skin of the registered account, null if the account doesn't exist
      */
-    public static CompletableFuture<PlayerTexturesImpl> getSkin(UUID uuid) {
+    public static CompletableFuture<PlayerTexturesImpl> getSkin(final UUID uuid) {
         final String url = String.format(MINECRAFT_PROFILE_URL, uuid);
         return CompletableFuture.supplyAsync(() -> {
             try {
-                HttpRequest request = HttpRequest.newBuilder(new URI(url))
+                final HttpRequest request = HttpRequest.newBuilder(new URI(url))
                         .timeout(Duration.ofSeconds(5))
                         .GET().build();
-                HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                final HttpResponse<String> response = HttpClient.newHttpClient()
+                        .send(request, HttpResponse.BodyHandlers.ofString());
                 if (!(response.statusCode() == HttpURLConnection.HTTP_OK))
                     return null;
-                JsonObject json = (JsonObject) new JsonParser().parse(response.body());
-                JsonObject properties = json.getAsJsonArray("properties").get(0).getAsJsonObject();
+                final JsonObject json = (JsonObject) new JsonParser().parse(response.body());
+                final JsonObject properties = json.getAsJsonArray("properties").get(0).getAsJsonObject();
                 return PlayerTexturesImpl.buildSkin(properties);
             } catch (Exception ignored) { }
             return null;
@@ -108,7 +130,7 @@ public class MojangAuth {
      * @param username username of the account
      * @return skin of the registered account, null if the account doesn't exist
      */
-    public static CompletableFuture<PlayerTexturesImpl> getSkin(String username) {
+    public static CompletableFuture<PlayerTexturesImpl> getSkin(final String username) {
         return CompletableFuture.supplyAsync(() -> getSkin(getUUID(username).join()).join());
     }
 

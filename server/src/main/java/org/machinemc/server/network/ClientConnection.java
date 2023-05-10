@@ -1,52 +1,57 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network;
 
+import io.netty.channel.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
-import org.machinemc.scriptive.components.Component;
-import org.machinemc.scriptive.components.TranslationComponent;
-import org.machinemc.server.Machine;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.auth.Crypt;
 import org.machinemc.api.auth.PublicKeyData;
-import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
-import org.machinemc.server.translation.TranslatorHandler;
-import org.machinemc.server.exception.ClientException;
+import org.machinemc.api.server.schedule.Scheduler;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.server.Machine;
+import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.packets.out.login.PacketLoginOutDisconnect;
+import org.machinemc.server.network.packets.out.login.PacketLoginOutSetCompression;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutDisconnect;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutKeepAlive;
-import org.machinemc.api.server.schedule.Scheduler;
-import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
 
+import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.Random;
 
 /**
- * Default player connection implementation.
+ * Player connection implementation using netty.
  */
-public class ClientConnection extends Thread implements PlayerConnection {
+public class ClientConnection implements PlayerConnection {
 
-    private static final NamespacedKey DEFAULT_HANDLER_NAMESPACE = NamespacedKey.minecraft("default");
-
+    @Getter
+    private final NettyServer nettyServer;
     @Getter
     private final Machine server;
-    @Getter
-    private final Socket clientSocket;
-    @Getter
-    protected @Nullable Channel channel;
-    @Getter
-    private ClientState clientState = ClientState.DISCONNECTED;
 
     @Getter
-    private long lastSendTimestamp = System.currentTimeMillis();
+    private @Nullable ClientState state;
+    private final Channel channel;
     @Getter
-    private long lastReadTimestamp = System.currentTimeMillis();
+    private final InetSocketAddress address;
 
     @Getter @Setter
     private @Nullable PublicKeyData publicKeyData;
@@ -57,248 +62,209 @@ public class ClientConnection extends Thread implements PlayerConnection {
     private @Nullable ServerPlayer owner;
 
     @Getter
+    private int compressionThreshold = -1;
+
+    private @Nullable SecretKey secretKey;
+    protected EncryptionContext encryptionContext;
+
+    @Getter
     private long keepAliveKey = -1;
-    private long lastKeepAlive;
+    private long keepAliveRequest;
+    private long keepAliveResponse;
 
-    public ClientConnection(Machine server, Socket clientSocket) {
-        this.server = server;
-        this.clientSocket = clientSocket;
+    public ClientConnection(final NettyServer nettyServer, final Channel channel) {
+        this.nettyServer = nettyServer;
+        this.channel = channel;
+        this.address = (InetSocketAddress) channel.remoteAddress();
+        server = nettyServer.getServer();
+        setState(ClientState.HANDSHAKE);
+        channel.closeFuture().addListener(future -> handleClose());
     }
 
-    /**
-     * Sends packet to the client.
-     * @param packet packet sent to the client
-     */
-    @Synchronized
     @Override
-    public boolean sendPacket(Packet packet) throws IOException {
-        if(channel == null)
+    @Synchronized
+    public ChannelFuture send(final Packet packet) {
+        if (!channel.isOpen())
             throw new IllegalStateException();
-        if(clientState == ClientState.DISCONNECTED)
-            return false;
-        if(!Packet.PacketState.out().contains(packet.getPacketState()))
-            throw new UnsupportedOperationException();
-        if (channel.writePacket(packet)) {
-            lastSendTimestamp = System.currentTimeMillis();
-            return true;
-        }
-        return false;
+        if (!Packet.PacketState.out().contains(packet.getPacketState())) throw new UnsupportedOperationException();
+        final ChannelFuture channelfuture = channel.writeAndFlush(packet);
+        channelfuture.addListener((ChannelFutureListener) future -> {
+            if (future.cause() == null) return;
+            if (!future.channel().isOpen()) return;
+            server.getExceptionHandler().handle(future.cause());
+        });
+        return channelfuture;
     }
 
-    /**
-     * Reads packets from the client.
-     * @return packets sent by client
-     */
-    @Synchronized
-    public Packet @Nullable [] readPackets() throws IOException {
-        assert channel != null;
-        if(clientState == ClientState.DISCONNECTED)
-            return null;
-        return channel.readPackets();
-    }
-
-    /**
-     * Sets new input and output data streams of the
-     * connection.
-     * @param input input of the client socket
-     * @param output output of the client socket
-     */
-    private void setChannel(DataInputStream input, DataOutputStream output) {
-        this.channel = new Channel(this, input, output);
-        this.channel.addHandlerBefore(DEFAULT_HANDLER_NAMESPACE, new PacketHandler());
-    }
-
-    /**
-     * Starts the client connection.
-     */
     @Override
-    public void run() {
-        try {
-            clientState = ClientState.HANDSHAKE;
-            clientSocket.setKeepAlive(true);
-            clientSocket.setSoTimeout(1);
-            setChannel(
-                    new DataInputStream(clientSocket.getInputStream()),
-                    new DataOutputStream(clientSocket.getOutputStream())
-            );
-            final Channel channel = getChannel();
-            if(channel == null) throw new IllegalStateException();
-            channel.addHandlerAfter(
-                    NamespacedKey.machine("main"),
-                    new TranslatorHandler(server.getTranslatorDispatcher())
-            );
-
-            int responsiveness = server.getServerResponsiveness();
-            Scheduler.task(((input, session) -> {
-                        if(clientState == ClientState.DISCONNECTED) {
-                            session.stop();
-                            return null;
-                        }
-                        try {
-                            Packet[] packets = readPackets();
-                            if(packets != null && packets.length != 0)
-                                lastReadTimestamp = System.currentTimeMillis();
-                        } catch (Exception exception) {
-                            getServer().getExceptionHandler().handle(new ClientException(this, exception));
-                            disconnect();
-                            return null;
-                        }
-                        if(System.currentTimeMillis() - lastReadTimestamp > ServerConnectionImpl.READ_IDLE_TIMEOUT)
-                            disconnect(TranslationComponent.of("disconnect.timeout"));
-                        return null;
-                    }))
-                    .async()
-                    .repeat(true)
-                    .period(responsiveness != 0 ? responsiveness : 1000 / server.getTps())
-                    .run(server.getScheduler());
-
-        } catch (Exception exception) {
-            server.getExceptionHandler().handle(new ClientException(this, exception));
-            close();
-        }
+    public boolean isOpen() {
+        return channel.isOpen();
     }
 
     /**
-     * Closes the client connection.
+     * Changes state of the connection.
+     * <p>
+     * Can't be changed to {@link ClientState#DISCONNECTED}, use {@link #disconnect()} instead,
+     * or when the client has been already disconnected.
+     * @param state new state
      */
     @Synchronized
-    @Override
-    public void close() {
-        clientState = ClientState.DISCONNECTED;
-        server.getConnection().disconnect(this);
-        try {
-            if (owner != null && owner.isActive()) owner.remove();
-        } catch (Exception exception) { server.getExceptionHandler().handle(exception); }
-        owner = null;
-        final Channel channel = getChannel();
-        if(channel != null) {
-            try {
-                channel.close();
-            } catch (Exception exception) {
-                server.getExceptionHandler().handle(exception);
-            }
-        }
-        try { clientSocket.close(); }
-        catch (Exception exception) { server.getExceptionHandler().handle(exception); }
-    }
-
-    /**
-     * Changes the client state of the client connection
-     * @param clientState new client state
-     */
-    @Synchronized
-    public void setClientState(ClientState clientState) {
-        if(clientState == ClientState.DISCONNECTED)
+    public void setState(final ClientState state) {
+        if (state == ClientState.DISCONNECTED)
             throw new UnsupportedOperationException("You can't set the connection's state to disconnected");
-        if(this.clientState == ClientState.DISCONNECTED)
+        if (this.state == ClientState.DISCONNECTED)
             throw new UnsupportedOperationException("Connection has been already closed");
-        this.clientState = clientState;
+        this.state = state;
     }
 
     /**
-     * @return secret key used for encryption, only if online mode is
-     * enabled.
+     * Changes the owner of the connection in case there isn't one, login username
+     * and username of provided player instance have to match.
+     * @param player new player
      */
-    public @Nullable SecretKey getSecretKey() {
-        if(channel == null) return null;
-        return channel.getSecretKey();
-    }
-
-    /**
-     * Changes the secret key used for encryption, should be changed only when enabling
-     * the encryption.
-     * @param key new secret key
-     */
-    public void setSecretKey(SecretKey key) {
-        if(channel == null) return;
-        channel.setSecretKey(key);
-    }
-
-    /**
-     * Sets the owner of the connection, can't be changed once it's set.
-     * @param player owner of the connection
-     */
-    public void setOwner(ServerPlayer player) {
-        if(owner != null)
+    @Synchronized
+    public void setOwner(final ServerPlayer player) {
+        if (owner != null)
             throw new IllegalStateException("Connection has been already initialized");
-        if(!player.getName().equals(loginUsername))
+        if (!player.getName().equals(loginUsername))
             throw new IllegalStateException("Player's name and login name has to match");
         owner = player;
     }
 
     /**
-     * Starts with sending the keep alive packets.
+     * Sets the compression of this client connection.
+     * @param threshold compression threshold
+     * @return whether the operation was successful
+     */
+    public boolean setCompression(final int threshold) {
+        if (state != ClientState.LOGIN) throw new UnsupportedOperationException();
+        try {
+            if (!send(new PacketLoginOutSetCompression(threshold)).sync().isSuccess())
+                return false;
+            compressionThreshold = threshold;
+            return true;
+        } catch (InterruptedException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    /**
+     * Disables the compression of this client connection.
+     * @return whether the operation was successful
+     */
+    public boolean disableCompression() {
+        return setCompression(-1);
+    }
+
+    /**
+     * @return whether the client connection is compressed
+     */
+    public boolean isCompressed() {
+        return compressionThreshold > 0;
+    }
+
+    /**
+     * Starts sending the keep alive packets.
      */
     public void startKeepingAlive() {
-        if(clientState != ClientState.PLAY)
+        if (state != ClientState.PLAY)
             throw new IllegalStateException("Client isn't in the playing state");
-        if(keepAliveKey != -1)
+        if (keepAliveKey != -1)
             throw new IllegalStateException("Connection is already being kept alive");
+
         keepAliveKey = new Random().nextLong();
-        Scheduler.task(((input, session) -> {
-                    if(clientState != ClientState.PLAY) {
-                        session.stop();
-                        return null;
-                    }
-                    try {
-                        if(sendPacket(new PacketPlayOutKeepAlive(keepAliveKey)))
-                            lastKeepAlive = System.currentTimeMillis();
-                    } catch (IOException exception) {
-                        throw new RuntimeException(exception);
-                    }
-                    return null;
-                }))
-                .async()
+        keepAliveRequest = System.currentTimeMillis();
+        keepAliveResponse = System.currentTimeMillis();
+
+        Scheduler.task((input, session) -> {
+            if (state != ClientState.PLAY) {
+                session.stop();
+                return null;
+            }
+            send(new PacketPlayOutKeepAlive(keepAliveKey));
+            keepAliveRequest = System.currentTimeMillis();
+            if (keepAliveRequest - keepAliveResponse > NettyServer.READ_IDLE_TIMEOUT)
+                disconnect();
+            return null;
+        }).async()
                 .repeat(true)
-                .period(ServerConnectionImpl.KEEP_ALIVE_FREQ)
-                .run(server.getScheduler());
+                .period(NettyServer.KEEP_ALIVE_FREQ)
+                .run(nettyServer.getServer().getScheduler());
     }
 
     /**
-     * Runs when client respond with keep alive packet and updates the latency.
+     * Is used for responding to the keep alive packet, updates player's latency.
      */
     public void keepAlive() {
-        if(clientState != ClientState.PLAY)
+        if (state != ClientState.PLAY)
             throw new IllegalStateException("Client isn't in the playing state");
-        if(keepAliveKey == -1)
+        if (keepAliveKey == -1)
             throw new IllegalStateException("Connection isn't being kept alive");
-        if(owner != null) owner.setLatency((int) (System.currentTimeMillis() - lastKeepAlive));
+        if (owner != null) owner.setLatency((int) (System.currentTimeMillis() - keepAliveRequest));
+        keepAliveResponse = System.currentTimeMillis();
     }
 
-    @Override
-    public InetSocketAddress getAddress() {
-        return ((InetSocketAddress) clientSocket.getRemoteSocketAddress());
-    }
 
-    /**
-     * Disconnects the client from the server with given reason that will
-     * be visible in the game.
-     * @param reason disconnect reason
-     */
     @Override
-    public void disconnect(Component reason) {
+    public ChannelFuture disconnect(final Component reason) {
         try {
-            if(clientState == ClientState.LOGIN)
-                sendPacket(new PacketLoginOutDisconnect(reason));
-            if(clientState == ClientState.PLAY)
-                sendPacket(new PacketPlayOutDisconnect(reason));
+            if (state == ClientState.LOGIN)
+                this.send(new PacketLoginOutDisconnect(reason));
+            if (state == ClientState.PLAY)
+                this.send(new PacketPlayOutDisconnect(reason));
         } catch (Exception ignored) { }
-        close();
+        return close();
+    }
+
+    @Override
+    @Synchronized
+    public ChannelFuture close() {
+        handleClose();
+        return channel.close();
     }
 
     /**
-     * Disconnects the client from the server.
+     * Removes the connection.
+     * <p>
+     * Effectively handles everything that should be done when client is disconnected
+     * except for closing the channel that is already expected to be closed.
      */
-    public void disconnect() {
-        disconnect(TranslationComponent.of("disconnect.disconnected"));
+    private void handleClose() {
+        state = ClientState.DISCONNECTED;
+        nettyServer.connections.remove(this);
+        if (owner != null && owner.isActive()) owner.remove();
     }
 
     /**
-     * Checks whether the connection is closed.
-     * @return if the connection is closed
+     * @return secret key used for encryption
      */
-    public boolean isDisconnected() {
-        return clientState == ClientState.DISCONNECTED;
+    public @Nullable SecretKey getSecretKey() {
+        if (!isOpen()) throw new UnsupportedOperationException();
+        return secretKey;
+    }
+
+    /**
+     * Sets new secret key for encryption if there isn't one already.
+     * @param key new secret key
+     */
+    @Synchronized
+    public void setSecretKey(final SecretKey key) {
+        if (!isOpen()) throw new UnsupportedOperationException();
+        if (secretKey != null)
+            throw new IllegalStateException("Encryption for the connection is already enabled");
+        secretKey = key;
+        encryptionContext = new EncryptionContext(
+                Crypt.getCipher(Cipher.ENCRYPT_MODE, secretKey),
+                Crypt.getCipher(Cipher.DECRYPT_MODE, secretKey)
+        );
+    }
+
+    /**
+     * Context containing ciphers for both encrypting and decrypting.
+     * @param encrypt cipher for encryption
+     * @param decrypt cipher for decryption
+     */
+    record EncryptionContext(Cipher encrypt, Cipher decrypt) {
     }
 
 }

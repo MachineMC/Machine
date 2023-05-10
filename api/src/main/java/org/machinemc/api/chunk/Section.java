@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.chunk;
 
 import org.jetbrains.annotations.Nullable;
@@ -107,6 +121,8 @@ public interface Section extends Writable, Cloneable {
      * @param x chunk relative x coordinate of the entity
      * @param y y coordinate of the entity (in the world - accepts negative values)
      * @param z chunk relative z coordinate of the entity
+     * @param base base of the block entity
+     * @param data data to be send to the client
      */
     record BlockEntity(byte x,
                        short y,
@@ -114,11 +130,11 @@ public interface Section extends Writable, Cloneable {
                        BlockEntityBase base,
                        NBTCompound data) implements Writable {
 
-        public BlockEntity(byte packedXZ, short y, BlockEntityBase base, NBTCompound data) {
+        public BlockEntity(final byte packedXZ, final short y, final BlockEntityBase base, final NBTCompound data) {
             this((byte) (packedXZ & 0xF0), y, (byte) (packedXZ & 0xF), base, data);
         }
 
-        public BlockEntity(ServerBuffer buf) {
+        public BlockEntity(final ServerBuffer buf) {
             this(buf.readByte(), buf.readShort(), BlockEntityBase.fromID(buf.readVarInt()), buf.readNBT());
         }
 
@@ -132,7 +148,7 @@ public interface Section extends Writable, Cloneable {
         }
 
         @Override
-        public void write(ServerBuffer buf) {
+        public void write(final ServerBuffer buf) {
             buf.writeByte(packedXZ());
             buf.writeShort(y);
             buf.writeVarInt(base.getId());

@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.world.dimensions;
 
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +41,7 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @return if the dimension with given name was successfully removed
      */
     default boolean removeDimension(NamespacedKey name) {
-        DimensionType dimensionType = getDimension(name);
+        final DimensionType dimensionType = getDimension(name);
         if (dimensionType == null)
             return false;
         return removeDimension(dimensionType);
@@ -47,7 +61,7 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @return if the dimension with given name is registered in this manager
      */
     default boolean isRegistered(NamespacedKey name) {
-        DimensionType dimensionType = getDimension(name);
+        final DimensionType dimensionType = getDimension(name);
         if (dimensionType == null)
             return false;
         return isRegistered(dimensionType);
@@ -87,19 +101,19 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
     @Unmodifiable Set<DimensionType> getDimensions();
 
     /**
-     * Returns the NBT compound of a dimension with the given name
+     * Returns the NBT compound of a dimension with the given name.
      * @param name name of the dimension
      * @return NBT of the given dimension
      */
     default @Nullable NBTCompound getDimensionNBT(NamespacedKey name) {
-        DimensionType dimensionType = getDimension(name);
+        final DimensionType dimensionType = getDimension(name);
         if (dimensionType == null)
             return null;
         return getDimensionNBT(dimensionType);
     }
 
     /**
-     * Returns the NBT compound of the given dimension
+     * Returns the NBT compound of the given dimension.
      * @param dimensionType the dimension
      * @return NBT of the given dimension
      */

@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.file;
 
 import lombok.Getter;
@@ -44,14 +58,14 @@ public class ServerPropertiesImpl implements ServerProperties {
     private final @Nullable BufferedImage icon;
     private final @Nullable String encodedIcon;
 
-    private final static int ICON_SIZE = 64;
+    private static final int ICON_SIZE = 64;
 
-    public ServerPropertiesImpl(Machine server, File file) throws IOException {
+    public ServerPropertiesImpl(final Machine server, final File file) throws IOException {
         this.server = server;
         final Properties original = new Properties();
 
         final InputStream originalInputStream = getOriginal();
-        if(originalInputStream == null)
+        if (originalInputStream == null)
             throw new IllegalStateException("Default server properties file doesn't exist in the server");
 
         InputStreamReader stream = new InputStreamReader(originalInputStream, StandardCharsets.UTF_8);
@@ -63,7 +77,7 @@ public class ServerPropertiesImpl implements ServerProperties {
         properties.load(stream);
         stream.close();
 
-        for (Map.Entry<Object, Object> entry : original.entrySet())
+        for (final Map.Entry<Object, Object> entry : original.entrySet())
             properties.putIfAbsent(entry.getKey(), entry.getValue());
 
         serverIp = properties.getProperty("server-ip");
@@ -74,8 +88,10 @@ public class ServerPropertiesImpl implements ServerProperties {
 
         maxPlayers = Integer.parseInt(properties.getProperty("max-players"));
 
-        String motdJson = properties.getProperty("motd");
-        motd = motdJson.equals("") ? TextComponent.empty() : getServer().getComponentSerializer().deserializeJson(motdJson);
+        final String motdJson = properties.getProperty("motd");
+        motd = motdJson.equals("")
+                ? TextComponent.empty()
+                : getServer().getComponentSerializer().deserializeJson(motdJson);
 
         NamespacedKey defaultWorldParsed = null;
         try {
@@ -105,22 +121,22 @@ public class ServerPropertiesImpl implements ServerProperties {
 
         reducedDebugScreen = Boolean.parseBoolean(properties.getProperty("reduced-debug-screen"));
 
-        int tps = Integer.parseInt(properties.getProperty("tps"));
+        final int tps = Integer.parseInt(properties.getProperty("tps"));
         this.tps = tps <= 0 ? Machine.DEFAULT_TPS : tps;
 
-        int response = Integer.parseInt(properties.getProperty("server-responsiveness"));
+        final int response = Integer.parseInt(properties.getProperty("server-responsiveness"));
         serverResponsiveness = Math.max(response, 0);
 
         serverBrand = properties.getProperty("server-brand");
 
-        File png = new File(ICON_FILE_NAME);
+        final File png = new File(ICON_FILE_NAME);
         BufferedImage icon = null;
         String encodedIcon = null;
-        if(png.exists()) {
+        if (png.exists()) {
             try {
                 icon = new BufferedImage(ICON_SIZE, ICON_SIZE, BufferedImage.TYPE_INT_RGB);
                 icon.createGraphics().drawImage(ImageIO.read(png), 0, 0, ICON_SIZE, ICON_SIZE, null);
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                final ByteArrayOutputStream out = new ByteArrayOutputStream();
                 ImageIO.write(icon, "png", out);
                 encodedIcon = Base64.getEncoder().encodeToString(out.toByteArray());
             } catch (Exception e) {

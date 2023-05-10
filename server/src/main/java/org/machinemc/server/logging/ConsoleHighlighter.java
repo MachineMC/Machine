@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.logging;
 
 import com.mojang.brigadier.ParseResults;
@@ -35,12 +49,13 @@ public class ConsoleHighlighter implements Highlighter, ServerProperty {
             unknownColor = ChatColor.RED;
 
     @Override
-    public AttributedString highlight(LineReader reader, String buffer) {
+    public AttributedString highlight(final LineReader reader, final String buffer) {
         final AttributedStringBuilder sb = new AttributedStringBuilder();
-        if(console.isColors()) {
-            final ParseResults<CommandExecutor> result = server.getCommandDispatcher().parse(CommandExecutor.formatCommandInput(buffer), console);
+        if (console.isColors()) {
+            final ParseResults<CommandExecutor> result = server.getCommandDispatcher()
+                    .parse(CommandExecutor.formatCommandInput(buffer), console);
             final Colour color = result.getReader().canRead() ? unknownColor : knownColor;
-            if(color != null)
+            if (color != null)
                 sb.style(new AttributedStyle().foreground(color.getRed(), color.getGreen(), color.getBlue()));
         }
         sb.append(buffer);
@@ -48,12 +63,12 @@ public class ConsoleHighlighter implements Highlighter, ServerProperty {
     }
 
     @Override
-    public void setErrorPattern(Pattern errorPattern) {
+    public void setErrorPattern(final Pattern errorPattern) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void setErrorIndex(int errorIndex) {
+    public void setErrorIndex(final int errorIndex) {
         throw new UnsupportedOperationException();
     }
 

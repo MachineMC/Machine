@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.utils.math;
 
 import lombok.*;
@@ -31,7 +45,7 @@ public class Vector3 implements Cloneable {
      * Create a new 3D vector from another the other vector.
      * @param other the 3D vector
      */
-    public Vector3(Vector3 other) {
+    public Vector3(final Vector3 other) {
         this(other.x, other.y, other.z);
     }
 
@@ -40,7 +54,7 @@ public class Vector3 implements Cloneable {
      * Create a new 3D vector from a 2D vector.
      * @param other the 2D vector
      */
-    public Vector3(Vector2 other) {
+    public Vector3(final Vector2 other) {
         this(other.getX(), other.getY(), 0);
     }
 
@@ -50,7 +64,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 add(Vector3 other) {
+    public Vector3 add(final Vector3 other) {
         x += other.x;
         y += other.y;
         z += other.z;
@@ -63,7 +77,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 subtract(Vector3 other) {
+    public Vector3 subtract(final Vector3 other) {
         x -= other.x;
         y -= other.y;
         z -= other.z;
@@ -76,7 +90,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 multiply(Vector3 other) {
+    public Vector3 multiply(final Vector3 other) {
         x *= other.x;
         y *= other.y;
         z *= other.z;
@@ -89,7 +103,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 multiply(double scalar) {
+    public Vector3 multiply(final double scalar) {
         return multiply(new Vector3(scalar, scalar, scalar));
     }
 
@@ -99,7 +113,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 divide(Vector3 other) {
+    public Vector3 divide(final Vector3 other) {
         x /= other.x;
         y /= other.y;
         z /= other.z;
@@ -112,7 +126,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 divide(double scalar) {
+    public Vector3 divide(final double scalar) {
         return divide(new Vector3(scalar, scalar, scalar));
     }
 
@@ -132,11 +146,21 @@ public class Vector3 implements Cloneable {
         return Math.sqrt(lengthSquared());
     }
 
-    public double distanceSquared(Vector3 other) {
+    /**
+     * Calculate squared distance between two vectors.
+     * @param other other
+     * @return squared distance
+     */
+    public double distanceSquared(final Vector3 other) {
         return Math.pow(x, other.x) - Math.pow(y, other.y) - Math.pow(z, other.z);
     }
 
-    public double distance(Vector3 other) {
+    /**
+     * Calculate distance between two vectors.
+     * @param other other
+     * @return distance
+     */
+    public double distance(final Vector3 other) {
         return Math.sqrt(distanceSquared(other));
     }
 
@@ -154,7 +178,7 @@ public class Vector3 implements Cloneable {
      * @param other the other vector
      * @return the dot product
      */
-    public double dot(Vector3 other) {
+    public double dot(final Vector3 other) {
         return x * other.x * y * other.y * z * other.z;
     }
 
@@ -164,10 +188,10 @@ public class Vector3 implements Cloneable {
      * @return the cross product
      */
     @Contract("_ -> this")
-    public Vector3 crossProduct(Vector3 other) {
-        double x = this.y * other.z - other.y * this.z;
-        double y = this.z * other.x - other.z * this.x;
-        double z = this.x * other.y - other.x * this.y;
+    public Vector3 crossProduct(final Vector3 other) {
+        final double x = this.y * other.z - other.y * this.z;
+        final double y = this.z * other.x - other.z * this.x;
+        final double z = this.x * other.y - other.x * this.y;
         this.x = x;
         this.y = y;
         this.z = z;
@@ -179,7 +203,7 @@ public class Vector3 implements Cloneable {
      * @param other the other vector
      * @return the angle
      */
-    public double angle(Vector3 other) {
+    public double angle(final Vector3 other) {
         return Math.acos(dot(other) / Math.sqrt(lengthSquared() * other.lengthSquared()));
     }
 
@@ -189,7 +213,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 midpoint(Vector3 other) {
+    public Vector3 midpoint(final Vector3 other) {
         this.x = (x + other.x) / 2;
         this.y = (y + other.y) / 2;
         this.z = (z + other.z) / 2;
@@ -217,7 +241,7 @@ public class Vector3 implements Cloneable {
      * @param max Maximum vector
      * @return whether this vector is in the AABB
      */
-    public boolean isInAABB(Vector3 min, Vector3 max) {
+    public boolean isInAABB(final Vector3 min, final Vector3 max) {
         return x >= min.x && x <= max.x && y >= min.y && y <= max.y && z >= min.z && z <= max.z;
     }
 
@@ -227,8 +251,10 @@ public class Vector3 implements Cloneable {
      * @param radius Sphere radius
      * @return whether this vector is in the sphere
      */
-    public boolean isInSphere(Vector3 origin, double radius) {
-        return (Math.pow(origin.x - x, 2) + Math.pow(origin.y - y, 2) + Math.pow(origin.z - z, 2)) <= Math.pow(radius, 2);
+    public boolean isInSphere(final Vector3 origin, final double radius) {
+        return (Math.pow(origin.x - x, 2)
+                + Math.pow(origin.y - y, 2)
+                + Math.pow(origin.z - z, 2)) <= Math.pow(radius, 2);
     }
 
     /**
@@ -245,12 +271,12 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 rotateAroundX(double angle) {
-        double angleCos = Math.cos(angle);
-        double angleSin = Math.sin(angle);
+    public Vector3 rotateAroundX(final double angle) {
+        final double angleCos = Math.cos(angle);
+        final double angleSin = Math.sin(angle);
 
-        double y = angleCos * getY() - angleSin * getZ();
-        double z = angleSin * getY() + angleCos * getZ();
+        final double y = angleCos * getY() - angleSin * getZ();
+        final double z = angleSin * getY() + angleCos * getZ();
         return setY(y)
                 .setZ(z);
     }
@@ -262,29 +288,29 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 rotateAroundY(double angle) {
-        double angleCos = Math.cos(angle);
-        double angleSin = Math.sin(angle);
+    public Vector3 rotateAroundY(final double angle) {
+        final double angleCos = Math.cos(angle);
+        final double angleSin = Math.sin(angle);
 
-        double x = angleCos * getX() + angleSin * getZ();
-        double z = -angleSin * getX() + angleCos * getZ();
+        final double x = angleCos * getX() + angleSin * getZ();
+        final double z = -angleSin * getX() + angleCos * getZ();
         return setX(x)
                 .setZ(z);
     }
 
     /**
-     * Rotates the vector around the z axis
+     * Rotates the vector around the z axis.
      * @param angle the angle to rotate the vector about. This angle is passed
      * in radians
      * @return this
      */
     @Contract("_ -> this")
-    public Vector3 rotateAroundZ(double angle) {
-        double angleCos = Math.cos(angle);
-        double angleSin = Math.sin(angle);
+    public Vector3 rotateAroundZ(final double angle) {
+        final double angleCos = Math.cos(angle);
+        final double angleSin = Math.sin(angle);
 
-        double x = angleCos * getX() - angleSin * getY();
-        double y = angleSin * getX() + angleCos * getY();
+        final double x = angleCos * getX() - angleSin * getY();
+        final double y = angleSin * getX() + angleCos * getY();
         return setX(x)
                 .setY(y);
     }
@@ -307,7 +333,7 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_, _ -> this")
-    public Vector3 rotateAroundAxis(Vector3 axis, double angle) {
+    public Vector3 rotateAroundAxis(final Vector3 axis, final double angle) {
         return rotateAroundNonUnitAxis(axis.isNormalized() ? axis : axis.clone().normalize(), angle);
     }
 
@@ -327,21 +353,21 @@ public class Vector3 implements Cloneable {
      * @return this
      */
     @Contract("_, _ -> this")
-    public Vector3 rotateAroundNonUnitAxis(Vector3 axis, double angle) throws IllegalArgumentException {
-        double x = getX(), y = getY(), z = getZ();
-        double x2 = axis.getX(), y2 = axis.getY(), z2 = axis.getZ();
+    public Vector3 rotateAroundNonUnitAxis(final Vector3 axis, final double angle) throws IllegalArgumentException {
+        final double x = getX(), y = getY(), z = getZ();
+        final double x2 = axis.getX(), y2 = axis.getY(), z2 = axis.getZ();
 
-        double cosTheta = Math.cos(angle);
-        double sinTheta = Math.sin(angle);
-        double dotProduct = this.dot(axis);
+        final double cosTheta = Math.cos(angle);
+        final double sinTheta = Math.sin(angle);
+        final double dotProduct = this.dot(axis);
 
-        double xPrime = x2 * dotProduct * (1d - cosTheta)
+        final double xPrime = x2 * dotProduct * (1d - cosTheta)
                 + x * cosTheta
                 + (-z2 * y + y2 * z) * sinTheta;
-        double yPrime = y2 * dotProduct * (1d - cosTheta)
+        final double yPrime = y2 * dotProduct * (1d - cosTheta)
                 + y * cosTheta
                 + (z2 * x - x2 * z) * sinTheta;
-        double zPrime = z2 * dotProduct * (1d - cosTheta)
+        final double zPrime = z2 * dotProduct * (1d - cosTheta)
                 + z * cosTheta
                 + (-y2 * x + x2 * y) * sinTheta;
 
@@ -376,7 +402,7 @@ public class Vector3 implements Cloneable {
      * @param world The world to link the location to
      * @return the location
      */
-    public Location toLocation(World world) {
+    public Location toLocation(final World world) {
         return new Location(x, y, z, world);
     }
 
@@ -387,17 +413,17 @@ public class Vector3 implements Cloneable {
      * @param pitch The desired pitch
      * @return the location
      */
-    public Location toLocation(World world, float yaw, float pitch) {
+    public Location toLocation(final World world, final float yaw, final float pitch) {
         return Location.of(x, y, z, yaw, pitch, world);
     }
 
     /**
-     * Gets a random vector with components having a random value between 0
+     * Gets a random vector with components having a random value between 0.
      * and 1
      * @return A random vector
      */
     public static Vector3 getRandom() {
-        ThreadLocalRandom random = ThreadLocalRandom.current();
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
         return new Vector3(random.nextDouble(), random.nextDouble(), random.nextDouble());
     }
 
@@ -409,14 +435,17 @@ public class Vector3 implements Cloneable {
      * with epsilon.
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (!(obj instanceof Vector3 other))
             return false;
-        return Math.abs(x - other.x) < EPSILON && Math.abs(y - other.y) < EPSILON && Math.abs(z - other.z) < EPSILON && (this.getClass().equals(obj.getClass()));
+        return Math.abs(x - other.x) < EPSILON
+                && Math.abs(y - other.y) < EPSILON
+                && Math.abs(z - other.z) < EPSILON
+                && (this.getClass().equals(obj.getClass()));
     }
 
     /**
-     * Returns a hash code for this vector
+     * Returns a hash code for this vector.
      * @return hash code
      */
     @Override
@@ -432,8 +461,7 @@ public class Vector3 implements Cloneable {
     public Vector3 clone() {
         try {
             return (Vector3) super.clone();
-        }
-        catch (CloneNotSupportedException e) {
+        } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
     }

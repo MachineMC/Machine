@@ -1,10 +1,25 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.world;
 
-import com.google.common.base.Objects;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Visual data of a block, to create a new instance
@@ -19,33 +34,48 @@ public abstract class BlockData implements Cloneable {
      * @param id id of the block data
      * @return new instance of the block data with the given id
      */
-    public static BlockData getBlockData(int id) {
+    public static BlockData getBlockData(final int id) {
         return BlockDataImpl.getBlockData(id);
     }
 
     /**
-     * Returns id of the block data
-     * @param blockData block data to get id from
-     * @return id of the given block data
+     * Parses the block data text from {@link BlockData#toString()}.
+     * <p>
+     * Returns null in case the provided text doesn't match any
+     * block data loaded by the server.
+     * @param text text to parse
+     * @return parsed block data or null if the text is invalid
      */
-    public static int getId(BlockData blockData) {
-        return BlockDataImpl.getId(blockData);
+    public static @Nullable BlockData parse(final String text) {
+        return BlockDataImpl.parse(text);
     }
+
+    /**
+     * Finishes the registration of the block data to materials.
+     */
+    @ApiStatus.Internal
+    public static void finishRegistration() {
+        BlockDataImpl.finishRegistration();
+    }
+
+    /**
+     * Registers the block data to the block data registry.
+     */
+    @ApiStatus.Internal
+    protected abstract void register();
 
     /**
      * @return material of the block data
      */
-    public abstract @Nullable Material getMaterial();
+    public abstract Material getMaterial();
 
     /**
      * Changes base material for the block data and all its
      * variants.
-     * <p>
-     * Example: Changing material for oak log block data would
-     * change the base material for all rotations of the oak log.
      * @param material new material
      * @return this
      */
+    @ApiStatus.Internal
     @Contract("_ -> this")
     protected abstract BlockData setMaterial(Material material);
 
@@ -55,44 +85,22 @@ public abstract class BlockData implements Cloneable {
     public abstract int getId();
 
     /**
-     * Returns all data used by the block data (block data properties)
-     * in alphabetically order.
-     * @return block data properties
+     * Returns map of keys and values of all properties of this block data.
+     * Useful when creating data for block particles etc.
+     * @return map of block data properties
      */
-    protected abstract Object[] getData();
+    public abstract @Unmodifiable Map<String, String> getDataMap();
 
+    /**
+     * @return clone of this block data
+     */
+    @Override
     public BlockData clone() {
         try {
             return (BlockData) super.clone();
         } catch (CloneNotSupportedException e) {
             return null;
         }
-    }
-
-    @Override
-    public String toString() {
-        if(getMaterial() != null)
-            return getMaterial().getName().getKey() + Arrays.toString(getData());
-        return "none" + Arrays.toString(getData());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BlockData blockData)) return false;
-        if(getMaterial() != blockData.getMaterial()) return false;
-        Object[] original = getData();
-        Object[] compare = blockData.getData();
-        if(original.length != compare.length) return false;
-        for(int i = 0; i < original.length; i++) {
-            if(original[i] != compare[i]) return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getMaterial(), getData());
     }
 
 }

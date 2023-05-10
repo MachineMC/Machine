@@ -1,11 +1,23 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.inventory;
 
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Server;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Range;
 import org.machinemc.api.world.Material;
 
 /**
@@ -14,39 +26,35 @@ import org.machinemc.api.world.Material;
 public interface Item extends Writable, Cloneable {
 
     /**
-     * Creates new instance of the classic item implementation.
+     * Creates new item with given amount and material.
      * @param material material of the item
      * @param amount amount of the item
      * @return new item
-     * @throws UnsupportedOperationException if the creator hasn't been initialized
      * @throws IllegalStateException if the material can't have item form
      */
     static Item of(Material material, byte amount) {
-        return Server.createItem(material, amount);
+        return new ItemStack(material, amount);
     }
 
     /**
-     * Creates new instance of the classic item implementation.
+     * Creates new item with given amount and material.
      * @param material material of the item
      * @param amount amount of the item
      * @return new item
-     * @throws UnsupportedOperationException if the creator hasn't been initialized
      * @throws IllegalStateException if the material can't have item form
      */
-    static Item of(Material material, @Range(from = Byte.MIN_VALUE, to = Byte.MAX_VALUE) int amount) {
+    static Item of(Material material, int amount) {
         return of(material, (byte) amount);
     }
 
     /**
-     * Creates new instance of the classic item implementation with the amount
-     * of 1.
+     * Creates new item with given material.
      * @param material material of the item
      * @return new item
-     * @throws UnsupportedOperationException if the creator hasn't been initialized
      * @throws IllegalStateException if the material can't have item form
      */
     static Item of(Material material) {
-        return Server.createItem(material);
+        return new ItemStack(material);
     }
 
     /**
@@ -61,7 +69,7 @@ public interface Item extends Writable, Cloneable {
     void setMaterial(Material material);
 
     /**
-     * Creates copy of this item with new material
+     * Creates copy of this item with new material.
      * @param material new material
      * @return new item
      */
@@ -79,7 +87,7 @@ public interface Item extends Writable, Cloneable {
     void setAmount(byte amount);
 
     /**
-     * Creates copy of this item with different amount
+     * Creates copy of this item with different amount.
      * @param amount new amount
      * @return new item
      */
@@ -97,7 +105,7 @@ public interface Item extends Writable, Cloneable {
     void setNbtCompound(NBTCompound compound);
 
     /**
-     * Creates copy of this item with new nbt compound
+     * Creates copy of this item with new nbt compound.
      * @param compound new compound
      * @return new item
      */
@@ -116,7 +124,7 @@ public interface Item extends Writable, Cloneable {
     void setType(Material material);
 
     /**
-     * Creates copy of this item with new material
+     * Creates copy of this item with new material.
      * @param type new material
      * @return new item
      */
@@ -160,6 +168,10 @@ public interface Item extends Writable, Cloneable {
     @Contract(pure = true)
     Item single();
 
+    /**
+     * Writes the item in to a buffer.
+     * @param buf buffer to write into
+     */
     default void write(ServerBuffer buf) {
         buf.writeSlot(this);
     }

@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.world.blocks;
 
 import org.machinemc.api.world.Material;
@@ -23,19 +37,29 @@ public enum ToolCategory {
     NONE; // unbreakable
 
     private static final Material[]
-            axes = new Material[]{WOODEN_AXE, STONE_AXE, IRON_AXE, DIAMOND_AXE, NETHERITE_AXE, GOLDEN_AXE},
-            pickaxes = new Material[]{WOODEN_PICKAXE, STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE, NETHERITE_PICKAXE, GOLDEN_PICKAXE},
-            shears = new Material[]{Material.SHEARS},
-            shovels = new Material[]{WOODEN_SHOVEL, STONE_SHOVEL, IRON_SHOVEL, DIAMOND_SHOVEL, NETHERITE_SHOVEL, GOLDEN_SHOVEL},
-            swords = new Material[]{WOODEN_SWORD, STONE_SWORD, IRON_SWORD, DIAMOND_SWORD, NETHERITE_SWORD, GOLDEN_SWORD},
-            hoes = new Material[]{WOODEN_HOE, STONE_HOE, IRON_HOE, DIAMOND_HOE, NETHERITE_HOE, GOLDEN_HOE};
+            AXES_MATERIALS = new Material[]{WOODEN_AXE, STONE_AXE, IRON_AXE, DIAMOND_AXE,
+            NETHERITE_AXE, GOLDEN_AXE},
+
+            PICKAXES_MATERIALS = new Material[]{WOODEN_PICKAXE, STONE_PICKAXE,
+                    IRON_PICKAXE, DIAMOND_PICKAXE, NETHERITE_PICKAXE, GOLDEN_PICKAXE},
+
+            SHEARS_MATERIALS = new Material[]{Material.SHEARS},
+
+            SHOVELS_MATERIALS = new Material[]{WOODEN_SHOVEL, STONE_SHOVEL, IRON_SHOVEL,
+                    DIAMOND_SHOVEL, NETHERITE_SHOVEL, GOLDEN_SHOVEL},
+
+            SWORDS_MATERIALS = new Material[]{WOODEN_SWORD, STONE_SWORD, IRON_SWORD,
+                    DIAMOND_SWORD, NETHERITE_SWORD, GOLDEN_SWORD},
+
+            HOES_MATERIALS = new Material[]{WOODEN_HOE, STONE_HOE, IRON_HOE,
+                    DIAMOND_HOE, NETHERITE_HOE, GOLDEN_HOE};
 
     /**
      * @return all materials that are efficient against blocks
      * with {@link ToolCategory#AXE} category.
      */
     public static Material[] getAxes() {
-        return axes.clone();
+        return AXES_MATERIALS.clone();
     }
 
     /**
@@ -43,7 +67,7 @@ public enum ToolCategory {
      * with {@link ToolCategory#PICKAXE} category.
      */
     public static Material[] getPickaxes() {
-        return pickaxes.clone();
+        return PICKAXES_MATERIALS.clone();
     }
 
     /**
@@ -51,7 +75,7 @@ public enum ToolCategory {
      * with {@link ToolCategory#SHEARS} category.
      */
     public static Material[] getShears() {
-        return shears.clone();
+        return SHEARS_MATERIALS.clone();
     }
 
     /**
@@ -59,7 +83,7 @@ public enum ToolCategory {
      * with {@link ToolCategory#SHOVEL} category.
      */
     public static Material[] getShovels() {
-        return shovels.clone();
+        return SHOVELS_MATERIALS.clone();
     }
 
     /**
@@ -67,7 +91,7 @@ public enum ToolCategory {
      * with {@link ToolCategory#SWORD} category.
      */
     public static Material[] getSwords() {
-        return swords.clone();
+        return SWORDS_MATERIALS.clone();
     }
 
     /**
@@ -75,7 +99,7 @@ public enum ToolCategory {
      * with {@link ToolCategory#HOE} category.
      */
     public static Material[] getHoes() {
-        return hoes.clone();
+        return HOES_MATERIALS.clone();
     }
 
     /**
@@ -83,13 +107,13 @@ public enum ToolCategory {
      * @param toolMaterial material to check for
      * @return category the given material is effective against
      */
-    public static @Nullable ToolCategory fromTool(Material toolMaterial) {
-        if(List.of(axes).contains(toolMaterial)) return AXE;
-        if(List.of(pickaxes).contains(toolMaterial)) return PICKAXE;
-        if(List.of(shears).contains(toolMaterial)) return SHEARS;
-        if(List.of(shovels).contains(toolMaterial)) return SHOVEL;
-        if(List.of(swords).contains(toolMaterial)) return SWORD;
-        if(List.of(hoes).contains(toolMaterial)) return HOE;
+    public static @Nullable ToolCategory fromTool(final Material toolMaterial) {
+        if (List.of(AXES_MATERIALS).contains(toolMaterial)) return AXE;
+        if (List.of(PICKAXES_MATERIALS).contains(toolMaterial)) return PICKAXE;
+        if (List.of(SHEARS_MATERIALS).contains(toolMaterial)) return SHEARS;
+        if (List.of(SHOVELS_MATERIALS).contains(toolMaterial)) return SHOVEL;
+        if (List.of(SWORDS_MATERIALS).contains(toolMaterial)) return SWORD;
+        if (List.of(HOES_MATERIALS).contains(toolMaterial)) return HOE;
         return null;
     }
 

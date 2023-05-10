@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.world.region;
 
 import com.google.common.cache.Cache;
@@ -44,7 +58,11 @@ public class LandscapeChunk extends WorldChunk {
 
     private final Cache<Integer, Section> sections = new WeaklyTimedCache<>(16, TimeUnit.SECONDS); // TODO configurable
 
-    public LandscapeChunk(final World world, final WorldBlockManager worldBlockManager, final int chunkX, final int chunkZ, final LandscapeHelper helper) throws ExecutionException {
+    public LandscapeChunk(final World world,
+                          final WorldBlockManager worldBlockManager,
+                          final int chunkX,
+                          final int chunkZ,
+                          final LandscapeHelper helper) throws ExecutionException {
         super(world, chunkX, chunkZ);
         landscape = helper.get(chunkX * 16, chunkZ * 16);
         this.worldBlockManager = worldBlockManager;
@@ -65,7 +83,8 @@ public class LandscapeChunk extends WorldChunk {
     @Synchronized
     public WorldBlock getBlock(final int x, final int y, final int z) {
         checkCoordinates(x, y, z);
-        return worldBlockManager.get(new BlockPosition(worldX + x, y, worldZ + z)); // world block instances are managed by the world block managers
+        // world block instances are managed by the world block managers
+        return worldBlockManager.get(new BlockPosition(worldX + x, y, worldZ + z));
     }
 
     @Override
@@ -81,10 +100,14 @@ public class LandscapeChunk extends WorldChunk {
         segment.setBlock(x, sectionY, z, blockType.getName().toString());
 
         // Creates NBT data for the block entities
-        if(blockType instanceof BlockEntityType blockEntityType) {
-            final WorldBlock.State state = new WorldBlock.State(world, new BlockPosition(x, y, z), blockEntityType, new NBTCompound());
+        if (blockType instanceof BlockEntityType blockEntityType) {
+            final WorldBlock.State state = new WorldBlock.State(
+                    world,
+                    new BlockPosition(x, y, z),
+                    blockEntityType, new NBTCompound()
+            );
             blockEntityType.initialize(state);
-            for(BlockHandler handler : blockType.getHandlers())
+            for (final BlockHandler handler : blockType.getHandlers())
                 handler.onPlace(state);
             segment.setNBT(x, sectionY, z, state.compound());
         } else {
@@ -93,7 +116,7 @@ public class LandscapeChunk extends WorldChunk {
 
         final Section section = sections.getIfPresent(sectionIndex);
         // updates the visual and client nbt if the section is present
-        if(section != null)
+        if (section != null)
             setSectionBlock(section, sectionIndex, x, sectionY, z, blockType);
 
         segment.push();
@@ -123,10 +146,12 @@ public class LandscapeChunk extends WorldChunk {
 
         final Section section = sections.getIfPresent(sectionIndex);
         // updates the visual and client nbt if the section is present
-        if(section != null) {
+        if (section != null) {
             BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(x, sectionY, z)));
             if (blockType == null) {
-                blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType()));
+                blockType = server.getBlockType(
+                        LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType())
+                );
                 if (blockType == null) throw new IllegalStateException();
             }
             setSectionBlock(section, sectionIndex, x, sectionY, z, blockType);
@@ -147,10 +172,12 @@ public class LandscapeChunk extends WorldChunk {
 
         final Section section = sections.getIfPresent(sectionIndex);
         // updates the visual and client nbt if the section is present
-        if(section != null) {
+        if (section != null) {
             BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(x, sectionY, z)));
             if (blockType == null) {
-                blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType()));
+                blockType = server.getBlockType(
+                        LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType())
+                );
                 if (blockType == null) throw new IllegalStateException();
             }
             setSectionBlock(section, sectionIndex, x, sectionY, z, blockType);
@@ -170,9 +197,9 @@ public class LandscapeChunk extends WorldChunk {
         final Segment segment = getSegment(sectionIndex);
 
         Biome biome = world.getServer().getBiome(LazyNamespacedKey.lazy(segment.getBiome(x, sectionY, z)));
-        if(biome != null) return biome;
+        if (biome != null) return biome;
         biome = world.getServer().getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()));
-        if(biome == null) throw new IllegalStateException();
+        if (biome == null) throw new IllegalStateException();
         setBiome(x, offsetY, z, biome);
         return biome;
     }
@@ -191,8 +218,13 @@ public class LandscapeChunk extends WorldChunk {
 
         final Section section = sections.getIfPresent(sectionIndex);
         // updates the section biome palette if the section is present
-        if(section != null)
-            section.getBiomePalette().set(x / 4, sectionY / 4, z / 4, getServer().getBiomeManager().getBiomeId(biome)); // biome palette's dimension is 4 (xyz/4)
+        if (section != null)
+            section.getBiomePalette().set(
+                    x / 4,
+                    sectionY / 4,
+                    z / 4,
+                    getServer().getBiomeManager().getBiomeId(biome)
+            ); // biome palette's dimension is 4 (xyz/4)
 
         segment.push();
     }
@@ -204,9 +236,9 @@ public class LandscapeChunk extends WorldChunk {
      * @param z z
      */
     private void checkCoordinates(final int x, final int y, final int z) {
-        if(y > getTop()) throw new IllegalStateException("Maximum height of the world exceeded");
-        if(x > 15 || x < 0) throw new IllegalStateException("The x coordinate is outside the chunk area");
-        if(z > 15 || z < 0) throw new IllegalStateException("The x coordinate is outside the chunk area");
+        if (y > getTop()) throw new IllegalStateException("Maximum height of the world exceeded");
+        if (x > 15 || x < 0) throw new IllegalStateException("The x coordinate is outside the chunk area");
+        if (z > 15 || z < 0) throw new IllegalStateException("The x coordinate is outside the chunk area");
     }
 
     @Override
@@ -220,8 +252,9 @@ public class LandscapeChunk extends WorldChunk {
     @Override
     @Synchronized
     public Section getSection(final int index) {
-        if(index < getMinSection() || index > getMaxSection())
-            throw new IndexOutOfBoundsException("Section with index " + index + " is outside the boundaries of this section");
+        if (index < getMinSection() || index > getMaxSection())
+            throw new IndexOutOfBoundsException("Section with index " + index + " is outside "
+                    + "the boundaries of this section");
         try {
             return sections.get(index, () -> {
                 final Segment segment = getSegment(index);
@@ -247,7 +280,8 @@ public class LandscapeChunk extends WorldChunk {
      * section is always processed the same way it would normally be.
      * <p>
      * Main purpose of this method is to speed up process of generation where the section
-     * is created together with Landscape's generated segment, {@link org.machinemc.server.world.ServerWorld#getChunk(int, int)}.
+     * is created together with Landscape's generated segment,
+     * {@link org.machinemc.server.world.ServerWorld#getChunk(int, int)}.
      * @param index index of the section to be set/replaced
      * @param section new section
      */
@@ -270,12 +304,14 @@ public class LandscapeChunk extends WorldChunk {
     public void readSectionBlockData(final Section section, final int sectionIndex, final Segment source) {
 
         // More than single block type is present in the source segment
-        if(source.getBlockCount() != 1) {
-            final Map<String, BlockType> types = new HashMap<>(); // lookup map to speed up conversion between String and BlockType
+        if (source.getBlockCount() != 1) {
+            // lookup map to speed up conversion between String and BlockType
+            final Map<String, BlockType> types = new HashMap<>();
             source.getAllBlocks((x, y, z, blockName) -> {
                 if (types.containsKey(blockName)) {
                     final BlockType blockType = types.get(blockName);
-                    setSectionBlock(section, sectionIndex, x, y, z, blockType); // handles dynamic visuals and client nbt
+                    // handles dynamic visuals and client nbt
+                    setSectionBlock(section, sectionIndex, x, y, z, blockType);
                     return;
                 }
                 BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(blockName));
@@ -293,13 +329,15 @@ public class LandscapeChunk extends WorldChunk {
                 blockType = server.getBlockType(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultType()));
             assert blockType != null;
 
-            // Doesn't have dynamic visual, the palette only needs to be filled with single value
-            if(!blockType.hasDynamicVisual()) {
+            // Doesn't have dynamic visual, the palette only needs
+            // to be filled with single value
+            if (!blockType.hasDynamicVisual()) {
                 section.getBlockPalette().fill(blockType.getBlockData(null).getId());
 
-                // If block type is client nbt block entity we set client nbt for each entry (no need to use #setSectionBlock,
+                // If block type is client nbt block entity we set client
+                // nbt for each entry (no need to use #setSectionBlock,
                 // we only need to set the client block entities)
-                if(blockType instanceof BlockEntityType blockEntityType && blockEntityType.sendsToClient()) {
+                if (blockType instanceof BlockEntityType blockEntityType && blockEntityType.sendsToClient()) {
                     for (int x = 0; x < 16; x++)
                         for (int y = 0; y < 16; y++)
                             for (int z = 0; z < 16; z++)
@@ -333,14 +371,17 @@ public class LandscapeChunk extends WorldChunk {
         BlockData visual;
 
         // Calculating dynamic visual
-        if(blockType.hasDynamicVisual()) {
+        if (blockType.hasDynamicVisual()) {
             final WorldBlock.State state = new WorldBlock.State(
                     world,
-                    new BlockPosition(worldX + x, getBottom() + y + sectionIndex * Chunk.CHUNK_SECTION_SIZE, worldZ + z),
+                    new BlockPosition(
+                            worldX + x,
+                            getBottom() + y + sectionIndex * Chunk.CHUNK_SECTION_SIZE,
+                            worldZ + z),
                     blockType,
                     getSegment(sectionIndex).getNBT(x, y, z).clone());
             visual = blockType.getBlockData(state);
-            for(final BlockHandler blockHandler : blockType.getHandlers())
+            for (final BlockHandler blockHandler : blockType.getHandlers())
                 visual = blockHandler.onVisualRequest(state, visual);
 
         // Calculating not dynamic visual
@@ -352,7 +393,7 @@ public class LandscapeChunk extends WorldChunk {
         section.getBlockPalette().set(x, y, z, visual.getId());
 
         // Sets client nbt in case the block supports it
-        if(blockType instanceof BlockEntityType blockEntityType) {
+        if (blockType instanceof BlockEntityType blockEntityType) {
             setClientBlockEntity(section, sectionIndex, x, y, z, blockEntityType);
         } else {
             section.getClientBlockEntities().remove(Section.index(x, y, z));
@@ -369,9 +410,14 @@ public class LandscapeChunk extends WorldChunk {
      * @param z z of the block in the section
      * @param blockEntityType block entity type of the new block
      */
-    private void setClientBlockEntity(final Section section, final int sectionIndex, final int x, final int y, final int z, final BlockEntityType blockEntityType) {
+    private void setClientBlockEntity(final Section section,
+                                      final int sectionIndex,
+                                      final int x,
+                                      final int y,
+                                      final int z,
+                                      final BlockEntityType blockEntityType) {
         // If the block type doesn't support client nbt we remove it from client block entities
-        if(!blockEntityType.sendsToClient()) {
+        if (!blockEntityType.sendsToClient()) {
             section.getClientBlockEntities().remove(Section.index(x, y, z));
             return;
         }
@@ -383,8 +429,15 @@ public class LandscapeChunk extends WorldChunk {
                 blockEntityType,
                 getSegment(sectionIndex).getNBT(x, y, z).clone());
 
-        blockEntityMap.put(Section.index(x, y, z), new Section.BlockEntity((byte) x, (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE + getBottom()), (byte) z,
-                        blockEntityType.getBlockEntityBase(state), blockEntityType.getClientVisibleNBT(state)));
+        blockEntityMap.put(
+                Section.index(x, y, z),
+                new Section.BlockEntity(
+                        (byte) x,
+                        (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE + getBottom()),
+                        (byte) z,
+                        blockEntityType.getBlockEntityBase(state),
+                        blockEntityType.getClientVisibleNBT(state))
+        );
     }
 
     /**
@@ -394,7 +447,7 @@ public class LandscapeChunk extends WorldChunk {
      */
     public void readSectionBiomeData(final Section section, final Segment source) {
         final Palette biomesPalette = section.getBiomePalette();
-        if(source.getBiomesCount() != 1) {
+        if (source.getBiomesCount() != 1) {
             final Map<String, Integer> biomes = new HashMap<>();
             final BiomeManager biomeManager = server.getBiomeManager();
             source.getAllBiomes((x, y, z, biomeName) -> {
@@ -432,8 +485,8 @@ public class LandscapeChunk extends WorldChunk {
 
     @Override
     public Section.BlockEntity[] getClientBlockEntities() {
-        List<Section.BlockEntity> all = new ArrayList<>();
-        for (Section section : getSections())
+        final List<Section.BlockEntity> all = new ArrayList<>();
+        for (final Section section : getSections())
             all.addAll(section.getClientBlockEntities().values());
         return all.toArray(new Section.BlockEntity[0]);
     }

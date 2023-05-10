@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.chunk.palette;
 
 import lombok.RequiredArgsConstructor;
@@ -15,12 +29,12 @@ public class FilledPalette implements Palette {
     protected final int value;
 
     @Override
-    public int get(int x, int y, int z) {
+    public int get(final int x, final int y, final int z) {
         return value;
     }
 
     @Override
-    public void getAll(EntryConsumer consumer) {
+    public void getAll(final EntryConsumer consumer) {
         final byte dimension = this.dimension;
         final int value = this.value;
         for (byte x = 0; x < dimension; x++)
@@ -30,32 +44,32 @@ public class FilledPalette implements Palette {
     }
 
     @Override
-    public void getAllPresent(EntryConsumer consumer) {
+    public void getAllPresent(final EntryConsumer consumer) {
         if (value != 0) getAll(consumer);
     }
 
     @Override
-    public void set(int x, int y, int z, int value) {
+    public void set(final int x, final int y, final int z, final int value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void fill(int value) {
+    public void fill(final int value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void setAll(EntrySupplier supplier) {
+    public void setAll(final EntrySupplier supplier) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void replace(int x, int y, int z, int value) {
+    public void replace(final int x, final int y, final int z, final int value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void replaceAll(EntryFunction function) {
+    public void replaceAll(final EntryFunction function) {
         throw new UnsupportedOperationException();
     }
 
@@ -89,7 +103,7 @@ public class FilledPalette implements Palette {
     }
 
     @Override
-    public void write(ServerBuffer buf) {
+    public void write(final ServerBuffer buf) {
         buf.writeByte((byte) 0);
         buf.writeVarInt(value);
         buf.writeVarInt(0);

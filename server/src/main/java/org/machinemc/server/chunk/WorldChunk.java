@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.chunk;
 
 import lombok.Getter;
@@ -60,9 +74,14 @@ public abstract class WorldChunk implements Chunk {
     }
 
     /**
+     * @param sections sections for the chunk data
+     * @param blockEntities block entities in the chunk
+     * @param height height of the chunk
      * @return chunk data of this chunk
      */
-    public static ChunkData createChunkData(final List<Section> sections, Section.BlockEntity[] blockEntities, int height) {
+    public static ChunkData createChunkData(final List<Section> sections,
+                                            final Section.BlockEntity[] blockEntities,
+                                            final int height) {
         final int[] motionBlocking = new int[16 * 16];
         final int[] worldSurface = new int[16 * 16];
         for (int x = 0; x < 16; x++) {
@@ -79,7 +98,7 @@ public abstract class WorldChunk implements Chunk {
 
         // Data
         final FriendlyByteBuf buf = new FriendlyByteBuf();
-        for(final Section section : sections)
+        for (final Section section : sections)
             section.write(buf);
         final byte[] data = buf.bytes();
 
@@ -87,6 +106,7 @@ public abstract class WorldChunk implements Chunk {
     }
 
     /**
+     * @param sections for the light data
      * @return light data of this chunk
      */
     public static LightData createLightData(final List<Section> sections) {

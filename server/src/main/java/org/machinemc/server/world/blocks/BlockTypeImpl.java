@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.world.blocks;
 
 import lombok.*;
@@ -31,26 +45,26 @@ public class BlockTypeImpl implements BlockType {
 
     private final List<BlockHandler> handlers = new CopyOnWriteArrayList<>();
 
-    public BlockTypeImpl(NamespacedKey name,
-                         BlockType.BlockProperties properties,
-                         BlockData defaultBlockData) {
+    public BlockTypeImpl(final NamespacedKey name,
+                         final BlockType.BlockProperties properties,
+                         final BlockData defaultBlockData) {
         this.name = name;
         this.properties = properties;
-        blockDataProvider = (state -> defaultBlockData);
+        blockDataProvider = state -> defaultBlockData;
         dynamicVisual = false;
     }
 
-    public BlockTypeImpl(NamespacedKey name,
-                         BlockType.BlockProperties properties,
-                         Function<WorldBlock.State, BlockData> blockDataProvider,
-                         boolean dynamicVisual,
-                         BlockHandler defaultHandler) {
+    public BlockTypeImpl(final NamespacedKey name,
+                         final BlockType.BlockProperties properties,
+                         final Function<WorldBlock.State, BlockData> blockDataProvider,
+                         final boolean dynamicVisual,
+                         final BlockHandler defaultHandler) {
         this(name, properties, blockDataProvider, dynamicVisual);
         addHandler(defaultHandler);
     }
 
     @Override
-    public BlockData getBlockData(WorldBlock.@Nullable State block) {
+    public BlockData getBlockData(final WorldBlock.@Nullable State block) {
         return blockDataProvider.apply(block);
     }
 
@@ -65,12 +79,12 @@ public class BlockTypeImpl implements BlockType {
     }
 
     @Override
-    public void addHandler(BlockHandler handler) {
+    public void addHandler(final BlockHandler handler) {
         handlers.add(handler);
     }
 
     @Override
-    public boolean removeHandler(BlockHandler handler) {
+    public boolean removeHandler(final BlockHandler handler) {
         return handlers.remove(handler);
     }
 

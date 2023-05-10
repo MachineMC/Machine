@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.world.biomes;
 
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +38,7 @@ public interface BiomeManager extends CodecPart, ServerProperty {
      * @return if the biome with given name was successfully removed
      */
     default boolean removeDimension(NamespacedKey name) {
-        Biome biome = getBiome(name);
+        final Biome biome = getBiome(name);
         if (biome == null)
             return false;
         return removeBiome(biome);
@@ -44,7 +58,7 @@ public interface BiomeManager extends CodecPart, ServerProperty {
      * @return if the biome with given name is registered in this manager
      */
     default boolean isRegistered(NamespacedKey name) {
-        Biome biome = getBiome(name);
+        final Biome biome = getBiome(name);
         if (biome == null)
             return false;
         return isRegistered(biome);
@@ -84,19 +98,19 @@ public interface BiomeManager extends CodecPart, ServerProperty {
     @Unmodifiable Set<Biome> getBiomes();
 
     /**
-     * Returns the NBT compound of a dimension with the given name
+     * Returns the NBT compound of a dimension with the given name.
      * @param name name of the dimension
      * @return NBT of the given dimension
      */
     default @Nullable NBTCompound getBiomeNBT(NamespacedKey name) {
-        Biome biome = getBiome(name);
+        final Biome biome = getBiome(name);
         if (biome == null)
             return null;
         return getBiomeNBT(biome);
     }
 
     /**
-     * Returns the NBT compound of the given biome
+     * Returns the NBT compound of the given biome.
      * @param biome the biome
      * @return NBT of the given biome
      */

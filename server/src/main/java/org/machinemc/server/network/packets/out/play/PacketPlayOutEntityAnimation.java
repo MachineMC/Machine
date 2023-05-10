@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network.packets.out.play;
 
 import com.google.common.base.Preconditions;
@@ -25,7 +39,7 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
                 PacketPlayOutEntityAnimation::new);
     }
 
-    public PacketPlayOutEntityAnimation(ServerBuffer buf) {
+    public PacketPlayOutEntityAnimation(final ServerBuffer buf) {
         entityId = buf.readVarInt();
         animation = Animation.fromID(buf.readByte());
     }
@@ -61,11 +75,19 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
         CRITICAL_EFFECT,
         MAGIC_CRITICAL_EFFECT;
 
+        /**
+         * @return id of the animation
+         */
         public int getId() {
             return ordinal();
         }
 
-        public static Animation fromID(@Range(from = 0, to = 5) int id) {
+        /**
+         * Returns animation with given id.
+         * @param id id
+         * @return animation
+         */
+        public static Animation fromID(final @Range(from = 0, to = 5) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Animation type");
             return values()[id];
         }

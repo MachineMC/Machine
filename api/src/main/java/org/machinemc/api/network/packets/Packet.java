@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.network.packets;
 
 import lombok.Getter;
@@ -51,6 +65,9 @@ public interface Packet extends Cloneable {
      */
     int getCompressedSize();
 
+    /**
+     * @return clone of this packet
+     */
     Packet clone();
 
     /**
@@ -58,21 +75,21 @@ public interface Packet extends Cloneable {
      */
     enum PacketState {
 
-        HANDSHAKING_IN (0b000),
+        HANDSHAKING_IN(0b000),
         HANDSHAKING_OUT(0b001),
-        STATUS_IN      (0b010),
-        STATUS_OUT     (0b011),
-        LOGIN_IN       (0b100),
-        LOGIN_OUT      (0b101),
-        PLAY_IN        (0b110),
-        PLAY_OUT       (0b111);
+        STATUS_IN(0b010),
+        STATUS_OUT(0b011),
+        LOGIN_IN(0b100),
+        LOGIN_OUT(0b101),
+        PLAY_IN(0b110),
+        PLAY_OUT(0b111);
 
         public static final int OFFSET = 12;
 
         @Getter
         private final int mask;
 
-        PacketState(int mask) {
+        PacketState(final int mask) {
             this.mask = mask << OFFSET;
         }
 
@@ -81,9 +98,9 @@ public interface Packet extends Cloneable {
          * @param mask mask of the packet state
          * @return packet state with given mask
          */
-        public static @Nullable PacketState fromMask(@Range(from = 0, to = 0b111) int mask) {
-            for(PacketState state : values()) {
-                if(state.mask == mask) return state;
+        public static @Nullable PacketState fromMask(final @Range(from = 0, to = 0b111) int mask) {
+            for (final PacketState state : values()) {
+                if (state.mask == mask) return state;
             }
             return null;
         }

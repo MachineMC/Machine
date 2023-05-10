@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.chat;
 
 import lombok.Getter;
@@ -35,8 +49,8 @@ public class MessengerImpl implements Messenger {
 
     // TODO Player Message impl once it's done
     @Override
-    public boolean sendMessage(Player player, Component message, MessageType messageType) {
-        if(Messenger.accepts(player, messageType)) {
+    public boolean sendMessage(final Player player, final Component message, final MessageType messageType) {
+        if (Messenger.accepts(player, messageType)) {
             player.sendPacket(new PacketPlayOutSystemChatMessage(message, false));
             return true;
         }
@@ -44,7 +58,7 @@ public class MessengerImpl implements Messenger {
     }
 
     @Override
-    public void sendRejectionMessage(Player player) {
+    public void sendRejectionMessage(final Player player) {
         player.sendPacket(new PacketPlayOutSystemChatMessage(cannotSendMessage, false));
     }
 

@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.network.packets.out.play;
 
 import com.google.common.base.Preconditions;
@@ -30,7 +44,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
                 PacketPlayOutUpdateScore::new);
     }
 
-    public PacketPlayOutUpdateScore(ServerBuffer buf) {
+    public PacketPlayOutUpdateScore(final ServerBuffer buf) {
         entityName = buf.readString(StandardCharsets.UTF_8);
         action = Action.fromID(buf.readByte());
         objectiveName = buf.readString(StandardCharsets.UTF_8);
@@ -50,7 +64,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        FriendlyByteBuf buf = new FriendlyByteBuf()
+        final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(entityName, StandardCharsets.UTF_8)
                 .writeVarInt(action.getId())
                 .writeString(objectiveName, StandardCharsets.UTF_8);
@@ -74,7 +88,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
             return ordinal();
         }
 
-        public static Action fromID(@Range(from = 0, to = 1) int id) {
+        public static Action fromID(final @Range(from = 0, to = 1) int id) {
             Preconditions.checkArgument(id < values().length, "Unsupported Action type");
             return values()[id];
         }

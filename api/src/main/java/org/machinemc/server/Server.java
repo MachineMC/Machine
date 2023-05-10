@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server;
 
 import com.google.gson.Gson;
@@ -11,14 +25,12 @@ import org.machinemc.api.entities.Player;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.file.PlayerDataContainer;
 import org.machinemc.api.file.ServerProperties;
-import org.machinemc.api.inventory.Item;
 import org.machinemc.api.logging.Console;
 import org.machinemc.api.network.ServerConnection;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.api.world.Material;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldManager;
 import org.machinemc.api.world.biomes.Biome;
@@ -26,8 +38,6 @@ import org.machinemc.api.world.biomes.BiomeManager;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
-import org.machinemc.api.world.particles.Particle;
-import org.machinemc.api.world.particles.ParticleType;
 import org.jetbrains.annotations.*;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 
@@ -47,47 +57,9 @@ public interface Server {
      * @throws UnsupportedOperationException if the creator hasn't been initialized
      */
     static ServerBuffer createServerBuffer() {
-        if(Factories.BUFFER_FACTORY == null)
+        if (Factories.bufferFactory == null)
             throw new UnsupportedOperationException();
-        return Factories.BUFFER_FACTORY.create();
-    }
-
-    /**
-     * Creates new instance of the classic item implementation.
-     * @param material material of the item
-     * @param amount amount of the item
-     * @return new item
-     * @throws UnsupportedOperationException if the creator hasn't been initialized
-     * @throws IllegalStateException if the material can't have item form
-     */
-    static Item createItem(Material material, byte amount) {
-        if(Factories.ITEM_FACTORY == null)
-            throw new UnsupportedOperationException();
-        return Factories.ITEM_FACTORY.create(material, amount);
-    }
-
-    /**
-     * Creates new instance of the classic item implementation with the amount
-     * of 1.
-     * @param material material of the item
-     * @return new item
-     * @throws UnsupportedOperationException if the creator hasn't been initialized
-     * @throws IllegalStateException if the material can't have item form
-     */
-    static Item createItem(Material material) {
-        return createItem(material, (byte) 1);
-    }
-
-    /**
-     * Creates new instance of the classic particle implementation.
-     * @param type type of the particle
-     * @return new particle
-     * @throws UnsupportedOperationException if the creator hasn't been initialized
-     */
-    static Particle createParticle(ParticleType type) {
-        if(Factories.PARTICLE_FACTORY == null)
-            throw new UnsupportedOperationException();
-        return Factories.PARTICLE_FACTORY.create(type);
+        return Factories.bufferFactory.create();
     }
 
     /**
@@ -211,7 +183,7 @@ public interface Server {
     void shutdown();
 
     /**
-     * Sends a message using server's console
+     * Sends a message using server's console.
      * @param level logging level of the message
      * @param messages message to send
      */

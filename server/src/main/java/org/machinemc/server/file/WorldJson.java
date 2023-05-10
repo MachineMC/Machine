@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.file;
 
 import com.google.gson.JsonObject;
@@ -23,7 +37,7 @@ import java.io.*;
 @Getter
 public class WorldJson implements ServerFile, ServerProperty {
 
-    public final static String WORLD_FILE_NAME = "world.json";
+    public static final String WORLD_FILE_NAME = "world.json";
 
     private final Machine server;
 
@@ -35,29 +49,31 @@ public class WorldJson implements ServerFile, ServerProperty {
 
     private final File folder;
 
-    public WorldJson(Machine server, File file) throws IOException {
+    public WorldJson(final Machine server, final File file) throws IOException {
         this.server = server;
         folder = file.getParentFile();
         final JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
+        final JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
 
-        NamespacedKey name;
+        final NamespacedKey name;
         try {
             name = NamespacedKey.parse(json.get("name").getAsString());
         } catch (Exception ignored) {
-            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal name identifier and can't be registered");
+            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal "
+                    + "name identifier and can't be registered");
         }
         this.name = name;
 
-        NamespacedKey dimensionKey;
+        final NamespacedKey dimensionKey;
         try {
             dimensionKey = NamespacedKey.parse(json.get("dimension").getAsString());
         } catch (Exception ignored) {
-            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal dimension identifier and can't be registered");
+            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses "
+                    + "illegal dimension identifier and can't be registered");
         }
 
-        DimensionType dimensionType = server.getDimensionTypeManager().getDimension(dimensionKey);
-        if(dimensionType == null)
+        final DimensionType dimensionType = server.getDimensionTypeManager().getDimension(dimensionKey);
+        if (dimensionType == null)
             throw new IllegalStateException("World '" + this.name + "' uses non existing dimension");
         this.dimensionType = dimensionType;
 
@@ -65,7 +81,8 @@ public class WorldJson implements ServerFile, ServerProperty {
         try {
             seedValue = json.get("seed").getAsNumber().longValue();
         } catch (Exception exception) {
-            getServer().getConsole().severe("World '" + this.name + "' has not valid defined seed, defaulting to '1' instead");
+            getServer().getConsole().severe("World '" + this.name + "' has not valid "
+                    + "defined seed, defaulting to '1' instead");
         }
         seed = seedValue;
 
@@ -109,7 +126,7 @@ public class WorldJson implements ServerFile, ServerProperty {
      * @return newly created and registered world
      */
     public World buildWorld() {
-        AbstractWorld world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
+        final AbstractWorld world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
         world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
         world.setDifficulty(server.getProperties().getDefaultDifficulty());
         return world;

@@ -20,16 +20,9 @@ dependencies {
 
     implementation(project(":api"))
 
-    sequenceOf(
-        "machine-materials",
-        "machine-blockdata",
-    ).forEach {
-        implementation(files("libs/$it.jar"))
-    }
-
     implementation(libs.google.guava)
     implementation(libs.google.gson)
-    implementation(libs.netty.buffer)
+    implementation(libs.netty.all)
     implementation(libs.jna)
     implementation(libs.jline)
     implementation(libs.mojang.brigadier)
@@ -43,12 +36,14 @@ application {
 }
 
 tasks {
-    jar {
-        manifest {
-            attributes["Main-Class"] = application.mainClass
-        }
+    distTar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
-    buildAll {
+    distZip {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+    jar {
+        dependsOn(checkstyleMain)
         manifest {
             attributes["Main-Class"] = application.mainClass
         }

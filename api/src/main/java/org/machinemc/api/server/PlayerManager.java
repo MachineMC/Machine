@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.api.server;
 
 import org.machinemc.api.entities.Player;
@@ -29,9 +43,9 @@ public interface PlayerManager extends ServerProperty {
      * Removes the player with given uuid from the manager.
      * @param uuid uuid of the player
      */
-    default void removePlayer(UUID uuid) {
+    default void removePlayer(final UUID uuid) {
         final Player player = getPlayer(uuid);
-        if(player == null) return;
+        if (player == null) return;
         removePlayer(player);
     }
 
@@ -39,9 +53,9 @@ public interface PlayerManager extends ServerProperty {
      * Removes the player with given name from the manager.
      * @param name name of the player
      */
-    default void removePlayer(String name) {
+    default void removePlayer(final String name) {
         final Player player = getPlayer(name);
-        if(player == null) return;
+        if (player == null) return;
         removePlayer(player);
     }
 

@@ -1,10 +1,22 @@
-package org.machinemc.server.inventory;
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
+package org.machinemc.api.inventory;
 
 import lombok.Data;
 import lombok.Synchronized;
-import org.machinemc.api.inventory.Item;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.Material;
 
@@ -14,17 +26,17 @@ import org.machinemc.api.world.Material;
 @Data
 public class ItemStack implements Item {
 
-    private final static Material[] REGISTRY;
+    private static final Material[] REGISTRY;
 
     private Material material;
     private byte amount = 1;
     private NBTCompound nbtCompound = new NBTCompound();
 
     static {
-        Material[] materials = Material.values();
+        final Material[] materials = Material.values();
         REGISTRY = new Material[materials.length];
-        for (Material value : materials) {
-            if(value.getId() >= 0) REGISTRY[value.getId()] = value;
+        for (final Material value : materials) {
+            if (value.getId() >= 0) REGISTRY[value.getId()] = value;
         }
     }
 
@@ -34,9 +46,9 @@ public class ItemStack implements Item {
      * @return material with the id
      */
     @Synchronized
-    public static @Nullable Material getMaterial(int id) {
-        if(id == -1) return null;
-        if(REGISTRY.length <= id) return null;
+    public static @Nullable Material getMaterial(final int id) {
+        if (id == -1) return null;
+        if (REGISTRY.length <= id) return null;
         return REGISTRY[id];
     }
 
@@ -45,37 +57,37 @@ public class ItemStack implements Item {
      * @param material material to get id from
      * @return id of the material
      */
-    public static int getId(Material material) {
+    public static int getId(final Material material) {
         return material.getId();
     }
 
-    public ItemStack(Material material) {
-        if(material.getId() == -1)
+    public ItemStack(final Material material) {
+        if (material.getId() == -1)
             throw new IllegalStateException("Material " + material + " can't have item form");
         this.material = material;
     }
 
-    public ItemStack(Material material, byte amount) {
+    public ItemStack(final Material material, final byte amount) {
         this(material);
         this.amount = amount;
     }
 
     @Override
-    public ItemStack withMaterial(Material material) {
+    public ItemStack withMaterial(final Material material) {
         final ItemStack itemStack = clone();
         itemStack.setMaterial(material);
         return itemStack;
     }
 
     @Override
-    public ItemStack withAmount(byte amount) {
+    public ItemStack withAmount(final byte amount) {
         final ItemStack itemStack = clone();
         itemStack.setAmount(amount);
         return itemStack;
     }
 
     @Override
-    public ItemStack withNbtCompound(NBTCompound compound) {
+    public ItemStack withNbtCompound(final NBTCompound compound) {
         final ItemStack itemStack = clone();
         itemStack.setNbtCompound(compound);
         return itemStack;
@@ -87,12 +99,12 @@ public class ItemStack implements Item {
     }
 
     @Override
-    public void setType(Material material) {
+    public void setType(final Material material) {
         this.material = material;
     }
 
     @Override
-    public ItemStack withType(Material type) {
+    public ItemStack withType(final Material type) {
         final ItemStack itemStack = clone();
         itemStack.setMaterial(type);
         return itemStack;
@@ -104,31 +116,28 @@ public class ItemStack implements Item {
     }
 
     @Override
-    public void add(byte amount) {
+    public void add(final byte amount) {
         this.amount += amount;
     }
 
     @Override
-    public void subtract(byte amount) {
+    public void subtract(final byte amount) {
         this.amount -= amount;
     }
 
     @Override
     public ItemStack single() {
-        ItemStack single = clone();
+        final ItemStack single = clone();
         single.amount = 1;
         return single;
     }
 
     @Override
     public ItemStack clone() {
-        try {
-            ItemStack itemStack = (ItemStack) super.clone();
-            itemStack.setNbtCompound(new FriendlyByteBuf().writeNBT(nbtCompound).readNBT());
-            return itemStack;
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
+        final ItemStack clone = new ItemStack(material);
+        clone.setAmount(amount);
+        clone.setNbtCompound(nbtCompound.clone());
+        return clone;
     }
 
     @Override
