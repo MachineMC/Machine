@@ -1,3 +1,17 @@
+/*
+ * This file is part of Machine.
+ *
+ * Machine is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Machine.
+ * If not, see https://www.gnu.org/licenses/.
+ */
 package org.machinemc.server.logging;
 
 import org.machinemc.api.server.schedule.Scheduler;
@@ -14,7 +28,7 @@ public class SimpleConsole extends BaseConsole {
     private final PrintStream out;
     private final InputStream in;
 
-    public SimpleConsole(Machine server, boolean colors, PrintStream out, InputStream in) {
+    public SimpleConsole(final Machine server, final boolean colors, final PrintStream out, final InputStream in) {
         super(server, colors);
         this.out = out;
         this.in = in;
@@ -23,9 +37,9 @@ public class SimpleConsole extends BaseConsole {
     @Override
     public void start() {
         super.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         Scheduler.task((i, session) -> {
-            while(isRunning()) {
+            while (isRunning()) {
                 try {
                     final String command = reader.readLine();
                     execute(command);
@@ -36,7 +50,7 @@ public class SimpleConsole extends BaseConsole {
     }
 
     @Override
-    public void log(Level level, String... messages) {
+    public void log(final Level level, final String... messages) {
         log(out::println, level, messages);
     }
 

@@ -23,7 +23,6 @@ import org.jline.terminal.TerminalBuilder;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.server.Machine;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.logging.Level;
@@ -34,7 +33,7 @@ import java.util.logging.Level;
  */
 public class ServerConsole extends BaseConsole {
 
-    private final Terminal terminal;
+    private Terminal terminal;
     private volatile @Nullable LineReader reader;
 
     @Getter
@@ -47,13 +46,28 @@ public class ServerConsole extends BaseConsole {
     public static final String RESET = "\033[0m";
     public static final String EMPTY = "";
 
+    private final boolean dumb;
+
     public ServerConsole(final Machine server, final boolean colors) {
         super(server, colors);
+
         try {
-            terminal = TerminalBuilder.terminal();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            if (System.console() != null) {
+                terminal = TerminalBuilder.terminal();
+                dumb = false;
+            } else {
+                terminal = TerminalBuilder.builder()
+                        .dumb(true)
+                        .system(false)
+                        .streams(System.in, System.out)
+                        .build();
+                dumb = true;
+                warning("Failed to create classic terminal, created dumb terminal instead");
+            }
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
         }
+
         completer = new ConsoleCompleter(server, this);
         highlighter = new ConsoleHighlighter(server, this);
         history = new DefaultHistory();
@@ -63,7 +77,7 @@ public class ServerConsole extends BaseConsole {
     public void log(final Level level, final String... messages) {
         final LineReader reader = this.reader;
         log(message -> {
-            if(reader != null && isRunning()) {
+            if (reader != null && isRunning()) {
                 reader.printAbove(message);
             } else
                 terminal.writer().println(message);
@@ -73,12 +87,15 @@ public class ServerConsole extends BaseConsole {
     @Override
     public void start() {
         super.start();
-        reader = LineReaderBuilder.builder()
-                .completer(completer)
-                .highlighter(highlighter)
-                .history(history)
-                .terminal(terminal)
-                .build();
+        final LineReaderBuilder builder = LineReaderBuilder.builder()
+                .terminal(terminal);
+        if (!dumb) {
+            builder.completer(completer)
+                    .highlighter(highlighter)
+                    .history(history)
+                    .terminal(terminal);
+        }
+        reader = builder.build();
         final LineReader reader = this.reader;
         if (reader == null) return;
         Scheduler.task((i, session) -> {

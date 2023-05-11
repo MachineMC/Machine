@@ -1,6 +1,5 @@
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    application
     alias(libs.plugins.jetbrains.kotlin.jvm)
     id("machine.java-conventions-library")
     id("machine.generator-library")
@@ -31,21 +30,8 @@ dependencies {
     implementation(libs.machine.scriptive)
 }
 
-application {
-    mainClass.set("org.machinemc.server.Machine")
-}
-
 tasks {
-    distTar {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
-    distZip {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
     jar {
         dependsOn(checkstyleMain)
-        manifest {
-            attributes["Main-Class"] = application.mainClass
-        }
     }
 }

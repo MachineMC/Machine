@@ -63,26 +63,29 @@ public final class ClassUtils {
      * @throws IOException if jar is invalid
      */
     public static List<String> getClasses(final String basePackage) throws IOException {
-        if (FileUtils.getMachineJar().getName().endsWith(".jar"))
+        if (FileUtils.getSourceLocation().getName().endsWith(".jar"))
             return getJarClasses(basePackage);
         return getDirClasses(basePackage);
     }
 
     private static List<String> getJarClasses(final String basePackage) throws IOException {
-        @Cleanup JarFile jar = new JarFile(FileUtils.getMachineJar());
+        final @Cleanup JarFile jar = new JarFile(FileUtils.getSourceLocation());
         final String packagePath = basePackage.replace('.', '/') + "/";
-        List<String> classNames = new ArrayList<>();
-        for (Iterator<JarEntry> entries = jar.entries().asIterator(); entries.hasNext(); ) {
-            JarEntry entry = entries.next();
+        final List<String> classNames = new ArrayList<>();
+        for (final Iterator<JarEntry> entries = jar.entries().asIterator(); entries.hasNext();) {
+            final JarEntry entry = entries.next();
             if (entry.getName().startsWith(packagePath) && entry.getName().endsWith(".class"))
-                classNames.add(entry.getName().replace('/', '.').substring(0, entry.getName().length() - ".class".length()));
+                classNames.add(entry.getName()
+                        .replace('/', '.')
+                        .substring(0, entry.getName().length() - ".class".length())
+                );
         }
         return classNames;
     }
 
     private static List<String> getDirClasses(final String basePackage) {
         final List<String> classNames = new ArrayList<>();
-        final File parentDirectory = new File(FileUtils.getMachineJar(), basePackage.replace('.', '/'));
+        final File parentDirectory = new File(FileUtils.getSourceLocation(), basePackage.replace('.', '/'));
         final String[] children = parentDirectory.list();
         if (children == null)
             return Collections.emptyList();
