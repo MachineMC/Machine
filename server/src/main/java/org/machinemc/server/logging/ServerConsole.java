@@ -33,7 +33,7 @@ import java.util.logging.Level;
  */
 public class ServerConsole extends BaseConsole {
 
-    private Terminal terminal;
+    private final Terminal terminal;
     private volatile @Nullable LineReader reader;
 
     @Getter
@@ -43,7 +43,6 @@ public class ServerConsole extends BaseConsole {
     @Getter
     private final History history;
 
-    public static final String RESET = "\033[0m";
     public static final String EMPTY = "";
 
     private final boolean dumb;

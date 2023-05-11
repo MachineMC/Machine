@@ -35,8 +35,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import static org.machinemc.scriptive.util.ChatUtils.asciiColor;
-
 public abstract class BaseConsole implements Console {
 
     @Getter
@@ -135,7 +133,7 @@ public abstract class BaseConsole implements Console {
                     ? "[" + date + "] "
                     + prefix
                     + ChatUtils.consoleFormatted(message)
-                    + ServerConsole.RESET
+                    + ChatColor.RESET.getConsoleFormat()
                     : "[" + date + "] " + prefix + message;
             logger.log(formatted);
         }
@@ -150,19 +148,19 @@ public abstract class BaseConsole implements Console {
     protected String getPrefix(final Level level) {
         return switch (level.intValue()) {
             case 700 -> (colors && configColor != null
-                    ? asciiColor(configColor)
+                    ? configColor.getConsoleFormat()
                     : ServerConsole.EMPTY
             ) + configPrefix + ": "; // Config value
             case 800 -> (colors && infoColor != null
-                    ? asciiColor(infoColor)
+                    ? infoColor.getConsoleFormat()
                     : ServerConsole.EMPTY
             ) + infoPrefix + ": "; // Info value
             case 900 -> (colors && warningColor != null
-                    ? asciiColor(warningColor)
+                    ? warningColor.getConsoleFormat()
                     : ServerConsole.EMPTY
             ) + warningPrefix + ": "; // Warning value
             case 1000 -> (colors && severeColor != null
-                    ? asciiColor(severeColor)
+                    ? severeColor.getConsoleFormat()
                     : ServerConsole.EMPTY
             ) + severePrefix + ": "; // Severe value
             default -> "";
