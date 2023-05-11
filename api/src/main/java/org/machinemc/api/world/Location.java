@@ -22,7 +22,6 @@ import org.jetbrains.annotations.Contract;
 /**
  * Represents the location in the world.
  */
-@ToString
 @EqualsAndHashCode(callSuper = true)
 public final class Location extends EntityPosition implements Cloneable, Writable {
 
@@ -159,6 +158,19 @@ public final class Location extends EntityPosition implements Cloneable, Writabl
     @Override
     public Location clone() {
         return new Location(getX(), getY(), getZ(), getYaw(), getPitch(), world);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Location(");
+        sb.append("x=").append(getX()).append(", ");
+        sb.append("y=").append(getY()).append(", ");
+        sb.append("z=").append(getZ()).append(", ");
+        sb.append("yaw=").append(getYaw()).append(", ");
+        sb.append("pitch=").append(getPitch()).append(", ");
+        sb.append("world=").append(world);
+        sb.append(')');
+        return sb.toString();
     }
 
 }

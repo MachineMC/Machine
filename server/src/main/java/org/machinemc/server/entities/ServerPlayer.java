@@ -76,11 +76,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     @Getter
     private Component playerListName;
 
-    @Getter
     private int teleportId = 0;
-    @Getter @Setter
     private boolean teleporting = false;
-    @Getter @Setter
     private Location teleportLocation;
 
     private ServerPlayer(final Machine server, final PlayerProfile profile, final ClientConnection connection) {
@@ -353,65 +350,30 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         sendPacket(new PacketPlayOutSynchronizePlayerPosition(location, flags, teleportId, dismountVehicle));
     }
 
+
     /**
-     * Handles the movement of the player.
-     * @param position new position
-     * @param onGround if the player is on ground
+     * Handles the teleport confirmation of the player.
+     * @param teleportId id of teleport
+     * @return whether the teleport was successful
      */
+    public boolean handleTeleportConfirm(final int teleportId) {
+        if (!teleporting || this.teleportId != teleportId) {
+            teleporting = false;
+            connection.disconnect(TranslationComponent.of("multidisconnect.invalid_player_movement"));
+            return false;
+        }
+        teleporting = false;
+        setLocation(teleportLocation, true);
+        teleportLocation = null;
+        return true;
+    }
+
+    @Override
     public void handleMovement(final EntityPosition position, final boolean onGround) {
         if (teleporting)
             return;
 
-        handleOnGround(onGround);
-        final Location currentLocation = getLocation();
-
-        final double deltaX = Math.abs(position.getX() - currentLocation.getX());
-        final double deltaY = Math.abs(position.getY() - currentLocation.getY());
-        final double deltaZ = Math.abs(position.getZ() - currentLocation.getZ());
-        final float deltaYaw = Math.abs(position.getYaw() - currentLocation.getYaw());
-        final float deltaPitch = Math.abs(position.getPitch() - currentLocation.getPitch());
-
-        final boolean positionChange = (deltaX + deltaY + deltaZ) > 0;
-        final boolean rotationChange = (deltaYaw + deltaPitch) > 0;
-        if (!(positionChange || rotationChange))
-            return;
-
-        if (positionChange) {
-            if (deltaX > 8 || deltaY > 8 || deltaZ > 8)
-                getServer().getConnection().broadcastPacket(
-                        new PacketPlayOutTeleportEntity(getEntityId(), position, onGround),
-                        clientConnection -> clientConnection != getConnection());
-            if (rotationChange)
-                getServer().getConnection().broadcastPacket(
-                        new PacketPlayOutEntityPositionAndRotation(getEntityId(), currentLocation, position, onGround),
-                        clientConnection -> clientConnection != getConnection());
-            else
-                getServer().getConnection().broadcastPacket(
-                        new PacketPlayOutEntityPosition(getEntityId(), currentLocation, position, onGround),
-                        clientConnection -> clientConnection != getConnection());
-
-        } else {
-            getServer().getConnection().broadcastPacket(
-                    new PacketPlayOutEntityRotation(getEntityId(), position, onGround),
-                    clientConnection -> clientConnection != getConnection());
-        }
-
-        if (rotationChange) {
-            getServer().getConnection().broadcastPacket(
-                    new PacketPlayOutHeadRotation(getEntityId(), position.getYaw()),
-                    clientConnection -> clientConnection != getConnection()
-            );
-        }
-
-        setLocation(Location.of(position, getWorld()));
-    }
-
-    /**
-     * Changes the on ground state of the player.
-     * @param onGround if the player is on ground
-     */
-    public void handleOnGround(final boolean onGround) {
-        setOnGround(onGround);
+        super.handleMovement(position, onGround);
     }
 
     @Override

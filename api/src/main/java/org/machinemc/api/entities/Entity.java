@@ -126,11 +126,6 @@ public interface Entity extends ServerProperty, NBTSerializable, Nameable {
     Location getLocation();
 
     /**
-     * @param location new location
-     */
-    void setLocation(Location location);
-
-    /**
      * @return previous location of the entity
      */
     Location getPreviousLocation();
