@@ -17,10 +17,9 @@ package org.machinemc.server.utils;
 import lombok.Cleanup;
 import org.machinemc.server.Machine;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -64,14 +63,38 @@ public final class ClassUtils {
      * @throws IOException if jar is invalid
      */
     public static List<String> getClasses(final String basePackage) throws IOException {
-        final @Cleanup JarFile jar = new JarFile(FileUtils.getMachineJar());
+        if (FileUtils.getSourceLocation().getName().endsWith(".jar"))
+            return getJarClasses(basePackage);
+        return getDirClasses(basePackage);
+    }
+
+    private static List<String> getJarClasses(final String basePackage) throws IOException {
+        final @Cleanup JarFile jar = new JarFile(FileUtils.getSourceLocation());
         final String packagePath = basePackage.replace('.', '/') + "/";
         final List<String> classNames = new ArrayList<>();
-        for (Iterator<JarEntry> entries = jar.entries().asIterator(); entries.hasNext();) {
+        for (final Iterator<JarEntry> entries = jar.entries().asIterator(); entries.hasNext();) {
             final JarEntry entry = entries.next();
             if (entry.getName().startsWith(packagePath) && entry.getName().endsWith(".class"))
-                classNames.add(entry.getName().replace('/', '.')
-                        .substring(0, entry.getName().length() - ".class".length()));
+                classNames.add(entry.getName()
+                        .replace('/', '.')
+                        .substring(0, entry.getName().length() - ".class".length())
+                );
+        }
+        return classNames;
+    }
+
+    private static List<String> getDirClasses(final String basePackage) {
+        final List<String> classNames = new ArrayList<>();
+        final File parentDirectory = new File(FileUtils.getSourceLocation(), basePackage.replace('.', '/'));
+        final String[] children = parentDirectory.list();
+        if (children == null)
+            return Collections.emptyList();
+        for (final String child : children) {
+            if (child.endsWith(".class")) {
+                classNames.add(basePackage + '.' + child.substring(0, child.length() - ".class".length()));
+            } else {
+                classNames.addAll(getDirClasses(basePackage + '.' + child));
+            }
         }
         return classNames;
     }

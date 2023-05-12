@@ -29,7 +29,7 @@ import java.util.UUID;
  */
 public final class FileUtils {
 
-    private static File machineJar;
+    private static File sourceLocation;
 
     static {
         final URL location = Machine.class
@@ -37,9 +37,9 @@ public final class FileUtils {
                 .getCodeSource()
                 .getLocation();
         try {
-            machineJar = new File(location.toURI());
+            sourceLocation = new File(location.toURI());
         } catch (URISyntaxException exception) {
-            machineJar = new File(location.getFile());
+            sourceLocation = new File(location.getFile());
         }
     }
 
@@ -81,10 +81,10 @@ public final class FileUtils {
     }
 
     /**
-     * @return jar file of the server
+     * @return location of loaded class files
      */
-    public static File getMachineJar() {
-        return machineJar;
+    public static File getSourceLocation() {
+        return sourceLocation;
     }
 
     /**
