@@ -15,7 +15,7 @@ junit = "5.9.1"
 # Machine libraries
 machine-nbt = "1.1.0"
 machine-landscape = "1.0.3"
-machine-scriptive = "1.0.1"
+machine-scriptive = "1.1"
 
 # Plugins
 cadixdev-licenser = "0.6.1"

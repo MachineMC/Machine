@@ -15,14 +15,12 @@
 package org.machinemc.api.logging;
 
 import org.jetbrains.annotations.Async;
-import org.jetbrains.annotations.Nullable;
-import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.server.ServerProperty;
-import org.machinemc.scriptive.components.Component;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -113,13 +111,13 @@ public interface Console extends ServerProperty, CommandExecutor {
     void stop();
 
     /**
-     * Sends a message to the console.
-     * @param source source uuid
-     * @param message message to send
-     * @param type type of the message
+     * @return input stream of the console
      */
-    default void sendMessage(final @Nullable UUID source, final Component message, final MessageType type) {
-        info(message.toLegacyString());
-    }
+    InputStream getInputStream();
+
+    /**
+     * @return output stream of the console
+     */
+    OutputStream getOutputStream();
 
 }

@@ -14,6 +14,8 @@
  */
 package org.machinemc.server.logging;
 
+import org.machinemc.api.logging.Console;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -23,13 +25,13 @@ public class FormattedOutputStream extends FilterOutputStream {
 
     private static final byte[] LINE_SEPARATOR = System.lineSeparator().getBytes();
 
-    private final ServerConsole console;
+    private final Console console;
     private final Level level;
     private final String linePrefix;
     private EolTrackerByteArrayOutputStream buf = new EolTrackerByteArrayOutputStream();
 
-    public FormattedOutputStream(final ServerConsole console, final Level level, final String linePrefix) {
-        super(console.terminal.output());
+    public FormattedOutputStream(final Console console, final Level level, final String linePrefix) {
+        super(console.getOutputStream());
         this.level = level;
         this.console = console;
         this.linePrefix = linePrefix;

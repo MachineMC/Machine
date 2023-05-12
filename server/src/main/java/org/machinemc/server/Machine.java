@@ -39,6 +39,7 @@ import org.machinemc.server.file.*;
 import org.machinemc.server.logging.FormattedOutputStream;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.server.network.NettyServer;
+import org.machinemc.server.logging.SimpleConsole;
 import org.machinemc.server.translation.TranslatorDispatcher;
 import org.machinemc.server.exception.ExceptionHandlerImpl;
 import org.machinemc.server.logging.ServerConsole;
@@ -62,11 +63,10 @@ import org.machinemc.server.utils.FileUtils;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.server.utils.NetworkUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -82,7 +82,7 @@ public final class Machine implements Server {
     public static final String API_PACKAGE = "org.machinemc.api";
     public static final String SERVER_PACKAGE = "org.machinemc.server";
 
-    public static final Path DIRECTORY = FileUtils.getMachineJar().getParentFile().toPath();
+    public static final Path DIRECTORY = Paths.get("");
 
     @Getter
     private boolean running;
@@ -146,7 +146,6 @@ public final class Machine implements Server {
      * @param args java arguments
      */
     public static void main(final String[] args) throws Exception {
-        if (System.console() == null) return;
         new Machine(args);
     }
 
@@ -156,19 +155,23 @@ public final class Machine implements Server {
         final long start = System.currentTimeMillis();
 
         final boolean colors = !arguments.contains("nocolors");
+        final boolean simpleConsole = arguments.contains("simpleconsole");
+
         // TODO register other server related component types (NBTComponent, ScoreComponent, SelectorComponent)
         componentSerializer = new ComponentSerializerImpl();
 
         // Setting up console
         try {
-            console = new ServerConsole(this, colors);
+            console = simpleConsole
+                    ? new SimpleConsole(this, false, System.out, System.in)
+                    : new ServerConsole(this, colors);
             System.setOut(new PrintStream(new FormattedOutputStream(
-                    (ServerConsole) console,
+                    console,
                     Level.INFO,
                     "[stdout] "
             )));
             System.setErr(new PrintStream(new FormattedOutputStream(
-                    (ServerConsole) console,
+                    console,
                     Level.SEVERE,
                     "[stderr] "
             )));
@@ -281,8 +284,8 @@ public final class Machine implements Server {
         try {
             for (final Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
                 if (!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;
-                if (path.getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
-                if (!path.getParent().getParent().toString().equals(FileUtils.getMachineJar().getParent())) continue;
+                if (path.getParent() == null) continue;
+                if (path.getParent().getParent() != null) continue;
                 try {
                     final WorldJson worldJson = new WorldJson(this, path.toFile());
                     if (worldManager.isRegistered(worldJson.getWorldName())) {
