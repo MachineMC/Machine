@@ -343,7 +343,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         final float yaw = location.getYaw() - (flags.contains(TeleportFlags.YAW) ? getLocation().getYaw() : 0f);
         final float pitch = location.getPitch() - (flags.contains(TeleportFlags.PITCH) ? getLocation().getPitch() : 0f);
 
-        teleportLocation = new Location(x, y, z, yaw, pitch, null);
+        teleportLocation = new Location(x, y, z, yaw, pitch, getWorld());
         if (++teleportId == Integer.MAX_VALUE)
             teleportId = 0;
 

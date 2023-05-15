@@ -156,11 +156,6 @@ public interface Entity extends ServerProperty, NBTSerializable, Nameable {
     boolean isOnGround();
 
     /**
-     * @param onGround new on ground
-     */
-    void setOnGround(boolean onGround);
-
-    /**
      * @return if the entity is invulnerable
      */
     boolean isInvulnerable();

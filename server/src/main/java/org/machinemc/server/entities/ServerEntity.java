@@ -21,6 +21,8 @@ import org.machinemc.api.entities.Entity;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.network.PlayerConnection;
+import org.machinemc.api.network.ServerConnection;
+import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.NBTUtils;
 import org.machinemc.api.world.EntityPosition;
 import org.machinemc.api.world.Location;
@@ -72,7 +74,7 @@ public abstract class ServerEntity implements Entity {
     private float fallDistance;
     @Getter @Setter
     private short remainingFireTicks;
-    @Getter @Setter
+    @Getter
     private boolean onGround;
     @Getter @Setter
     private boolean invulnerable;
@@ -144,12 +146,18 @@ public abstract class ServerEntity implements Entity {
      * @param location new location
      * @param setPreviousLocation whether the previous location should be updated
      */
-    void setLocation(final Location location, final boolean setPreviousLocation) {
-        if (location.getWorld() == null)
-            location.setWorld(getWorld());
+    protected void setLocation(final Location location, final boolean setPreviousLocation) {
         if (setPreviousLocation)
-            this.previousLocation = this.location;
+            previousLocation = this.location;
         this.location = location;
+    }
+
+    /**
+     * Changes the on ground state of the entity.
+     * @param onGround if the entity is on ground
+     */
+    protected void setOnGround(final boolean onGround) {
+        this.onGround = onGround;
     }
 
     @Override
@@ -179,7 +187,6 @@ public abstract class ServerEntity implements Entity {
      * @param onGround if the entity is on ground
      */
     public void handleMovement(final EntityPosition position, final boolean onGround) {
-        handleOnGround(onGround);
 
         final Location currentLocation = getLocation();
 
@@ -189,50 +196,50 @@ public abstract class ServerEntity implements Entity {
         final float deltaYaw = Math.abs(position.getYaw() - currentLocation.getYaw());
         final float deltaPitch = Math.abs(position.getPitch() - currentLocation.getPitch());
 
-        final boolean positionChange = (deltaX + deltaY + deltaZ) > 0;
-        final boolean rotationChange = (deltaYaw + deltaPitch) > 0;
+        final boolean positionChange = deltaX + deltaY + deltaZ > 0;
+        final boolean rotationChange = deltaYaw + deltaPitch > 0;
+
         if (!(positionChange || rotationChange))
             return;
 
-        final PlayerConnection connection;
-        if (this instanceof Player player) {
-            connection = player.getConnection();
-        } else {
-            connection = null;
-        }
+        final PlayerConnection connection = this instanceof Player player
+                ? player.getConnection()
+                : null;
+        final ServerConnection serverConnection = getServer().getConnection();
 
-        if (positionChange) {
-            if (deltaX > 8 || deltaY > 8 || deltaZ > 8)
-                getServer().getConnection().broadcastPacket(
-                        new PacketPlayOutTeleportEntity(getEntityId(), position, onGround),
-                        clientConnection -> clientConnection != connection);
-            if (rotationChange)
-                getServer().getConnection().broadcastPacket(
-                    new PacketPlayOutEntityPositionAndRotation(getEntityId(), currentLocation, position, onGround),
-                    clientConnection -> clientConnection != connection);
-            else
-                getServer().getConnection().broadcastPacket(
-                        new PacketPlayOutEntityPosition(getEntityId(), currentLocation, position, onGround),
-                        clientConnection -> clientConnection != connection);
-
+        if (deltaX > 8 || deltaY > 8 || deltaZ > 8) {
+            final Packet teleportPacket = new PacketPlayOutTeleportEntity(getEntityId(), position, onGround);
+            serverConnection.broadcastPacket(teleportPacket, connected -> connected != connection);
         } else {
-            getServer().getConnection().broadcastPacket(
-                    new PacketPlayOutEntityRotation(getEntityId(), position, onGround),
-                    clientConnection -> clientConnection != connection);
+            final Packet positionPacket;
+            if (rotationChange) {
+                positionPacket = new PacketPlayOutEntityPositionAndRotation(
+                        getEntityId(),
+                        previousLocation,
+                        currentLocation,
+                        onGround);
+
+            } else {
+                positionPacket = new PacketPlayOutEntityPosition(
+                        getEntityId(),
+                        previousLocation,
+                        currentLocation,
+                        onGround);
+            }
+            serverConnection.broadcastPacket(positionPacket, connected -> connected != connection);
         }
 
         if (rotationChange) {
-            getServer().getConnection().broadcastPacket(
-                    new PacketPlayOutHeadRotation(getEntityId(), position.getYaw()),
-                    clientConnection -> clientConnection != connection
-            );
+            final Packet headRotationPacket = new PacketPlayOutHeadRotation(getEntityId(), position.getYaw());
+            serverConnection.broadcastPacket(headRotationPacket, connected -> connected != connection);
         }
 
+        handleOnGround(onGround);
         setLocation(Location.of(position, getWorld()), true);
     }
 
     /**
-     * Changes the on ground state of the entity.
+     * Handles the change of the on ground state of the entity.
      * @param onGround if the entity is on ground
      */
     public void handleOnGround(final boolean onGround) {
