@@ -17,6 +17,7 @@ package org.machinemc.server.chat;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.machinemc.api.chat.ChatType;
 import org.machinemc.api.chat.MessageType;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
@@ -30,6 +31,7 @@ import org.machinemc.server.network.packets.out.play.PacketPlayOutSystemChatMess
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Default implementation of server's messenger.
@@ -63,6 +65,16 @@ public class MessengerImpl implements Messenger {
     }
 
     @Override
+    public NBTCompound getChatTypeNBT(ChatType chatType) {
+        final NBTCompound nbtCompound = chatType.toNBT();
+        return new NBTCompound(Map.of(
+                "name", chatType.getName().toString(),
+                "id", chatType.getId(),
+                "element", nbtCompound
+        ));
+    }
+
+    @Override
     public String getCodecType() {
         return CODEC_TYPE;
     }
@@ -70,7 +82,7 @@ public class MessengerImpl implements Messenger {
     @Override
     public List<NBTCompound> getCodecElements() {
         return new ArrayList<>(Arrays.stream(ChatType.values())
-                .map(ChatType::toNBT)
+                .map(this::getChatTypeNBT)
                 .toList());
     }
 

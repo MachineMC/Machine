@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.chat;
+package org.machinemc.api.chat;
 
 import com.google.common.base.Preconditions;
 import lombok.AccessLevel;
@@ -33,7 +33,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import static org.machinemc.server.chat.ChatType.Element.DEFAULT_NARRATION_ELEMENT;
+import static org.machinemc.api.chat.ChatType.Element.DEFAULT_NARRATION_ELEMENT;
 
 /**
  * Different chat message types, used by Minecraft's chat system.
@@ -147,6 +147,14 @@ public enum ChatType implements NBTSerializable {
         return ordinal();
     }
 
+    @Override
+    public NBTCompound toNBT() {
+        return new NBTCompound(Map.of(
+                "chat", chatElement.toNBT(),
+                "narration", narrationElement.toNBT()
+        ));
+    }
+
     /**
      * Returns chat type with given id.
      * @param id id
@@ -155,19 +163,6 @@ public enum ChatType implements NBTSerializable {
     public static ChatType fromID(final @Range(from = 0, to = 7) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported Chat type");
         return values()[id];
-    }
-
-    @Override
-    public NBTCompound toNBT() {
-        final NBTCompound element = new NBTCompound(Map.of(
-                "chat", chatElement.toNBT(),
-                "narration", narrationElement.toNBT()
-        ));
-        return new NBTCompound(Map.of(
-                "name", name.toString(),
-                "id", ordinal(),
-                "element", element
-        ));
     }
 
     /**

@@ -41,8 +41,6 @@ public abstract class AbstractWorld implements World {
 
     private final Machine server;
 
-    protected final AtomicReference<WorldManager> managerReference = new AtomicReference<>();
-
     private final NamespacedKey name;
     private final UUID uuid;
     private final DimensionType dimensionType;

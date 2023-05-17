@@ -22,7 +22,7 @@ import org.machinemc.scriptive.components.Component;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.server.chat.ChatType;
+import org.machinemc.api.chat.ChatType;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 

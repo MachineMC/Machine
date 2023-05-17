@@ -17,6 +17,7 @@ package org.machinemc.api.chat;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.server.codec.CodecPart;
+import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
 
 public interface Messenger extends CodecPart, ServerProperty {
@@ -65,5 +66,7 @@ public interface Messenger extends CodecPart, ServerProperty {
      * @param player the player
      */
     void sendRejectionMessage(Player player);
+
+    NBTCompound getChatTypeNBT(ChatType chatType);
 
 }

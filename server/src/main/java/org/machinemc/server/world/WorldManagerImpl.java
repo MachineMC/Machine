@@ -37,21 +37,12 @@ public class WorldManagerImpl implements WorldManager {
 
     @Override
     public void addWorld(final World world) {
-        if (world.getManagerReference().get() != null && world.getManagerReference().get() != this)
-            throw new IllegalStateException("World '" + world.getName() + "' is already registered "
-                    + "in a different WorldManager");
-        world.getManagerReference().set(this);
         worlds.add(world);
     }
 
     @Override
     public boolean removeWorld(final World world) {
-        if (world.getManagerReference().get() != this) return false;
-        if (worlds.remove(world)) {
-            world.getManagerReference().set(null);
-            return true;
-        }
-        return false;
+        return worlds.remove(world);
     }
 
     @Override

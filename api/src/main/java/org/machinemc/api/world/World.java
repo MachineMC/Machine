@@ -14,6 +14,7 @@
  */
 package org.machinemc.api.world;
 
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.entities.Player;
@@ -24,14 +25,10 @@ import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.api.world.generation.Generator;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.machinemc.api.chunk.Chunk.CHUNK_SIZE_BITS;
 
@@ -39,19 +36,6 @@ import static org.machinemc.api.chunk.Chunk.CHUNK_SIZE_BITS;
  * Represents a world, which may contain entities, chunks and blocks.
  */
 public interface World extends ServerProperty {
-
-    /**
-     * @return atomic reference of the manager
-     */
-    @ApiStatus.Internal
-    AtomicReference<WorldManager> getManagerReference();
-
-    /**
-     * @return manager of the world
-     */
-    default @Nullable WorldManager getManager() {
-        return getManagerReference().get();
-    }
 
     /**
      * @return name of the world
