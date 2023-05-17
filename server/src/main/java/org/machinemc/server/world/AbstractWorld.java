@@ -29,7 +29,6 @@ import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.dimensions.DimensionType;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.machinemc.server.chunk.ChunkUtils.getSectionRelativeCoordinate;
 

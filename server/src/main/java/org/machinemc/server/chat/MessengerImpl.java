@@ -65,7 +65,7 @@ public class MessengerImpl implements Messenger {
     }
 
     @Override
-    public NBTCompound getChatTypeNBT(ChatType chatType) {
+    public NBTCompound getChatTypeNBT(final ChatType chatType) {
         final NBTCompound nbtCompound = chatType.toNBT();
         return new NBTCompound(Map.of(
                 "name", chatType.getName().toString(),

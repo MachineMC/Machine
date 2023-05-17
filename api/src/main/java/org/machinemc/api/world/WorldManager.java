@@ -54,7 +54,7 @@ public interface WorldManager extends ServerProperty {
      * @return if the world is registered in this manager
      */
     default boolean isRegistered(World world) {
-        return this.equals(world.getManager()) && isRegistered(world.getName());
+        return isRegistered(world.getName());
     }
 
     /**

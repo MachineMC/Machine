@@ -67,6 +67,11 @@ public interface Messenger extends CodecPart, ServerProperty {
      */
     void sendRejectionMessage(Player player);
 
+    /**
+     * Returns the NBT compound of the given chat type.
+     * @param chatType the chat type
+     * @return NBT of the given chat type
+     */
     NBTCompound getChatTypeNBT(ChatType chatType);
 
 }
