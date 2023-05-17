@@ -244,7 +244,7 @@ public final class Machine implements Server {
         }
         console.info("Registered " + dimensionTypeManager.getDimensions().size() + " dimension types");
 
-        messenger = new MessengerImpl(this);
+        messenger = MessengerImpl.createDefault(this);
 
         // Loading biomes json file
         biomeManager = new BiomeManagerImpl(this);

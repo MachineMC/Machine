@@ -14,13 +14,90 @@
  */
 package org.machinemc.api.chat;
 
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.server.codec.CodecPart;
+import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
 
+import java.util.Set;
+
 public interface Messenger extends CodecPart, ServerProperty {
+
+    /**
+     * Registers new chat type to the messenger if it's not registered already
+     * in a different one.
+     * @param chatType chat type to register
+     */
+    void addChatType(ChatType chatType);
+
+    /**
+     * Removed a chat type with given name if it's registered in this messenger.
+     * @param name name of the chat type
+     * @return if the chat type with given name was successfully removed
+     */
+    default boolean removeChatType(NamespacedKey name) {
+        final ChatType chatType = getChatType(name);
+        if (chatType == null)
+            return false;
+        return removeChatType(chatType);
+    }
+
+    /**
+     * Removes the chat type from the messenger if it's registered in this messenger.
+     * @param chatType chat type to remove
+     * @return if the chat type was successfully removed
+     */
+    boolean removeChatType(ChatType chatType);
+
+    /**
+     * Checks if chat type with given name is registered in
+     * the messenger.
+     * @param name name of the chat type
+     * @return if the chat type with given name is registered in this messenger
+     */
+    default boolean isRegistered(NamespacedKey name) {
+        final ChatType chatType = getChatType(name);
+        if (chatType == null)
+            return false;
+        return isRegistered(chatType);
+    }
+
+    /**
+     * Checks if the chat type is registered in this messenger.
+     * @param chatType chat type to check
+     * @return if the chat type is registered in this messenger
+     */
+    boolean isRegistered(ChatType chatType);
+
+    /**
+     * Returns chat type with the given name registered in this messenger.
+     * @param name name of the chat type
+     * @return chat type with given name in this messenger
+     */
+    @Nullable ChatType getChatType(NamespacedKey name);
+
+    /**
+     * Returns chat type with given id registered in this messenger.
+     * @param id id of the chat type
+     * @return chat type with given id in this messenger
+     */
+    @Nullable ChatType getById(int id);
+
+    /**
+     * Returns the id associated with the given chat type registered in this messenger.
+     * @param chatType the chat type
+     * @return the id of the chat type, or -1 if it's not registered
+     */
+    int getChatTypeId(ChatType chatType);
+
+    /**
+     * @return unmodifiable set of all dimensions registered in this messenger
+     */
+    @Unmodifiable Set<ChatType> getChatTypes();
 
     /**
      * Checks if player can receive a message.
