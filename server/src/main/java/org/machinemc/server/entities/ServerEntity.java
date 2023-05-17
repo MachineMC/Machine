@@ -124,7 +124,7 @@ public abstract class ServerEntity implements Entity {
 
     @Override
     public World getWorld() {
-        return location.getWorld();
+        return getLocation().getWorld();
     }
 
     @Override
@@ -166,7 +166,7 @@ public abstract class ServerEntity implements Entity {
             throw new IllegalStateException(this + " is already initiated");
         active = true;
         getServer().getEntityManager().addEntity(this);
-        getWorld().spawn(this, location);
+        getWorld().spawn(this);
     }
 
     @Override

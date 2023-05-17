@@ -243,8 +243,6 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
         // Gamemode
         sendGamemodeChange(gamemode);
-
-        getWorld().loadPlayer(this);
     }
 
     @Override
@@ -252,7 +250,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         if (connection.getState() != PlayerConnection.ClientState.DISCONNECTED)
             throw new IllegalStateException("You can't remove player from server until the connection is closed");
         super.remove();
-        getWorld().unloadPlayer(this);
+        getWorld().remove(this);
         getServer().getConnection().broadcastPacket(
                 new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this)
         );
