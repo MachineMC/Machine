@@ -18,11 +18,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.scriptive.components.Component;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.server.chat.ChatType;
+import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 
@@ -37,7 +36,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
 
     private Component signedMessage;
     private @Nullable Component unsignedMessage;
-    private ChatType chatType;
+    private int chatType;
     private UUID uuid;
     private Component displayName;
     private @Nullable Component teamName;
@@ -52,7 +51,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
         signedMessage = buf.readComponent();
         if (buf.readBoolean()) // has unsigned content
             unsignedMessage = buf.readComponent();
-        chatType = ChatType.fromID(buf.readVarInt());
+        chatType = buf.readVarInt();
         uuid = buf.readUUID();
         displayName = buf.readComponent();
         if (buf.readBoolean()) // has team
@@ -77,7 +76,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
                 .writeBoolean(unsignedMessage != null);
         if (unsignedMessage != null)
             buf.writeComponent(unsignedMessage);
-        buf.writeVarInt(chatType.getId())
+        buf.writeVarInt(chatType)
                 .writeUUID(uuid)
                 .writeComponent(displayName)
                 .writeBoolean(teamName != null);

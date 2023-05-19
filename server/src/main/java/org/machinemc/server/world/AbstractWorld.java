@@ -29,7 +29,6 @@ import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.dimensions.DimensionType;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.machinemc.server.chunk.ChunkUtils.getSectionRelativeCoordinate;
 
@@ -40,8 +39,6 @@ import static org.machinemc.server.chunk.ChunkUtils.getSectionRelativeCoordinate
 public abstract class AbstractWorld implements World {
 
     private final Machine server;
-
-    protected final AtomicReference<WorldManager> managerReference = new AtomicReference<>();
 
     private final NamespacedKey name;
     private final UUID uuid;
