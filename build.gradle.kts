@@ -18,10 +18,11 @@ repositories {
 dependencies {
     implementation(project(":api"))
     implementation(project(":server"))
+    implementation(project(":application"))
 }
 
 application {
-    mainClass.set("org.machinemc.server.Machine")
+    mainClass.set("org.machinemc.application.MachineApplication")
 }
 
 tasks {

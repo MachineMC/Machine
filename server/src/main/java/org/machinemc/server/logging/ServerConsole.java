@@ -91,12 +91,11 @@ public class ServerConsole extends BaseConsole {
         if (!dumb) {
             builder.completer(completer)
                     .highlighter(highlighter)
-                    .history(history)
-                    .terminal(terminal);
+                    .history(history);
         }
-        reader = builder.build();
-        final LineReader reader = this.reader;
-        if (reader == null) return;
+        final LineReader reader = builder.build();
+        this.reader = reader;
+
         Scheduler.task((i, session) -> {
             while (isRunning()) {
                 try {

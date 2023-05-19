@@ -66,7 +66,6 @@ import org.machinemc.server.utils.NetworkUtils;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -82,10 +81,14 @@ public final class Machine implements Server {
     public static final String API_PACKAGE = "org.machinemc.api";
     public static final String SERVER_PACKAGE = "org.machinemc.server";
 
-    public static final Path DIRECTORY = Paths.get("");
+    @Getter
+    private final ServerApplication application;
 
     @Getter
     private boolean running;
+
+    @Getter
+    private final File directory;
 
     @Getter
     private Console console;
@@ -141,15 +144,16 @@ public final class Machine implements Server {
         Factories.bufferFactory = FriendlyByteBuf::new;
     }
 
-    /**
-     * Machine entry point.
-     * @param args java arguments
-     */
-    public static void main(final String[] args) throws Exception {
-        new Machine(args);
-    }
+    public Machine(final ServerApplication application,
+                      final File directory,
+                      final String[] args) throws Exception {
 
-    private Machine(final String[] args) throws Exception {
+        if (application == null) throw new NullPointerException();
+        this.application = application;
+
+        if (!directory.exists() && !directory.mkdirs())
+            throw new RuntimeException();
+        this.directory = directory;
 
         final Set<String> arguments = Set.of(args);
         final long start = System.currentTimeMillis();
@@ -185,10 +189,10 @@ public final class Machine implements Server {
         exceptionHandler = new ExceptionHandlerImpl(this);
 
         // Setting up server properties
-        final File propertiesFile = new File(ServerPropertiesImpl.PROPERTIES_FILE_NAME);
+        final File propertiesFile = new File(directory, ServerPropertiesImpl.PROPERTIES_FILE_NAME);
         if (!propertiesFile.exists()) {
-            FileUtils.createFromDefault(propertiesFile);
-            FileUtils.createFromDefault(new File(ServerPropertiesImpl.ICON_FILE_NAME));
+            FileUtils.createServerFile(directory, ServerPropertiesImpl.PROPERTIES_FILE_NAME);
+            FileUtils.createServerFile(directory, ServerPropertiesImpl.ICON_FILE_NAME);
         }
         try {
             properties = new ServerPropertiesImpl(this, propertiesFile);
@@ -223,9 +227,9 @@ public final class Machine implements Server {
 
         // Loading dimensions json file
         dimensionTypeManager = new DimensionTypeManagerImpl(this);
-        final File dimensionsFile = new File(DimensionsJson.DIMENSIONS_FILE_NAME);
+        final File dimensionsFile = new File(directory, DimensionsJson.DIMENSIONS_FILE_NAME);
         if (!dimensionsFile.exists())
-            FileUtils.createFromDefault(dimensionsFile);
+            FileUtils.createServerFile(directory, DimensionsJson.DIMENSIONS_FILE_NAME);
         Set<DimensionType> dimensions = new LinkedHashSet<>();
         try {
             dimensions = new DimensionsJson(this, dimensionsFile).dimensions();
@@ -249,9 +253,9 @@ public final class Machine implements Server {
 
         // Loading biomes json file
         biomeManager = new BiomeManagerImpl(this);
-        final File biomesFile = new File(BiomesJson.BIOMES_FILE_NAME);
+        final File biomesFile = new File(directory, BiomesJson.BIOMES_FILE_NAME);
         if (!biomesFile.exists())
-            FileUtils.createFromDefault(biomesFile);
+            FileUtils.createServerFile(directory, BiomesJson.BIOMES_FILE_NAME);
         Set<Biome> biomes = new LinkedHashSet<>();
         try {
             biomes = new BiomesJson(this, biomesFile).biomes();
@@ -275,7 +279,10 @@ public final class Machine implements Server {
         playerManager = new PlayerManagerImpl(this);
 
         try {
-            playerDataContainer = new PlayerDataContainerImpl(this);
+            playerDataContainer = new PlayerDataContainerImpl(
+                    this,
+                    new File(directory, PlayerDataContainerImpl.DEFAULT_PLAYER_DATA_FOLDER)
+            );
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
             System.exit(2);
@@ -283,10 +290,10 @@ public final class Machine implements Server {
 
         worldManager = new WorldManagerImpl(this);
         try {
-            for (final Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
+            for (final Path path : Files.walk(directory.toPath(), 2).collect(Collectors.toSet())) {
                 if (!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;
-                if (path.getParent() == null) continue;
-                if (path.getParent().getParent() != null) continue;
+                if (path.getNameCount() < 3) continue;
+                if (!Files.isSameFile(directory.toPath(), path.getParent().getParent())) continue;
                 try {
                     final WorldJson worldJson = new WorldJson(this, path.toFile());
                     if (worldManager.isRegistered(worldJson.getWorldName())) {
@@ -307,8 +314,10 @@ public final class Machine implements Server {
         if (worldManager.getWorlds().size() == 0) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             try {
-                final File worldJson = new File(WorldJson.WORLD_FILE_NAME);
-                FileUtils.createFromDefaultAndLocate(worldJson, ServerWorld.DEFAULT_WORLD_FOLDER + "/");
+                FileUtils.createServerFile(
+                        new File(directory, ServerWorld.DEFAULT_WORLD_FOLDER + "/" + WorldJson.WORLD_FILE_NAME),
+                        WorldJson.WORLD_FILE_NAME
+                );
                 final World world = ServerWorld.createDefault(this);
                 worldManager.addWorld(world);
             } catch (Exception exception) {
