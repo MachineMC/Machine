@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.translation.translators.in;
+package org.machinemc.server.translation.translators.in.play;
 
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.ClientConnection;

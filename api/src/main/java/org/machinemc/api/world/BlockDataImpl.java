@@ -19,11 +19,8 @@ import com.google.common.collect.Iterables;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.machinemc.api.utils.NamespacedKey;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Default block data implementation without any special
@@ -85,10 +82,6 @@ class BlockDataImpl extends BlockData {
         return clone;
     }
 
-    private static final Pattern BLOCK_DATA_PATTERN = Pattern.compile(
-            "([a-z0-9.-_]+:[a-z0-9.-_/]+)\\[(([a-z0-9.-_]+=[a-z0-9.-_]+,? ?)*)]"
-    );
-
     /**
      * Parses the block data text from {@link BlockData#toString()}.
      * <p>
@@ -99,13 +92,19 @@ class BlockDataImpl extends BlockData {
      */
     public static @Nullable BlockData parse(final String text) {
         final String lowercase = text.toLowerCase();
-        final Matcher matcher = BLOCK_DATA_PATTERN.matcher(lowercase);
-        if (!matcher.matches()) return null;
-        if (matcher.groupCount() < 2) return null;
+
+        final StringBuilder materialName = new StringBuilder();
+        for (int i = 0; i < lowercase.length(); i++) {
+            final char next = lowercase.charAt(i);
+            if (next == '[') break;
+            materialName.append(next);
+        }
 
         final Material material;
         try {
-            material = Material.valueOf(NamespacedKey.parse(matcher.group(1)).getKey().toUpperCase());
+            material = Material.valueOf(materialName.toString()
+                    .replace("minecraft:", "")
+                    .toUpperCase());
         } catch (Throwable throwable) {
             return null;
         }
@@ -113,9 +112,17 @@ class BlockDataImpl extends BlockData {
 
         if (blockData == null) return null;
         if (blockData.getData().length == 0) return blockData;
+        if (text.length() == materialName.length()) return blockData;
+
+        final StringBuilder propertiesText = new StringBuilder();
+        for (int i = materialName.length() + 1; i < lowercase.length(); i++) {
+            final char next = lowercase.charAt(i);
+            if (next == ']') break;
+            propertiesText.append(next);
+        }
 
         final Map<String, String> properties = new LinkedHashMap<>(blockData.getDataMap());
-        for (final String property : matcher.group(2).replace(" ", "").split(",")) {
+        for (final String property : propertiesText.toString().replace(" ", "").split(",")) {
             if (property.length() == 0) continue;
             final String[] keyAndValue = property.split("=");
             if (!properties.containsKey(keyAndValue[0])) continue;

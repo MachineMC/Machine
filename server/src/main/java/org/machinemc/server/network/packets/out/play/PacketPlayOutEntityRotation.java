@@ -23,32 +23,34 @@ import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
 @ToString
 @Getter @Setter
-public class PacketPlayOutTeleportEntity extends PacketOut {
+@AllArgsConstructor
+public class PacketPlayOutEntityRotation  extends PacketOut {
 
-    private static final int ID = 0x66;
-
-    private int entityId;
-    private EntityPosition position;
-    private boolean onGround;
+    private static final int ID = 0x2A;
 
     static {
-        register(PacketPlayOutTeleportEntity.class, ID, PacketState.PLAY_OUT,
-                PacketPlayOutTeleportEntity::new);
+        register(PacketPlayOutEntityRotation.class, ID, PacketState.PLAY_OUT,
+                PacketPlayOutEntityRotation::new);
     }
 
-    public PacketPlayOutTeleportEntity(final ServerBuffer buf) {
+    private int entityId;
+    private float yaw, pitch;
+    private boolean onGround;
+
+    public PacketPlayOutEntityRotation(final ServerBuffer buf) {
         entityId = buf.readVarInt();
-        position = EntityPosition.of(
-                buf.readDouble(),
-                buf.readDouble(),
-                buf.readDouble(),
-                buf.readAngle(),
-                buf.readAngle()
-        );
+        yaw = buf.readAngle();
+        pitch = buf.readAngle();
         onGround = buf.readBoolean();
+    }
+
+    public PacketPlayOutEntityRotation(final int entityId, final EntityPosition newPosition, final boolean onGround) {
+        this.entityId = entityId;
+        this.yaw = newPosition.getYaw();
+        this.pitch = newPosition.getPitch();
+        this.onGround = onGround;
     }
 
     @Override
@@ -65,14 +67,15 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(entityId)
-                .write(position)
+                .writeAngle(yaw)
+                .writeAngle(pitch)
                 .writeBoolean(onGround)
                 .bytes();
     }
 
     @Override
     public PacketOut clone() {
-        return new PacketPlayOutTeleportEntity(new FriendlyByteBuf(serialize()));
+        return new PacketPlayOutEntityRotation(new FriendlyByteBuf(serialize()));
     }
 
 }

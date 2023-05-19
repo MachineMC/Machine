@@ -78,7 +78,13 @@ public class ClientConnection implements PlayerConnection {
         this.address = (InetSocketAddress) channel.remoteAddress();
         server = nettyServer.getServer();
         setState(ClientState.HANDSHAKE);
-        channel.closeFuture().addListener(future -> handleClose());
+        channel.closeFuture().addListener(future -> {
+            try {
+                handleClose();
+            } catch (Throwable throwable) {
+                getServerExceptionHandler().handle(throwable);
+            }
+        });
     }
 
     @Override

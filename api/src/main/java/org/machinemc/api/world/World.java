@@ -17,7 +17,6 @@ package org.machinemc.api.world;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.entities.Entity;
-import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.biomes.Biome;
@@ -106,24 +105,11 @@ public interface World extends ServerProperty {
     void save() throws IOException;
 
     /**
-     * Loads player into the world.
-     * @param player player to load
-     */
-    void loadPlayer(Player player);
-
-    /**
-     * Unloads player from the world.
-     * @param player player to unload
-     */
-    void unloadPlayer(Player player);
-
-    /**
      * Spawns an entity to the world at given location.
      * @param entity entity to spawn
-     * @param location location to spawn
      * @return if the operation was successful
      */
-    boolean spawn(Entity entity, Location location);
+    boolean spawn(Entity entity);
 
     /**
      * Removes an entity from the world.

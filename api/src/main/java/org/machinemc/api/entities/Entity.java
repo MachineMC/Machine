@@ -121,14 +121,14 @@ public interface Entity extends ServerProperty, NBTSerializable, Nameable {
     void setTicksFrozen(int ticksFrozen);
 
     /**
-     * @return location of the entity
+     * @return clone of the location of the entity
      */
     Location getLocation();
 
     /**
-     * @param location new location
+     * @return previous location of the entity
      */
-    void setLocation(Location location);
+    Location getPreviousLocation();
 
     /**
      * @return fall distance of the entity
@@ -154,11 +154,6 @@ public interface Entity extends ServerProperty, NBTSerializable, Nameable {
      * @return if the entity is on ground
      */
     boolean isOnGround();
-
-    /**
-     * @param onGround new on ground
-     */
-    void setOnGround(boolean onGround);
 
     /**
      * @return if the entity is invulnerable

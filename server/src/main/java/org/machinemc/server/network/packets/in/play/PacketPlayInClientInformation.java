@@ -28,9 +28,9 @@ import org.machinemc.api.utils.ServerBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
-@AllArgsConstructor
 @ToString
 @Getter @Setter
+@AllArgsConstructor
 public class PacketPlayInClientInformation extends PacketIn {
 
     private static final int ID = 0x08;
