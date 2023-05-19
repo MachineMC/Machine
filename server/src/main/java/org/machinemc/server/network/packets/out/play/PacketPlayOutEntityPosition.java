@@ -23,32 +23,39 @@ import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
 @ToString
 @Getter @Setter
-public class PacketPlayOutTeleportEntity extends PacketOut {
+@AllArgsConstructor
+public class PacketPlayOutEntityPosition  extends PacketOut {
 
-    private static final int ID = 0x66;
-
-    private int entityId;
-    private EntityPosition position;
-    private boolean onGround;
+    private static final int ID = 0x28;
 
     static {
-        register(PacketPlayOutTeleportEntity.class, ID, PacketState.PLAY_OUT,
-                PacketPlayOutTeleportEntity::new);
+        register(PacketPlayOutEntityPosition.class, ID, PacketState.PLAY_OUT,
+                PacketPlayOutEntityPosition::new);
     }
 
-    public PacketPlayOutTeleportEntity(final ServerBuffer buf) {
+    private int entityId;
+    private short deltaX, deltaY, deltaZ;
+    private boolean onGround;
+
+    public PacketPlayOutEntityPosition(final ServerBuffer buf) {
         entityId = buf.readVarInt();
-        position = EntityPosition.of(
-                buf.readDouble(),
-                buf.readDouble(),
-                buf.readDouble(),
-                buf.readAngle(),
-                buf.readAngle()
-        );
+        deltaX = buf.readShort();
+        deltaY = buf.readShort();
+        deltaZ = buf.readShort();
         onGround = buf.readBoolean();
+    }
+
+    public PacketPlayOutEntityPosition(final int entityId,
+                                       final EntityPosition previousPosition,
+                                       final EntityPosition newPosition,
+                                       final boolean onGround) {
+        this.entityId = entityId;
+        this.deltaX = (short) ((newPosition.getX() * 32 - previousPosition.getX() * 32) * 128);
+        this.deltaY = (short) ((newPosition.getY() * 32 - previousPosition.getY() * 32) * 128);
+        this.deltaZ = (short) ((newPosition.getZ() * 32 - previousPosition.getZ() * 32) * 128);
+        this.onGround = onGround;
     }
 
     @Override
@@ -65,14 +72,16 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(entityId)
-                .write(position)
+                .writeShort(deltaX)
+                .writeShort(deltaY)
+                .writeShort(deltaZ)
                 .writeBoolean(onGround)
                 .bytes();
     }
 
     @Override
     public PacketOut clone() {
-        return new PacketPlayOutTeleportEntity(new FriendlyByteBuf(serialize()));
+        return new PacketPlayOutEntityPosition(new FriendlyByteBuf(serialize()));
     }
 
 }

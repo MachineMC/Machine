@@ -189,7 +189,10 @@ public class ServerWorld extends AbstractWorld {
         getServer().getConsole().info("Saved world '" + getName() + "'");
     }
 
-    @Override
+    /**
+     * Loads the player to the world.
+     * @param player player to load
+     */
     public void loadPlayer(final Player player) {
         // TODO this should take player's view distance
         final Scheduler scheduler = getServer().getScheduler();
@@ -247,21 +250,28 @@ public class ServerWorld extends AbstractWorld {
         return new int[] {x, y};
     }
 
-    @Override
+    /**
+     * Unloads the player from the world.
+     * @param player player to unload
+     */
     public void unloadPlayer(final Player player) {
         // TODO implement player unloading
     }
 
     @Override
-    public boolean spawn(final Entity entity, final Location location) {
-        entityList.add(entity); // TODO implement entity spawning
-        return true;
+    public boolean spawn(final Entity entity) {
+        if (entity.getWorld() != this) return false;
+        if (entity instanceof Player player)
+            loadPlayer(player);
+        return entityList.add(entity); // TODO implement entity spawning
     }
 
     @Override
     public boolean remove(final Entity entity) {
-        entityList.remove(entity); // TODO implement entity removing
-        return true;
+        if (!entityList.contains(entity)) return false;
+        if (entity instanceof Player player)
+            unloadPlayer(player);
+        return entityList.remove(entity); // TODO implement entity removing
     }
 
     @Override

@@ -12,28 +12,29 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.translation.translators.in;
+package org.machinemc.server.translation.translators.in.play;
 
-import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.network.ClientConnection;
-import org.machinemc.server.network.packets.in.status.PacketStatusInRequest;
-import org.machinemc.server.network.packets.out.status.PacketStatusOutResponse;
+import org.machinemc.server.translation.PacketTranslator;
+import org.machinemc.server.network.packets.in.play.PacketPlayInKeepAlive;
 
-public class TranslatorStatusInRequest extends PacketTranslator<PacketStatusInRequest> {
+public class TranslatorPlayInKeepAlive extends PacketTranslator<PacketPlayInKeepAlive> {
 
     @Override
-    public boolean translate(final ClientConnection connection, final PacketStatusInRequest packet) {
+    public boolean translate(final ClientConnection connection, final PacketPlayInKeepAlive packet) {
+        if (packet.getKeepAliveId() != connection.getKeepAliveKey()) return false;
+        connection.keepAlive();
         return true;
     }
 
     @Override
-    public void translateAfter(final ClientConnection connection, final PacketStatusInRequest packet) {
-        connection.send(new PacketStatusOutResponse(connection.getServer().statusJson()));
+    public void translateAfter(final ClientConnection connection, final PacketPlayInKeepAlive packet) {
+
     }
 
     @Override
-    public Class<PacketStatusInRequest> packetClass() {
-        return PacketStatusInRequest.class;
+    public Class<PacketPlayInKeepAlive> packetClass() {
+        return PacketPlayInKeepAlive.class;
     }
 
 }

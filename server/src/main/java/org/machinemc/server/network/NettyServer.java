@@ -32,6 +32,7 @@ import org.machinemc.server.Machine;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 /**
  * Server connection implementation using netty.
@@ -97,6 +98,14 @@ public class NettyServer implements ServerConnection {
     }
 
     @Override
+    public void broadcastPacket(final Packet packet, final Predicate<PlayerConnection> predicate) {
+        getClients().forEach(connection -> {
+            if (predicate.test(connection))
+                connection.send(packet);
+        });
+    }
+
+    @Override
     public ChannelFuture disconnect(final PlayerConnection connection) {
         return connection.disconnect(TranslationComponent.of("disconnect.disconnected"));
     }
@@ -122,7 +131,7 @@ public class NettyServer implements ServerConnection {
                     new CompressionEncoder(connection),
                     new PacketEncoder(connection)
             );
-
+            connections.add(connection);
         }
     }
 

@@ -16,17 +16,23 @@ package org.machinemc.server.entities;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.entities.Entity;
+import org.machinemc.api.entities.EntityType;
+import org.machinemc.api.entities.Player;
+import org.machinemc.api.network.PlayerConnection;
+import org.machinemc.api.network.ServerConnection;
+import org.machinemc.api.network.packets.Packet;
+import org.machinemc.api.utils.NBTUtils;
+import org.machinemc.api.world.EntityPosition;
+import org.machinemc.api.world.Location;
+import org.machinemc.api.world.World;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTList;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.Machine;
-import org.machinemc.api.entities.Entity;
-import org.machinemc.api.entities.EntityType;
+import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.server.utils.EntityUtils;
-import org.machinemc.api.utils.NBTUtils;
-import org.machinemc.api.world.Location;
-import org.machinemc.api.world.World;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -61,13 +67,14 @@ public abstract class ServerEntity implements Entity {
     private boolean hasVisualFire;
     @Getter @Setter
     private int ticksFrozen;
-    @Getter @Setter
     private Location location;
+    @Getter
+    private Location previousLocation;
     @Getter @Setter
     private float fallDistance;
     @Getter @Setter
     private short remainingFireTicks;
-    @Getter @Setter
+    @Getter
     private boolean onGround;
     @Getter @Setter
     private boolean invulnerable;
@@ -81,6 +88,11 @@ public abstract class ServerEntity implements Entity {
         entityId = EntityUtils.getEmptyID();
         location = new Location(0, 0, 0, getServer().getDefaultWorld());
         active = false;
+    }
+
+    @Override
+    public Location getLocation() {
+        return location.clone();
     }
 
     @Override
@@ -112,7 +124,7 @@ public abstract class ServerEntity implements Entity {
 
     @Override
     public World getWorld() {
-        return location.getWorld();
+        return getLocation().getWorld();
     }
 
     @Override
@@ -130,13 +142,31 @@ public abstract class ServerEntity implements Entity {
         return tags.remove(tag);
     }
 
+    /**
+     * @param location new location
+     * @param setPreviousLocation whether the previous location should be updated
+     */
+    protected void setLocation(final Location location, final boolean setPreviousLocation) {
+        if (setPreviousLocation)
+            previousLocation = this.location;
+        this.location = location;
+    }
+
+    /**
+     * Changes the on ground state of the entity.
+     * @param onGround if the entity is on ground
+     */
+    protected void setOnGround(final boolean onGround) {
+        this.onGround = onGround;
+    }
+
     @Override
     public void init() {
         if (active)
             throw new IllegalStateException(this + " is already initiated");
         active = true;
         getServer().getEntityManager().addEntity(this);
-        getWorld().spawn(this, location);
+        getWorld().spawn(this);
     }
 
     @Override
@@ -144,8 +174,76 @@ public abstract class ServerEntity implements Entity {
         if (!active)
             throw new IllegalStateException(this + " is not active");
         active = false;
+        getServer().getConnection().broadcastPacket(
+                new PacketPlayOutRemoveEntities(new int[]{getEntityId()})
+        );
         getServer().getEntityManager().removeEntity(this);
         getWorld().remove(this);
+    }
+
+    /**
+     * Handles the movement of the entity.
+     * @param position new position
+     * @param onGround if the entity is on ground
+     */
+    public void handleMovement(final EntityPosition position, final boolean onGround) {
+
+        final Location currentLocation = getLocation();
+
+        final double deltaX = Math.abs(position.getX() - currentLocation.getX());
+        final double deltaY = Math.abs(position.getY() - currentLocation.getY());
+        final double deltaZ = Math.abs(position.getZ() - currentLocation.getZ());
+        final float deltaYaw = Math.abs(position.getYaw() - currentLocation.getYaw());
+        final float deltaPitch = Math.abs(position.getPitch() - currentLocation.getPitch());
+
+        final boolean positionChange = deltaX + deltaY + deltaZ > 0;
+        final boolean rotationChange = deltaYaw + deltaPitch > 0;
+
+        if (!(positionChange || rotationChange))
+            return;
+
+        final PlayerConnection connection = this instanceof Player player
+                ? player.getConnection()
+                : null;
+        final ServerConnection serverConnection = getServer().getConnection();
+
+        if (deltaX > 8 || deltaY > 8 || deltaZ > 8) {
+            final Packet teleportPacket = new PacketPlayOutTeleportEntity(getEntityId(), position, onGround);
+            serverConnection.broadcastPacket(teleportPacket, connected -> connected != connection);
+        } else {
+            final Packet positionPacket;
+            if (rotationChange) {
+                positionPacket = new PacketPlayOutEntityPositionAndRotation(
+                        getEntityId(),
+                        previousLocation,
+                        currentLocation,
+                        onGround);
+
+            } else {
+                positionPacket = new PacketPlayOutEntityPosition(
+                        getEntityId(),
+                        previousLocation,
+                        currentLocation,
+                        onGround);
+            }
+            serverConnection.broadcastPacket(positionPacket, connected -> connected != connection);
+        }
+
+        if (rotationChange) {
+            final Packet headRotationPacket = new PacketPlayOutHeadRotation(getEntityId(), position.getYaw());
+            serverConnection.broadcastPacket(headRotationPacket, connected -> connected != connection);
+        }
+
+        handleOnGround(onGround);
+        setLocation(Location.of(position, getWorld()), true);
+    }
+
+    /**
+     * Handles the change of the on ground state of the entity.
+     * @param onGround if the entity is on ground
+     */
+    public void handleOnGround(final boolean onGround) {
+        setOnGround(onGround);
     }
 
     @Override
@@ -197,11 +295,14 @@ public abstract class ServerEntity implements Entity {
         if (rotation.size() != 2)
             rotation = new LinkedList<>(List.of(0f, 0f));
 
-        getLocation().setX(pos.get(0));
-        getLocation().setY(pos.get(1));
-        getLocation().setZ(pos.get(2));
-        getLocation().setYaw(rotation.get(0));
-        getLocation().setPitch(rotation.get(1));
+        final Location location = Location.of(
+                pos.get(0), pos.get(1),
+                pos.get(2),
+                rotation.get(0),
+                rotation.get(1),
+                getWorld()
+        );
+        setLocation(location, false);
 
         setFallDistance(nbtCompound.getValue("FallDistance", 0f));
         setRemainingFireTicks(nbtCompound.getValue("Fire", (short) 0));

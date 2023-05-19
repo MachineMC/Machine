@@ -20,10 +20,12 @@ import org.machinemc.api.server.ServerProperty;
 import org.jetbrains.annotations.*;
 
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * Represents server's connection.
  */
+@ApiStatus.NonExtendable
 public interface ServerConnection extends ServerProperty {
 
     /**
@@ -58,6 +60,13 @@ public interface ServerConnection extends ServerProperty {
      * @param packet packet to send
      */
     void broadcastPacket(Packet packet);
+
+    /**
+     * Sends a packet to all clients matching the predicate.
+     * @param packet packet to send
+     * @param predicate predicate
+     */
+    void broadcastPacket(Packet packet, Predicate<PlayerConnection> predicate);
 
     /**
      * Disconnects a player connection from the server.

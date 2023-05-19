@@ -12,29 +12,31 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.translation.translators.in;
+package org.machinemc.server.translation.translators.in.play;
 
+import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.ClientConnection;
+import org.machinemc.server.network.packets.in.play.PacketPlayInConfirmTeleportation;
 import org.machinemc.server.translation.PacketTranslator;
-import org.machinemc.server.network.packets.in.play.PacketPlayInKeepAlive;
 
-public class TranslatorPlayInKeepAlive extends PacketTranslator<PacketPlayInKeepAlive> {
+public class TranslatorPlayInConfirmTeleportation extends PacketTranslator<PacketPlayInConfirmTeleportation> {
 
     @Override
-    public boolean translate(final ClientConnection connection, final PacketPlayInKeepAlive packet) {
-        if (packet.getKeepAliveId() != connection.getKeepAliveKey()) return false;
-        connection.keepAlive();
-        return true;
+    public boolean translate(final ClientConnection connection, final PacketPlayInConfirmTeleportation packet) {
+        final ServerPlayer player = connection.getOwner();
+        if (player == null)
+            return false;
+        return player.handleTeleportConfirm(packet.getTeleportId());
     }
 
     @Override
-    public void translateAfter(final ClientConnection connection, final PacketPlayInKeepAlive packet) {
+    public void translateAfter(final ClientConnection connection, final PacketPlayInConfirmTeleportation packet) {
 
     }
 
     @Override
-    public Class<PacketPlayInKeepAlive> packetClass() {
-        return PacketPlayInKeepAlive.class;
+    public Class<PacketPlayInConfirmTeleportation> packetClass() {
+        return PacketPlayInConfirmTeleportation.class;
     }
 
 }

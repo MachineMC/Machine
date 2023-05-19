@@ -29,10 +29,7 @@ import org.machinemc.api.entities.player.SkinPart;
 import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.PlayerManager;
-import org.machinemc.api.world.Difficulty;
-import org.machinemc.api.world.Location;
-import org.machinemc.api.world.World;
-import org.machinemc.api.world.WorldType;
+import org.machinemc.api.world.*;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
@@ -41,12 +38,11 @@ import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.server.Machine;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.out.play.*;
+import org.machinemc.server.network.packets.out.play.PacketPlayOutSynchronizePlayerPosition.TeleportFlags;
 import org.machinemc.server.server.codec.Codec;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of player.
@@ -80,6 +76,10 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     @Getter
     private Component playerListName;
 
+    private int teleportId = 0;
+    private boolean teleporting = false;
+    private Location teleportLocation;
+
     private ServerPlayer(final Machine server, final PlayerProfile profile, final ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUuid());
         this.profile = profile;
@@ -106,14 +106,19 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     public static ServerPlayer spawn(final Machine server,
                                      final PlayerProfile profile,
                                      final ClientConnection connection) {
+
         final PlayerManager manager = server.getPlayerManager();
+
         if (connection.getState() != PlayerConnection.ClientState.PLAY) {
             throw new IllegalStateException("Player can't be initialized if their connection isn't in play state");
         }
+
         if (manager.getPlayer(profile.getUsername()) != null || manager.getPlayer(profile.getUuid()) != null) {
             connection.disconnect(TranslationComponent.of("disconnect.loginFailed"));
             throw new IllegalStateException("Session is already active");
         }
+
+        // Loading NBT Data
         final ServerPlayer player = new ServerPlayer(server, profile, connection);
         if (server.getPlayerDataContainer().exist(player.getUuid())) {
             try {
@@ -126,6 +131,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
                 server.getExceptionHandler().handle(exception);
             }
         }
+
         try {
             manager.addPlayer(player);
             final TranslationComponent joinMessage = TranslationComponent.of(
@@ -138,6 +144,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
+
     }
 
     @Override
@@ -177,10 +184,21 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
                 null
         ));
 
-        sendPacket(PacketPlayOutPluginMessage.getBrandPacket(getServer().getProperties().getServerBrand()));
+        // Other players
+        final Set<PlayerConnection> others = getServer().getConnection().getClients().stream()
+                .filter(connection -> connection.getState() == PlayerConnection.ClientState.PLAY)
+                .filter(connection -> connection.getOwner() != null)
+                .filter(connection -> connection != getConnection())
+                .collect(Collectors.toSet());
 
         // Spawn Sequence: https://wiki.vg/Protocol_FAQ#What.27s_the_normal_login_sequence_for_a_client.3F
+
+        // Brand
+        sendPacket(PacketPlayOutPluginMessage.getBrandPacket(getServer().getProperties().getServerBrand()));
+
+        // Difficulty
         sendDifficultyChange(getWorld().getDifficulty());
+
         // Player Abilities (Optional)
         // Set Carried Item
         // Update Recipes
@@ -189,6 +207,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         // Commands
         // Recipe
         // Player Position
+
+        // Player info
         sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, this));
         for (final Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
             if (player == this)
@@ -196,15 +216,33 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
             sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, player));
             player.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, this));
         }
+
         // Set Chunk Cache Center
         // Light Update (One sent for each chunk in a square centered on the player's position)
         // Level Chunk With Light (One sent for each chunk in a square centered on the player's position)
         // World Border (Once the world is finished loading)
+
+        // Set Default Spawn Position
         sendWorldSpawnChange(getWorld().getWorldSpawn());
-        // Player Position (Required, tells the client they're ready to spawn)
+
+
+        // Synchronize Player Position
+        synchronizePosition(getLocation(), Collections.emptySet(), false);
+        for (final Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
+            if (player == this)
+                continue;
+            sendPacket(new PacketPlayOutSpawnPlayer(player.getEntityId(), player.getUuid(), player.getLocation()));
+            sendPacket(new PacketPlayOutHeadRotation(player.getEntityId(), player.getLocation().getYaw()));
+        }
+        for (final PlayerConnection other : others) {
+            other.send(new PacketPlayOutSpawnPlayer(getEntityId(), getUuid(), getLocation()));
+            other.send(new PacketPlayOutHeadRotation(getEntityId(), getLocation().getYaw()));
+        }
+
         // Inventory, entities, etc
+
+        // Gamemode
         sendGamemodeChange(gamemode);
-        getWorld().loadPlayer(this);
     }
 
     @Override
@@ -212,7 +250,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         if (connection.getState() != PlayerConnection.ClientState.DISCONNECTED)
             throw new IllegalStateException("You can't remove player from server until the connection is closed");
         super.remove();
-        getWorld().unloadPlayer(this);
+        getWorld().remove(this);
         getServer().getConnection().broadcastPacket(
                 new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this)
         );
@@ -254,7 +292,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public int execute(final String input) {
-        return 0;
+        return 0; // TODO
     }
 
     @Override
@@ -284,6 +322,56 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
      */
     private void sendGamemodeChange(final Gamemode gamemode) {
         sendPacket(new PacketPlayOutGameEvent(PacketPlayOutGameEvent.Event.CHANGE_GAMEMODE, gamemode.getId()));
+    }
+
+    /**
+     * Synchronizes player's position.
+     * @param location new location
+     * @param flags teleport flags
+     * @param dismountVehicle if player dismounted a vehicle
+     */
+    public void synchronizePosition(final Location location,
+                                    final Set<TeleportFlags> flags,
+                                    final boolean dismountVehicle) {
+        teleporting = true;
+
+        final double x = location.getX() - (flags.contains(TeleportFlags.X) ? getLocation().getX() : 0d);
+        final double y = location.getY() - (flags.contains(TeleportFlags.Y) ? getLocation().getY() : 0d);
+        final double z = location.getZ() - (flags.contains(TeleportFlags.Z) ? getLocation().getZ() : 0d);
+        final float yaw = location.getYaw() - (flags.contains(TeleportFlags.YAW) ? getLocation().getYaw() : 0f);
+        final float pitch = location.getPitch() - (flags.contains(TeleportFlags.PITCH) ? getLocation().getPitch() : 0f);
+
+        teleportLocation = new Location(x, y, z, yaw, pitch, getWorld());
+        if (++teleportId == Integer.MAX_VALUE)
+            teleportId = 0;
+
+        sendPacket(new PacketPlayOutSynchronizePlayerPosition(location, flags, teleportId, dismountVehicle));
+    }
+
+
+    /**
+     * Handles the teleport confirmation of the player.
+     * @param teleportId id of teleport
+     * @return whether the teleport was successful
+     */
+    public boolean handleTeleportConfirm(final int teleportId) {
+        if (!teleporting || this.teleportId != teleportId) {
+            teleporting = false;
+            connection.disconnect(TranslationComponent.of("multidisconnect.invalid_player_movement"));
+            return false;
+        }
+        teleporting = false;
+        setLocation(teleportLocation, true);
+        teleportLocation = null;
+        return true;
+    }
+
+    @Override
+    public void handleMovement(final EntityPosition position, final boolean onGround) {
+        if (teleporting)
+            return;
+
+        super.handleMovement(position, onGround);
     }
 
     @Override

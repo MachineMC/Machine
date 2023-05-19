@@ -19,7 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.api.utils.math.Vector3;
+import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 
@@ -31,7 +31,7 @@ public class PacketPlayOutSpawnExperienceOrb extends PacketOut {
     private static final int ID = 0x01;
 
     private int entityId;
-    private Vector3 position;
+    private EntityPosition position;
     private short count;
 
     static {
@@ -41,7 +41,7 @@ public class PacketPlayOutSpawnExperienceOrb extends PacketOut {
 
     public PacketPlayOutSpawnExperienceOrb(final ServerBuffer buf) {
         entityId = buf.readVarInt();
-        position = Vector3.of(buf.readDouble(), buf.readDouble(), buf.readDouble());
+        position = EntityPosition.of(buf.readDouble(), buf.readDouble(), buf.readDouble());
         count = buf.readByte();
     }
 

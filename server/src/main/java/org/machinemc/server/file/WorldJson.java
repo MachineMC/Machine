@@ -127,6 +127,7 @@ public class WorldJson implements ServerFile, ServerProperty {
      */
     public World buildWorld() {
         final AbstractWorld world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
+        // TODO should get calculated/from json
         world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
         world.setDifficulty(server.getProperties().getDefaultDifficulty());
         return world;
