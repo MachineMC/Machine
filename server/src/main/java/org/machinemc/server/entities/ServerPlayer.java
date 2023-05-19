@@ -149,7 +149,6 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public void init() {
-        super.init();
 
         final NBTCompound codec = new Codec(
                 getServer().getDimensionTypeManager(),
@@ -183,6 +182,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
                 null,
                 null
         ));
+
+        super.init();
 
         // Other players
         final Set<PlayerConnection> others = getServer().getConnection().getClients().stream()

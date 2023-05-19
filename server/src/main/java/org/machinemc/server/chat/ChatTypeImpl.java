@@ -14,34 +14,31 @@
  */
 package org.machinemc.server.chat;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.chat.ChatType;
-import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.nbt.NBTList;
 import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.ChatStyle;
 import org.machinemc.scriptive.style.TextFormat;
 
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import static org.machinemc.server.chat.ChatTypeImpl.Element.DEFAULT_NARRATION_ELEMENT;
-
-@Builder
 @Getter
+@Builder
+@SuppressWarnings("ClassCanBeRecord")
 public class ChatTypeImpl implements ChatType {
 
     private final NamespacedKey name;
-    @Getter(AccessLevel.PROTECTED)
-    protected final Element chatElement, narrationElement;
+    private final Element chatElement, narrationElement;
+
+    private static final ChatTypeImpl.Element DEFAULT_NARRATION_ELEMENT = ChatTypeImpl.Element.narration(
+            Set.of(ChatTypeImpl.Parameter.SENDER, ChatTypeImpl.Parameter.CONTENT),
+            "chat.type.text.narrate",
+            null,
+            null);
 
     /**
      * Creates the default 'chat' chat type.
@@ -199,118 +196,9 @@ public class ChatTypeImpl implements ChatType {
     @Override
     public NBTCompound toNBT() {
         return new NBTCompound(Map.of(
-                "chat", chatElement,
-                "narration", narrationElement
+                "chat", chatElement.toNBT(),
+                "narration", narrationElement.toNBT()
         ));
-    }
-
-    /**
-     * Chat and Narration types of chat types, contain information
-     * about their parameters, translation key and chat format.
-     * @param type type of the element
-     * @param parameters parameters of the element
-     * @param translationKey translation key of the element
-     * @param format format of the element
-     * @param font font of the element
-     */
-    protected record Element(ChatTypeImpl.ElementType type,
-                             Set<ChatTypeImpl.Parameter> parameters,
-                             String translationKey,
-                             @Nullable TextFormat format,
-                             @Nullable NamespacedKey font) implements NBTSerializable {
-
-        static final ChatTypeImpl.Element DEFAULT_NARRATION_ELEMENT = ChatTypeImpl.Element.narration(
-                Set.of(ChatTypeImpl.Parameter.SENDER, ChatTypeImpl.Parameter.CONTENT),
-                "chat.type.text.narrate",
-                null,
-                null);
-
-        /**
-         * Creates new element of type chat.
-         * @param parameters parameters of the element
-         * @param translationKey translation key of the element
-         * @param format chat format of the element
-         * @param font font of the element
-         * @return created chat type element
-         */
-        public static ChatTypeImpl.Element chat(final Set<ChatTypeImpl.Parameter> parameters,
-                                                final String translationKey,
-                                                final @Nullable TextFormat format,
-                                                final @Nullable NamespacedKey font) {
-            return new ChatTypeImpl.Element(ChatTypeImpl.ElementType.CHAT, parameters, translationKey, format, font);
-        }
-        /**
-         * Creates new element of type narration.
-         * @param parameters parameters of the element
-         * @param translationKey translation key of the element
-         * @param format chat format of the element
-         * @param font font of the element
-         * @return created chat type element
-         */
-        public static ChatTypeImpl.Element narration(final Set<ChatTypeImpl.Parameter> parameters,
-                                                     final String translationKey,
-                                                     final @Nullable TextFormat format,
-                                                     final @Nullable NamespacedKey font) {
-            return new ChatTypeImpl.Element(
-                    ChatTypeImpl.ElementType.NARRATION,
-                    parameters,
-                    translationKey,
-                    format,
-                    font
-            );
-        }
-
-        @Override
-        public NBTCompound toNBT() {
-            final NBTList parameters = new NBTList(this.parameters.stream()
-                    .map(ChatTypeImpl.Parameter::getName)
-                    .toList());
-            final Map<String, String> styleMap = new HashMap<>();
-            if (format != null) {
-                final Map<ChatStyle, Boolean> styles = format.getStyles();
-                for (final Map.Entry<ChatStyle, Boolean> entry : styles.entrySet()) {
-                    if (entry.getValue() != null)
-                        styleMap.put(entry.getKey().name().toLowerCase(Locale.ENGLISH), entry.getValue().toString());
-                }
-                format.getColor().ifPresent(color -> styleMap.put("color", color.getName()));
-                if (font != null)
-                    styleMap.put("font", font.toString());
-            }
-            final NBTCompound style = new NBTCompound();
-            for (final String key : styleMap.keySet())
-                style.set(key, styleMap.get(key));
-            return new NBTCompound(Map.of(
-                    "translation_key", translationKey,
-                    "parameters", parameters,
-                    "style", style
-            ));
-        }
-
-    }
-
-    /**
-     * Type of chat type element.
-     */
-    @AllArgsConstructor
-    protected enum ElementType {
-        CHAT("chat"),
-        NARRATION("narration");
-
-        @Getter
-        private final String name;
-    }
-
-    /**
-     * Parameters used by chat type elements.
-     */
-    @AllArgsConstructor
-    protected enum Parameter {
-        SENDER("sender"),
-        TARGET("target"),
-        CONTENT("content");
-
-        @Getter
-        private final String name;
     }
 
 }
