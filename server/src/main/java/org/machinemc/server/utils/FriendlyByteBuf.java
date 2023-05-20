@@ -445,7 +445,7 @@ public class FriendlyByteBuf implements ServerBuffer {
         final Material material = ItemStack.getMaterial(readVarInt());
         final ItemStack itemStack = new ItemStack(material != null ? material : Material.AIR, readByte());
         final NBTCompound compound = readNBT();
-        itemStack.setNbtCompound(compound);
+        itemStack.setNBTCompound(compound);
         return itemStack;
     }
 
@@ -458,8 +458,8 @@ public class FriendlyByteBuf implements ServerBuffer {
         writeBoolean(true);
         writeVarInt(itemStack.getMaterial().getId());
         writeByte(itemStack.getAmount());
-        if (itemStack.getNbtCompound().size() != 0)
-            writeNBT(itemStack.getNbtCompound());
+        if (itemStack.getNBTCompound().size() != 0)
+            writeNBT(itemStack.getNBTCompound());
         else
             writeBoolean(false);
         return this;

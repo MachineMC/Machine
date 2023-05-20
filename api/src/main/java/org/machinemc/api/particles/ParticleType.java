@@ -39,7 +39,6 @@ public final class ParticleType<O extends ParticleOption> {
 
     @Getter
     private final NamespacedKey name;
-    @Getter
     private final int id;
     protected final ParticleOptionProvider<O> provider;
 
@@ -89,6 +88,10 @@ public final class ParticleType<O extends ParticleOption> {
     @SuppressWarnings("unchecked")
     private ParticleType(final NamespacedKey name, final int id) {
         this(name, id, type -> (O) new ParticleOption.SimpleOptions());
+    }
+
+    public int getID() {
+        return id;
     }
 
     /**

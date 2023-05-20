@@ -84,7 +84,7 @@ public class MessengerImpl implements Messenger {
 
     @Override
     public boolean removeChatType(final ChatType chatType) {
-        return chatTypes.remove(getChatTypeId(chatType)) == null;
+        return chatTypes.remove(getChatTypeID(chatType)) == null;
     }
 
     @Override
@@ -102,12 +102,12 @@ public class MessengerImpl implements Messenger {
     }
 
     @Override
-    public @Nullable ChatType getById(final int id) {
+    public @Nullable ChatType getByID(final int id) {
         return chatTypes.get(id);
     }
 
     @Override
-    public int getChatTypeId(final ChatType chatType) {
+    public int getChatTypeID(final ChatType chatType) {
         for (final Map.Entry<Integer, ChatType> entry : chatTypes.entrySet()) {
             if (entry.getValue().equals(chatType))
                 return entry.getKey();
@@ -140,7 +140,7 @@ public class MessengerImpl implements Messenger {
         final NBTCompound nbtCompound = chatType.toNBT();
         return new NBTCompound(Map.of(
                 "name", chatType.getName().toString(),
-                "id", getChatTypeId(chatType),
+                "id", getChatTypeID(chatType),
                 "element", nbtCompound
         ));
     }

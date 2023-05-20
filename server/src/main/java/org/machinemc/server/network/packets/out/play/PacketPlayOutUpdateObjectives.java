@@ -55,7 +55,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -68,12 +68,12 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
     public byte[] serialize() {
         final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(objectiveName, StandardCharsets.UTF_8)
-                .writeByte((byte) action.getId());
+                .writeByte((byte) action.getID());
         if (action != Action.REMOVE) {
             assert objectiveValue != null;
             assert type != null;
             buf.writeComponent(objectiveValue)
-                    .writeVarInt(type.getId());
+                    .writeVarInt(type.getID());
         }
         return buf.bytes();
     }
@@ -88,7 +88,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
         REMOVE,
         UPDATE;
 
-        public int getId() {
+        public int getID() {
             return ordinal();
         }
 
@@ -103,7 +103,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
         INTEGER,
         HEARTS;
 
-        public int getId() {
+        public int getID() {
             return ordinal();
         }
 

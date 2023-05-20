@@ -44,7 +44,7 @@ public class PacketDecoder extends ByteToMessageDecoder {
         final FriendlyByteBuf buf = new FriendlyByteBuf(in);
         final Packet packet;
         try {
-            packet = PacketFactory.produce(PacketFactory.getPacketByRawId(buf.readVarInt(), packetState), buf);
+            packet = PacketFactory.produce(PacketFactory.getPacketByRawID(buf.readVarInt(), packetState), buf);
             buf.finish();
             if (packet == null) return;
         } catch (Throwable throwable) {

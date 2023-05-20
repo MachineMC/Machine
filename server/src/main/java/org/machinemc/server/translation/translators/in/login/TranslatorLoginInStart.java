@@ -37,7 +37,7 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
         connection.setLoginUsername(packet.getUsername());
         if (!connection.getServer().isOnline()) {
             final PlayerProfile profile = PlayerProfileImpl.offline(packet.getUsername());
-            connection.send(new PacketLoginOutSuccess(profile.getUuid(), profile.getUsername(), profile.getTextures()));
+            connection.send(new PacketLoginOutSuccess(profile.getUUID(), profile.getUsername(), profile.getTextures()));
             if (connection.getState() == PlayerConnection.ClientState.DISCONNECTED)
                 return;
             connection.setState(PlayerConnection.ClientState.PLAY);

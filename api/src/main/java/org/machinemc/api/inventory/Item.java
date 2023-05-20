@@ -97,12 +97,12 @@ public interface Item extends Writable, Cloneable {
     /**
      * @return NBT Compound of the item
      */
-    NBTCompound getNbtCompound();
+    NBTCompound getNBTCompound();
 
     /**
      * @param compound new nbt compound of the item
      */
-    void setNbtCompound(NBTCompound compound);
+    void setNBTCompound(NBTCompound compound);
 
     /**
      * Creates copy of this item with new nbt compound.
@@ -110,7 +110,7 @@ public interface Item extends Writable, Cloneable {
      * @return new item
      */
     @Contract(pure = true)
-    Item withNbtCompound(NBTCompound compound);
+    Item withNBTCompound(NBTCompound compound);
 
     /**
      * @return material of the item

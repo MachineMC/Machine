@@ -27,7 +27,7 @@ public interface Packet extends Cloneable {
     /**
      * @return mapped id of the packet
      */
-    int getId();
+    int getID();
 
     /**
      * @return packet state used by the packet

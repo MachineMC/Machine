@@ -30,7 +30,7 @@ public class PacketPlayOutAcknowledgeBlockChange extends PacketOut {
     private static final int ID = 0x05;
 
     @Getter @Setter
-    private int sequenceId;
+    private int sequenceID;
 
     static {
         register(PacketPlayOutAcknowledgeBlockChange.class, ID, Packet.PacketState.PLAY_OUT,
@@ -38,11 +38,11 @@ public class PacketPlayOutAcknowledgeBlockChange extends PacketOut {
     }
 
     public PacketPlayOutAcknowledgeBlockChange(final ServerBuffer buf) {
-        sequenceId = buf.readVarInt();
+        sequenceID = buf.readVarInt();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -54,7 +54,7 @@ public class PacketPlayOutAcknowledgeBlockChange extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(sequenceId)
+                .writeVarInt(sequenceID)
                 .bytes();
     }
 

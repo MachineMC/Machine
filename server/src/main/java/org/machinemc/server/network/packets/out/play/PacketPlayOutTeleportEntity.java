@@ -30,7 +30,7 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
 
     private static final int ID = 0x66;
 
-    private int entityId;
+    private int entityID;
     private EntityPosition position;
     private boolean onGround;
 
@@ -40,7 +40,7 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     }
 
     public PacketPlayOutTeleportEntity(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         position = EntityPosition.of(
                 buf.readDouble(),
                 buf.readDouble(),
@@ -52,7 +52,7 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -64,7 +64,7 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
+                .writeVarInt(entityID)
                 .write(position)
                 .writeBoolean(onGround)
                 .bytes();

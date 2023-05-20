@@ -61,7 +61,7 @@ public class BiomeManagerImpl implements BiomeManager {
 
     @Override
     public boolean removeBiome(final Biome biome) {
-        return biomes.remove(getBiomeId(biome)) == null;
+        return biomes.remove(getBiomeID(biome)) == null;
     }
 
     @Override
@@ -79,12 +79,12 @@ public class BiomeManagerImpl implements BiomeManager {
     }
 
     @Override
-    public @Nullable Biome getById(final int id) {
+    public @Nullable Biome getByID(final int id) {
         return biomes.get(id);
     }
 
     @Override
-    public int getBiomeId(final Biome biome) {
+    public int getBiomeID(final Biome biome) {
         for (final Map.Entry<Integer, Biome> entry : biomes.entrySet()) {
             if (entry.getValue().equals(biome))
                 return entry.getKey();
@@ -104,7 +104,7 @@ public class BiomeManagerImpl implements BiomeManager {
         final NBTCompound nbtCompound = biome.toNBT();
         return new NBTCompound(Map.of(
                 "name", biome.getName().toString(),
-                "id", getBiomeId(biome),
+                "id", getBiomeID(biome),
                 "element", nbtCompound
         ));
     }

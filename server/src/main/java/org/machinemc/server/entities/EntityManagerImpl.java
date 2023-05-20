@@ -102,11 +102,11 @@ public class EntityManagerImpl implements EntityManager {
 
     @Override
     public void addEntity(final Entity entity) {
-        entityMap.put(entity.getUuid(), entity);
+        entityMap.put(entity.getUUID(), entity);
     }
 
     @Override
     public void removeEntity(final Entity entity) {
-        entityMap.remove(entity.getUuid());
+        entityMap.remove(entity.getUUID());
     }
 }

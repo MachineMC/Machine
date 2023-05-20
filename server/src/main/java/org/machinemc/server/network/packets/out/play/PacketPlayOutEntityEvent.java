@@ -29,7 +29,7 @@ public class PacketPlayOutEntityEvent extends PacketOut {
 
     private static final int ID = 0x1A;
 
-    private int entityId;
+    private int entityID;
     private byte event;
 
     static {
@@ -38,12 +38,12 @@ public class PacketPlayOutEntityEvent extends PacketOut {
     }
 
     public PacketPlayOutEntityEvent(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         event = buf.readByte();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -55,7 +55,7 @@ public class PacketPlayOutEntityEvent extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
+                .writeVarInt(entityID)
                 .writeByte(event)
                 .bytes();
     }

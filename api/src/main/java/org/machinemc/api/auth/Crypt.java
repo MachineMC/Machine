@@ -85,14 +85,14 @@ public final class Crypt {
 
     /**
      * Digest authentication process.
-     * @param baseServerId server id - always empty string
+     * @param baseServerID server id - always empty string
      * @param publicKey server's public key
      * @param secretKey secret key shared between server and client
      * @return digested data
      */
-    public static byte[] digestData(final String baseServerId, final PublicKey publicKey, final SecretKey secretKey) {
+    public static byte[] digestData(final String baseServerID, final PublicKey publicKey, final SecretKey secretKey) {
         try {
-            return digestData(baseServerId.getBytes(BYTE_ENCODING), secretKey.getEncoded(), publicKey.getEncoded());
+            return digestData(baseServerID.getBytes(BYTE_ENCODING), secretKey.getEncoded(), publicKey.getEncoded());
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }

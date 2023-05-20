@@ -28,7 +28,7 @@ public abstract class PacketImpl implements Packet {
     /**
      * @return mapped ID of the packet
      */
-    public abstract int getId();
+    public abstract int getID();
 
     /**
      * Serializes the packet data, doesn't contain packet size and ID.
@@ -48,7 +48,7 @@ public abstract class PacketImpl implements Packet {
     public byte[] rawSerialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(getSize())
-                .writeVarInt(getId())
+                .writeVarInt(getID())
                 .writeBytes(serialize())
                 .bytes();
     }
@@ -59,7 +59,7 @@ public abstract class PacketImpl implements Packet {
      */
     public int getSize() {
         return new FriendlyByteBuf()
-                .writeVarInt(getId())
+                .writeVarInt(getID())
                 .writeBytes(serialize())
                 .bytes().length;
     }
@@ -73,7 +73,7 @@ public abstract class PacketImpl implements Packet {
         final int size = getSize();
         if (size < threshold) { // Packet is too small to be compressed
             final byte[] data = new FriendlyByteBuf().writeVarInt(0) // Empty Data length
-                    .writeVarInt(getId())
+                    .writeVarInt(getID())
                     .writeBytes(serialize())
                     .bytes();
             return new FriendlyByteBuf()
@@ -106,7 +106,7 @@ public abstract class PacketImpl implements Packet {
     private byte[] getCompressedPacketData() {
         try {
             return ZLib.compress(new FriendlyByteBuf()
-                    .writeVarInt(getId())
+                    .writeVarInt(getID())
                     .writeBytes(serialize())
                     .bytes());
         } catch (IOException exception) {

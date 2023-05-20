@@ -63,7 +63,7 @@ public class PacketPlayOutRespawn extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -78,8 +78,8 @@ public class PacketPlayOutRespawn extends PacketOut {
                 .writeNamespacedKey(worldType)
                 .writeNamespacedKey(worldName)
                 .writeLong(hashedSeed)
-                .writeByte((byte) gamemode.getId())
-                .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getId()))
+                .writeByte((byte) gamemode.getID())
+                .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getID()))
                 .writeBoolean(isDebug)
                 .writeBoolean(isFlat)
                 .writeBoolean(copyMetadata)

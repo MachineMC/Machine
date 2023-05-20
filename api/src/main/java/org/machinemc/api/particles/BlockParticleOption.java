@@ -91,7 +91,7 @@ public class BlockParticleOption implements ParticleOption {
 
     @Override
     public void write(final ServerBuffer buf) {
-        buf.writeVarInt(blockData != null ? blockData.getId() : DEFAULT_STATE.getId());
+        buf.writeVarInt(blockData != null ? blockData.getID() : DEFAULT_STATE.getID());
     }
 
 }

@@ -48,10 +48,9 @@ public abstract class ServerEntity implements Entity {
 
     @Getter
     private final EntityType entityType;
-    @Getter
     private UUID uuid;
     @Getter
-    private final int entityId;
+    private final int entityID;
 
     @Getter
     private boolean active;
@@ -85,9 +84,13 @@ public abstract class ServerEntity implements Entity {
         this.server = server;
         this.entityType = entityType;
         this.uuid = uuid;
-        entityId = EntityUtils.getEmptyID();
+        entityID = EntityUtils.getEmptyID();
         location = new Location(0, 0, 0, getServer().getDefaultWorld());
         active = false;
+    }
+
+    public UUID getUUID() {
+        return uuid;
     }
 
     @Override
@@ -175,7 +178,7 @@ public abstract class ServerEntity implements Entity {
             throw new IllegalStateException(this + " is not active");
         active = false;
         getServer().getConnection().broadcastPacket(
-                new PacketPlayOutRemoveEntities(new int[]{getEntityId()})
+                new PacketPlayOutRemoveEntities(new int[]{getEntityID()})
         );
         getServer().getEntityManager().removeEntity(this);
         getWorld().remove(this);
@@ -208,20 +211,20 @@ public abstract class ServerEntity implements Entity {
         final ServerConnection serverConnection = getServer().getConnection();
 
         if (deltaX > 8 || deltaY > 8 || deltaZ > 8) {
-            final Packet teleportPacket = new PacketPlayOutTeleportEntity(getEntityId(), position, onGround);
+            final Packet teleportPacket = new PacketPlayOutTeleportEntity(getEntityID(), position, onGround);
             serverConnection.broadcastPacket(teleportPacket, connected -> connected != connection);
         } else {
             final Packet positionPacket;
             if (rotationChange) {
                 positionPacket = new PacketPlayOutEntityPositionAndRotation(
-                        getEntityId(),
+                        getEntityID(),
                         previousLocation,
                         currentLocation,
                         onGround);
 
             } else {
                 positionPacket = new PacketPlayOutEntityPosition(
-                        getEntityId(),
+                        getEntityID(),
                         previousLocation,
                         currentLocation,
                         onGround);
@@ -230,7 +233,7 @@ public abstract class ServerEntity implements Entity {
         }
 
         if (rotationChange) {
-            final Packet headRotationPacket = new PacketPlayOutHeadRotation(getEntityId(), position.getYaw());
+            final Packet headRotationPacket = new PacketPlayOutHeadRotation(getEntityID(), position.getYaw());
             serverConnection.broadcastPacket(headRotationPacket, connected -> connected != connection);
         }
 
@@ -258,8 +261,8 @@ public abstract class ServerEntity implements Entity {
                 entry("OnGround", (byte) (onGround ? 1 : 0)),
                 entry("Invulnerable", (byte) (invulnerable ? 1 : 0)),
                 entry("PortalCooldown", portalCooldown),
-                entry("WorldUUIDLeast", getWorld().getUuid().getLeastSignificantBits()),
-                entry("WorldUUIDMost", getWorld().getUuid().getMostSignificantBits())
+                entry("WorldUUIDLeast", getWorld().getUUID().getLeastSignificantBits()),
+                entry("WorldUUIDMost", getWorld().getUUID().getMostSignificantBits())
         ));
         compound.setUUID("UUID", uuid);
         if (getCustomName() != null)

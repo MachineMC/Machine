@@ -30,7 +30,7 @@ public class PacketPlayOutLinkEntities extends PacketOut {
     private static final int ID = 0x51;
 
     @Getter @Setter
-    private int attachedEntityId, holdingEntityId;
+    private int attachedEntityID, holdingEntityID;
 
     static {
         register(PacketPlayOutLinkEntities.class, ID, Packet.PacketState.PLAY_OUT,
@@ -38,12 +38,12 @@ public class PacketPlayOutLinkEntities extends PacketOut {
     }
 
     public PacketPlayOutLinkEntities(final ServerBuffer buf) {
-        attachedEntityId = buf.readInt();
-        holdingEntityId = buf.readInt();
+        attachedEntityID = buf.readInt();
+        holdingEntityID = buf.readInt();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -55,8 +55,8 @@ public class PacketPlayOutLinkEntities extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeInt(attachedEntityId)
-                .writeInt(holdingEntityId)
+                .writeInt(attachedEntityID)
+                .writeInt(holdingEntityID)
                 .bytes();
     }
 

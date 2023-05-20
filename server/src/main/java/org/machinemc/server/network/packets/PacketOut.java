@@ -31,8 +31,8 @@ public abstract class PacketOut extends PacketImpl {
                                    final PacketState state,
                                    final PacketCreator<? extends PacketOut> creator) {
         if (!PacketState.out().contains(state)) throw new IllegalStateException();
-        final int fullId = id | state.getMask();
-        PacketFactory.OUT_MAPPING.put(packetClass, fullId);
+        final int fullID = id | state.getMask();
+        PacketFactory.OUT_MAPPING.put(packetClass, fullID);
         PacketFactory.CREATORS.put(packetClass, creator);
     }
 

@@ -68,7 +68,7 @@ public class Particle<O extends ParticleOption> implements NBTSerializable, Writ
 
     @Override
     public void write(final ServerBuffer buf) {
-        buf.writeVarInt(type.getId());
+        buf.writeVarInt(type.getID());
         buf.write(options);
     }
 

@@ -50,13 +50,13 @@ public interface OnlineServer extends ServerProperty {
 
     /**
      * Digest authentication process.
-     * @param baseServerId server id - always empty string
+     * @param baseServerID server id - always empty string
      * @param publicKey server's public key
      * @param secretKey secret key shared between server and client
      * @return digested data
      */
-    default byte[] digestData(String baseServerId, PublicKey publicKey, SecretKey secretKey) {
-        return Crypt.digestData(baseServerId, publicKey, secretKey);
+    default byte[] digestData(String baseServerID, PublicKey publicKey, SecretKey secretKey) {
+        return Crypt.digestData(baseServerID, publicKey, secretKey);
     }
 
 }

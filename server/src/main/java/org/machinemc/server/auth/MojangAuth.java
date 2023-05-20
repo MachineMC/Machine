@@ -49,12 +49,12 @@ public final class MojangAuth {
     /**
      * Checks for auth data created by client if the game is
      * licensed for the given server id.
-     * @param serverId encrypted id of the server
+     * @param serverID encrypted id of the server
      * @param username player's username
      * @return obtained json
      */
-    public static CompletableFuture<JsonObject> getAuthData(final String serverId, final String username) {
-        final String url = String.format(MojangAuth.AUTH_URL, username, serverId);
+    public static CompletableFuture<JsonObject> getAuthData(final String serverID, final String username) {
+        final String url = String.format(MojangAuth.AUTH_URL, username, serverID);
         return CompletableFuture.supplyAsync(() -> {
             try {
                 final HttpRequest request = HttpRequest.newBuilder(new URI(url))

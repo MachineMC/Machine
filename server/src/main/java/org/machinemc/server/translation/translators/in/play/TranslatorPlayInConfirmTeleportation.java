@@ -26,7 +26,7 @@ public class TranslatorPlayInConfirmTeleportation extends PacketTranslator<Packe
         final ServerPlayer player = connection.getOwner();
         if (player == null)
             return false;
-        return player.handleTeleportConfirm(packet.getTeleportId());
+        return player.handleTeleportConfirm(packet.getTeleportID());
     }
 
     @Override

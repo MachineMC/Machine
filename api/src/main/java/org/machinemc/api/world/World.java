@@ -44,7 +44,7 @@ public interface World extends ServerProperty {
     /**
      * @return uuid of the world
      */
-    UUID getUuid();
+    UUID getUUID();
 
     /**
      * @return dimension of the world

@@ -151,7 +151,7 @@ public interface Section extends Writable, Cloneable {
         public void write(final ServerBuffer buf) {
             buf.writeByte(packedXZ());
             buf.writeShort(y);
-            buf.writeVarInt(base.getId());
+            buf.writeVarInt(base.getID());
             buf.writeNBT(data);
         }
 

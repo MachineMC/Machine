@@ -94,7 +94,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -106,7 +106,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     @Override
     public byte[] serialize() {
         final FriendlyByteBuf buf = new FriendlyByteBuf();
-        buf.writeVarInt(action.getId())
+        buf.writeVarInt(action.getID())
                 .writeVarInt(playerInfoDataArray.length);
         for (final PlayerInfoData playerInfoData : playerInfoDataArray)
             playerInfoData.write(action, buf);
@@ -128,7 +128,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
         /**
          * @return id of the action
          */
-        public int getId() {
+        public int getID() {
             return ordinal();
         }
 
@@ -165,7 +165,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                                  @Nullable PublicKeyData publicKeyData) {
 
         public PlayerInfoData(final Player player) {
-            this(player.getUuid(),
+            this(player.getUUID(),
                     player.getName(),
                     player.getProfile().getTextures(),
                     player.getGamemode(),
@@ -189,7 +189,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     assert gamemode != null;
                     buf.writeString(name, StandardCharsets.UTF_8)
                             .writeTextures(playerTextures)
-                            .writeVarInt(gamemode.getId())
+                            .writeVarInt(gamemode.getID())
                             .writeVarInt(latency)
                             .writeBoolean(listName != null);
                     if (listName != null)
@@ -200,7 +200,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                 }
                 case UPDATE_GAMEMODE -> {
                     assert gamemode != null;
-                    buf.writeVarInt(gamemode.getId());
+                    buf.writeVarInt(gamemode.getID());
                 }
                 case UPDATE_LATENCY -> buf.writeVarInt(latency);
                 case UPDATE_DISPLAY_NAME -> {

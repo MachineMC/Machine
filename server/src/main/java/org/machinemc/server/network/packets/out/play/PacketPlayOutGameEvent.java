@@ -45,7 +45,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -57,7 +57,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeByte(event.getId())
+                .writeByte(event.getID())
                 .writeFloat(value)
                 .bytes();
     }
@@ -84,7 +84,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
         /**
          * @return id of the event
          */
-        public byte getId() {
+        public byte getID() {
             return (byte) ordinal();
         }
 

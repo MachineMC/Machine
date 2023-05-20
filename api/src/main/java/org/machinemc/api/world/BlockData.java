@@ -82,7 +82,7 @@ public abstract class BlockData implements Cloneable {
     /**
      * @return id of the block data used by Minecraft protocol
      */
-    public abstract int getId();
+    public abstract int getID();
 
     /**
      * Returns map of keys and values of all properties of this block data.

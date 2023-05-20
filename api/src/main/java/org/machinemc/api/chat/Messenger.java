@@ -85,14 +85,14 @@ public interface Messenger extends CodecPart, ServerProperty {
      * @param id id of the chat type
      * @return chat type with given id in this messenger
      */
-    @Nullable ChatType getById(int id);
+    @Nullable ChatType getByID(int id);
 
     /**
      * Returns the id associated with the given chat type registered in this messenger.
      * @param chatType the chat type
      * @return the id of the chat type, or -1 if it's not registered
      */
-    int getChatTypeId(ChatType chatType);
+    int getChatTypeID(ChatType chatType);
 
     /**
      * @return unmodifiable set of all dimensions registered in this messenger

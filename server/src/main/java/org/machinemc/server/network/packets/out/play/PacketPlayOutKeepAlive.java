@@ -29,7 +29,7 @@ public class PacketPlayOutKeepAlive extends PacketOut {
     private static final int ID = 0x20;
 
     @Getter @Setter
-    private long keepAliveId;
+    private long keepAliveID;
 
     static {
         register(PacketPlayOutKeepAlive.class, ID, PacketState.PLAY_OUT,
@@ -37,11 +37,11 @@ public class PacketPlayOutKeepAlive extends PacketOut {
     }
 
     public PacketPlayOutKeepAlive(final ServerBuffer buf) {
-        keepAliveId = buf.readLong();
+        keepAliveID = buf.readLong();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -53,7 +53,7 @@ public class PacketPlayOutKeepAlive extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeLong(keepAliveId)
+                .writeLong(keepAliveID)
                 .bytes();
     }
 

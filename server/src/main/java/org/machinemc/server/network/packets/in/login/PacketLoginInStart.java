@@ -53,7 +53,7 @@ public class PacketLoginInStart extends PacketIn {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

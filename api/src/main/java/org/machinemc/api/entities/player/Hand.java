@@ -29,7 +29,7 @@ public enum Hand {
     /**
      * @return numeric id of the hand used by Minecraft protocol.
      */
-    public @Range(from = 0, to = 1) int getId() {
+    public @Range(from = 0, to = 1) int getID() {
         return ordinal();
     }
 

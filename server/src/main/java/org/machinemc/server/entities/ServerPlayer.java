@@ -76,12 +76,12 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     @Getter
     private Component playerListName;
 
-    private int teleportId = 0;
+    private int teleportID = 0;
     private boolean teleporting = false;
     private Location teleportLocation;
 
     private ServerPlayer(final Machine server, final PlayerProfile profile, final ClientConnection connection) {
-        super(server, EntityType.PLAYER, profile.getUuid());
+        super(server, EntityType.PLAYER, profile.getUUID());
         this.profile = profile;
         if (connection.getOwner() != null)
             throw new IllegalStateException("There can't be multiple players with the same ClientConnection");
@@ -113,21 +113,21 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
             throw new IllegalStateException("Player can't be initialized if their connection isn't in play state");
         }
 
-        if (manager.getPlayer(profile.getUsername()) != null || manager.getPlayer(profile.getUuid()) != null) {
+        if (manager.getPlayer(profile.getUsername()) != null || manager.getPlayer(profile.getUUID()) != null) {
             connection.disconnect(TranslationComponent.of("disconnect.loginFailed"));
             throw new IllegalStateException("Session is already active");
         }
 
         // Loading NBT Data
         final ServerPlayer player = new ServerPlayer(server, profile, connection);
-        if (server.getPlayerDataContainer().exist(player.getUuid())) {
+        if (server.getPlayerDataContainer().exist(player.getUUID())) {
             try {
-                final NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player.getUuid());
+                final NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player.getUUID());
                 if (nbtCompound != null)
                     player.load(nbtCompound);
             } catch (Exception exception) {
                 server.getConsole().warning("Failed to load player data for " + player.getName()
-                        + " (" + player.getUuid() + ")");
+                        + " (" + player.getUUID() + ")");
                 server.getExceptionHandler().handle(exception);
             }
         }
@@ -162,7 +162,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
         //noinspection UnstableApiUsage
         sendPacket(new PacketPlayOutLogin(
-                getEntityId(),
+                getEntityID(),
                 false,
                 gamemode,
                 previousGamemode,
@@ -232,12 +232,12 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         for (final Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
             if (player == this)
                 continue;
-            sendPacket(new PacketPlayOutSpawnPlayer(player.getEntityId(), player.getUuid(), player.getLocation()));
-            sendPacket(new PacketPlayOutHeadRotation(player.getEntityId(), player.getLocation().getYaw()));
+            sendPacket(new PacketPlayOutSpawnPlayer(player.getEntityID(), player.getUUID(), player.getLocation()));
+            sendPacket(new PacketPlayOutHeadRotation(player.getEntityID(), player.getLocation().getYaw()));
         }
         for (final PlayerConnection other : others) {
-            other.send(new PacketPlayOutSpawnPlayer(getEntityId(), getUuid(), getLocation()));
-            other.send(new PacketPlayOutHeadRotation(getEntityId(), getLocation().getYaw()));
+            other.send(new PacketPlayOutSpawnPlayer(getEntityID(), getUUID(), getLocation()));
+            other.send(new PacketPlayOutHeadRotation(getEntityID(), getLocation().getYaw()));
         }
 
         // Inventory, entities, etc
@@ -322,7 +322,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
      * @param gamemode new gamemode
      */
     private void sendGamemodeChange(final Gamemode gamemode) {
-        sendPacket(new PacketPlayOutGameEvent(PacketPlayOutGameEvent.Event.CHANGE_GAMEMODE, gamemode.getId()));
+        sendPacket(new PacketPlayOutGameEvent(PacketPlayOutGameEvent.Event.CHANGE_GAMEMODE, gamemode.getID()));
     }
 
     /**
@@ -343,20 +343,20 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         final float pitch = location.getPitch() - (flags.contains(TeleportFlags.PITCH) ? getLocation().getPitch() : 0f);
 
         teleportLocation = new Location(x, y, z, yaw, pitch, getWorld());
-        if (++teleportId == Integer.MAX_VALUE)
-            teleportId = 0;
+        if (++teleportID == Integer.MAX_VALUE)
+            teleportID = 0;
 
-        sendPacket(new PacketPlayOutSynchronizePlayerPosition(location, flags, teleportId, dismountVehicle));
+        sendPacket(new PacketPlayOutSynchronizePlayerPosition(location, flags, teleportID, dismountVehicle));
     }
 
 
     /**
      * Handles the teleport confirmation of the player.
-     * @param teleportId id of teleport
+     * @param teleportID id of teleport
      * @return whether the teleport was successful
      */
-    public boolean handleTeleportConfirm(final int teleportId) {
-        if (!teleporting || this.teleportId != teleportId) {
+    public boolean handleTeleportConfirm(final int teleportID) {
+        if (!teleporting || this.teleportID != teleportID) {
             teleporting = false;
             connection.disconnect(TranslationComponent.of("multidisconnect.invalid_player_movement"));
             return false;
@@ -378,9 +378,9 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     @Override
     public NBTCompound toNBT() {
         final NBTCompound nbtCompound = super.toNBT();
-        nbtCompound.set("playerGameType", gamemode.getId());
+        nbtCompound.set("playerGameType", gamemode.getID());
         if (previousGamemode != null)
-            nbtCompound.set("previousPlayerGameType", previousGamemode.getId());
+            nbtCompound.set("previousPlayerGameType", previousGamemode.getID());
         return nbtCompound;
     }
 
@@ -388,7 +388,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     public void load(final NBTCompound nbtCompound) {
         super.load(nbtCompound);
         // TODO replace with default gamemode from server.properties
-        gamemode = Gamemode.fromID(nbtCompound.getValue("playerGameType", Gamemode.SURVIVAL.getId()));
+        gamemode = Gamemode.fromID(nbtCompound.getValue("playerGameType", Gamemode.SURVIVAL.getID()));
         previousGamemode = nbtCompound.containsKey("previousPlayerGameType")
                 ? Gamemode.fromID(nbtCompound.getValue("previousPlayerGameType"))
                 : null;

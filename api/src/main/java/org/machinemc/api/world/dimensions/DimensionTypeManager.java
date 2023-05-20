@@ -86,14 +86,14 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @param id id of the dimension
      * @return dimension with given id in this manager
      */
-    @Nullable DimensionType getById(int id);
+    @Nullable DimensionType getByID(int id);
 
     /**
      * Returns the id associated with the given dimension registered in this manager.
      * @param dimensionType the dimension
      * @return the id of the dimension, or -1 if it's not registered
      */
-    int getDimensionId(DimensionType dimensionType);
+    int getDimensionID(DimensionType dimensionType);
 
     /**
      * @return unmodifiable set of all dimensions registered in this manager

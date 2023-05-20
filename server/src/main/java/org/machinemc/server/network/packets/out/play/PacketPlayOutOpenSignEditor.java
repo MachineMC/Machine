@@ -42,7 +42,7 @@ public class PacketPlayOutOpenSignEditor extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

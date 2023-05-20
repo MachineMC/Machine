@@ -68,8 +68,8 @@ public class PacketPlayOutLogin extends PacketOut {
         entityID = buf.readInt();
         isHardcore = buf.readBoolean();
         gamemode = Gamemode.fromID(buf.readByte());
-        final byte gamemodeId = buf.readByte();
-        previousGamemode = gamemodeId == -1 ? null : Gamemode.fromID(gamemodeId);
+        final byte gamemodeID = buf.readByte();
+        previousGamemode = gamemodeID == -1 ? null : Gamemode.fromID(gamemodeID);
         dimensions = buf.readStringList(StandardCharsets.UTF_8);
         this.dimensionCodec = buf.readNBT();
         spawnWorldType = buf.readNamespacedKey();
@@ -90,7 +90,7 @@ public class PacketPlayOutLogin extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -104,8 +104,8 @@ public class PacketPlayOutLogin extends PacketOut {
         final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeInt(entityID)
                 .writeBoolean(isHardcore)
-                .writeByte((byte) gamemode.getId())
-                .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getId()))
+                .writeByte((byte) gamemode.getID())
+                .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getID()))
                 .writeStringList(new ArrayList<>(dimensions), StandardCharsets.UTF_8)
                 .writeNBT(dimensionCodec)
                 .writeNamespacedKey(spawnWorldType)

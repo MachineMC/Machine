@@ -29,7 +29,7 @@ public class PacketPlayOutSetPassengers extends PacketOut {
 
     private static final int ID = 0x57;
 
-    private int entityId;
+    private int entityID;
     private int[] passengers;
 
     static {
@@ -38,12 +38,12 @@ public class PacketPlayOutSetPassengers extends PacketOut {
     }
 
     public PacketPlayOutSetPassengers(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         passengers = buf.readVarIntArray();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -55,7 +55,7 @@ public class PacketPlayOutSetPassengers extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
+                .writeVarInt(entityID)
                 .writeVarIntArray(passengers)
                 .bytes();
     }

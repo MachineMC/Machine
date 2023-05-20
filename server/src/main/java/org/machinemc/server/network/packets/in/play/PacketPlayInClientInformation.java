@@ -61,7 +61,7 @@ public class PacketPlayInClientInformation extends PacketIn {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -78,7 +78,7 @@ public class PacketPlayInClientInformation extends PacketIn {
                 .writeVarInt(chatMode.getID())
                 .writeBoolean(chatColor)
                 .writeByte((byte) SkinPart.skinMask(displayedSkinParts.toArray(new SkinPart[0])))
-                .writeVarInt(mainHand.getId())
+                .writeVarInt(mainHand.getID())
                 .writeBoolean(enableTextFiltering)
                 .writeBoolean(allowServerListings)
                 .bytes();

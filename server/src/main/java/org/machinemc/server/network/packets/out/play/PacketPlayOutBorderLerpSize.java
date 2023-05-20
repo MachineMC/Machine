@@ -44,7 +44,7 @@ public class PacketPlayOutBorderLerpSize extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

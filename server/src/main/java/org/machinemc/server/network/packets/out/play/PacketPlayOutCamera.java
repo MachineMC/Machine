@@ -29,7 +29,7 @@ public class PacketPlayOutCamera extends PacketOut {
     private static final int ID = 0x49;
 
     @Getter @Setter
-    private int cameraId;
+    private int cameraID;
 
     static {
         register(PacketPlayOutCamera.class, ID, PacketState.PLAY_OUT,
@@ -37,11 +37,11 @@ public class PacketPlayOutCamera extends PacketOut {
     }
 
     public PacketPlayOutCamera(final ServerBuffer buf) {
-        cameraId = buf.readVarInt();
+        cameraID = buf.readVarInt();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -53,7 +53,7 @@ public class PacketPlayOutCamera extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(cameraId)
+                .writeVarInt(cameraID)
                 .bytes();
     }
 

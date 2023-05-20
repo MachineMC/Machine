@@ -46,7 +46,7 @@ public class PacketPlayInChatMessage extends PacketIn {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

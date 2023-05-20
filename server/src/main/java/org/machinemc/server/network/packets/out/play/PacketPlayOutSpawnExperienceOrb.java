@@ -30,7 +30,7 @@ public class PacketPlayOutSpawnExperienceOrb extends PacketOut {
 
     private static final int ID = 0x01;
 
-    private int entityId;
+    private int entityID;
     private EntityPosition position;
     private short count;
 
@@ -40,13 +40,13 @@ public class PacketPlayOutSpawnExperienceOrb extends PacketOut {
     }
 
     public PacketPlayOutSpawnExperienceOrb(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         position = EntityPosition.of(buf.readDouble(), buf.readDouble(), buf.readDouble());
         count = buf.readByte();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -58,7 +58,7 @@ public class PacketPlayOutSpawnExperienceOrb extends PacketOut {
     @Override
     public byte[] serialize() {
         final FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeVarInt(entityId)
+                .writeVarInt(entityID)
                 .writeDouble(position.getX())
                 .writeDouble(position.getY())
                 .writeDouble(position.getZ());

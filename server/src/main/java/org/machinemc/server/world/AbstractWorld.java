@@ -14,6 +14,7 @@
  */
 package org.machinemc.server.world;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.server.Machine;
@@ -41,6 +42,7 @@ public abstract class AbstractWorld implements World {
     private final Machine server;
 
     private final NamespacedKey name;
+    @Getter(AccessLevel.NONE)
     private final UUID uuid;
     private final DimensionType dimensionType;
     private final WorldType worldType;
@@ -62,6 +64,11 @@ public abstract class AbstractWorld implements World {
         this.worldType = worldType;
         this.seed = seed;
         difficulty = server.getProperties().getDefaultDifficulty();
+    }
+
+    @Override
+    public UUID getUUID() {
+        return uuid;
     }
 
     @Override

@@ -343,7 +343,7 @@ public class ServerWorld extends AbstractWorld {
                         } else {
                             visual = blockType.getBlockData(null);
                         }
-                        section.getBlockPalette().set(x, y, z, visual.getId());
+                        section.getBlockPalette().set(x, y, z, visual.getID());
 
                         // Setting client visible nbt data for the section
                         if (blockType instanceof BlockEntityType blockEntityType && blockEntityType.sendsToClient()) {
@@ -415,11 +415,11 @@ public class ServerWorld extends AbstractWorld {
                             BlockData visual = blockType.getBlockData(state);
                             for (final BlockHandler blockHandler : blockType.getHandlers())
                                 visual = blockHandler.onVisualRequest(state, visual);
-                            section.getBlockPalette().set(x, y, z, visual.getId()
+                            section.getBlockPalette().set(x, y, z, visual.getID()
                             );
                         });
                     } else {
-                        section.getBlockPalette().fill(blockType.getBlockData(null).getId());
+                        section.getBlockPalette().fill(blockType.getBlockData(null).getID());
                     }
 
                 }
@@ -428,7 +428,7 @@ public class ServerWorld extends AbstractWorld {
                 if (biomePalette.length != 1) {
                     final Map<Biome, Integer> idMap = new HashMap<>();
                     for (final Biome biome : biomePalette)
-                        idMap.put(biome, getServer().getBiomeManager().getBiomeId(biome));
+                        idMap.put(biome, getServer().getBiomeManager().getBiomeID(biome));
                     segment.setAllBiomes((x, y, z) -> {
                         final Biome biome = biomePalette[biomesData[Section.index(x, y, z)]];
                         section.getBlockPalette().set(x, y, z, idMap.get(biome));
@@ -436,7 +436,7 @@ public class ServerWorld extends AbstractWorld {
                     });
                 } else {
                     segment.fillBiome(biomePalette[0].getName().toString());
-                    section.getBiomePalette().fill(getServer().getBiomeManager().getBiomeId(biomePalette[0]));
+                    section.getBiomePalette().fill(getServer().getBiomeManager().getBiomeID(biomePalette[0]));
                 }
 
                 chunk.setSection(i, section); // we set the section manually

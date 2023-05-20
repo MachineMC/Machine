@@ -14,8 +14,7 @@
  */
 package org.machinemc.api.inventory;
 
-import lombok.Data;
-import lombok.Synchronized;
+import lombok.*;
 import org.machinemc.nbt.NBTCompound;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.Material;
@@ -30,6 +29,8 @@ public class ItemStack implements Item {
 
     private Material material;
     private byte amount = 1;
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private NBTCompound nbtCompound = new NBTCompound();
 
     static {
@@ -57,7 +58,7 @@ public class ItemStack implements Item {
      * @param material material to get id from
      * @return id of the material
      */
-    public static int getId(final Material material) {
+    public static int getID(final Material material) {
         return material.getId();
     }
 
@@ -87,9 +88,19 @@ public class ItemStack implements Item {
     }
 
     @Override
-    public ItemStack withNbtCompound(final NBTCompound compound) {
+    public NBTCompound getNBTCompound() {
+        return nbtCompound;
+    }
+
+    @Override
+    public void setNBTCompound(NBTCompound compound) {
+        this.nbtCompound = compound;
+    }
+
+    @Override
+    public ItemStack withNBTCompound(final NBTCompound compound) {
         final ItemStack itemStack = clone();
-        itemStack.setNbtCompound(compound);
+        itemStack.setNBTCompound(compound);
         return itemStack;
     }
 
@@ -136,7 +147,7 @@ public class ItemStack implements Item {
     public ItemStack clone() {
         final ItemStack clone = new ItemStack(material);
         clone.setAmount(amount);
-        clone.setNbtCompound(nbtCompound.clone());
+        clone.setNBTCompound(nbtCompound.clone());
         return clone;
     }
 

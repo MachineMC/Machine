@@ -43,7 +43,7 @@ public class PacketPlayOutSetTablistHeaderAndFooter extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

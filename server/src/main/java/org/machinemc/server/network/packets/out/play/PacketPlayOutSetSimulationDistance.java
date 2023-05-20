@@ -41,7 +41,7 @@ public class PacketPlayOutSetSimulationDistance extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

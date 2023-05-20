@@ -119,7 +119,7 @@ public enum BlockEntityBase {
     /**
      * @return numeric id of the block entity base used by Minecraft protocol.
      */
-    public @Range(from = 0, to = 37) int getId() {
+    public @Range(from = 0, to = 37) int getID() {
         return ordinal();
     }
 

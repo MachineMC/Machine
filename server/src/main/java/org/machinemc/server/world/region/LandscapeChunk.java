@@ -223,7 +223,7 @@ public class LandscapeChunk extends WorldChunk {
                     x / 4,
                     sectionY / 4,
                     z / 4,
-                    getServer().getBiomeManager().getBiomeId(biome)
+                    getServer().getBiomeManager().getBiomeID(biome)
             ); // biome palette's dimension is 4 (xyz/4)
 
         segment.push();
@@ -332,7 +332,7 @@ public class LandscapeChunk extends WorldChunk {
             // Doesn't have dynamic visual, the palette only needs
             // to be filled with single value
             if (!blockType.hasDynamicVisual()) {
-                section.getBlockPalette().fill(blockType.getBlockData(null).getId());
+                section.getBlockPalette().fill(blockType.getBlockData(null).getID());
 
                 // If block type is client nbt block entity we set client
                 // nbt for each entry (no need to use #setSectionBlock,
@@ -390,7 +390,7 @@ public class LandscapeChunk extends WorldChunk {
         }
 
 
-        section.getBlockPalette().set(x, y, z, visual.getId());
+        section.getBlockPalette().set(x, y, z, visual.getID());
 
         // Sets client nbt in case the block supports it
         if (blockType instanceof BlockEntityType blockEntityType) {
@@ -460,7 +460,7 @@ public class LandscapeChunk extends WorldChunk {
                 if (biome == null)
                     biome = biomeManager.getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()));
                 assert biome != null;
-                final int id = biomeManager.getBiomeId(biome);
+                final int id = biomeManager.getBiomeID(biome);
                 biomes.put(biomeName, id);
                 biomesPalette.set(x / 4, y / 4, z / 4, id);
             });
@@ -469,7 +469,7 @@ public class LandscapeChunk extends WorldChunk {
             Biome biome = biomeManager.getBiome(LazyNamespacedKey.lazy(source.getBiomePalette().get(0)));
             if (biome == null)
                 biome = biomeManager.getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()));
-            biomesPalette.fill(biomeManager.getBiomeId(biome));
+            biomesPalette.fill(biomeManager.getBiomeID(biome));
         }
     }
 

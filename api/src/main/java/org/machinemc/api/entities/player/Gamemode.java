@@ -31,7 +31,7 @@ public enum Gamemode {
     /**
      * @return numeric id of the gamemode used by Minecraft protocol.
      */
-    public @Range(from = 0, to = 3) int getId() {
+    public @Range(from = 0, to = 3) int getID() {
         return ordinal();
     }
 

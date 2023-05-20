@@ -154,8 +154,8 @@ class BlockDataImpl extends BlockData {
     public static void finishRegistration() {
         canRegister();
         registryArray = new BlockDataImpl[Iterables.getLast(TEMP_REGISTRY.keySet()) + 1];
-        for (final Integer stateId : TEMP_REGISTRY.keySet())
-            registryArray[stateId] = TEMP_REGISTRY.get(stateId);
+        for (final Integer stateID : TEMP_REGISTRY.keySet())
+            registryArray[stateID] = TEMP_REGISTRY.get(stateID);
         TEMP_REGISTRY.clear();
     }
 
@@ -204,7 +204,7 @@ class BlockDataImpl extends BlockData {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         if (id != -1) return id;
 
         final Object[][] available = getAcceptedProperties();

@@ -30,7 +30,7 @@ public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
 
     private static final int ID = 0x30;
 
-    private byte windowId;
+    private byte windowID;
     private NamespacedKey recipe;
 
     static {
@@ -39,12 +39,12 @@ public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
     }
 
     public PacketPlayOutPlaceGhostRecipe(final ServerBuffer buf) {
-        windowId = buf.readByte();
+        windowID = buf.readByte();
         recipe = buf.readNamespacedKey();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -56,7 +56,7 @@ public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeByte(windowId)
+                .writeByte(windowID)
                 .writeNamespacedKey(recipe)
                 .bytes();
     }

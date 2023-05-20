@@ -191,7 +191,7 @@ public class VibrationParticleOption implements ParticleOption {
         }
 
         public EntityPositionSource(final Entity entity) {
-            this(entity.getUuid(), entity.getEntityId(), (float) entity.getEntityType().getHeight());
+            this(entity.getUUID(), entity.getEntityID(), (float) entity.getEntityType().getHeight());
         }
 
         @Override

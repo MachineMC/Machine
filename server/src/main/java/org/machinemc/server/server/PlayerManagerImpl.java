@@ -39,12 +39,12 @@ public class PlayerManagerImpl implements PlayerManager {
 
     @Override
     public void addPlayer(final Player player) {
-        playerMap.putIfAbsent(player.getUuid(), player);
+        playerMap.putIfAbsent(player.getUUID(), player);
     }
 
     @Override
     public void removePlayer(final Player player) {
-        playerMap.remove(player.getUuid());
+        playerMap.remove(player.getUUID());
     }
 
     @Override

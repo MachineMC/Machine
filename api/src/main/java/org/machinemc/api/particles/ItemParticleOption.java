@@ -76,7 +76,7 @@ public class ItemParticleOption implements ParticleOption {
 
         item = new ItemStack(material);
         item.setAmount((byte) amount);
-        item.setNbtCompound(tag);
+        item.setNBTCompound(tag);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class ItemParticleOption implements ParticleOption {
         final Item item = this.item != null ? this.item : DEFAULT_ITEM;
         compound.put("id", item.getMaterial().getName().toString());
         compound.put("Count", (int) item.getAmount());
-        compound.put("tag", item.getNbtCompound());
+        compound.put("tag", item.getNBTCompound());
         return new NBTCompound(Map.of("value", compound));
     }
 

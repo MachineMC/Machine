@@ -30,7 +30,7 @@ public class PacketPlayOutCloseContainer extends PacketOut {
     private static final int ID = 0x10;
 
     @Getter @Setter
-    private byte windowId;
+    private byte windowID;
 
     static {
         register(PacketPlayOutCloseContainer.class, ID, Packet.PacketState.PLAY_OUT,
@@ -38,11 +38,11 @@ public class PacketPlayOutCloseContainer extends PacketOut {
     }
 
     public PacketPlayOutCloseContainer(final ServerBuffer buf) {
-        windowId = buf.readByte();
+        windowID = buf.readByte();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -54,7 +54,7 @@ public class PacketPlayOutCloseContainer extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeByte(windowId)
+                .writeByte(windowID)
                 .bytes();
     }
 

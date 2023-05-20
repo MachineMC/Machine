@@ -86,9 +86,9 @@ public final class BlockData {
 
         final JsonArray jsonStates = json.get("states").getAsJsonArray();
         for (final JsonElement stateElement : jsonStates) {
-            final int stateId = stateElement.getAsJsonObject().get("id").getAsInt();
-            if (stateId < startingState || startingState == -1)
-                startingState = stateId;
+            final int stateID = stateElement.getAsJsonObject().get("id").getAsInt();
+            if (stateID < startingState || startingState == -1)
+                startingState = stateID;
             final boolean isDefault = stateElement.getAsJsonObject().get("default") != null;
             final JsonObject stateProperties = stateElement.getAsJsonObject().get("properties").getAsJsonObject();
             if (isDefault) {

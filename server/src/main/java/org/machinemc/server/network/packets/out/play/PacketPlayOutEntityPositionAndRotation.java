@@ -35,13 +35,13 @@ public class PacketPlayOutEntityPositionAndRotation  extends PacketOut {
                 PacketPlayOutEntityPositionAndRotation::new);
     }
 
-    private int entityId;
+    private int entityID;
     private short deltaX, deltaY, deltaZ;
     private float yaw, pitch;
     private boolean onGround;
 
     public PacketPlayOutEntityPositionAndRotation(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         deltaX = buf.readShort();
         deltaY = buf.readShort();
         deltaZ = buf.readShort();
@@ -50,11 +50,11 @@ public class PacketPlayOutEntityPositionAndRotation  extends PacketOut {
         onGround = buf.readBoolean();
     }
 
-    public PacketPlayOutEntityPositionAndRotation(final int entityId,
+    public PacketPlayOutEntityPositionAndRotation(final int entityID,
                                                   final EntityPosition previousPosition,
                                                   final EntityPosition newPosition,
                                                   final boolean onGround) {
-        this.entityId = entityId;
+        this.entityID = entityID;
         this.deltaX = (short) ((newPosition.getX() * 32 - previousPosition.getX() * 32) * 128);
         this.deltaY = (short) ((newPosition.getY() * 32 - previousPosition.getY() * 32) * 128);
         this.deltaZ = (short) ((newPosition.getZ() * 32 - previousPosition.getZ() * 32) * 128);
@@ -64,7 +64,7 @@ public class PacketPlayOutEntityPositionAndRotation  extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -76,7 +76,7 @@ public class PacketPlayOutEntityPositionAndRotation  extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
+                .writeVarInt(entityID)
                 .writeShort(deltaX)
                 .writeShort(deltaY)
                 .writeShort(deltaZ)

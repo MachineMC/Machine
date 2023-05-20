@@ -83,14 +83,14 @@ public interface BiomeManager extends CodecPart, ServerProperty {
      * @param id id of the biome
      * @return biome with given id in this manager
      */
-    @Nullable Biome getById(int id);
+    @Nullable Biome getByID(int id);
 
     /**
      * Returns the id associated with the given biome registered in this manager.
      * @param biome the biome
      * @return the id of the dimension, or -1 if it's not registered
      */
-    int getBiomeId(Biome biome);
+    int getBiomeID(Biome biome);
 
     /**
      * @return unmodifiable set of all biomes registered in this manager

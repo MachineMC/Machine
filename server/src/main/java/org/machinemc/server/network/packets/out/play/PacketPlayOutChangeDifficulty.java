@@ -46,7 +46,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -58,7 +58,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeByte((byte) difficulty.getId())
+                .writeByte((byte) difficulty.getID())
                 .writeBoolean(isLocked)
                 .bytes();
     }

@@ -30,7 +30,7 @@ public class PacketPlayOutBlockDestroyStage extends PacketOut {
 
     private static final int ID = 0x06;
 
-    private int entityId;
+    private int entityID;
     private BlockPosition position;
     private byte destroyStage;
 
@@ -40,13 +40,13 @@ public class PacketPlayOutBlockDestroyStage extends PacketOut {
     }
 
     public PacketPlayOutBlockDestroyStage(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         position = buf.readBlockPos();
         destroyStage = buf.readByte();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -58,7 +58,7 @@ public class PacketPlayOutBlockDestroyStage extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
+                .writeVarInt(entityID)
                 .writeBlockPos(position)
                 .writeByte(destroyStage)
                 .bytes();

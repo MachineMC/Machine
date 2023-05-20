@@ -34,14 +34,14 @@ public class PacketPlayInConfirmTeleportation extends PacketIn {
     }
 
     @Getter @Setter
-    private int teleportId;
+    private int teleportID;
 
     public PacketPlayInConfirmTeleportation(final ServerBuffer buf) {
-        teleportId = buf.readVarInt();
+        teleportID = buf.readVarInt();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -53,7 +53,7 @@ public class PacketPlayInConfirmTeleportation extends PacketIn {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(teleportId)
+                .writeVarInt(teleportID)
                 .bytes();
     }
 

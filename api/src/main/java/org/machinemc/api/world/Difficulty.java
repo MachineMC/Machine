@@ -33,7 +33,7 @@ public enum Difficulty {
     /**
      * @return numeric id of the difficulty used by Minecraft protocol.
      */
-    public @Range(from = 0, to = 3) int getId() {
+    public @Range(from = 0, to = 3) int getID() {
         return ordinal();
     }
 

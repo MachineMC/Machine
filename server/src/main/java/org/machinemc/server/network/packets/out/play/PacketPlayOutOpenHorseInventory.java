@@ -30,9 +30,9 @@ public class PacketPlayOutOpenHorseInventory extends PacketOut {
 
     private static final int ID = 0x1E;
 
-    private byte windowId;
+    private byte windowID;
     private int slotCount;
-    private int entityId;
+    private int entityID;
 
     static {
         register(PacketPlayOutOpenHorseInventory.class, ID, Packet.PacketState.PLAY_OUT,
@@ -40,13 +40,13 @@ public class PacketPlayOutOpenHorseInventory extends PacketOut {
     }
 
     public PacketPlayOutOpenHorseInventory(final ServerBuffer buf) {
-        windowId = buf.readByte();
+        windowID = buf.readByte();
         slotCount = buf.readVarInt();
-        entityId = buf.readInt();
+        entityID = buf.readInt();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -58,9 +58,9 @@ public class PacketPlayOutOpenHorseInventory extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeByte(windowId)
+                .writeByte(windowID)
                 .writeVarInt(slotCount)
-                .writeInt(entityId)
+                .writeInt(entityID)
                 .bytes();
     }
 

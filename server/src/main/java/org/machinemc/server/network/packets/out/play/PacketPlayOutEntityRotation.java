@@ -35,26 +35,26 @@ public class PacketPlayOutEntityRotation  extends PacketOut {
                 PacketPlayOutEntityRotation::new);
     }
 
-    private int entityId;
+    private int entityID;
     private float yaw, pitch;
     private boolean onGround;
 
     public PacketPlayOutEntityRotation(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         yaw = buf.readAngle();
         pitch = buf.readAngle();
         onGround = buf.readBoolean();
     }
 
-    public PacketPlayOutEntityRotation(final int entityId, final EntityPosition newPosition, final boolean onGround) {
-        this.entityId = entityId;
+    public PacketPlayOutEntityRotation(final int entityID, final EntityPosition newPosition, final boolean onGround) {
+        this.entityID = entityID;
         this.yaw = newPosition.getYaw();
         this.pitch = newPosition.getPitch();
         this.onGround = onGround;
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -66,7 +66,7 @@ public class PacketPlayOutEntityRotation  extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
+                .writeVarInt(entityID)
                 .writeAngle(yaw)
                 .writeAngle(pitch)
                 .writeBoolean(onGround)

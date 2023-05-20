@@ -45,7 +45,7 @@ public class PacketPlayInPlayerRotation extends PacketIn {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

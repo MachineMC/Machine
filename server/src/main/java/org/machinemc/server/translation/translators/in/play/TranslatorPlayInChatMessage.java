@@ -47,7 +47,7 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
                 .replace("%name%", player.getName())
                 .replace("%message%", packet.getMessage());
         for (final Player serverPlayer : connection.getServer().getPlayerManager().getPlayers())
-            serverPlayer.sendMessage(player.getUuid(), TextComponent.of(message), MessageType.SYSTEM);
+            serverPlayer.sendMessage(player.getUUID(), TextComponent.of(message), MessageType.SYSTEM);
         connection.getServer().getConsole().info(message);
     }
 

@@ -38,12 +38,12 @@ public interface Entity extends ServerProperty, NBTSerializable, Nameable {
     /**
      * @return uuid of the entity
      */
-    UUID getUuid();
+    UUID getUUID();
 
     /**
      * @return id of the entity
      */
-    int getEntityId();
+    int getEntityID();
 
     /**
      * @return true if the entity is active

@@ -74,7 +74,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
 
     @Override
     public boolean removeDimension(final DimensionType dimensionType) {
-        return dimensionTypes.remove(getDimensionId(dimensionType)) == null;
+        return dimensionTypes.remove(getDimensionID(dimensionType)) == null;
     }
 
     @Override
@@ -92,12 +92,12 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
     }
 
     @Override
-    public @Nullable DimensionType getById(final int id) {
+    public @Nullable DimensionType getByID(final int id) {
         return dimensionTypes.get(id);
     }
 
     @Override
-    public int getDimensionId(final DimensionType dimensionType) {
+    public int getDimensionID(final DimensionType dimensionType) {
         for (final Map.Entry<Integer, DimensionType> entry : dimensionTypes.entrySet()) {
             if (entry.getValue().equals(dimensionType))
                 return entry.getKey();
@@ -117,7 +117,7 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
         final NBTCompound nbtCompound = dimensionType.toNBT();
         return new NBTCompound(Map.of(
                 "name", dimensionType.getName().toString(),
-                "id", getDimensionId(dimensionType),
+                "id", getDimensionID(dimensionType),
                 "element", nbtCompound
         ));
     }

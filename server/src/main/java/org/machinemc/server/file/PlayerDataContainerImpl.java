@@ -82,7 +82,7 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
      */
     @Override
     public void savePlayerData(final Player player) {
-        player.serializeNBT(getPlayerDataFile(player.getUuid(), true));
+        player.serializeNBT(getPlayerDataFile(player.getUUID(), true));
     }
 
 }

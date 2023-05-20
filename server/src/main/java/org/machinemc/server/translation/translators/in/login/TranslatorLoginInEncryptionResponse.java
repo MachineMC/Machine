@@ -58,14 +58,14 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
         final SecretKey secretkey = onlineServer.getSecretKey(onlineServer.getKey().getPrivate(), packet.getSecret());
         connection.setSecretKey(secretkey);
 
-        final String serverId = new BigInteger(onlineServer.digestData(
+        final String serverID = new BigInteger(onlineServer.digestData(
                 SERVER_ID,
                 onlineServer.getKey().getPublic(),
                 secretkey)
         ).toString(16);
         final String username = URLEncoder.encode(connection.getLoginUsername(), StandardCharsets.UTF_8);
 
-        MojangAuth.getAuthData(serverId, username).thenAccept(json -> {
+        MojangAuth.getAuthData(serverID, username).thenAccept(json -> {
             if (json == null) {
                 try {
                     connection.disconnect(TranslationComponent.of("disconnect.loginFailedInfo.invalidSession"));

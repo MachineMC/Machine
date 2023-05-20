@@ -52,7 +52,7 @@ public class PacketLoginOutSuccess extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

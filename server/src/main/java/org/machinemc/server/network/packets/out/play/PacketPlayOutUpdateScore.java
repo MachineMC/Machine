@@ -53,7 +53,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -66,7 +66,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
     public byte[] serialize() {
         final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(entityName, StandardCharsets.UTF_8)
-                .writeVarInt(action.getId())
+                .writeVarInt(action.getID())
                 .writeString(objectiveName, StandardCharsets.UTF_8);
         if (action != Action.REMOVE) {
             assert value != null;
@@ -84,7 +84,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
         UPDATE,
         REMOVE;
 
-        public int getId() {
+        public int getID() {
             return ordinal();
         }
 

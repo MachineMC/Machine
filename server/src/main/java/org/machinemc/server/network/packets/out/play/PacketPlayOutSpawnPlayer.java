@@ -32,7 +32,7 @@ public class PacketPlayOutSpawnPlayer extends PacketOut {
 
     private static final int ID = 0x02;
 
-    private int entityId;
+    private int entityID;
     private UUID uuid;
     private EntityPosition position;
 
@@ -43,13 +43,13 @@ public class PacketPlayOutSpawnPlayer extends PacketOut {
     }
 
     public PacketPlayOutSpawnPlayer(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         uuid = buf.readUUID();
         position = EntityPosition.read(buf);
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -61,7 +61,7 @@ public class PacketPlayOutSpawnPlayer extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
+                .writeVarInt(entityID)
                 .writeUUID(uuid)
                 .write(position)
                 .bytes();

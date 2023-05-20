@@ -32,7 +32,7 @@ public interface PlayerProfile {
     /**
      * @return player's uuid
      */
-    UUID getUuid();
+    UUID getUUID();
 
     /**
      * @return player's skin textures
