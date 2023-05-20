@@ -90,6 +90,9 @@ public final class ParticleType<O extends ParticleOption> {
         this(name, id, type -> (O) new ParticleOption.SimpleOptions());
     }
 
+    /**
+     * @return id of the particle type
+     */
     public int getID() {
         return id;
     }

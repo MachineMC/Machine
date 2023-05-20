@@ -93,7 +93,7 @@ public class ItemStack implements Item {
     }
 
     @Override
-    public void setNBTCompound(NBTCompound compound) {
+    public void setNBTCompound(final NBTCompound compound) {
         this.nbtCompound = compound;
     }
 

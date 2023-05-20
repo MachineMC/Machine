@@ -89,6 +89,7 @@ public abstract class ServerEntity implements Entity {
         active = false;
     }
 
+    @Override
     public UUID getUUID() {
         return uuid;
     }

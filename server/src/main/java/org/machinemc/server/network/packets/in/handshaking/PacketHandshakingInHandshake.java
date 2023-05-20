@@ -82,6 +82,9 @@ public class PacketHandshakingInHandshake extends PacketIn {
 
         private final int id;
 
+        /**
+         * @return id of the handshake type
+         */
         public int getID() {
             return id;
         }
