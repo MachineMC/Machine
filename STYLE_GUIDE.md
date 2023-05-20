@@ -35,6 +35,9 @@ subject to the following changes:
   - Unnecessary parentheses are not permitted.
   - Boolean expressions have to be as simple as possible.
   - If a class overrides either the equals or hashCode methods, it must override both methods.
+  - Capitalize acronyms in field, method, and class names, unless the name begins with the acronym.
+    - Examples of naming to avoid: `getUuid`, `ID`, `setNbt`.
+    - Examples of good naming: `getUUID`, `id`, `setNBT`.
 
 To perform a style check on your code, execute the `other/checkstyleMain` task within the module containing the code.
 
