@@ -68,7 +68,7 @@ public final class ApplicationCommands {
                             "list — displays list of all available and running servers",
                             "jump <name> — jumps into a console of given running server",
                             "start <name> — starts up given server container",
-                            "stop <name> — shuts down a given running server"
+                            "stop <name> — shuts down given running server"
                     );
                     return 0;
                 })
@@ -101,7 +101,6 @@ public final class ApplicationCommands {
                             if (container.getInstance() == null) return 0;
                             application.getTerminal().info("Shutting down '" + container.getName() + "' server");
                             container.getInstance().shutdown();
-                            application.getTerminal().info("Server '" + container.getName() + "' has been shut down");
                             return 0;
                         })
                 )
@@ -205,9 +204,8 @@ public final class ApplicationCommands {
                                 application.getTerminal().info("Server '" + name + "' hasn't been shut down yet");
                                 return 0;
                             }
-                            application.startContainer(container);
                             application.getTerminal().openServer(container);
-                            application.getTerminal().info("Starting up '" + name + "' server");
+                            application.startContainer(container);
                             return 0;
                         })
                 )

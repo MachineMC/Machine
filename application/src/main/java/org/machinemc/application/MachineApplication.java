@@ -170,6 +170,7 @@ public final class MachineApplication implements ServerApplication {
             handleException(exception);
             return;
         }
+        terminal.info("Starting up '" + container.getName() + "' server");
         Scheduler.task((input, session) -> {
             try {
                 server.run();
@@ -285,6 +286,7 @@ public final class MachineApplication implements ServerApplication {
      * @param container container to stop
      */
     public void stopServer(final MachineContainer container) {
+        terminal.info("Server '" + container.getName() + "' has been shut down");
         terminal.exitServer(container);
         terminal.openServer(null);
         container.setInstance(null);
