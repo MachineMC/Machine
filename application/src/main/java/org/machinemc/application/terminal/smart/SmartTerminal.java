@@ -16,9 +16,11 @@ package org.machinemc.application.terminal.smart;
 
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
+import org.jline.keymap.KeyMap;
 import org.jline.reader.History;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.Widget;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 import org.machinemc.api.logging.Console;
@@ -103,6 +105,12 @@ public class SmartTerminal extends SwitchTerminal {
         if (highlighter != null) builder.highlighter(highlighter);
         if (history != null) builder.history(history);
         reader = builder.build();
+
+        reader.getKeyMaps().get(LineReader.MAIN).bind((Widget) () -> {
+            if (getCurrent() == null) return true;
+            getApplication().exitServer(getCurrent());
+            return true;
+        }, KeyMap.alt('x'));
 
         info("Started the application using Smart Terminal");
         info("Press [TAB] for automatic tab completing");

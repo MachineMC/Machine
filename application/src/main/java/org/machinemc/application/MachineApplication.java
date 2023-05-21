@@ -153,22 +153,18 @@ public final class MachineApplication implements ServerApplication {
      * instance, new one is created.
      * @param container container
      */
-    private void startContainer(final MachineContainer container) {
+    public void startContainer(final MachineContainer container) {
         final Machine server;
         try {
-            if (container.getInstance() == null) {
-                server = new Machine(
-                        this,
-                        container.getDirectory(),
-                        container.getName(),
-                        terminal.createConsole(container)
-                );
-                container.setInstance(server);
-            } else {
-                server = container.getInstance();
-                if (server.isRunning())
-                    throw new RuntimeException("Server '" + server.getName() + "' is already running");
-            }
+            if (container.getInstance() != null)
+                throw new RuntimeException("Server container '" + container.getName() + "' has been already initiated");
+            server = new Machine(
+                    this,
+                    container.getDirectory(),
+                    container.getName(),
+                    terminal.createConsole(container)
+            );
+            container.setInstance(server);
         } catch (Exception exception) {
             stopServer(container);
             handleException(exception);
@@ -222,7 +218,7 @@ public final class MachineApplication implements ServerApplication {
 
     /**
      * Returns server container for provided server instance.
-     * @param server server to get the container for
+     * @param server server instance of the container
      * @return container for given server
      * @throws IllegalArgumentException if the provided server has no container
      */
@@ -237,7 +233,7 @@ public final class MachineApplication implements ServerApplication {
 
     /**
      * Returns server container for provided directory.
-     * @param directory directory to get the container for
+     * @param directory directory of the container
      * @return container for given directory
      * @throws IllegalArgumentException if the provided directory has no container
      */
@@ -245,6 +241,21 @@ public final class MachineApplication implements ServerApplication {
         if (directory == null) throw new NullPointerException();
         for (final MachineContainer container : containers) {
             if (container.getDirectory().equals(directory))
+                return container;
+        }
+        throw new IllegalArgumentException();
+    }
+
+    /**
+     * Returns server container for provided directory.
+     * @param name name of the container
+     * @return container for given name
+     * @throws IllegalArgumentException if there is no container with such name
+     */
+    public MachineContainer container(final String name) {
+        if (name == null) throw new NullPointerException();
+        for (final MachineContainer container : containers) {
+            if (container.getName().equals(name))
                 return container;
         }
         throw new IllegalArgumentException();
@@ -276,6 +287,7 @@ public final class MachineApplication implements ServerApplication {
     public void stopServer(final MachineContainer container) {
         terminal.exitServer(container);
         terminal.openServer(null);
+        container.setInstance(null);
     }
 
     /**
@@ -285,7 +297,7 @@ public final class MachineApplication implements ServerApplication {
         terminal.info("Shutting down...");
         for (final MachineContainer container : containers) {
             if (container.getInstance() == null) continue;
-            terminal.info("Shutting down '" + container.getName() + "' container");
+            terminal.info("Shutting down '" + container.getName() + "' server");
             try {
                 container.getInstance().shutdown();
             } catch (Exception exception) {

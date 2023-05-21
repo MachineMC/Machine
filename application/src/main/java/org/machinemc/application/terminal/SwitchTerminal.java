@@ -79,16 +79,25 @@ public abstract class SwitchTerminal extends BaseTerminal {
             if (source == null || current != null && active == source)
                 logger.log(console, message);
 
-            final List<String> history = messageHistory.get(source != null
-                    ? getApplication().container(source.getServer())
-                    : null);
-
-            history.add(message);
-
-            if (history.size() > HISTORY_SIZE)
-                history.subList(0, history.size() - HISTORY_SIZE - 1).clear();
+            addToHistory(source != null
+                            ? getApplication().container(source.getServer())
+                            : null,
+                    message);
         };
         super.log(wrapped, source, level, messages);
+    }
+
+    private void addToHistory(@Nullable final MachineContainer source, final String message) {
+        if (message == null) throw new NullPointerException();
+        List<String> history = messageHistory.get(source);
+        history.add(message);
+        if (history.size() > HISTORY_SIZE)
+            history.subList(0, history.size() - HISTORY_SIZE - 1).clear();
+        if (!(source == null && current != null)) return;
+        history = messageHistory.get(current);
+        history.add(message);
+        if (history.size() > HISTORY_SIZE)
+            history.subList(0, history.size() - HISTORY_SIZE - 1).clear();
     }
 
     @Override
