@@ -12,23 +12,20 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server;
+package org.machinemc.server.logging;
+
+import org.machinemc.api.logging.Console;
+import org.machinemc.server.Machine;
 
 /**
- * Represents application that started up the Machine server.
+ * Console that allows change of used Machine server.
  */
-public interface ServerApplication {
+public interface DynamicConsole extends Console {
 
     /**
-     * Called when the server is exited.
-     * @param server server
+     * Changes currently used Machine server.
+     * @param server new server
      */
-    void exitServer(Machine server);
-
-    /**
-     * Called when the server is stopped.
-     * @param server server
-     */
-    void stopServer(Machine server);
+    void setServer(Machine server);
 
 }

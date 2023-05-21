@@ -69,6 +69,11 @@ public interface Server {
     String getBrand();
 
     /**
+     * @return server's name
+     */
+    String getName();
+
+    /**
      * @return server's implementation version
      */
     String getImplementationVersion();

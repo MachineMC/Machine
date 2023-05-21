@@ -36,15 +36,12 @@ import org.machinemc.api.entities.Player;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.file.*;
 import org.machinemc.server.file.*;
-import org.machinemc.server.logging.FormattedOutputStream;
 import org.machinemc.api.server.PlayerManager;
+import org.machinemc.server.logging.DynamicConsole;
 import org.machinemc.server.network.NettyServer;
-import org.machinemc.server.logging.SimpleConsole;
 import org.machinemc.server.translation.TranslatorDispatcher;
 import org.machinemc.server.exception.ExceptionHandlerImpl;
-import org.machinemc.server.logging.ServerConsole;
 import org.machinemc.api.logging.Console;
-import org.machinemc.server.network.packets.PacketFactory;
 import org.machinemc.server.server.PlayerManagerImpl;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.server.world.*;
@@ -58,7 +55,6 @@ import org.machinemc.server.world.dimensions.DimensionTypeImpl;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
 import org.machinemc.server.world.dimensions.DimensionTypeManagerImpl;
 import org.jetbrains.annotations.Nullable;
-import org.machinemc.server.utils.ClassUtils;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.server.utils.NetworkUtils;
@@ -67,7 +63,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public final class Machine implements Server {
@@ -85,16 +80,22 @@ public final class Machine implements Server {
     private final ServerApplication application;
 
     @Getter
-    private boolean running;
+    private volatile boolean running;
+
+    @Getter
+    private final String name;
 
     @Getter
     private final File directory;
 
     @Getter
-    private Console console;
+    private final Console console;
 
     @Getter
-    protected ExceptionHandler exceptionHandler;
+    protected TranslatorDispatcher translatorDispatcher;
+
+    @Getter
+    protected final ExceptionHandler exceptionHandler;
 
     @Getter
     private @Nullable OnlineServer onlineServer;
@@ -107,10 +108,7 @@ public final class Machine implements Server {
     protected ServerProperties properties;
 
     @Getter
-    protected TranslatorDispatcher translatorDispatcher;
-
-    @Getter
-    protected Scheduler scheduler;
+    protected final Scheduler scheduler;
 
     @Getter
     protected CommandDispatcher<CommandExecutor> commandDispatcher;
@@ -145,48 +143,42 @@ public final class Machine implements Server {
     }
 
     public Machine(final ServerApplication application,
-                      final File directory,
-                      final String[] args) throws Exception {
-
-        if (application == null) throw new NullPointerException();
+                   final File directory,
+                   final String name,
+                   final DynamicConsole console) throws Exception {
+        if (application == null)
+            throw new NullPointerException();
         this.application = application;
 
         if (!directory.exists() && !directory.mkdirs())
             throw new RuntimeException();
         this.directory = directory;
 
-        final Set<String> arguments = Set.of(args);
-        final long start = System.currentTimeMillis();
+        if (name == null)
+            throw new NullPointerException();
+        this.name = name;
 
-        final boolean colors = !arguments.contains("nocolors");
-        final boolean simpleConsole = arguments.contains("simpleconsole");
+        if (console == null)
+            throw new NullPointerException();
+        console.setServer(this);
+        this.console = console;
+
+        scheduler = new Scheduler(4);
+        exceptionHandler = new ExceptionHandlerImpl(this);
+    }
+
+    /**
+     * Starts the Machine server.
+     */
+    public void run() throws Exception {
+        if (running) throw new RuntimeException();
+
+        final long start = System.currentTimeMillis();
 
         // TODO register other server related component types (NBTComponent, ScoreComponent, SelectorComponent)
         componentSerializer = new ComponentSerializerImpl();
 
-        // Setting up console
-        try {
-            console = simpleConsole
-                    ? new SimpleConsole(this, false, System.out, System.in)
-                    : new ServerConsole(this, colors);
-            System.setOut(new PrintStream(new FormattedOutputStream(
-                    console,
-                    Level.INFO,
-                    "[stdout] "
-            )));
-            System.setErr(new PrintStream(new FormattedOutputStream(
-                    console,
-                    Level.SEVERE,
-                    "[stderr] "
-            )));
-        } catch (Exception e) {
-            System.out.println("Failed to load server console");
-            e.printStackTrace();
-            System.exit(2);
-        }
         console.info("Loading Machine Server on Minecraft " + SERVER_IMPLEMENTATION_VERSION);
-        scheduler = new Scheduler(4);
-        exceptionHandler = new ExceptionHandlerImpl(this);
 
         // Setting up server properties
         final File propertiesFile = new File(directory, ServerPropertiesImpl.PROPERTIES_FILE_NAME);
@@ -198,7 +190,7 @@ public final class Machine implements Server {
             properties = new ServerPropertiesImpl(this, propertiesFile);
         } catch (IOException exception) {
             exceptionHandler.handle(exception, "Failed to load server properties");
-            System.exit(2);
+            application.stopServer(this);
         }
         console.info("Loaded server properties");
 
@@ -206,7 +198,7 @@ public final class Machine implements Server {
         if (!NetworkUtils.available(properties.getServerPort())) {
             console.severe("Failed to bind port '" + properties.getServerPort() + "', it's already in use.");
             console.severe("Perhaps another instance of the server is already running?");
-            System.exit(2);
+            application.stopServer(this);
         }
 
         if (properties.isOnline()) {
@@ -220,10 +212,7 @@ public final class Machine implements Server {
         commandDispatcher = new CommandDispatcher<>();
         ServerCommands.register(this, commandDispatcher);
 
-        Arrays.stream(Material.values()).forEach(Material::createBlockData);
-        BlockData.finishRegistration();
         blockManager = BlockManagerImpl.createDefault(this);
-        console.info("Loaded materials and block data");
 
         // Loading dimensions json file
         dimensionTypeManager = new DimensionTypeManagerImpl(this);
@@ -285,7 +274,7 @@ public final class Machine implements Server {
             );
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
-            System.exit(2);
+            application.stopServer(this);
         }
 
         worldManager = new WorldManagerImpl(this);
@@ -322,7 +311,7 @@ public final class Machine implements Server {
                 worldManager.addWorld(world);
             } catch (Exception exception) {
                 exceptionHandler.handle(exception, "Failed to create the default world");
-                System.exit(2);
+                application.stopServer(this);
             }
         }
         defaultWorld = worldManager.getWorld(properties.getDefaultWorld());
@@ -341,14 +330,11 @@ public final class Machine implements Server {
         }
         console.info("Loaded all server worlds");
 
-        ClassUtils.loadClass(PacketFactory.class);
-        console.info("Loaded all packet mappings");
-
         try {
             translatorDispatcher = TranslatorDispatcher.createDefault(this);
         } catch (Exception exception) {
             exceptionHandler.handle(exception, "Failed to load packet translator dispatcher");
-            System.exit(2);
+            application.stopServer(this);
         }
         console.info("Loaded all packet translators");
 
@@ -360,20 +346,21 @@ public final class Machine implements Server {
             }).async().run(scheduler);
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
-            System.exit(2);
+            application.stopServer(this);
         }
 
         try {
             console.start();
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
-            System.exit(2);
+            application.stopServer(this);
         }
 
         running = true;
         console.info("Server loaded in " + (System.currentTimeMillis() - start) + "ms");
         scheduler.run(); // blocks the thread
 
+        if (!running) return;
         shutdown();
     }
 
@@ -400,7 +387,6 @@ public final class Machine implements Server {
     @Override
     public void shutdown() {
         running = false;
-        console.stop();
         console.info("Shutting down...");
         console.info("Saving player data...");
         for (final Player player : playerManager.getPlayers()) {
@@ -424,8 +410,14 @@ public final class Machine implements Server {
                 exceptionHandler.handle(exception);
             }
         }
+        console.info("Shutting down scheduler");
+        try {
+            scheduler.shutdown();
+        } catch (InterruptedException exception) {
+            exceptionHandler.handle(exception);
+        }
         console.info("Server has been stopped");
-        System.exit(0);
+        application.stopServer(this);
     }
 
     @Override

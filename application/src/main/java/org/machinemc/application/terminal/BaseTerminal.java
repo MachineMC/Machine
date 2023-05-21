@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.logging;
+package org.machinemc.application.terminal;
 
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -22,29 +22,35 @@ import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.logging.Console;
+import org.machinemc.application.MachineApplication;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.Colour;
 import org.machinemc.scriptive.util.ChatUtils;
-import org.machinemc.server.Machine;
+import org.machinemc.server.logging.ServerConsole;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.logging.Level;
 
-public abstract class BaseConsole implements Console {
+/**
+ * Base of a terminal.
+ */
+public abstract class BaseTerminal implements ApplicationTerminal {
 
-    @Getter
-    private final Machine server;
-    @Getter @Setter
+    private final MachineApplication application;
+
+    @Setter
     private boolean colors;
+    private final InputStream in;
+    private final OutputStream out;
 
     @Getter
-    private volatile boolean running = false;
-
-    @Getter @Setter
+    @Setter
     private @Nullable DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
     @Getter @Setter
     private String
@@ -59,82 +65,78 @@ public abstract class BaseConsole implements Console {
             warningColor = ChatColor.GOLD,
             severeColor = ChatColor.RED;
 
-    @Getter @Setter
-    private String prompt = "> ";
-
-    public BaseConsole(final Machine server, final boolean colors) {
-        this.server = server;
+    protected BaseTerminal(final MachineApplication application,
+                           final boolean colors,
+                           final InputStream in,
+                           final OutputStream out) {
+        this.application = application;
         this.colors = colors;
+        this.in = in;
+        this.out = out;
+    }
+
+
+    @Override
+    public MachineApplication getApplication() {
+        return application;
     }
 
     @Override
-    public void start() {
-        if (running)
-            throw new IllegalStateException("The console is already running");
-        running = true;
-    }
-
-    @Override
-    public void stop() {
-        running = false;
-    }
-
-    @Override
-    public int execute(final String input) {
-        final String formatted = CommandExecutor.formatCommandInput(input);
-        if (formatted.length() == 0) return 0;
-        final ParseResults<CommandExecutor> parse = server.getCommandDispatcher().parse(formatted, this);
-        final String[] parts = formatted.split(" ");
-        try {
-            return server.getCommandDispatcher().execute(parse);
-        } catch (CommandSyntaxException exception) {
-            if (exception.getCursor() == 0) {
-                sendMessage(TextComponent.of("Unknown command '" + parts[0] + "'").modify()
-                        .color(ChatColor.RED)
-                        .finish());
-                return -1;
-            }
-            sendMessage(TextComponent.of(exception.getRawMessage().getString()).modify()
-                    .color(ChatColor.RED)
-                    .finish());
-            sendMessage(TextComponent.of(formatted.substring(0, exception.getCursor()))
-                    .append(TextComponent.of(formatted.substring(exception.getCursor())).modify()
-                            .color(ChatColor.RED)
-                            .underlined(true)
-                            .finish())
-                    .append(TextComponent.of("<--[HERE]").modify()
-                            .color(ChatColor.RED)
-                            .finish()));
-            return -1;
-        }
+    public boolean isColored() {
+        return colors;
     }
 
     @Override
     public void sendMessage(final @Nullable UUID sender, final Component message, final MessageType type) {
+        sendMessage(null, sender, message, type);
+    }
+
+    @Override
+    public void sendMessage(final @Nullable Console source,
+                            final @Nullable UUID sender,
+                            final Component message,
+                            final MessageType type) {
         if (colors)
-            info(ChatUtils.consoleFormatted(message));
+            info(source, ChatUtils.consoleFormatted(message));
         else
-            info(message.toLegacyString());
+            info(source, message.toLegacyString());
+    }
+
+    @Override
+    public InputStream getInputStream() {
+        return in;
+    }
+
+    @Override
+    public OutputStream getOutputStream() {
+        return out;
     }
 
     /**
      * Logs the given messages with the specified logging level, using the provided logger.
      *
      * @param logger the logger to use for logging the messages
+     * @param source source of the message
      * @param level the logging level to use
      * @param messages the messages to log
      */
-    protected void log(final Logger logger, final Level level, final String... messages) {
+    protected void log(final Logger logger,
+                       final @Nullable Console source,
+                       final Level level,
+                       final String... messages) {
         final String prefix = getPrefix(level);
         final String date = now();
         for (final String message : messages) {
+            final String messagePrefix = (source != null
+                    ? source.getServer().getName() + " | "
+                    : "application | ")
+                    + "[" + date + "] " + prefix;
             final String formatted = colors
-                    ? "[" + date + "] "
-                    + prefix
+                    ? messagePrefix
                     + ChatUtils.consoleFormatted(message)
                     + ChatColor.RESET.getConsoleFormat()
-                    : "[" + date + "] " + prefix + message;
-            logger.log(formatted);
+                    : messagePrefix + message;
+            logger.log(source, formatted);
         }
     }
 
@@ -174,15 +176,57 @@ public abstract class BaseConsole implements Console {
         return dateFormatter != null ? dateFormatter.format(LocalDateTime.now()) : ServerConsole.EMPTY;
     }
 
+
+    /**
+     * Called when command inside of the application is executed when
+     * no server instance is active within the terminal.
+     * @param input command to execute
+     * @return result
+     */
+    public int executeApplication(final String input) {
+        final String formatted = CommandExecutor.formatCommandInput(input);
+        if (formatted.length() == 0) return 0;
+
+        final ParseResults<MachineApplication> parse = getApplication()
+                .getCommandDispatcher()
+                .parse(formatted, getApplication());
+
+        final String[] parts = formatted.split(" ");
+
+        try {
+            return getApplication().getCommandDispatcher().execute(parse);
+        } catch (CommandSyntaxException exception) {
+            if (exception.getCursor() == 0) {
+                sendMessage(TextComponent.of("Unknown command '" + parts[0] + "'").modify()
+                        .color(ChatColor.RED)
+                        .finish());
+                return -1;
+            }
+            sendMessage(TextComponent.of(exception.getRawMessage().getString()).modify()
+                    .color(ChatColor.RED)
+                    .finish());
+            sendMessage(TextComponent.of(formatted.substring(0, exception.getCursor()))
+                    .append(TextComponent.of(formatted.substring(exception.getCursor())).modify()
+                            .color(ChatColor.RED)
+                            .underlined(true)
+                            .finish())
+                    .append(TextComponent.of("<--[HERE]").modify()
+                            .color(ChatColor.RED)
+                            .finish()));
+            return -1;
+        }
+    }
+
     @FunctionalInterface
     public interface Logger {
 
         /**
          * Logs the given message.
          *
+         * @param source source of the message
          * @param message the message to log
          */
-        void log(String message);
+        void log(@Nullable Console source, String message);
 
     }
 

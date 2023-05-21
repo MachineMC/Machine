@@ -16,6 +16,7 @@ package org.machinemc.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import org.machinemc.api.logging.Console;
 import org.machinemc.server.Machine;
 import org.machinemc.api.commands.CommandExecutor;
 
@@ -35,6 +36,7 @@ public final class ServerCommands {
      */
     public static void register(final Machine server, final CommandDispatcher<CommandExecutor> dispatcher) {
         dispatcher.register(stopCommand(server));
+        dispatcher.register(exitCommand(server));
     }
 
     /**
@@ -49,6 +51,21 @@ public final class ServerCommands {
             return 0;
         });
         return stopCommand;
+    }
+
+    /**
+     * Creates the default exit command.
+     * @param server server to register commands for
+     * @return exit command
+     */
+    private static LiteralArgumentBuilder<CommandExecutor> exitCommand(final Machine server) {
+        final LiteralArgumentBuilder<CommandExecutor> exitCommand = LiteralArgumentBuilder.literal("exit");
+        exitCommand.executes(c -> {
+            if (!(c.getSource() instanceof Console)) return -1;
+            server.getApplication().exitServer(server);
+            return 0;
+        });
+        return exitCommand;
     }
 
 }

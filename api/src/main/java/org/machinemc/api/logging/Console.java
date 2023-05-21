@@ -120,4 +120,9 @@ public interface Console extends ServerProperty, CommandExecutor {
      */
     OutputStream getOutputStream();
 
+    /**
+     * @return whether the console is running
+     */
+    boolean isRunning();
+
 }
