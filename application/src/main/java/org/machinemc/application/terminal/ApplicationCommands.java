@@ -56,6 +56,8 @@ public final class ApplicationCommands {
         root.addChild(jumpCommand(application));
 
         root.addChild(startCommand(application));
+
+        root.addChild(restartCommand(application));
     }
 
     private static LiteralCommandNode<MachineApplication> helpCommand(final MachineApplication application) {
@@ -68,7 +70,8 @@ public final class ApplicationCommands {
                             "list — displays list of all available and running servers",
                             "jump <name> — jumps into a console of given running server",
                             "start <name> — starts up given server container",
-                            "stop <name> — shuts down given running server"
+                            "stop <name> — shuts down given running server",
+                            "restart <name> — restarts given running server"
                     );
                     return 0;
                 })
@@ -99,8 +102,7 @@ public final class ApplicationCommands {
                                 return 0;
                             }
                             if (container.getInstance() == null) return 0;
-                            application.getTerminal().info("Shutting down '" + container.getName() + "' server");
-                            container.getInstance().shutdown();
+                            application.stopServer(container);
                             return 0;
                         })
                 )
@@ -204,6 +206,45 @@ public final class ApplicationCommands {
                                 application.getTerminal().info("Server '" + name + "' hasn't been shut down yet");
                                 return 0;
                             }
+                            application.getTerminal().openServer(container);
+                            application.startContainer(container);
+                            return 0;
+                        })
+                )
+                .executes(c -> {
+                    application.getTerminal().info("You need to specify the server name, usage: 'start <name>'");
+                    return 0;
+                })
+                .build();
+    }
+
+    private static LiteralCommandNode<MachineApplication> restartCommand(final MachineApplication application) {
+        return LiteralArgumentBuilder
+                .<MachineApplication>literal("restart")
+                .then(RequiredArgumentBuilder.<MachineApplication, String>argument("name", StringArgumentType.word())
+                        .suggests((ctx, builder) -> {
+                            application.getContainers().stream()
+                                    .filter(MachineContainer::isRunning)
+                                    .map(MachineContainer::getName)
+                                    .forEach(builder::suggest);
+                            return builder.buildFuture();
+                        })
+                        .executes(ctx -> {
+                            final String name = ctx.getArgument("name", String.class);
+                            final MachineContainer container;
+                            try {
+                                container = application.container(name);
+                            } catch (Exception exception) {
+                                application.getTerminal().info("There is no server with name '" + name + "'");
+                                return 0;
+                            }
+                            if (!container.isRunning()) {
+                                application.getTerminal().info("Server '" + name + "' is currently offline");
+                                return 0;
+                            }
+                            if (container.getInstance() == null) return 0;
+                            application.getTerminal().info("Restarting server '" + name + "'...");
+                            application.stopServer(container);
                             application.getTerminal().openServer(container);
                             application.startContainer(container);
                             return 0;

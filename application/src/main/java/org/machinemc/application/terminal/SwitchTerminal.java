@@ -62,6 +62,7 @@ public abstract class SwitchTerminal extends BaseTerminal {
     public void exitServer(final MachineContainer container) {
         if (current != container) return;
         current = null;
+        openServer(null);
     }
 
     @Override

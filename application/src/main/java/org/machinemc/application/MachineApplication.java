@@ -273,7 +273,6 @@ public final class MachineApplication implements ServerApplication {
      */
     public void exitServer(final MachineContainer container) {
         terminal.exitServer(container);
-        terminal.openServer(null);
     }
 
     @Override
@@ -286,9 +285,14 @@ public final class MachineApplication implements ServerApplication {
      * @param container container to stop
      */
     public void stopServer(final MachineContainer container) {
+        if (container.isRunning()) {
+            if (container.getInstance() == null)
+                throw new IllegalArgumentException("Server '" + container.getName() + "' is offline");
+            container.getInstance().shutdown();
+            return;
+        }
         terminal.info("Server '" + container.getName() + "' has been shut down");
         terminal.exitServer(container);
-        terminal.openServer(null);
         container.setInstance(null);
     }
 

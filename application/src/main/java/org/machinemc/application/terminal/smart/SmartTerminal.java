@@ -121,7 +121,9 @@ public class SmartTerminal extends SwitchTerminal {
                 try {
                     final String command = reader.readLine(prompt);
                     execute(command);
-                } catch (Exception ignored) { }
+                } catch (Exception exception) {
+                    getApplication().handleException(exception);
+                }
             }
             return null;
         }).async().run(getApplication().getScheduler());
