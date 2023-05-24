@@ -17,9 +17,9 @@ package org.machinemc.application.terminal;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.commands.CommandExecutor;
-import org.machinemc.api.logging.Console;
 import org.machinemc.application.MachineApplication;
-import org.machinemc.application.MachineContainer;
+import org.machinemc.application.PlatformConsole;
+import org.machinemc.application.ServerContainer;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.logging.DynamicConsole;
 
@@ -45,13 +45,13 @@ public interface ApplicationTerminal extends CommandExecutor {
      * Terminal should switch over console of the provided server.
      * @param container container
      */
-    void openServer(@Nullable MachineContainer container);
+    void openServer(@Nullable ServerContainer container);
 
     /**
      * Called when user exits from the opened server.
      * @param container container the user exit from
      */
-    void exitServer(MachineContainer container);
+    void exitServer(ServerContainer container);
 
     /**
      * Creates new console implementation for this terminal for
@@ -62,7 +62,7 @@ public interface ApplicationTerminal extends CommandExecutor {
      * @param container container to create the console for
      * @return new console
      */
-    DynamicConsole createConsole(MachineContainer container);
+    DynamicConsole createConsole(ServerContainer container);
 
     /**
      * @return whether the terminal display colors.
@@ -83,14 +83,14 @@ public interface ApplicationTerminal extends CommandExecutor {
      * @param level logging level of the message
      * @param messages messages to send
      */
-    void log(@Nullable Console source, Level level, String... messages);
+    void log(@Nullable PlatformConsole source, Level level, String... messages);
 
     /**
      * Sends multiple messages at INFO logging level.
      * @param source source of the message
      * @param messages messages to send
      */
-    default void info(@Nullable Console source, String... messages) {
+    default void info(@Nullable PlatformConsole source, String... messages) {
         log(source, Level.INFO, messages);
     }
 
@@ -99,7 +99,7 @@ public interface ApplicationTerminal extends CommandExecutor {
      * @param source source of the message
      * @param objects objects to send
      */
-    default void info(@Nullable Console source, Object... objects) {
+    default void info(@Nullable PlatformConsole source, Object... objects) {
         info(source, Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
     }
 
@@ -124,7 +124,7 @@ public interface ApplicationTerminal extends CommandExecutor {
      * @param source source of the message
      * @param messages messages to send
      */
-    default void warning(@Nullable Console source, String... messages) {
+    default void warning(@Nullable PlatformConsole source, String... messages) {
         log(source, Level.WARNING, messages);
     }
 
@@ -133,7 +133,7 @@ public interface ApplicationTerminal extends CommandExecutor {
      * @param source source of the message
      * @param objects objects to send
      */
-    default void warning(@Nullable Console source, Object... objects) {
+    default void warning(@Nullable PlatformConsole source, Object... objects) {
         warning(source, Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
     }
 
@@ -158,7 +158,7 @@ public interface ApplicationTerminal extends CommandExecutor {
      * @param source source of the message
      * @param messages messages to send
      */
-    default void severe(@Nullable Console source, String... messages) {
+    default void severe(@Nullable PlatformConsole source, String... messages) {
         log(source, Level.SEVERE, messages);
     }
 
@@ -167,7 +167,7 @@ public interface ApplicationTerminal extends CommandExecutor {
      * @param source source of the message
      * @param objects objects to send
      */
-    default void severe(@Nullable Console source, Object... objects) {
+    default void severe(@Nullable PlatformConsole source, Object... objects) {
         severe(source, Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
     }
 
@@ -192,7 +192,7 @@ public interface ApplicationTerminal extends CommandExecutor {
      * @param source source of the message
      * @param messages messages to send
      */
-    default void config(@Nullable Console source, String... messages) {
+    default void config(@Nullable PlatformConsole source, String... messages) {
         log(source, Level.CONFIG, messages);
     }
 
@@ -201,7 +201,7 @@ public interface ApplicationTerminal extends CommandExecutor {
      * @param source source of the message
      * @param objects objects to send
      */
-    default void config(@Nullable Console source, Object... objects) {
+    default void config(@Nullable PlatformConsole source, Object... objects) {
         config(source, Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
     }
 
@@ -228,7 +228,7 @@ public interface ApplicationTerminal extends CommandExecutor {
      * @param message component to send
      * @param type type of the message
      */
-    void sendMessage(@Nullable Console source, @Nullable UUID sender, Component message, MessageType type);
+    void sendMessage(@Nullable PlatformConsole source, @Nullable UUID sender, Component message, MessageType type);
 
     /**
      * Starts the console command line.

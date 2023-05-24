@@ -12,20 +12,35 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.logging;
+package org.machinemc.application;
 
-import org.machinemc.application.PlatformConsole;
-import org.machinemc.application.RunnableServer;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Console that allows change of runnable server source.
+ * Represents a server platform.
  */
-public interface DynamicConsole extends PlatformConsole {
+public interface ServerPlatform {
 
     /**
-     * Changes currently used server.
-     * @param server new server
+     * @return name of the server platform
      */
-    void setSource(RunnableServer server);
+    String getName();
+
+    /**
+     * @return version of the platform
+     */
+    String getVersion();
+
+    /**
+     * @return description of the platform
+     */
+    @Nullable String getDescription();
+
+    /**
+     * Creates new runnable server instance of this platform for given context.
+     * @param context context
+     * @return new runnable server from given context
+     */
+    RunnableServer create(ServerContext context) throws Exception;
 
 }

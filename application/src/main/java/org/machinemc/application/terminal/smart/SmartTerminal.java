@@ -23,10 +23,10 @@ import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.Widget;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
-import org.machinemc.api.logging.Console;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.application.MachineApplication;
-import org.machinemc.application.MachineContainer;
+import org.machinemc.application.PlatformConsole;
+import org.machinemc.application.ServerContainer;
 import org.machinemc.application.terminal.SwitchTerminal;
 import org.machinemc.application.terminal.WrappedConsole;
 import org.machinemc.server.logging.DynamicConsole;
@@ -74,19 +74,19 @@ public class SmartTerminal extends SwitchTerminal {
     }
 
     @Override
-    public void openServer(final @Nullable MachineContainer container) {
+    public void openServer(final @Nullable ServerContainer container) {
         terminal.puts(InfoCmp.Capability.clear_screen);
         terminal.flush();
         super.openServer(container);
     }
 
     @Override
-    public DynamicConsole createConsole(final MachineContainer container) {
+    public DynamicConsole createConsole(final ServerContainer container) {
         return new WrappedConsole(this);
     }
 
     @Override
-    public void log(final Console source, final Level level, final String... messages) {
+    public void log(final PlatformConsole source, final Level level, final String... messages) {
         final LineReader reader = this.reader;
         log((console, message) -> {
             if (reader != null) {

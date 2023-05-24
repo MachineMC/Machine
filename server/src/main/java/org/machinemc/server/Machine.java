@@ -22,6 +22,7 @@ import lombok.Getter;
 import org.machinemc.api.auth.OnlineServer;
 import org.machinemc.api.world.*;
 import org.machinemc.api.world.biomes.Biome;
+import org.machinemc.application.*;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
@@ -37,11 +38,9 @@ import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.file.*;
 import org.machinemc.server.file.*;
 import org.machinemc.api.server.PlayerManager;
-import org.machinemc.server.logging.DynamicConsole;
 import org.machinemc.server.network.NettyServer;
 import org.machinemc.server.translation.TranslatorDispatcher;
 import org.machinemc.server.exception.ExceptionHandlerImpl;
-import org.machinemc.api.logging.Console;
 import org.machinemc.server.server.PlayerManagerImpl;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.server.world.*;
@@ -65,7 +64,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public final class Machine implements Server {
+public final class Machine implements Server, RunnableServer {
 
     public static final String SERVER_BRAND = "Machine";
     public static final String SERVER_IMPLEMENTATION_VERSION = "1.19.2";
@@ -89,7 +88,10 @@ public final class Machine implements Server {
     private final File directory;
 
     @Getter
-    private final Console console;
+    private final PlatformConsole console;
+
+    @Getter
+    private final ServerPlatform platform;
 
     @Getter
     protected TranslatorDispatcher translatorDispatcher;
@@ -142,26 +144,26 @@ public final class Machine implements Server {
         Factories.bufferFactory = FriendlyByteBuf::new;
     }
 
-    public Machine(final ServerApplication application,
-                   final File directory,
-                   final String name,
-                   final DynamicConsole console) throws Exception {
-        if (application == null)
+    public Machine(final ServerContext context) throws Exception {
+        if (context.application() == null)
             throw new NullPointerException();
-        this.application = application;
+        this.application = context.application();
 
-        if (!directory.exists() && !directory.mkdirs())
+        if (!context.directory().exists() && !context.directory().mkdirs())
             throw new RuntimeException();
-        this.directory = directory;
+        this.directory = context.directory();
 
-        if (name == null)
+        if (context.name() == null)
             throw new NullPointerException();
-        this.name = name;
+        this.name = context.name();
 
-        if (console == null)
+        if (context.console() == null)
             throw new NullPointerException();
-        console.setServer(this);
-        this.console = console;
+        this.console = context.console();
+
+        if (context.platform() == null)
+            throw new NullPointerException();
+        this.platform = context.platform();
 
         scheduler = new Scheduler(4);
         exceptionHandler = new ExceptionHandlerImpl(this);

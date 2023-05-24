@@ -24,7 +24,7 @@ import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.application.MachineApplication;
-import org.machinemc.server.Machine;
+import org.machinemc.application.RunnableServer;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -34,7 +34,7 @@ import java.util.function.Supplier;
 public class SmartCompleter implements Completer {
 
     private final SmartTerminal terminal;
-    private final Supplier<Machine> server;
+    private final Supplier<RunnableServer> server;
 
     @Override
     public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {

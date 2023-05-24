@@ -12,20 +12,21 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.logging;
+package org.machinemc.application;
 
-import org.machinemc.application.PlatformConsole;
-import org.machinemc.application.RunnableServer;
+import java.io.File;
 
 /**
- * Console that allows change of runnable server source.
+ * Represents context from which new server instance is created.
+ * @param application application
+ * @param directory directory of the server
+ * @param name name of the server
+ * @param console console of the server
+ * @param platform platform of the server
  */
-public interface DynamicConsole extends PlatformConsole {
-
-    /**
-     * Changes currently used server.
-     * @param server new server
-     */
-    void setSource(RunnableServer server);
-
+public record ServerContext(ServerApplication application,
+                            File directory,
+                            String name,
+                            PlatformConsole console,
+                            ServerPlatform platform) {
 }

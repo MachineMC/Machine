@@ -12,23 +12,18 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server;
+package org.machinemc.application;
+
+import org.machinemc.api.logging.Console;
 
 /**
- * Represents application that started up the Machine server.
+ * Console for runnable servers.
  */
-public interface ServerApplication {
+public interface PlatformConsole extends Console {
 
     /**
-     * Called when the server is exited.
-     * @param server server
+     * @return source of the console
      */
-    void exitServer(Machine server);
-
-    /**
-     * Called when the server is stopped.
-     * @param server server
-     */
-    void stopServer(Machine server);
+    RunnableServer getSource();
 
 }

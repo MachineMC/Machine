@@ -26,9 +26,9 @@ import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.application.MachineApplication;
+import org.machinemc.application.RunnableServer;
 import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.Colour;
-import org.machinemc.server.Machine;
 
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 public class SmartHighlighter implements Highlighter {
 
     private final SmartTerminal terminal;
-    private final Supplier<Machine> server;
+    private final Supplier<RunnableServer> server;
 
     @Getter @Setter
     private @Nullable Colour
@@ -47,7 +47,7 @@ public class SmartHighlighter implements Highlighter {
     @Override
     public AttributedString highlight(final LineReader reader, final String buffer) {
         final AttributedStringBuilder sb = new AttributedStringBuilder();
-        final Machine server = this.server.get();
+        final RunnableServer server = this.server.get();
 
         if (server != null && server.getConsole().isRunning()) {
             final ParseResults<CommandExecutor> result = server.getCommandDispatcher()

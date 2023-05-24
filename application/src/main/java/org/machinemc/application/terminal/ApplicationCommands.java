@@ -21,8 +21,8 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 import org.machinemc.application.MachineApplication;
-import org.machinemc.application.MachineContainer;
-import org.machinemc.server.Machine;
+import org.machinemc.application.RunnableServer;
+import org.machinemc.application.ServerContainer;
 import org.machinemc.server.utils.BrigadierUtils;
 
 import java.util.List;
@@ -84,13 +84,13 @@ public final class ApplicationCommands {
                 .then(RequiredArgumentBuilder.<MachineApplication, String>argument("name", StringArgumentType.word())
                         .suggests((ctx, builder) -> {
                             application.getRunningServers().stream()
-                                    .map(Machine::getName)
+                                    .map(RunnableServer::getName)
                                     .forEach(builder::suggest);
                             return builder.buildFuture();
                         })
                         .executes(ctx -> {
                             final String name = ctx.getArgument("name", String.class);
-                            final MachineContainer container;
+                            final ServerContainer container;
                             try {
                                 container = application.container(name);
                             } catch (Exception exception) {
@@ -117,7 +117,7 @@ public final class ApplicationCommands {
         return LiteralArgumentBuilder
                 .<MachineApplication>literal("list")
                 .executes(c -> {
-                    final List<MachineContainer> containers = application.getContainers();
+                    final List<ServerContainer> containers = application.getContainers();
                     StringBuilder formatted = new StringBuilder();
                     formatted.append("Available server containers (")
                             .append(containers.size())
@@ -128,7 +128,7 @@ public final class ApplicationCommands {
                     }
                     application.getTerminal().info(formatted.toString());
 
-                    final List<Machine> servers = application.getRunningServers();
+                    final List<RunnableServer> servers = application.getRunningServers();
                     formatted = new StringBuilder();
                     formatted.append("Running servers (")
                             .append(servers.size())
@@ -150,13 +150,13 @@ public final class ApplicationCommands {
                 .then(RequiredArgumentBuilder.<MachineApplication, String>argument("name", StringArgumentType.word())
                         .suggests((ctx, builder) -> {
                             application.getRunningServers().stream()
-                                    .map(Machine::getName)
+                                    .map(RunnableServer::getName)
                                     .forEach(builder::suggest);
                             return builder.buildFuture();
                         })
                         .executes(ctx -> {
                             final String name = ctx.getArgument("name", String.class);
-                            final MachineContainer container;
+                            final ServerContainer container;
                             try {
                                 container = application.container(name);
                             } catch (Exception exception) {
@@ -185,13 +185,13 @@ public final class ApplicationCommands {
                         .suggests((ctx, builder) -> {
                             application.getContainers().stream()
                                     .filter(container -> !container.isRunning())
-                                    .map(MachineContainer::getName)
+                                    .map(ServerContainer::getName)
                                     .forEach(builder::suggest);
                             return builder.buildFuture();
                         })
                         .executes(ctx -> {
                             final String name = ctx.getArgument("name", String.class);
-                            final MachineContainer container;
+                            final ServerContainer container;
                             try {
                                 container = application.container(name);
                             } catch (Exception exception) {
@@ -224,14 +224,14 @@ public final class ApplicationCommands {
                 .then(RequiredArgumentBuilder.<MachineApplication, String>argument("name", StringArgumentType.word())
                         .suggests((ctx, builder) -> {
                             application.getContainers().stream()
-                                    .filter(MachineContainer::isRunning)
-                                    .map(MachineContainer::getName)
+                                    .filter(ServerContainer::isRunning)
+                                    .map(ServerContainer::getName)
                                     .forEach(builder::suggest);
                             return builder.buildFuture();
                         })
                         .executes(ctx -> {
                             final String name = ctx.getArgument("name", String.class);
-                            final MachineContainer container;
+                            final ServerContainer container;
                             try {
                                 container = application.container(name);
                             } catch (Exception exception) {

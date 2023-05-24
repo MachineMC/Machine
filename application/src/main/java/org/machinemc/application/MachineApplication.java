@@ -18,16 +18,16 @@ import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.machinemc.api.logging.Console;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.world.BlockData;
 import org.machinemc.api.world.Material;
 import org.machinemc.application.terminal.ApplicationCommands;
 import org.machinemc.application.terminal.ApplicationTerminal;
 import org.machinemc.application.terminal.TerminalFactory;
-import org.machinemc.server.Machine;
-import org.machinemc.server.Server;
-import org.machinemc.server.ServerApplication;
+import org.machinemc.server.MachinePlatform;
 import org.machinemc.server.file.ServerPropertiesImpl;
+import org.machinemc.server.logging.DynamicConsole;
 import org.machinemc.server.network.packets.PacketFactory;
 import org.machinemc.server.utils.ClassUtils;
 
@@ -78,7 +78,12 @@ public final class MachineApplication implements ServerApplication {
     /**
      * List of all available Machine containers.
      */
-    private final List<MachineContainer> containers = new LinkedList<>();
+    private final List<ServerContainer> containers = new LinkedList<>();
+
+    /**
+     * Default Machine server platform.
+     */
+    private final MachinePlatform machinePlatform = new MachinePlatform();
 
     private MachineApplication() throws IOException {
         directory = new File("");
@@ -128,19 +133,19 @@ public final class MachineApplication implements ServerApplication {
         terminal.info("Use command 'help' or '?' to display available commands");
 
         try {
-            scanServers().forEach(dir -> containers.add(new MachineContainer(dir)));
+            scanServers().forEach(dir -> containers.add(new ServerContainer(dir, machinePlatform)));
         } catch (Exception exception) {
             handleException(exception);
         }
 
         if (containers.size() == 0) {
             terminal.info("No server container is available, creating default '" + DEFAULT_SERVER + "' server");
-            final MachineContainer container = new MachineContainer(new File(DEFAULT_SERVER + "/"));
+            final ServerContainer container = new ServerContainer(new File(DEFAULT_SERVER + "/"), machinePlatform);
             containers.add(container);
         }
 
         if (containers.size() == 1) {
-            final MachineContainer container = containers.get(0);
+            final ServerContainer container = containers.get(0);
             terminal.openServer(container);
             terminal.info("Only one server found, automatically launching '" + container.getName() + "'");
             terminal.info("Use command 'exit' to return to the main application console");
@@ -153,17 +158,20 @@ public final class MachineApplication implements ServerApplication {
      * instance, new one is created.
      * @param container container
      */
-    public void startContainer(final MachineContainer container) {
-        final Machine server;
+    public void startContainer(final ServerContainer container) {
+        final RunnableServer server;
         try {
             if (container.getInstance() != null)
                 throw new RuntimeException("Server container '" + container.getName() + "' has been already initiated");
-            server = new Machine(
+            final DynamicConsole console = terminal.createConsole(container);
+            server = container.getPlatform().create(new ServerContext(
                     this,
                     container.getDirectory(),
                     container.getName(),
-                    terminal.createConsole(container)
-            );
+                    console,
+                    container.getPlatform()
+            ));
+            console.setSource(server);
             container.setInstance(server);
         } catch (Exception exception) {
             stopServer(container);
@@ -201,7 +209,7 @@ public final class MachineApplication implements ServerApplication {
      * Returns unmodifiable list of all available Machine containers.
      * @return all containers
      */
-    public @Unmodifiable List<MachineContainer> getContainers() {
+    public @Unmodifiable List<ServerContainer> getContainers() {
         return Collections.unmodifiableList(containers);
     }
 
@@ -209,11 +217,11 @@ public final class MachineApplication implements ServerApplication {
      * Returns list of all running server instances.
      * @return all running servers
      */
-    public @Unmodifiable List<Machine> getRunningServers() {
+    public @Unmodifiable List<RunnableServer> getRunningServers() {
         return containers.stream()
-                .map(MachineContainer::getInstance)
+                .map(ServerContainer::getInstance)
                 .filter(Objects::nonNull)
-                .filter(Machine::isRunning)
+                .filter(RunnableServer::isRunning)
                 .collect(Collectors.toList());
     }
 
@@ -223,9 +231,9 @@ public final class MachineApplication implements ServerApplication {
      * @return container for given server
      * @throws IllegalArgumentException if the provided server has no container
      */
-    public MachineContainer container(final Server server) {
+    public ServerContainer container(final RunnableServer server) {
         if (server == null) throw new NullPointerException();
-        for (final MachineContainer container : containers) {
+        for (final ServerContainer container : containers) {
             if (container.getDirectory().equals(server.getDirectory()))
                 return container;
         }
@@ -238,9 +246,9 @@ public final class MachineApplication implements ServerApplication {
      * @return container for given directory
      * @throws IllegalArgumentException if the provided directory has no container
      */
-    public MachineContainer container(final File directory) {
+    public ServerContainer container(final File directory) {
         if (directory == null) throw new NullPointerException();
-        for (final MachineContainer container : containers) {
+        for (final ServerContainer container : containers) {
             if (container.getDirectory().equals(directory))
                 return container;
         }
@@ -253,17 +261,33 @@ public final class MachineApplication implements ServerApplication {
      * @return container for given name
      * @throws IllegalArgumentException if there is no container with such name
      */
-    public MachineContainer container(final String name) {
+    public ServerContainer container(final String name) {
         if (name == null) throw new NullPointerException();
-        for (final MachineContainer container : containers) {
+        for (final ServerContainer container : containers) {
             if (container.getName().equals(name))
                 return container;
         }
         throw new IllegalArgumentException();
     }
 
+    /**
+     * Returns server container for provided console.
+     * @param console console of the container
+     * @return container with given console
+     * @throws IllegalArgumentException if there is no container with such name
+     */
+    public ServerContainer container(final Console console) {
+        if (console == null) throw new NullPointerException();
+        for (final ServerContainer container : containers) {
+            if (container.getInstance() == null) continue;
+            if (console.equals(container.getInstance().getConsole()))
+                return container;
+        }
+        throw new IllegalArgumentException();
+    }
+
     @Override
-    public void exitServer(final Machine server) {
+    public void exitServer(final RunnableServer server) {
         exitServer(container(server));
     }
 
@@ -271,12 +295,12 @@ public final class MachineApplication implements ServerApplication {
      * Exits from an active server container.
      * @param container container to exit from
      */
-    public void exitServer(final MachineContainer container) {
+    public void exitServer(final ServerContainer container) {
         terminal.exitServer(container);
     }
 
     @Override
-    public void stopServer(final Machine server) {
+    public void stopServer(final RunnableServer server) {
         stopServer(container(server));
     }
 
@@ -284,11 +308,15 @@ public final class MachineApplication implements ServerApplication {
      * Stops server container.
      * @param container container to stop
      */
-    public void stopServer(final MachineContainer container) {
+    public void stopServer(final ServerContainer container) {
         if (container.isRunning()) {
             if (container.getInstance() == null)
                 throw new IllegalArgumentException("Server '" + container.getName() + "' is offline");
-            container.getInstance().shutdown();
+            try {
+                container.getInstance().shutdown();
+            } catch (Exception exception) {
+                handleException(exception);
+            }
             return;
         }
         terminal.info("Server '" + container.getName() + "' has been shut down");
@@ -301,7 +329,7 @@ public final class MachineApplication implements ServerApplication {
      */
     public void shutdown() {
         terminal.info("Shutting down...");
-        for (final MachineContainer container : containers) {
+        for (final ServerContainer container : containers) {
             if (container.getInstance() == null) continue;
             terminal.info("Shutting down '" + container.getName() + "' server");
             try {

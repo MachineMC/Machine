@@ -18,11 +18,11 @@ import lombok.AllArgsConstructor;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.TerminalBuilder;
 import org.machinemc.application.MachineApplication;
-import org.machinemc.application.MachineContainer;
+import org.machinemc.application.RunnableServer;
+import org.machinemc.application.ServerContainer;
 import org.machinemc.application.terminal.smart.SmartCompleter;
 import org.machinemc.application.terminal.smart.SmartHighlighter;
 import org.machinemc.application.terminal.smart.SmartTerminal;
-import org.machinemc.server.Machine;
 import org.machinemc.server.logging.FormattedOutputStream;
 
 import java.io.IOException;
@@ -49,8 +49,8 @@ public final class TerminalFactory {
                 System.out
         );
 
-        final Supplier<Machine> supplier = () -> {
-            final MachineContainer container = terminal.getCurrent();
+        final Supplier<RunnableServer> supplier = () -> {
+            final ServerContainer container = terminal.getCurrent();
             if (container == null) return null;
             return container.getInstance();
         };

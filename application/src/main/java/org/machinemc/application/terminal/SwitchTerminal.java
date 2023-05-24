@@ -19,7 +19,8 @@ import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.logging.Console;
 import org.machinemc.application.MachineApplication;
-import org.machinemc.application.MachineContainer;
+import org.machinemc.application.PlatformConsole;
+import org.machinemc.application.ServerContainer;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,10 +36,10 @@ import java.util.logging.Level;
 public abstract class SwitchTerminal extends BaseTerminal {
 
     @Getter
-    private @Nullable MachineContainer current;
+    private @Nullable ServerContainer current;
 
     // History of application for the null key
-    private final Map<@Nullable MachineContainer, List<String>> messageHistory = new WeakHashMap<>();
+    private final Map<@Nullable ServerContainer, List<String>> messageHistory = new WeakHashMap<>();
 
     private static final int HISTORY_SIZE = 50;
 
@@ -51,7 +52,7 @@ public abstract class SwitchTerminal extends BaseTerminal {
     }
 
     @Override
-    public void openServer(final @Nullable MachineContainer container) {
+    public void openServer(final @Nullable ServerContainer container) {
         if (current != null) exitServer(current);
         current = container;
         messageHistory.putIfAbsent(container, new CopyOnWriteArrayList<>());
@@ -59,7 +60,7 @@ public abstract class SwitchTerminal extends BaseTerminal {
     }
 
     @Override
-    public void exitServer(final MachineContainer container) {
+    public void exitServer(final ServerContainer container) {
         if (current != container) return;
         current = null;
         openServer(null);
@@ -67,13 +68,13 @@ public abstract class SwitchTerminal extends BaseTerminal {
 
     @Override
     protected void log(final Logger logger,
-                       final @Nullable Console source,
+                       final @Nullable PlatformConsole source,
                        final Level level,
                        final String... messages) {
         final Logger wrapped = (console, message) -> {
             final Console active;
-            if (source != null && source.getServer() != null)
-                active = source.getServer().getConsole();
+            if (source != null && source.getSource() != null)
+                active = source.getSource().getConsole();
             else
                 active = null;
 
@@ -81,14 +82,14 @@ public abstract class SwitchTerminal extends BaseTerminal {
                 logger.log(console, message);
 
             addToHistory(source != null
-                            ? getApplication().container(source.getServer())
+                            ? getApplication().container(source)
                             : null,
                     message);
         };
         super.log(wrapped, source, level, messages);
     }
 
-    private void addToHistory(@Nullable final MachineContainer source, final String message) {
+    private void addToHistory(@Nullable final ServerContainer source, final String message) {
         if (message == null) throw new NullPointerException();
         List<String> history = messageHistory.get(source);
         history.add(message);

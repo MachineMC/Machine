@@ -16,7 +16,6 @@ package org.machinemc.api.logging;
 
 import org.jetbrains.annotations.Async;
 import org.machinemc.api.commands.CommandExecutor;
-import org.machinemc.api.server.ServerProperty;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,7 +25,7 @@ import java.util.logging.Level;
 /**
  * Console of the server.
  */
-public interface Console extends ServerProperty, CommandExecutor {
+public interface Console extends CommandExecutor {
 
     /**
      * Sends a messages to the console at certain logging level.

@@ -17,20 +17,26 @@ package org.machinemc.application;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
-import org.machinemc.server.Machine;
 
 import java.io.File;
 import java.util.Objects;
 
-public final class MachineContainer {
+public final class ServerContainer {
 
     @Getter
     private final File directory;
 
-    @Getter @Setter
-    private @Nullable Machine instance;
+    @Getter
+    private final ServerPlatform platform;
 
-    public MachineContainer(final File directory) {
+    @Getter @Setter
+    private @Nullable RunnableServer instance;
+
+    public ServerContainer(final File directory, final ServerPlatform platform) {
+        if (platform == null)
+            throw new NullPointerException();
+        this.platform = platform;
+
         if (directory == null)
             throw new NullPointerException();
 
@@ -56,7 +62,7 @@ public final class MachineContainer {
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (!(o instanceof MachineContainer that)) return false;
+        if (!(o instanceof ServerContainer that)) return false;
         return directory.equals(that.directory);
     }
 
@@ -67,7 +73,7 @@ public final class MachineContainer {
 
     @Override
     public String toString() {
-        return "MachineContainer[" + getName() + "]";
+        return "ServerContainer[" + getName() + "]";
     }
 
 }

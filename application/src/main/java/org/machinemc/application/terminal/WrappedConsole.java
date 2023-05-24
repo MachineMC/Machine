@@ -21,10 +21,10 @@ import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.commands.CommandExecutor;
+import org.machinemc.application.RunnableServer;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.style.ChatColor;
-import org.machinemc.server.Machine;
 import org.machinemc.server.logging.DynamicConsole;
 
 import java.io.InputStream;
@@ -35,7 +35,7 @@ import java.util.logging.Level;
 public class WrappedConsole implements DynamicConsole {
 
     @Getter @Setter
-    private Machine server;
+    private RunnableServer source;
     private final ApplicationTerminal terminal;
 
     @Getter
@@ -52,10 +52,10 @@ public class WrappedConsole implements DynamicConsole {
 
         final String formatted = CommandExecutor.formatCommandInput(input);
         if (formatted.length() == 0) return 0;
-        final ParseResults<CommandExecutor> parse = server.getCommandDispatcher().parse(formatted, this);
+        final ParseResults<CommandExecutor> parse = source.getCommandDispatcher().parse(formatted, this);
         final String[] parts = formatted.split(" ");
         try {
-            return server.getCommandDispatcher().execute(parse);
+            return source.getCommandDispatcher().execute(parse);
         } catch (CommandSyntaxException exception) {
             if (exception.getCursor() == 0) {
                 sendMessage(TextComponent.of("Unknown command '" + parts[0] + "'").modify()

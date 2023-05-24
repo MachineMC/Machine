@@ -23,6 +23,7 @@ import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.logging.Console;
 import org.machinemc.application.MachineApplication;
+import org.machinemc.application.PlatformConsole;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.style.ChatColor;
@@ -92,7 +93,7 @@ public abstract class BaseTerminal implements ApplicationTerminal {
     }
 
     @Override
-    public void sendMessage(final @Nullable Console source,
+    public void sendMessage(final @Nullable PlatformConsole source,
                             final @Nullable UUID sender,
                             final Component message,
                             final MessageType type) {
@@ -121,14 +122,14 @@ public abstract class BaseTerminal implements ApplicationTerminal {
      * @param messages the messages to log
      */
     protected void log(final Logger logger,
-                       final @Nullable Console source,
+                       final @Nullable PlatformConsole source,
                        final Level level,
                        final String... messages) {
         final String prefix = getPrefix(level);
         final String date = now();
         for (final String message : messages) {
             final String messagePrefix = (source != null
-                    ? source.getServer().getName() + " | "
+                    ? source.getSource().getName() + " | "
                     : "application | ")
                     + "[" + date + "] " + prefix;
             final String formatted = colors
