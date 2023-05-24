@@ -64,7 +64,7 @@ public final class ApplicationCommands {
         return LiteralArgumentBuilder
                 .<MachineApplication>literal("help")
                 .executes(c -> {
-                    application.getTerminal().info(
+                    application.info(
                             "help — displays all available commands",
                             "stop — stops all running servers and shut down the application",
                             "list — displays list of all available and running servers",
@@ -94,11 +94,11 @@ public final class ApplicationCommands {
                             try {
                                 container = application.container(name);
                             } catch (Exception exception) {
-                                application.getTerminal().info("There is no server with name '" + name + "'");
+                                application.info("There is no server with name '" + name + "'");
                                 return 0;
                             }
                             if (!container.isRunning()) {
-                                application.getTerminal().info("Server '" + name + "' is currently offline");
+                                application.info("Server '" + name + "' is currently offline");
                                 return 0;
                             }
                             if (container.getInstance() == null) return 0;
@@ -126,7 +126,7 @@ public final class ApplicationCommands {
                         formatted.append(containers.get(0).getName());
                         if (i != containers.size() - 1) formatted.append(", ");
                     }
-                    application.getTerminal().info(formatted.toString());
+                    application.info(formatted.toString());
 
                     final List<RunnableServer> servers = application.getRunningServers();
                     formatted = new StringBuilder();
@@ -137,7 +137,7 @@ public final class ApplicationCommands {
                         formatted.append(servers.get(0).getName());
                         if (i != servers.size() - 1) formatted.append(", ");
                     }
-                    application.getTerminal().info(formatted.toString());
+                    application.info(formatted.toString());
 
                     return 0;
                 })
@@ -160,11 +160,11 @@ public final class ApplicationCommands {
                             try {
                                 container = application.container(name);
                             } catch (Exception exception) {
-                                application.getTerminal().info("There is no server with name '" + name + "'");
+                                application.info("There is no server with name '" + name + "'");
                                 return 0;
                             }
                             if (!container.isRunning()) {
-                                application.getTerminal().info("Server '" + name + "' is currently offline");
+                                application.info("Server '" + name + "' is currently offline");
                                 return 0;
                             }
                             application.getTerminal().openServer(container);
@@ -172,7 +172,7 @@ public final class ApplicationCommands {
                         })
                 )
                 .executes(c -> {
-                    application.getTerminal().info("You need to specify the server name, usage: 'jump <name>'");
+                    application.info("You need to specify the server name, usage: 'jump <name>'");
                     return 0;
                 })
                 .build();
@@ -195,15 +195,15 @@ public final class ApplicationCommands {
                             try {
                                 container = application.container(name);
                             } catch (Exception exception) {
-                                application.getTerminal().info("There is no server with name '" + name + "'");
+                                application.info("There is no server with name '" + name + "'");
                                 return 0;
                             }
                             if (container.isRunning()) {
-                                application.getTerminal().info("Server '" + name + "' is already running");
+                                application.info("Server '" + name + "' is already running");
                                 return 0;
                             }
                             if (container.getInstance() != null) {
-                                application.getTerminal().info("Server '" + name + "' hasn't been shut down yet");
+                                application.info("Server '" + name + "' hasn't been shut down yet");
                                 return 0;
                             }
                             application.getTerminal().openServer(container);
@@ -212,7 +212,7 @@ public final class ApplicationCommands {
                         })
                 )
                 .executes(c -> {
-                    application.getTerminal().info("You need to specify the server name, usage: 'start <name>'");
+                    application.info("You need to specify the server name, usage: 'start <name>'");
                     return 0;
                 })
                 .build();
@@ -235,15 +235,15 @@ public final class ApplicationCommands {
                             try {
                                 container = application.container(name);
                             } catch (Exception exception) {
-                                application.getTerminal().info("There is no server with name '" + name + "'");
+                                application.info("There is no server with name '" + name + "'");
                                 return 0;
                             }
                             if (!container.isRunning()) {
-                                application.getTerminal().info("Server '" + name + "' is currently offline");
+                                application.info("Server '" + name + "' is currently offline");
                                 return 0;
                             }
                             if (container.getInstance() == null) return 0;
-                            application.getTerminal().info("Restarting server '" + name + "'...");
+                            application.info("Restarting server '" + name + "'...");
                             application.stopServer(container);
                             application.getTerminal().openServer(container);
                             application.startContainer(container);
@@ -251,7 +251,7 @@ public final class ApplicationCommands {
                         })
                 )
                 .executes(c -> {
-                    application.getTerminal().info("You need to specify the server name, usage: 'start <name>'");
+                    application.info("You need to specify the server name, usage: 'start <name>'");
                     return 0;
                 })
                 .build();

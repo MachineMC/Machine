@@ -22,6 +22,11 @@ import org.jetbrains.annotations.Nullable;
 public interface ServerPlatform {
 
     /**
+     * @return code name of the platform
+     */
+    String getCodeName();
+
+    /**
      * @return name of the server platform
      */
     String getName();
@@ -42,5 +47,11 @@ public interface ServerPlatform {
      * @return new runnable server from given context
      */
     RunnableServer create(ServerContext context) throws Exception;
+
+    /**
+     * Called on the application start when the platform is loaded.
+     * @param application application that loaded the platform
+     */
+    void load(ServerApplication application);
 
 }

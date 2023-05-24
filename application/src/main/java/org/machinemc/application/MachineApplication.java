@@ -18,24 +18,22 @@ import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.machinemc.api.logging.Console;
+import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.server.schedule.Scheduler;
-import org.machinemc.api.world.BlockData;
-import org.machinemc.api.world.Material;
 import org.machinemc.application.terminal.ApplicationCommands;
 import org.machinemc.application.terminal.ApplicationTerminal;
 import org.machinemc.application.terminal.TerminalFactory;
+import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.MachinePlatform;
 import org.machinemc.server.file.ServerPropertiesImpl;
 import org.machinemc.server.logging.DynamicConsole;
-import org.machinemc.server.network.packets.PacketFactory;
-import org.machinemc.server.utils.ClassUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -115,22 +113,20 @@ public final class MachineApplication implements ServerApplication {
      */
     private void run() {
 
-        terminal.start();
         running = true;
 
         final long start = System.currentTimeMillis();
 
-        terminal.info("Loading Machine Application...");
+        info("Loading Machine Application...");
 
-        Arrays.stream(Material.values()).forEach(Material::createBlockData);
-        BlockData.finishRegistration();
-        terminal.info("Loaded materials and block data");
+        info("Loading server platforms...");
+        info("Loading '" + machinePlatform.getCodeName() + "' platform");
+        machinePlatform.load(this);
 
-        ClassUtils.loadClass(PacketFactory.class);
-        terminal.info("Loaded all packet mappings");
+        info("Welcome to Machine! (loaded in " + (System.currentTimeMillis() - start) + "ms)");
+        info("Use command 'help' or '?' to display available commands");
 
-        terminal.info("Welcome to Machine! (loaded in " + (System.currentTimeMillis() - start) + "ms)");
-        terminal.info("Use command 'help' or '?' to display available commands");
+        terminal.start();
 
         try {
             scanServers().forEach(dir -> containers.add(new ServerContainer(dir, machinePlatform)));
@@ -139,7 +135,7 @@ public final class MachineApplication implements ServerApplication {
         }
 
         if (containers.size() == 0) {
-            terminal.info("No server container is available, creating default '" + DEFAULT_SERVER + "' server");
+            info("No server container is available, creating default '" + DEFAULT_SERVER + "' server");
             final ServerContainer container = new ServerContainer(new File(DEFAULT_SERVER + "/"), machinePlatform);
             containers.add(container);
         }
@@ -147,8 +143,8 @@ public final class MachineApplication implements ServerApplication {
         if (containers.size() == 1) {
             final ServerContainer container = containers.get(0);
             terminal.openServer(container);
-            terminal.info("Only one server found, automatically launching '" + container.getName() + "'");
-            terminal.info("Use command 'exit' to return to the main application console");
+            info("Only one server found, automatically launching '" + container.getName() + "'");
+            info("Use command 'exit' to return to the main application console");
             startContainer(container);
         }
     }
@@ -178,7 +174,7 @@ public final class MachineApplication implements ServerApplication {
             handleException(exception);
             return;
         }
-        terminal.info("Starting up '" + container.getName() + "' server");
+        info("Starting up '" + container.getName() + "' server");
         Scheduler.task((input, session) -> {
             try {
                 server.run();
@@ -270,22 +266,6 @@ public final class MachineApplication implements ServerApplication {
         throw new IllegalArgumentException();
     }
 
-    /**
-     * Returns server container for provided console.
-     * @param console console of the container
-     * @return container with given console
-     * @throws IllegalArgumentException if there is no container with such name
-     */
-    public ServerContainer container(final Console console) {
-        if (console == null) throw new NullPointerException();
-        for (final ServerContainer container : containers) {
-            if (container.getInstance() == null) continue;
-            if (console.equals(container.getInstance().getConsole()))
-                return container;
-        }
-        throw new IllegalArgumentException();
-    }
-
     @Override
     public void exitServer(final RunnableServer server) {
         exitServer(container(server));
@@ -319,26 +299,36 @@ public final class MachineApplication implements ServerApplication {
             }
             return;
         }
-        terminal.info("Server '" + container.getName() + "' has been shut down");
+        info("Server '" + container.getName() + "' has been shut down");
         terminal.exitServer(container);
         container.setInstance(null);
+    }
+
+    @Override
+    public void log(final Level level, final String... messages) {
+        terminal.log(null, level, messages);
+    }
+
+    @Override
+    public void sendMessage(final @Nullable UUID sender, final Component message, final MessageType type) {
+        terminal.sendMessage(null, sender, message, type);
     }
 
     /**
      * Shutdowns the application.
      */
     public void shutdown() {
-        terminal.info("Shutting down...");
+        info("Shutting down...");
         for (final ServerContainer container : containers) {
             if (container.getInstance() == null) continue;
-            terminal.info("Shutting down '" + container.getName() + "' server");
+            info("Shutting down '" + container.getName() + "' server");
             try {
                 container.getInstance().shutdown();
             } catch (Exception exception) {
                 handleException(exception);
             }
         }
-        terminal.info("Machine has been shut down");
+        info("Machine has been shut down");
         running = false;
         System.exit(0);
     }

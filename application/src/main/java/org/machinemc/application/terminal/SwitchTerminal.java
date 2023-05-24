@@ -82,7 +82,7 @@ public abstract class SwitchTerminal extends BaseTerminal {
                 logger.log(console, message);
 
             addToHistory(source != null
-                            ? getApplication().container(source)
+                            ? getApplication().container(source.getSource())
                             : null,
                     message);
         };

@@ -15,14 +15,26 @@
 package org.machinemc.server;
 
 import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.world.BlockData;
+import org.machinemc.api.world.Material;
+import org.machinemc.application.ServerApplication;
 import org.machinemc.application.ServerContext;
 import org.machinemc.application.RunnableServer;
 import org.machinemc.application.ServerPlatform;
+import org.machinemc.server.network.packets.PacketFactory;
+import org.machinemc.server.utils.ClassUtils;
+
+import java.util.Arrays;
 
 /**
  * Default Machine server platform.
  */
 public class MachinePlatform implements ServerPlatform {
+
+    @Override
+    public String getCodeName() {
+        return "machine";
+    }
 
     @Override
     public String getName() {
@@ -42,6 +54,16 @@ public class MachinePlatform implements ServerPlatform {
     @Override
     public RunnableServer create(final ServerContext context) throws Exception {
         return new Machine(context);
+    }
+
+    @Override
+    public void load(final ServerApplication application) {
+        Arrays.stream(Material.values()).forEach(Material::createBlockData);
+        BlockData.finishRegistration();
+        application.info("Loaded materials and block data");
+
+        ClassUtils.loadClass(PacketFactory.class);
+        application.info("Loaded all packet mappings");
     }
 
 }
