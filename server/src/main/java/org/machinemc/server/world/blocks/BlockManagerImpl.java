@@ -20,7 +20,6 @@ import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Material;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
-import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.HexColor;
 import org.machinemc.server.Machine;
 
