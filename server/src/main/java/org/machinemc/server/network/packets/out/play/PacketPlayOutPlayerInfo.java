@@ -84,7 +84,10 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                 }
                 case UPDATE_GAMEMODE -> gamemode = Gamemode.fromID(buf.readVarInt());
                 case UPDATE_LATENCY -> latency = buf.readVarInt();
-                case UPDATE_DISPLAY_NAME -> displayName = buf.readComponent();
+                case UPDATE_DISPLAY_NAME -> {
+                    if (buf.readBoolean())
+                        displayName = buf.readComponent();
+                }
                 case REMOVE_PLAYER -> {
                 }
             }
