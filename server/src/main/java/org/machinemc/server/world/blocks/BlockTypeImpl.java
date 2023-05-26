@@ -14,7 +14,10 @@
  */
 package org.machinemc.server.world.blocks;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.utils.NamespacedKey;
@@ -22,8 +25,9 @@ import org.machinemc.api.world.BlockData;
 import org.machinemc.api.world.blocks.BlockHandler;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
+import org.machinemc.scriptive.style.ChatColor;
+import org.machinemc.scriptive.style.Colour;
 
-import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -95,7 +99,7 @@ public class BlockTypeImpl implements BlockType {
     @Builder
     public static class BlockProperties implements BlockType.BlockProperties {
 
-        @Builder.Default private Color color = Color.BLACK;
+        @Builder.Default private Colour color = ChatColor.BLACK;
         @Builder.Default private boolean hasCollision = true;
         private float resistance;
         private boolean isAir;

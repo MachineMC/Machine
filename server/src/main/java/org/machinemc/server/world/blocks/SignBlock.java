@@ -22,9 +22,9 @@ import org.machinemc.api.world.OakSignData;
 import org.machinemc.api.world.blocks.BlockEntityBase;
 import org.machinemc.api.world.blocks.BlockEntityType;
 import org.machinemc.api.world.blocks.WorldBlock;
-import org.machinemc.nbt.NBTByte;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTInt;
+import org.machinemc.scriptive.style.HexColor;
 
 import java.awt.*;
 
@@ -35,7 +35,7 @@ public class SignBlock extends BlockTypeImpl implements BlockEntityType {
                 BlockTypeImpl.BlockProperties.builder()
                         .blockHardness(1)
                         .resistance(0.1F)
-                        .color(Color.ORANGE)
+                        .color(new HexColor(Color.ORANGE))
                         .build(),
                 null, true);
     }
@@ -83,7 +83,7 @@ public class SignBlock extends BlockTypeImpl implements BlockEntityType {
         compound.set("Text4", "{\"text\":\"" + state.position().getZ() + "\"}");
 
         compound.set("Color", "black");
-        compound.set("GlowingText", new NBTByte(0));
+        compound.set("GlowingText", false);
         return compound;
     }
 

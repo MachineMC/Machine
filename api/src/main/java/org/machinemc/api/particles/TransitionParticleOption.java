@@ -24,8 +24,9 @@ import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTFloat;
 import org.machinemc.nbt.NBTList;
-
-import java.awt.*;
+import org.machinemc.scriptive.style.ChatColor;
+import org.machinemc.scriptive.style.Colour;
+import org.machinemc.scriptive.style.HexColor;
 
 /**
  * Particle options implementation for color transition dust particles.
@@ -36,10 +37,10 @@ import java.awt.*;
 @AllArgsConstructor
 public class TransitionParticleOption implements ParticleOption {
 
-    private static final Color DEFAULT_COLOR = Color.WHITE;
+    private static final Colour DEFAULT_COLOR = ChatColor.WHITE;
 
-    private @Nullable Color from;
-    private @Nullable Color to;
+    private @Nullable Colour from;
+    private @Nullable Colour to;
     private float scale = 1;
 
     @Override
@@ -53,7 +54,7 @@ public class TransitionParticleOption implements ParticleOption {
                 final Object value = fromColor.get(i).value();
                 if (value instanceof Number c) rgb[i] = (int) (c.floatValue() * 255);
             }
-            from = new Color(rgb[0], rgb[1], rgb[2]);
+            from = new HexColor(rgb[0], rgb[1], rgb[2]);
         }
 
         final NBTList toColor = compound.getList("toColor");
@@ -65,7 +66,7 @@ public class TransitionParticleOption implements ParticleOption {
                 final Object value = toColor.get(i).value();
                 if (value instanceof Number c) rgb[i] = (int) (c.floatValue() * 255);
             }
-            to = new Color(rgb[0], rgb[1], rgb[2]);
+            to = new HexColor(rgb[0], rgb[1], rgb[2]);
         }
 
         if (compound.containsKey("scale") && compound.get("scale").tag() == NBT.Tag.FLOAT)
@@ -75,8 +76,8 @@ public class TransitionParticleOption implements ParticleOption {
     @Override
     public NBTCompound toNBT() {
         final NBTCompound compound = new NBTCompound();
-        final Color from = this.from != null ? this.from : DEFAULT_COLOR;
-        final Color to = this.to != null ? this.to : DEFAULT_COLOR;
+        final Colour from = this.from != null ? this.from : DEFAULT_COLOR;
+        final Colour to = this.to != null ? this.to : DEFAULT_COLOR;
         compound.put("fromColor", new NBTList(
                 new NBTFloat(from.getRed() / 255f),
                 new NBTFloat(from.getGreen() / 255f),
@@ -93,8 +94,8 @@ public class TransitionParticleOption implements ParticleOption {
 
     @Override
     public void write(final ServerBuffer buf) {
-        final Color from = this.from != null ? this.from : DEFAULT_COLOR;
-        final Color to = this.to != null ? this.to : DEFAULT_COLOR;
+        final Colour from = this.from != null ? this.from : DEFAULT_COLOR;
+        final Colour to = this.to != null ? this.to : DEFAULT_COLOR;
         buf.writeFloat(from.getRed() / 255f);
         buf.writeFloat(from.getGreen() / 255f);
         buf.writeFloat(from.getBlue() / 255f);

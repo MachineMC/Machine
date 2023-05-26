@@ -15,15 +15,18 @@
 package org.machinemc.server.world.blocks;
 
 import lombok.Getter;
-import org.machinemc.api.world.Material;
-import org.machinemc.server.Machine;
-import org.machinemc.api.utils.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.utils.NamespacedKey;
+import org.machinemc.api.world.Material;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
+import org.machinemc.scriptive.style.ChatColor;
+import org.machinemc.scriptive.style.HexColor;
+import org.machinemc.server.Machine;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -48,10 +51,10 @@ public class BlockManagerImpl implements BlockManager {
         final BlockManagerImpl manager = new BlockManagerImpl(server);
         manager.addBlocks(
                 new BlockTypeImpl(NamespacedKey.minecraft("air"), BlockTypeImpl.BlockProperties.builder()
-                        .color(new Color(255, 255, 255, 0)).isAir(true).transparent(true).build(),
+                        .color(new HexColor(255, 255, 255)).isAir(true).transparent(true).build(),
                         Material.AIR.createBlockData()),
                 new BlockTypeImpl(NamespacedKey.minecraft("stone"), BlockTypeImpl.BlockProperties.builder()
-                        .color(Color.GRAY).resistance(6).blockHardness(1.5F).build(),
+                        .color(new HexColor(Color.GRAY)).resistance(6).blockHardness(1.5F).build(),
                         Material.STONE.createBlockData()),
                 new SignBlock()
         );

@@ -24,8 +24,9 @@ import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTFloat;
 import org.machinemc.nbt.NBTList;
-
-import java.awt.*;
+import org.machinemc.scriptive.style.ChatColor;
+import org.machinemc.scriptive.style.Colour;
+import org.machinemc.scriptive.style.HexColor;
 
 /**
  * Particle options implementation for dust particles.
@@ -36,9 +37,9 @@ import java.awt.*;
 @AllArgsConstructor
 public class DustParticleOption implements ParticleOption {
 
-    private static final Color DEFAULT_COLOR = Color.WHITE;
+    private static final Colour DEFAULT_COLOR = ChatColor.WHITE;
 
-    private @Nullable Color color;
+    private @Nullable Colour color;
     private float scale = 1;
 
     @Override
@@ -52,7 +53,7 @@ public class DustParticleOption implements ParticleOption {
                 final Object value = colors.get(i).value();
                 if (value instanceof Number c) rgb[i] = (int) (c.floatValue() * 255);
             }
-            color = new Color(rgb[0], rgb[1], rgb[2]);
+            color = new HexColor(rgb[0], rgb[1], rgb[2]);
         }
 
         if (compound.containsKey("scale") && compound.get("scale").tag() == NBT.Tag.FLOAT)
@@ -62,7 +63,7 @@ public class DustParticleOption implements ParticleOption {
     @Override
     public NBTCompound toNBT() {
         final NBTCompound compound = new NBTCompound();
-        final Color color = this.color != null ? this.color : DEFAULT_COLOR;
+        final Colour color = this.color != null ? this.color : DEFAULT_COLOR;
         compound.put("color", new NBTList(
                 new NBTFloat(color.getRed() / 255f),
                 new NBTFloat(color.getGreen() / 255f),
@@ -74,7 +75,7 @@ public class DustParticleOption implements ParticleOption {
 
     @Override
     public void write(final ServerBuffer buf) {
-        final Color color = this.color != null ? this.color : DEFAULT_COLOR;
+        final Colour color = this.color != null ? this.color : DEFAULT_COLOR;
         buf.writeFloat(color.getRed() / 255f);
         buf.writeFloat(color.getGreen() / 255f);
         buf.writeFloat(color.getBlue() / 255f);
