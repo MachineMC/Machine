@@ -131,13 +131,20 @@ public final class MachineApplication implements ServerApplication {
 
         info("Loading Machine Application...");
 
-        loadPlatform(machinePlatform);
-
         info("Loading server platforms...");
 
-        for (final ServerPlatform platform : loadedPlatforms()) {
+        final List<ServerPlatform> platforms = new ArrayList<>();
+        platforms.add(machinePlatform);
+
+        for (final ServerPlatform platform : platforms) {
             info("Loading '" + platform.getCodeName() + "' platform");
-            platform.load(this);
+            try {
+                if (loadPlatform(platform)) continue;
+                severe("Failed to load '" + platform.getCodeName() + "', perhaps another platform with the same "
+                        + "code name already exists?");
+            } catch (Exception exception) {
+                handleException(exception);
+            }
         }
 
         try {
@@ -153,7 +160,7 @@ public final class MachineApplication implements ServerApplication {
 
         terminal.start();
 
-        if (serverManager.getContainers().size() == 0) {
+        if (getContainers().size() == 0) {
             info("No server container is available, creating default '" + DEFAULT_SERVER + "' server");
             final ServerContainer container = new ServerContainer(new File(DEFAULT_SERVER + "/"), machinePlatform);
             serverManager.loadContainer(container);
@@ -164,8 +171,8 @@ public final class MachineApplication implements ServerApplication {
             }
         }
 
-        if (serverManager.getContainers().size() == 1) {
-            final ServerContainer container = serverManager.getContainers().iterator().next();
+        if (getContainers().size() == 1) {
+            final ServerContainer container = getContainers().iterator().next();
             terminal.openServer(container);
             info("Only one server found, automatically launching '" + container.getName() + "'");
             info("Use command 'exit' to return to the main application console");
@@ -221,11 +228,11 @@ public final class MachineApplication implements ServerApplication {
 
     /**
      * Returns server platform with given name.
-     * @param name code name of the platform
+     * @param codename code name of the platform
      * @return platform
      */
-    public @Nullable ServerPlatform getPlatform(final String name) {
-        return platforms.get(name.toLowerCase());
+    public @Nullable ServerPlatform getPlatform(final String codename) {
+        return platforms.get(codename.toLowerCase());
     }
 
     /**
@@ -234,9 +241,26 @@ public final class MachineApplication implements ServerApplication {
      * @return true if the platform has been loaded successfully
      */
     public boolean loadPlatform(final ServerPlatform platform) {
-        if (platforms.containsKey(platform.getCodeName())) return false;
+        if (platforms.containsKey(platform.getCodeName().toLowerCase())) return false;
         platforms.put(platform.getCodeName().toLowerCase(), platform);
+        platform.load(this);
+        info("Platform '" + platform.getCodeName() + "' has been loaded");
         return true;
+    }
+
+    /**
+     * Unloads a loaded server platform, shutdowns, and removes all running containers with
+     * given platform.
+     * @param platform platform to unload
+     */
+    public void unloadPlatform(final ServerPlatform platform) {
+        if (platforms.get(platform.getCodeName().toLowerCase()) != platform) return;
+        platforms.remove(platform.getCodeName().toLowerCase());
+        for (final ServerContainer container : getContainers()) {
+            if (container.getPlatform() != platform) continue;
+            serverManager.unloadContainer(container);
+        }
+        info("Platform '" + platform.getCodeName() + "' has been unloaded");
     }
 
     /**
@@ -252,7 +276,7 @@ public final class MachineApplication implements ServerApplication {
      * @return all running servers
      */
     public @Unmodifiable List<RunnableServer> getRunningServers() {
-        return serverManager.getContainers().stream()
+        return getContainers().stream()
                 .map(ServerContainer::getInstance)
                 .filter(Objects::nonNull)
                 .filter(RunnableServer::isRunning)
@@ -267,7 +291,7 @@ public final class MachineApplication implements ServerApplication {
      */
     public ServerContainer container(final RunnableServer server) {
         if (server == null) throw new NullPointerException();
-        for (final ServerContainer container : serverManager.getContainers()) {
+        for (final ServerContainer container : getContainers()) {
             if (container.getDirectory().equals(server.getDirectory()))
                 return container;
         }
@@ -282,7 +306,7 @@ public final class MachineApplication implements ServerApplication {
      */
     public ServerContainer container(final File directory) {
         if (directory == null) throw new NullPointerException();
-        for (final ServerContainer container : serverManager.getContainers()) {
+        for (final ServerContainer container : getContainers()) {
             if (container.getDirectory().equals(directory))
                 return container;
         }
@@ -297,7 +321,7 @@ public final class MachineApplication implements ServerApplication {
      */
     public ServerContainer container(final String name) {
         if (name == null) throw new NullPointerException();
-        for (final ServerContainer container : serverManager.getContainers()) {
+        for (final ServerContainer container : getContainers()) {
             if (container.getName().equals(name))
                 return container;
         }
@@ -357,7 +381,7 @@ public final class MachineApplication implements ServerApplication {
      */
     public void shutdown() {
         info("Shutting down...");
-        for (final ServerContainer container : serverManager.getContainers()) {
+        for (final ServerContainer container : getContainers()) {
             if (container.getInstance() == null) continue;
             info("Shutting down '" + container.getName() + "' server");
             try {

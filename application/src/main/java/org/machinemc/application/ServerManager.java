@@ -106,10 +106,23 @@ public class ServerManager {
     /**
      * Loads new server container.
      * @param container container to load
+     * @return if the operation was successful
      */
-    public void loadContainer(final ServerContainer container) {
-        if (containers.containsKey(container.getDirectory())) return;
+    public boolean loadContainer(final ServerContainer container) {
+        if (containers.containsKey(container.getDirectory())) return false;
         containers.put(container.getDirectory(), container);
+        return true;
+    }
+
+    /**
+     * Unloads server container.
+     * @param container container to unload
+     * @return if the operation was successful
+     */
+    public boolean unloadContainer(final ServerContainer container) {
+        if (!containers.remove(container.getDirectory(), container)) return false;
+        application.stopServer(container);
+        return true;
     }
 
     /**
