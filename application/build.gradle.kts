@@ -20,6 +20,7 @@ dependencies {
     implementation(project(":api"))
     implementation(project(":server"))
 
+    implementation(libs.google.gson)
     implementation(libs.jna)
     implementation(libs.jline)
     implementation(libs.mojang.brigadier)

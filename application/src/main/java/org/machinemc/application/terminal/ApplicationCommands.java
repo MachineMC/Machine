@@ -23,8 +23,13 @@ import com.mojang.brigadier.tree.RootCommandNode;
 import org.machinemc.application.MachineApplication;
 import org.machinemc.application.RunnableServer;
 import org.machinemc.application.ServerContainer;
+import org.machinemc.application.ServerPlatform;
 import org.machinemc.server.utils.BrigadierUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -58,6 +63,8 @@ public final class ApplicationCommands {
         root.addChild(startCommand(application));
 
         root.addChild(restartCommand(application));
+
+        root.addChild(createCommand(application));
     }
 
     private static LiteralCommandNode<MachineApplication> helpCommand(final MachineApplication application) {
@@ -71,7 +78,8 @@ public final class ApplicationCommands {
                             "jump <name> — jumps into a console of given running server",
                             "start <name> — starts up given server container",
                             "stop <name> — shuts down given running server",
-                            "restart <name> — restarts given running server"
+                            "restart <name> — restarts given running server",
+                            "create <name> <platform> — creates new server instance"
                     );
                     return 0;
                 })
@@ -117,14 +125,15 @@ public final class ApplicationCommands {
         return LiteralArgumentBuilder
                 .<MachineApplication>literal("list")
                 .executes(c -> {
-                    final List<ServerContainer> containers = application.getContainers();
+                    final Collection<ServerContainer> containers = application.getContainers();
                     StringBuilder formatted = new StringBuilder();
                     formatted.append("Available server containers (")
                             .append(containers.size())
                             .append("): ");
-                    for (int i = 0; i < containers.size(); i++) {
-                        formatted.append(containers.get(0).getName());
-                        if (i != containers.size() - 1) formatted.append(", ");
+                    final Iterator<ServerContainer> iterator = containers.iterator();
+                    while (iterator.hasNext()) {
+                        formatted.append(iterator.next().getName());
+                        if (iterator.hasNext()) formatted.append(", ");
                     }
                     application.info(formatted.toString());
 
@@ -251,7 +260,70 @@ public final class ApplicationCommands {
                         })
                 )
                 .executes(c -> {
-                    application.info("You need to specify the server name, usage: 'start <name>'");
+                    application.info("You need to specify the server name, usage: 'restart <name>'");
+                    return 0;
+                })
+                .build();
+    }
+
+    private static LiteralCommandNode<MachineApplication> createCommand(final MachineApplication application) {
+        return LiteralArgumentBuilder
+                .<MachineApplication>literal("create")
+                .then(RequiredArgumentBuilder.<MachineApplication, String>argument("name", StringArgumentType.word())
+                        .then(RequiredArgumentBuilder.<MachineApplication, String>argument(
+                                "platform",
+                                StringArgumentType.word()
+                                )
+                                .suggests((ctx, builder) -> {
+                                    application.loadedPlatforms().stream()
+                                            .map(ServerPlatform::getCodeName)
+                                            .forEach(builder::suggest);
+                                    return builder.buildFuture();
+                                })
+                                .executes(ctx -> {
+                                    final String name = ctx.getArgument("name", String.class);
+
+                                    if (application.getContainers().stream()
+                                            .anyMatch(container -> container.getDirectory().getName().equals(name))) {
+                                        application.info("Server with name '" + name + "' already exists");
+                                        return 0;
+                                    }
+
+                                    final String platformName = ctx.getArgument("platform", String.class);
+                                    final ServerPlatform platform = application.getPlatform(platformName);
+
+                                    if (platform == null) {
+                                        application.info("Platform '" + platformName + "' does not exist");
+                                        return 0;
+                                    }
+
+                                    final ServerContainer container = new ServerContainer(
+                                            new File(application.getDirectory(), name),
+                                            platform
+                                    );
+                                    application.getServerManager().loadContainer(container);
+                                    application.info("Created new '"
+                                            + platformName
+                                            + "' server '"
+                                            + name
+                                            + "'");
+                                    try {
+                                        application.getServerManager().updateFile();
+                                    } catch (IOException exception) {
+                                        throw new RuntimeException(exception);
+                                    }
+
+                                    return 0;
+                                })
+                        )
+                        .executes(ctx -> {
+                            application.info("You need to specify the server platform, "
+                                    + "usage: 'create <name> <platform>'");
+                            return 0;
+                        })
+                )
+                .executes(c -> {
+                    application.info("You need to specify the server name, usage: 'create <name> <platform>'");
                     return 0;
                 })
                 .build();

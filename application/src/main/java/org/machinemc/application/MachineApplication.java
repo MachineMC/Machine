@@ -14,6 +14,8 @@
  */
 package org.machinemc.application;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -25,13 +27,10 @@ import org.machinemc.application.terminal.ApplicationTerminal;
 import org.machinemc.application.terminal.TerminalFactory;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.MachinePlatform;
-import org.machinemc.server.file.ServerPropertiesImpl;
 import org.machinemc.server.logging.DynamicConsole;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -61,6 +60,14 @@ public final class MachineApplication implements ServerApplication {
     @Getter
     private final ApplicationTerminal terminal;
 
+    @Getter
+    private final ServerManager serverManager;
+
+    @Getter
+    protected final Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .create();
+
     /**
      * Command dispatcher for application terminal.
      */
@@ -74,17 +81,14 @@ public final class MachineApplication implements ServerApplication {
     private final Scheduler scheduler;
 
     /**
-     * List of all available Machine containers.
-     */
-    private final List<ServerContainer> containers = new LinkedList<>();
-
-    /**
      * Default Machine server platform.
      */
     private final MachinePlatform machinePlatform = new MachinePlatform();
 
+    private final Map<String, ServerPlatform> platforms = new TreeMap<>();
+
     private MachineApplication() throws IOException {
-        directory = new File("");
+        directory = new File(".");
 
         terminal = TerminalFactory.create(this).build();
 
@@ -92,6 +96,14 @@ public final class MachineApplication implements ServerApplication {
         ApplicationCommands.register(this, commandDispatcher);
 
         scheduler = new Scheduler(4);
+
+        try {
+            serverManager = new ServerManager(this);
+        } catch (Exception exception) {
+            handleException(exception);
+            System.exit(0);
+            throw new RuntimeException();
+        }
     }
 
     /**
@@ -103,7 +115,7 @@ public final class MachineApplication implements ServerApplication {
         try {
             application.run();
         } catch (Exception exception) {
-            exception.printStackTrace();
+            application.handleException(exception);
             System.exit(0);
         }
     }
@@ -119,33 +131,47 @@ public final class MachineApplication implements ServerApplication {
 
         info("Loading Machine Application...");
 
+        loadPlatform(machinePlatform);
+
         info("Loading server platforms...");
-        info("Loading '" + machinePlatform.getCodeName() + "' platform");
-        machinePlatform.load(this);
+
+        for (final ServerPlatform platform : loadedPlatforms()) {
+            info("Loading '" + platform.getCodeName() + "' platform");
+            platform.load(this);
+        }
+
+        try {
+            serverManager.readFile();
+            serverManager.updateFile();
+        } catch (Exception exception) {
+            handleException(exception);
+            shutdown();
+        }
 
         info("Welcome to Machine! (loaded in " + (System.currentTimeMillis() - start) + "ms)");
         info("Use command 'help' or '?' to display available commands");
 
         terminal.start();
 
-        try {
-            scanServers().forEach(dir -> containers.add(new ServerContainer(dir, machinePlatform)));
-        } catch (Exception exception) {
-            handleException(exception);
-        }
-
-        if (containers.size() == 0) {
+        if (serverManager.getContainers().size() == 0) {
             info("No server container is available, creating default '" + DEFAULT_SERVER + "' server");
             final ServerContainer container = new ServerContainer(new File(DEFAULT_SERVER + "/"), machinePlatform);
-            containers.add(container);
+            serverManager.loadContainer(container);
+            try {
+                serverManager.updateFile();
+            } catch (Exception exception) {
+                handleException(exception);
+            }
         }
 
-        if (containers.size() == 1) {
-            final ServerContainer container = containers.get(0);
+        if (serverManager.getContainers().size() == 1) {
+            final ServerContainer container = serverManager.getContainers().iterator().next();
             terminal.openServer(container);
             info("Only one server found, automatically launching '" + container.getName() + "'");
             info("Use command 'exit' to return to the main application console");
             startContainer(container);
+        } else {
+            terminal.openServer(null);
         }
     }
 
@@ -187,26 +213,38 @@ public final class MachineApplication implements ServerApplication {
     }
 
     /**
-     * Scans for all available servers directories inside of the main
-     * application directory.
-     * @return all available servers
+     * @return all loaded server platforms
      */
-    public @Unmodifiable List<File> scanServers() throws IOException {
-        final List<File> directories = new ArrayList<>();
-        for (final Path path : Files.walk(directory.toPath(), 2).collect(Collectors.toSet())) {
-            if (!path.endsWith(ServerPropertiesImpl.PROPERTIES_FILE_NAME)) continue;
-            if (path.getNameCount() != 2) continue;
-            directories.add(path.getParent().toFile());
-        }
-        return Collections.unmodifiableList(directories);
+    public @Unmodifiable Collection<ServerPlatform> loadedPlatforms() {
+        return Collections.unmodifiableCollection(platforms.values());
+    }
+
+    /**
+     * Returns server platform with given name.
+     * @param name code name of the platform
+     * @return platform
+     */
+    public @Nullable ServerPlatform getPlatform(final String name) {
+        return platforms.get(name.toLowerCase());
+    }
+
+    /**
+     * Loads a new server platform.
+     * @param platform platform to load
+     * @return true if the platform has been loaded successfully
+     */
+    public boolean loadPlatform(final ServerPlatform platform) {
+        if (platforms.containsKey(platform.getCodeName())) return false;
+        platforms.put(platform.getCodeName().toLowerCase(), platform);
+        return true;
     }
 
     /**
      * Returns unmodifiable list of all available Machine containers.
      * @return all containers
      */
-    public @Unmodifiable List<ServerContainer> getContainers() {
-        return Collections.unmodifiableList(containers);
+    public @Unmodifiable Collection<ServerContainer> getContainers() {
+        return serverManager.getContainers();
     }
 
     /**
@@ -214,7 +252,7 @@ public final class MachineApplication implements ServerApplication {
      * @return all running servers
      */
     public @Unmodifiable List<RunnableServer> getRunningServers() {
-        return containers.stream()
+        return serverManager.getContainers().stream()
                 .map(ServerContainer::getInstance)
                 .filter(Objects::nonNull)
                 .filter(RunnableServer::isRunning)
@@ -229,7 +267,7 @@ public final class MachineApplication implements ServerApplication {
      */
     public ServerContainer container(final RunnableServer server) {
         if (server == null) throw new NullPointerException();
-        for (final ServerContainer container : containers) {
+        for (final ServerContainer container : serverManager.getContainers()) {
             if (container.getDirectory().equals(server.getDirectory()))
                 return container;
         }
@@ -244,7 +282,7 @@ public final class MachineApplication implements ServerApplication {
      */
     public ServerContainer container(final File directory) {
         if (directory == null) throw new NullPointerException();
-        for (final ServerContainer container : containers) {
+        for (final ServerContainer container : serverManager.getContainers()) {
             if (container.getDirectory().equals(directory))
                 return container;
         }
@@ -259,7 +297,7 @@ public final class MachineApplication implements ServerApplication {
      */
     public ServerContainer container(final String name) {
         if (name == null) throw new NullPointerException();
-        for (final ServerContainer container : containers) {
+        for (final ServerContainer container : serverManager.getContainers()) {
             if (container.getName().equals(name))
                 return container;
         }
@@ -319,7 +357,7 @@ public final class MachineApplication implements ServerApplication {
      */
     public void shutdown() {
         info("Shutting down...");
-        for (final ServerContainer container : containers) {
+        for (final ServerContainer container : serverManager.getContainers()) {
             if (container.getInstance() == null) continue;
             info("Shutting down '" + container.getName() + "' server");
             try {
