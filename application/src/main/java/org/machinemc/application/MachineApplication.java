@@ -97,10 +97,7 @@ public final class MachineApplication implements ServerApplication {
         try {
             terminal = TerminalFactory.create(this).build();
         } catch (Exception exception) {
-            System.out.println("Failed to initialize application cosole");
-            exception.printStackTrace();
-            System.exit(0);
-            throw new RuntimeException();
+            throw new RuntimeException("Failed to initialize application console");
         }
 
         commandDispatcher = new CommandDispatcher<>();
@@ -111,9 +108,7 @@ public final class MachineApplication implements ServerApplication {
         try {
             serverManager = new ServerManager(this);
         } catch (Exception exception) {
-            handleException(exception);
-            System.exit(0);
-            throw new RuntimeException();
+            throw new RuntimeException("Failed to initialize server manager");
         }
     }
 
