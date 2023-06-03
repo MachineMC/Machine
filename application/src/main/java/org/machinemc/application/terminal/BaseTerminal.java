@@ -30,7 +30,6 @@ import org.machinemc.scriptive.style.ChatCode;
 import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.Colour;
 import org.machinemc.scriptive.util.ChatUtils;
-import org.machinemc.server.logging.ServerConsole;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -127,7 +126,7 @@ public abstract class BaseTerminal implements ApplicationTerminal {
      * @param level the logging level to use
      * @param messages the messages to log
      */
-    protected void log(final Logger logger,
+    protected void log(final SourcedLogger logger,
                        final @Nullable PlatformConsole source,
                        final Level level,
                        final String... messages) {
@@ -193,7 +192,7 @@ public abstract class BaseTerminal implements ApplicationTerminal {
      * @return formatted date
      */
     protected String now() {
-        return dateFormatter != null ? dateFormatter.format(LocalDateTime.now()) : ServerConsole.EMPTY;
+        return dateFormatter != null ? dateFormatter.format(LocalDateTime.now()) : "";
     }
 
 
@@ -238,11 +237,10 @@ public abstract class BaseTerminal implements ApplicationTerminal {
     }
 
     @FunctionalInterface
-    public interface Logger {
+    public interface SourcedLogger {
 
         /**
          * Logs the given message.
-         *
          * @param source source of the message
          * @param message the message to log
          */

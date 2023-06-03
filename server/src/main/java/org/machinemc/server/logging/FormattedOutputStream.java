@@ -23,11 +23,11 @@ public class FormattedOutputStream extends FilterOutputStream {
 
     private static final byte[] LINE_SEPARATOR = System.lineSeparator().getBytes();
 
-    private final BaseConsole.Logger logger;
+    private final Logger logger;
     private final String linePrefix;
     private EolTrackerByteArrayOutputStream buf = new EolTrackerByteArrayOutputStream();
 
-    public FormattedOutputStream(final BaseConsole.Logger logger,
+    public FormattedOutputStream(final Logger logger,
                                  final OutputStream out,
                                  final String linePrefix) {
         super(out);
@@ -59,4 +59,5 @@ public class FormattedOutputStream extends FilterOutputStream {
         }
 
     }
+
 }

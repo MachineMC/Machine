@@ -67,11 +67,11 @@ public abstract class SwitchTerminal extends BaseTerminal {
     }
 
     @Override
-    protected void log(final Logger logger,
+    protected void log(final SourcedLogger logger,
                        final @Nullable PlatformConsole source,
                        final Level level,
                        final String... messages) {
-        final Logger wrapped = (console, message) -> {
+        final SourcedLogger wrapped = (console, message) -> {
             final Console active;
             if (source != null && source.getSource() != null)
                 active = source.getSource().getConsole();
