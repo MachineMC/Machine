@@ -16,6 +16,9 @@ package org.machinemc.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.tree.RootCommandNode;
+import org.machinemc.api.logging.Console;
 import org.machinemc.server.Machine;
 import org.machinemc.api.commands.CommandExecutor;
 
@@ -34,7 +37,9 @@ public final class ServerCommands {
      * @param dispatcher dispatcher to register commands in
      */
     public static void register(final Machine server, final CommandDispatcher<CommandExecutor> dispatcher) {
-        dispatcher.register(stopCommand(server));
+        final RootCommandNode<CommandExecutor> root = dispatcher.getRoot();
+        root.addChild(stopCommand(server));
+        root.addChild(exitCommand(server));
     }
 
     /**
@@ -42,13 +47,30 @@ public final class ServerCommands {
      * @param server server to register commands for
      * @return stop command
      */
-    private static LiteralArgumentBuilder<CommandExecutor> stopCommand(final Machine server) {
-        final LiteralArgumentBuilder<CommandExecutor> stopCommand = LiteralArgumentBuilder.literal("stop");
-        stopCommand.executes(c -> {
-            server.shutdown();
-            return 0;
-        });
-        return stopCommand;
+    private static LiteralCommandNode<CommandExecutor> stopCommand(final Machine server) {
+        return LiteralArgumentBuilder
+                .<CommandExecutor>literal("stop")
+                .executes(c -> {
+                    server.shutdown();
+                    return 0;
+                })
+                .build();
+    }
+
+    /**
+     * Creates the default exit command.
+     * @param server server to register commands for
+     * @return exit command
+     */
+    private static LiteralCommandNode<CommandExecutor> exitCommand(final Machine server) {
+        return LiteralArgumentBuilder
+                .<CommandExecutor>literal("exit")
+                .executes(c -> {
+                    if (!(c.getSource() instanceof Console)) return -1;
+                    server.getApplication().exitServer(server);
+                    return 0;
+                })
+                .build();
     }
 
 }

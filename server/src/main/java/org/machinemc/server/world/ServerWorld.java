@@ -85,8 +85,11 @@ public class ServerWorld extends AbstractWorld {
      * @return default server world
      */
     public static World createDefault(final Machine server) {
+        final File directory = new File(server.getDirectory(), DEFAULT_WORLD_FOLDER + "/");
+        if (!directory.exists() && !directory.mkdirs())
+            throw new RuntimeException();
         final World world = new ServerWorld(
-                new File(DEFAULT_WORLD_FOLDER + "/"),
+                directory,
                 server,
                 NamespacedKey.machine("main"),
                 server.getDimensionTypeManager().getDimensions().iterator().next(),

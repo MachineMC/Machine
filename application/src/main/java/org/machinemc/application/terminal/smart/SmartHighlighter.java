@@ -12,36 +12,32 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.logging;
+package org.machinemc.application.terminal.smart;
 
 import com.mojang.brigadier.ParseResults;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.machinemc.scriptive.style.ChatColor;
-import org.machinemc.scriptive.style.Colour;
-import org.machinemc.server.Machine;
-import org.machinemc.api.commands.CommandExecutor;
-import org.machinemc.api.server.ServerProperty;
 import org.jetbrains.annotations.Nullable;
 import org.jline.reader.Highlighter;
 import org.jline.reader.LineReader;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
+import org.machinemc.api.commands.CommandExecutor;
+import org.machinemc.application.MachineApplication;
+import org.machinemc.application.RunnableServer;
+import org.machinemc.scriptive.style.ChatColor;
+import org.machinemc.scriptive.style.Colour;
 
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-/**
- * Default console highlighter for Machine server.
- */
 @RequiredArgsConstructor
-public class ConsoleHighlighter implements Highlighter, ServerProperty {
+public class SmartHighlighter implements Highlighter {
 
-    @Getter
-    private final Machine server;
-    @Getter
-    private final ServerConsole console;
+    private final SmartTerminal terminal;
+    private final Supplier<RunnableServer> server;
 
     @Getter @Setter
     private @Nullable Colour
@@ -51,13 +47,32 @@ public class ConsoleHighlighter implements Highlighter, ServerProperty {
     @Override
     public AttributedString highlight(final LineReader reader, final String buffer) {
         final AttributedStringBuilder sb = new AttributedStringBuilder();
-        if (console.isColors()) {
+        final RunnableServer server = this.server.get();
+
+        if (!terminal.isColored()) return sb.append(buffer).toAttributedString();
+
+        if (server != null && server.getConsole().isRunning()) {
+
+            if (server.getCommandDispatcher() == null)
+                return sb.append(buffer).toAttributedString();
+
             final ParseResults<CommandExecutor> result = server.getCommandDispatcher()
-                    .parse(CommandExecutor.formatCommandInput(buffer), console);
+                    .parse(CommandExecutor.formatCommandInput(buffer), server.getConsole());
+            final Colour color = result.getReader().canRead() ? unknownColor : knownColor;
+            if (color != null)
+                sb.style(new AttributedStyle().foreground(color.getRed(), color.getGreen(), color.getBlue()));
+        } else {
+
+            if (terminal.getApplication().getCommandDispatcher() == null)
+                return sb.append(buffer).toAttributedString();
+
+            final ParseResults<MachineApplication> result = terminal.getApplication().getCommandDispatcher()
+                    .parse(CommandExecutor.formatCommandInput(buffer), terminal.getApplication());
             final Colour color = result.getReader().canRead() ? unknownColor : knownColor;
             if (color != null)
                 sb.style(new AttributedStyle().foreground(color.getRed(), color.getGreen(), color.getBlue()));
         }
+
         sb.append(buffer);
         return sb.toAttributedString();
     }
