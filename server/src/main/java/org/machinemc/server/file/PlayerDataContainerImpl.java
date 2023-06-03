@@ -38,9 +38,9 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
     @Getter
     private final Machine server;
 
-    public PlayerDataContainerImpl(final Machine server) {
+    public PlayerDataContainerImpl(final Machine server, final File folder) {
         this.server = server;
-        playerDataFolder = new File(DEFAULT_PLAYER_DATA_FOLDER);
+        playerDataFolder = folder;
         if (!playerDataFolder.exists() && !playerDataFolder.mkdirs())
             throw new RuntimeException("Can't create the player data folder");
     }
@@ -63,7 +63,7 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
      * @return player's data file
      */
     private File getPlayerDataFile(final UUID uuid, final boolean create) {
-        final File playerDataFile = new File(new File(DEFAULT_PLAYER_DATA_FOLDER), uuid + ".dat");
+        final File playerDataFile = new File(playerDataFolder, uuid + ".dat");
         if (!create) return playerDataFile;
         try {
             if (!playerDataFolder.exists() && !playerDataFolder.mkdirs())

@@ -12,20 +12,34 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.api.logging;
+package org.machinemc.application;
 
-import org.jetbrains.annotations.Async;
-import org.machinemc.api.commands.CommandExecutor;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.chat.MessageType;
+import org.machinemc.scriptive.components.Component;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.logging.Level;
 
 /**
- * Console of the server.
+ * Represents application that started up the Machine server.
  */
-public interface Console extends CommandExecutor {
+@ApiStatus.NonExtendable
+public interface ServerApplication {
+
+    /**
+     * Called when the server is exited.
+     * @param server server
+     */
+    void exitServer(RunnableServer server);
+
+    /**
+     * Called when the server is stopped.
+     * @param server server
+     */
+    void stopServer(RunnableServer server);
 
     /**
      * Sends a messages to the console at certain logging level.
@@ -99,29 +113,11 @@ public interface Console extends CommandExecutor {
     }
 
     /**
-     * Starts the console command line.
+     * Sends component to the terminal.
+     * @param sender uuid of sender
+     * @param message component to send
+     * @param type type of the message
      */
-    @Async.Execute
-    void start();
-
-    /**
-     * Stops the console command line.
-     */
-    void stop();
-
-    /**
-     * @return input stream of the console
-     */
-    InputStream getInputStream();
-
-    /**
-     * @return output stream of the console
-     */
-    OutputStream getOutputStream();
-
-    /**
-     * @return whether the console is running
-     */
-    boolean isRunning();
+    void sendMessage(@Nullable UUID sender, Component message, MessageType type);
 
 }

@@ -22,6 +22,7 @@ import lombok.Getter;
 import org.machinemc.api.auth.OnlineServer;
 import org.machinemc.api.world.*;
 import org.machinemc.api.world.biomes.Biome;
+import org.machinemc.application.*;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
@@ -36,15 +37,10 @@ import org.machinemc.api.entities.Player;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.file.*;
 import org.machinemc.server.file.*;
-import org.machinemc.server.logging.FormattedOutputStream;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.server.network.NettyServer;
-import org.machinemc.server.logging.SimpleConsole;
 import org.machinemc.server.translation.TranslatorDispatcher;
 import org.machinemc.server.exception.ExceptionHandlerImpl;
-import org.machinemc.server.logging.ServerConsole;
-import org.machinemc.api.logging.Console;
-import org.machinemc.server.network.packets.PacketFactory;
 import org.machinemc.server.server.PlayerManagerImpl;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.server.world.*;
@@ -58,7 +54,6 @@ import org.machinemc.server.world.dimensions.DimensionTypeImpl;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
 import org.machinemc.server.world.dimensions.DimensionTypeManagerImpl;
 import org.jetbrains.annotations.Nullable;
-import org.machinemc.server.utils.ClassUtils;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.server.utils.NetworkUtils;
@@ -66,12 +61,10 @@ import org.machinemc.server.utils.NetworkUtils;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public final class Machine implements Server {
+public final class Machine implements Server, RunnableServer {
 
     public static final String SERVER_BRAND = "Machine";
     public static final String SERVER_IMPLEMENTATION_VERSION = "1.19.2";
@@ -82,16 +75,29 @@ public final class Machine implements Server {
     public static final String API_PACKAGE = "org.machinemc.api";
     public static final String SERVER_PACKAGE = "org.machinemc.server";
 
-    public static final Path DIRECTORY = Paths.get("");
+    @Getter
+    private final ServerApplication application;
 
     @Getter
-    private boolean running;
+    private volatile boolean running;
 
     @Getter
-    private Console console;
+    private final String name;
 
     @Getter
-    protected ExceptionHandler exceptionHandler;
+    private final File directory;
+
+    @Getter
+    private final PlatformConsole console;
+
+    @Getter
+    private final ServerPlatform platform;
+
+    @Getter
+    protected TranslatorDispatcher translatorDispatcher;
+
+    @Getter
+    protected final ExceptionHandler exceptionHandler;
 
     @Getter
     private @Nullable OnlineServer onlineServer;
@@ -104,10 +110,7 @@ public final class Machine implements Server {
     protected ServerProperties properties;
 
     @Getter
-    protected TranslatorDispatcher translatorDispatcher;
-
-    @Getter
-    protected Scheduler scheduler;
+    protected final Scheduler scheduler;
 
     @Getter
     protected CommandDispatcher<CommandExecutor> commandDispatcher;
@@ -141,60 +144,55 @@ public final class Machine implements Server {
         Factories.bufferFactory = FriendlyByteBuf::new;
     }
 
-    /**
-     * Machine entry point.
-     * @param args java arguments
-     */
-    public static void main(final String[] args) throws Exception {
-        new Machine(args);
+    public Machine(final ServerContext context) throws Exception {
+        if (context.application() == null)
+            throw new NullPointerException();
+        this.application = context.application();
+
+        if (!context.directory().exists() && !context.directory().mkdirs())
+            throw new RuntimeException();
+        this.directory = context.directory();
+
+        if (context.name() == null)
+            throw new NullPointerException();
+        this.name = context.name();
+
+        if (context.console() == null)
+            throw new NullPointerException();
+        this.console = context.console();
+
+        if (context.platform() == null)
+            throw new NullPointerException();
+        this.platform = context.platform();
+
+        scheduler = new Scheduler(4);
+        exceptionHandler = new ExceptionHandlerImpl(this);
     }
 
-    private Machine(final String[] args) throws Exception {
+    /**
+     * Starts the Machine server.
+     */
+    public void run() throws Exception {
+        if (running) throw new RuntimeException();
 
-        final Set<String> arguments = Set.of(args);
         final long start = System.currentTimeMillis();
-
-        final boolean colors = !arguments.contains("nocolors");
-        final boolean simpleConsole = arguments.contains("simpleconsole");
 
         // TODO register other server related component types (NBTComponent, ScoreComponent, SelectorComponent)
         componentSerializer = new ComponentSerializerImpl();
 
-        // Setting up console
-        try {
-            console = simpleConsole
-                    ? new SimpleConsole(this, false, System.out, System.in)
-                    : new ServerConsole(this, colors);
-            System.setOut(new PrintStream(new FormattedOutputStream(
-                    console,
-                    Level.INFO,
-                    "[stdout] "
-            )));
-            System.setErr(new PrintStream(new FormattedOutputStream(
-                    console,
-                    Level.SEVERE,
-                    "[stderr] "
-            )));
-        } catch (Exception e) {
-            System.out.println("Failed to load server console");
-            e.printStackTrace();
-            System.exit(2);
-        }
         console.info("Loading Machine Server on Minecraft " + SERVER_IMPLEMENTATION_VERSION);
-        scheduler = new Scheduler(4);
-        exceptionHandler = new ExceptionHandlerImpl(this);
 
         // Setting up server properties
-        final File propertiesFile = new File(ServerPropertiesImpl.PROPERTIES_FILE_NAME);
+        final File propertiesFile = new File(directory, ServerPropertiesImpl.PROPERTIES_FILE_NAME);
         if (!propertiesFile.exists()) {
-            FileUtils.createFromDefault(propertiesFile);
-            FileUtils.createFromDefault(new File(ServerPropertiesImpl.ICON_FILE_NAME));
+            FileUtils.createServerFile(directory, ServerPropertiesImpl.PROPERTIES_FILE_NAME);
+            FileUtils.createServerFile(directory, ServerPropertiesImpl.ICON_FILE_NAME);
         }
         try {
             properties = new ServerPropertiesImpl(this, propertiesFile);
         } catch (IOException exception) {
             exceptionHandler.handle(exception, "Failed to load server properties");
-            System.exit(2);
+            application.stopServer(this);
         }
         console.info("Loaded server properties");
 
@@ -202,7 +200,7 @@ public final class Machine implements Server {
         if (!NetworkUtils.available(properties.getServerPort())) {
             console.severe("Failed to bind port '" + properties.getServerPort() + "', it's already in use.");
             console.severe("Perhaps another instance of the server is already running?");
-            System.exit(2);
+            application.stopServer(this);
         }
 
         if (properties.isOnline()) {
@@ -216,16 +214,13 @@ public final class Machine implements Server {
         commandDispatcher = new CommandDispatcher<>();
         ServerCommands.register(this, commandDispatcher);
 
-        Arrays.stream(Material.values()).forEach(Material::createBlockData);
-        BlockData.finishRegistration();
         blockManager = BlockManagerImpl.createDefault(this);
-        console.info("Loaded materials and block data");
 
         // Loading dimensions json file
         dimensionTypeManager = new DimensionTypeManagerImpl(this);
-        final File dimensionsFile = new File(DimensionsJson.DIMENSIONS_FILE_NAME);
+        final File dimensionsFile = new File(directory, DimensionsJson.DIMENSIONS_FILE_NAME);
         if (!dimensionsFile.exists())
-            FileUtils.createFromDefault(dimensionsFile);
+            FileUtils.createServerFile(directory, DimensionsJson.DIMENSIONS_FILE_NAME);
         Set<DimensionType> dimensions = new LinkedHashSet<>();
         try {
             dimensions = new DimensionsJson(this, dimensionsFile).dimensions();
@@ -249,9 +244,9 @@ public final class Machine implements Server {
 
         // Loading biomes json file
         biomeManager = new BiomeManagerImpl(this);
-        final File biomesFile = new File(BiomesJson.BIOMES_FILE_NAME);
+        final File biomesFile = new File(directory, BiomesJson.BIOMES_FILE_NAME);
         if (!biomesFile.exists())
-            FileUtils.createFromDefault(biomesFile);
+            FileUtils.createServerFile(directory, BiomesJson.BIOMES_FILE_NAME);
         Set<Biome> biomes = new LinkedHashSet<>();
         try {
             biomes = new BiomesJson(this, biomesFile).biomes();
@@ -275,18 +270,21 @@ public final class Machine implements Server {
         playerManager = new PlayerManagerImpl(this);
 
         try {
-            playerDataContainer = new PlayerDataContainerImpl(this);
+            playerDataContainer = new PlayerDataContainerImpl(
+                    this,
+                    new File(directory, PlayerDataContainerImpl.DEFAULT_PLAYER_DATA_FOLDER)
+            );
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
-            System.exit(2);
+            application.stopServer(this);
         }
 
         worldManager = new WorldManagerImpl(this);
         try {
-            for (final Path path : Files.walk(DIRECTORY, 2).collect(Collectors.toSet())) {
+            for (final Path path : Files.walk(directory.toPath(), 2).collect(Collectors.toSet())) {
                 if (!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;
-                if (path.getParent() == null) continue;
-                if (path.getParent().getParent() != null) continue;
+                if (path.getNameCount() < 3) continue;
+                if (!Files.isSameFile(directory.toPath(), path.getParent().getParent())) continue;
                 try {
                     final WorldJson worldJson = new WorldJson(this, path.toFile());
                     if (worldManager.isRegistered(worldJson.getWorldName())) {
@@ -307,13 +305,15 @@ public final class Machine implements Server {
         if (worldManager.getWorlds().size() == 0) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             try {
-                final File worldJson = new File(WorldJson.WORLD_FILE_NAME);
-                FileUtils.createFromDefaultAndLocate(worldJson, ServerWorld.DEFAULT_WORLD_FOLDER + "/");
+                FileUtils.createServerFile(
+                        new File(directory, ServerWorld.DEFAULT_WORLD_FOLDER + "/" + WorldJson.WORLD_FILE_NAME),
+                        WorldJson.WORLD_FILE_NAME
+                );
                 final World world = ServerWorld.createDefault(this);
                 worldManager.addWorld(world);
             } catch (Exception exception) {
                 exceptionHandler.handle(exception, "Failed to create the default world");
-                System.exit(2);
+                application.stopServer(this);
             }
         }
         defaultWorld = worldManager.getWorld(properties.getDefaultWorld());
@@ -332,14 +332,11 @@ public final class Machine implements Server {
         }
         console.info("Loaded all server worlds");
 
-        ClassUtils.loadClass(PacketFactory.class);
-        console.info("Loaded all packet mappings");
-
         try {
             translatorDispatcher = TranslatorDispatcher.createDefault(this);
         } catch (Exception exception) {
             exceptionHandler.handle(exception, "Failed to load packet translator dispatcher");
-            System.exit(2);
+            application.stopServer(this);
         }
         console.info("Loaded all packet translators");
 
@@ -351,20 +348,21 @@ public final class Machine implements Server {
             }).async().run(scheduler);
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
-            System.exit(2);
+            application.stopServer(this);
         }
 
         try {
             console.start();
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
-            System.exit(2);
+            application.stopServer(this);
         }
 
         running = true;
         console.info("Server loaded in " + (System.currentTimeMillis() - start) + "ms");
         scheduler.run(); // blocks the thread
 
+        if (!running) return;
         shutdown();
     }
 
@@ -391,7 +389,6 @@ public final class Machine implements Server {
     @Override
     public void shutdown() {
         running = false;
-        console.stop();
         console.info("Shutting down...");
         console.info("Saving player data...");
         for (final Player player : playerManager.getPlayers()) {
@@ -415,8 +412,14 @@ public final class Machine implements Server {
                 exceptionHandler.handle(exception);
             }
         }
+        console.info("Shutting down scheduler");
+        try {
+            scheduler.shutdown();
+        } catch (InterruptedException exception) {
+            exceptionHandler.handle(exception);
+        }
         console.info("Server has been stopped");
-        System.exit(0);
+        application.stopServer(this);
     }
 
     @Override

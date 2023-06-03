@@ -18,15 +18,12 @@ repositories {
 dependencies {
 
     implementation(project(":api"))
+    implementation(project(":server"))
 
-    implementation(libs.google.guava)
     implementation(libs.google.gson)
-    implementation(libs.netty.all)
     implementation(libs.jna)
     implementation(libs.jline)
     implementation(libs.mojang.brigadier)
-    implementation(libs.machine.nbt)
-    implementation(libs.machine.landscape)
     implementation(libs.machine.scriptive)
 
 }

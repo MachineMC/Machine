@@ -41,6 +41,7 @@ import org.machinemc.api.world.dimensions.DimensionTypeManager;
 import org.jetbrains.annotations.*;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 
+import java.io.File;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -68,6 +69,11 @@ public interface Server {
     String getBrand();
 
     /**
+     * @return server's name
+     */
+    String getName();
+
+    /**
      * @return server's implementation version
      */
     String getImplementationVersion();
@@ -86,6 +92,11 @@ public interface Server {
      * @return if the server is in online mode
      */
     boolean isOnline();
+
+    /**
+     * @return directory of the server
+     */
+    File getDirectory();
 
     /**
      * @return console implementation used by the server
