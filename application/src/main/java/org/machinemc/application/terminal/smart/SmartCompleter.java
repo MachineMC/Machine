@@ -40,6 +40,7 @@ public class SmartCompleter implements Completer {
     public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
         if (server.get() == null) {
             final CommandDispatcher<MachineApplication> dispatcher = terminal.getApplication().getCommandDispatcher();
+            if (dispatcher == null) return;
             if (line.wordIndex() == 0) {
                 final String commandString = line.word().toLowerCase();
                 candidates.addAll(dispatcher.getRoot().getChildren().stream()
@@ -60,6 +61,7 @@ public class SmartCompleter implements Completer {
         }
 
         final CommandDispatcher<CommandExecutor> dispatcher = server.get().getCommandDispatcher();
+        if (dispatcher == null) return;
         if (line.wordIndex() == 0) {
             final String commandString = line.word().toLowerCase();
             candidates.addAll(dispatcher.getRoot().getChildren().stream()

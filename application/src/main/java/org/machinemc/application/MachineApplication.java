@@ -30,7 +30,6 @@ import org.machinemc.server.MachinePlatform;
 import org.machinemc.server.logging.DynamicConsole;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -53,6 +52,9 @@ public final class MachineApplication implements ServerApplication {
      */
     @Getter
     private final File directory;
+
+    @Getter
+    private final Set<Argument> arguments;
 
     /**
      * Application terminal, provides console implementations for running servers.
@@ -87,10 +89,19 @@ public final class MachineApplication implements ServerApplication {
 
     private final Map<String, ServerPlatform> platforms = new TreeMap<>();
 
-    private MachineApplication() throws IOException {
+    private MachineApplication(final String[] args) {
         directory = new File(".");
 
-        terminal = TerminalFactory.create(this).build();
+        arguments = Argument.parse(args);
+
+        try {
+            terminal = TerminalFactory.create(this).build();
+        } catch (Exception exception) {
+            System.out.println("Failed to initialize application cosole");
+            exception.printStackTrace();
+            System.exit(0);
+            throw new RuntimeException();
+        }
 
         commandDispatcher = new CommandDispatcher<>();
         ApplicationCommands.register(this, commandDispatcher);
@@ -110,12 +121,16 @@ public final class MachineApplication implements ServerApplication {
      * Application entry point.
      * @param args java arguments
      */
-    public static void main(final String[] args) throws Exception {
-        final MachineApplication application = new MachineApplication();
+    public static void main(final String[] args) {
+        MachineApplication application = null;
         try {
+            application = new MachineApplication(args);
             application.run();
         } catch (Exception exception) {
-            application.handleException(exception);
+            if (application != null)
+                application.handleException(exception);
+            else
+                exception.printStackTrace();
             System.exit(0);
         }
     }

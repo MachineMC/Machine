@@ -26,6 +26,7 @@ import org.machinemc.application.MachineApplication;
 import org.machinemc.application.PlatformConsole;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
+import org.machinemc.scriptive.style.ChatCode;
 import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.Colour;
 import org.machinemc.scriptive.util.ChatUtils;
@@ -37,6 +38,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 /**
  * Base of a terminal.
@@ -97,10 +99,14 @@ public abstract class BaseTerminal implements ApplicationTerminal {
                             final @Nullable UUID sender,
                             final Component message,
                             final MessageType type) {
-        if (colors)
+        if (colors) {
             info(source, ChatUtils.consoleFormatted(message));
-        else
-            info(source, message.toLegacyString());
+        } else {
+            final StringBuilder builder = new StringBuilder();
+            message.separatedComponents()
+                    .forEach(component -> builder.append(component.flatten()));
+            info(source, builder.toString());
+        }
     }
 
     @Override
@@ -136,9 +142,22 @@ public abstract class BaseTerminal implements ApplicationTerminal {
                     ? messagePrefix
                     + ChatUtils.consoleFormatted(message)
                     + ChatColor.RESET.getConsoleFormat()
-                    : messagePrefix + message;
+                    : messagePrefix + stripColorCodes(message);
             logger.log(source, formatted);
         }
+    }
+
+    private static final Pattern COLOR_CODE_PATTERN = Pattern.compile("(?i)§([\\dabcdefklmnor])");
+
+    /**
+     * Removes minecraft color codes from the message.
+     * @param input input message
+     * @return message without the color codes
+     */
+    public static String stripColorCodes(final String input) {
+        return COLOR_CODE_PATTERN.matcher(input).replaceAll(matchResult ->
+                ChatCode.byChar(matchResult.group(1)) == null ? matchResult.group() : ""
+        );
     }
 
     /**
@@ -151,19 +170,19 @@ public abstract class BaseTerminal implements ApplicationTerminal {
         return switch (level.intValue()) {
             case 700 -> (colors && configColor != null
                     ? configColor.getConsoleFormat()
-                    : ServerConsole.EMPTY
+                    : ""
             ) + configPrefix + ": "; // Config value
             case 800 -> (colors && infoColor != null
                     ? infoColor.getConsoleFormat()
-                    : ServerConsole.EMPTY
+                    : ""
             ) + infoPrefix + ": "; // Info value
             case 900 -> (colors && warningColor != null
                     ? warningColor.getConsoleFormat()
-                    : ServerConsole.EMPTY
+                    : ""
             ) + warningPrefix + ": "; // Warning value
             case 1000 -> (colors && severeColor != null
                     ? severeColor.getConsoleFormat()
-                    : ServerConsole.EMPTY
+                    : ""
             ) + severePrefix + ": "; // Severe value
             default -> "";
         };

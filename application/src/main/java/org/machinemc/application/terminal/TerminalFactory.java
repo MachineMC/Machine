@@ -14,12 +14,17 @@
  */
 package org.machinemc.application.terminal;
 
-import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.TerminalBuilder;
+import org.machinemc.application.Argument;
 import org.machinemc.application.MachineApplication;
 import org.machinemc.application.RunnableServer;
 import org.machinemc.application.ServerContainer;
+import org.machinemc.application.terminal.dumb.DumbTerminal;
+import org.machinemc.application.terminal.simple.SimpleTerminal;
 import org.machinemc.application.terminal.smart.SmartCompleter;
 import org.machinemc.application.terminal.smart.SmartHighlighter;
 import org.machinemc.application.terminal.smart.SmartTerminal;
@@ -27,10 +32,11 @@ import org.machinemc.server.logging.FormattedOutputStream;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Set;
 import java.util.function.Supplier;
 
-@SuppressWarnings("ClassCanBeRecord")
-@AllArgsConstructor(staticName = "create")
+@Getter @Setter
+@RequiredArgsConstructor(staticName = "create")
 public final class TerminalFactory {
 
     private final MachineApplication application;
@@ -41,23 +47,43 @@ public final class TerminalFactory {
      */
     public ApplicationTerminal build() throws IOException {
 
-        final SmartTerminal terminal = new SmartTerminal(
-                application,
-                true,
-                TerminalBuilder.terminal(),
-                System.in,
-                System.out
-        );
+        final Set<Argument> arguments = application.getArguments();
 
-        final Supplier<RunnableServer> supplier = () -> {
-            final ServerContainer container = terminal.getCurrent();
-            if (container == null) return null;
-            return container.getInstance();
-        };
+        final boolean colors = !arguments.contains(Argument.NO_COLORS);
 
-        terminal.setCompleter(new SmartCompleter(terminal, supplier));
-        terminal.setHighlighter(new SmartHighlighter(terminal, supplier));
-        terminal.setHistory(new DefaultHistory());
+        if (!arguments.contains(Argument.SMART_TERMINAL)) {
+            return new SimpleTerminal(application, colors, System.in, System.out);
+        }
+
+        final ApplicationTerminal terminal;
+
+        if (System.console() == null) {
+            terminal = new DumbTerminal(application, colors, TerminalBuilder.builder()
+                    .dumb(true)
+                    .system(false)
+                    .streams(System.in, System.out)
+                    .build(),
+                    System.in, System.out);
+        } else {
+            final SmartTerminal smartTerminal = new SmartTerminal(
+                    application,
+                    colors,
+                    TerminalBuilder.terminal(),
+                    System.in,
+                    System.out
+            );
+            final Supplier<RunnableServer> supplier = () -> {
+                final ServerContainer container = smartTerminal.getCurrent();
+                if (container == null) return null;
+                return container.getInstance();
+            };
+
+            smartTerminal.setCompleter(new SmartCompleter(smartTerminal, supplier));
+            smartTerminal.setHighlighter(new SmartHighlighter(smartTerminal, supplier));
+            smartTerminal.setHistory(new DefaultHistory());
+
+            terminal = smartTerminal;
+        }
 
         System.setOut(new PrintStream(new FormattedOutputStream(
                 terminal::info,

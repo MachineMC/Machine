@@ -12,17 +12,13 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.application.terminal.smart;
+package org.machinemc.application.terminal.dumb;
 
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
-import org.jline.keymap.KeyMap;
-import org.jline.reader.History;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
-import org.jline.reader.Widget;
 import org.jline.terminal.Terminal;
-import org.jline.utils.InfoCmp;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.application.MachineApplication;
 import org.machinemc.application.PlatformConsole;
@@ -33,40 +29,34 @@ import org.machinemc.server.logging.DynamicConsole;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
 /**
- * JLine terminal with widgets and key binds.
+ * Interactive terminal for not real terminal environments such
+ * as IntelliJ terminal.
  */
-public class SmartTerminal extends SwitchTerminal {
+public class DumbTerminal extends SwitchTerminal {
 
     @Getter
     private final Terminal terminal;
     private @Nullable LineReader reader;
 
-    @Getter
-    private @Nullable SmartCompleter completer;
-    @Getter
-    private @Nullable SmartHighlighter highlighter;
-    @Getter
-    private @Nullable History history;
-
     private final String prompt = "> ";
 
-    public SmartTerminal(final MachineApplication application,
-                         final boolean colors,
-                         final Terminal terminal,
-                         final InputStream in,
-                         final OutputStream out) {
+    public DumbTerminal(final MachineApplication application,
+                        final boolean colors,
+                        final Terminal terminal,
+                        final InputStream in,
+                        final OutputStream out) {
         super(application, colors, in, out);
         this.terminal = terminal;
     }
 
     @Override
     public void openServer(final @Nullable ServerContainer container) {
-        terminal.puts(InfoCmp.Capability.clear_screen);
-        terminal.flush();
+        clearTerminal();
         super.openServer(container);
     }
 
@@ -79,32 +69,23 @@ public class SmartTerminal extends SwitchTerminal {
     public void log(final PlatformConsole source, final Level level, final String... messages) {
         final LineReader reader = this.reader;
         log((console, message) -> {
-            if (reader != null) {
+            if (reader != null)
                 reader.printAbove(message);
-            } else
+            else
                 terminal.writer().println(message);
         }, source, level, messages);
     }
 
     @Override
     public void start() {
-        terminal.puts(InfoCmp.Capability.clear_screen);
-        terminal.flush();
-        final LineReaderBuilder builder = LineReaderBuilder.builder().terminal(terminal);
-        if (completer != null) builder.completer(completer);
-        if (highlighter != null) builder.highlighter(highlighter);
-        if (history != null) builder.history(history);
+        clearTerminal();
+        final LineReaderBuilder builder = LineReaderBuilder.builder()
+                .terminal(terminal);
         reader = builder.build();
 
-        reader.getKeyMaps().get(LineReader.MAIN).bind((Widget) () -> {
-            if (getCurrent() == null) return true;
-            getApplication().exitServer(getCurrent());
-            return true;
-        }, KeyMap.alt('x'));
-
-        info("Started the application using Smart Terminal");
-        info("Press [TAB] for automatic tab completing");
-        info("Exit to the main application console using [ALT] + [X]");
+        info("Started the application using Dumb Terminal");
+        info("This is most likely caused by running the application");
+        info("in not real terminal environment.");
 
         Scheduler.task((i, session) -> {
             while (getApplication().isRunning()) {
@@ -126,39 +107,20 @@ public class SmartTerminal extends SwitchTerminal {
 
     @Override
     public void refreshHistory(final List<String> history) {
-        terminal.puts(InfoCmp.Capability.clear_screen);
-        terminal.flush();
+        clearTerminal();
         if (reader == null)
             history.forEach(terminal.writer()::println);
         else
             history.forEach(reader::printAbove);
     }
 
-    /**
-     * Updates terminal's completer.
-     * @param completer new completer
-     */
-    public void setCompleter(final @Nullable SmartCompleter completer) {
-        if (reader != null) throw new UnsupportedOperationException();
-        this.completer = completer;
-    }
-
-    /**
-     * Updates terminal's highlighter.
-     * @param highlighter new highlighter
-     */
-    public void setHighlighter(final @Nullable SmartHighlighter highlighter) {
-        if (reader != null) throw new UnsupportedOperationException();
-        this.highlighter = highlighter;
-    }
-
-    /**
-     * Updates terminal's history.
-     * @param history new history
-     */
-    public void setHistory(final @Nullable History history) {
-        if (reader != null) throw new UnsupportedOperationException();
-        this.history = history;
+    private void clearTerminal() {
+        final String[] empty = new String[100];
+        Arrays.fill(empty, "");
+        if (reader == null)
+            Arrays.stream(empty).forEach(terminal.writer()::println);
+        else
+            Arrays.stream(empty).forEach(reader::printAbove);
     }
 
 }

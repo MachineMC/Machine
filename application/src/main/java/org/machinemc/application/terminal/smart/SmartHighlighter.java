@@ -49,13 +49,23 @@ public class SmartHighlighter implements Highlighter {
         final AttributedStringBuilder sb = new AttributedStringBuilder();
         final RunnableServer server = this.server.get();
 
+        if (!terminal.isColored()) return sb.append(buffer).toAttributedString();
+
         if (server != null && server.getConsole().isRunning()) {
+
+            if (server.getCommandDispatcher() == null)
+                return sb.append(buffer).toAttributedString();
+
             final ParseResults<CommandExecutor> result = server.getCommandDispatcher()
                     .parse(CommandExecutor.formatCommandInput(buffer), server.getConsole());
             final Colour color = result.getReader().canRead() ? unknownColor : knownColor;
             if (color != null)
                 sb.style(new AttributedStyle().foreground(color.getRed(), color.getGreen(), color.getBlue()));
         } else {
+
+            if (terminal.getApplication().getCommandDispatcher() == null)
+                return sb.append(buffer).toAttributedString();
+
             final ParseResults<MachineApplication> result = terminal.getApplication().getCommandDispatcher()
                     .parse(CommandExecutor.formatCommandInput(buffer), terminal.getApplication());
             final Colour color = result.getReader().canRead() ? unknownColor : knownColor;

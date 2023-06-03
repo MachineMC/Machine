@@ -72,14 +72,14 @@ public final class ApplicationCommands {
                 .<MachineApplication>literal("help")
                 .executes(c -> {
                     application.info(
-                            "help — displays all available commands",
-                            "stop — stops all running servers and shut down the application",
-                            "list — displays list of all available and running servers",
-                            "jump <name> — jumps into a console of given running server",
-                            "start <name> — starts up given server container",
-                            "stop <name> — shuts down given running server",
-                            "restart <name> — restarts given running server",
-                            "create <name> <platform> — creates new server instance"
+                            "help - displays all available commands",
+                            "stop - stops all running servers and shut down the application",
+                            "list - displays list of all available and running servers",
+                            "jump <name> - jumps into a console of given running server",
+                            "start <name> - starts up given server container",
+                            "stop <name> - shuts down given running server",
+                            "restart <name> - restarts given running server",
+                            "create <name> <platform> - creates new server instance"
                     );
                     return 0;
                 })
