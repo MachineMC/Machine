@@ -20,6 +20,7 @@ machine-scriptive = "1.1"
 # Plugins
 cadixdev-licenser = "0.6.1"
 jetbrains-kotlin-jvm = "1.7.20"
+checkstyle = "10.3.1"
 
 
 [libraries]
