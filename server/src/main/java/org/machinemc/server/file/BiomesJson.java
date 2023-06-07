@@ -53,8 +53,7 @@ public class BiomesJson implements ServerFile, ServerProperty {
     public BiomesJson(final Machine server, final File file) throws IOException {
         this.server = server;
         final JsonParser parser = new JsonParser();
-        final JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
-        final JsonObject biomes = json.get("biomes").getAsJsonObject();
+        final JsonObject biomes = parser.parse(new FileReader(file)).getAsJsonObject();
 
         for (final Map.Entry<String, JsonElement> biomeKey : biomes.entrySet()) {
             final Biome original = BiomeImpl.createDefault();

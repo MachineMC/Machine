@@ -46,8 +46,7 @@ public class DimensionsJson implements ServerFile, ServerProperty {
     public DimensionsJson(final Machine server, final File file) throws IOException {
         this.server = server;
         final JsonParser parser = new JsonParser();
-        final JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
-        final JsonObject dimensions = json.get("dimensions").getAsJsonObject();
+        final JsonObject dimensions = parser.parse(new FileReader(file)).getAsJsonObject();
 
         final DimensionType original = DimensionTypeImpl.createDefault();
 
