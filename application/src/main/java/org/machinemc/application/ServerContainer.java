@@ -73,7 +73,7 @@ public final class ServerContainer {
 
     @Override
     public String toString() {
-        return "ServerContainer[" + getName() + "]";
+        return "ServerContainer(" + getName() + ')';
     }
 
 }

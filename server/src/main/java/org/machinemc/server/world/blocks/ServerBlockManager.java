@@ -16,12 +16,12 @@ package org.machinemc.server.world.blocks;
 
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.Server;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Material;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.scriptive.style.HexColor;
-import org.machinemc.server.Machine;
 
 import java.awt.*;
 import java.util.Map;
@@ -31,13 +31,13 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Default block manager implementation.
  */
-public class BlockManagerImpl implements BlockManager {
+public class ServerBlockManager implements BlockManager {
 
     private final Map<NamespacedKey, BlockType> blocks = new ConcurrentHashMap<>();
     @Getter
-    private final Machine server;
+    private final Server server;
 
-    public BlockManagerImpl(final Machine server) {
+    public ServerBlockManager(final Server server) {
         this.server = server;
     }
 
@@ -46,8 +46,8 @@ public class BlockManagerImpl implements BlockManager {
      * @param server server to create manager for
      * @return newly created manager
      */
-    public static BlockManager createDefault(final Machine server) {
-        final BlockManagerImpl manager = new BlockManagerImpl(server);
+    public static BlockManager createDefault(final Server server) {
+        final ServerBlockManager manager = new ServerBlockManager(server);
         manager.addBlocks(
                 new BlockTypeImpl(NamespacedKey.minecraft("air"), BlockTypeImpl.BlockProperties.builder()
                         .color(new HexColor(255, 255, 255)).isAir(true).transparent(true).build(),
@@ -90,6 +90,13 @@ public class BlockManagerImpl implements BlockManager {
     @Override
     public Set<BlockType> getBlocks() {
         return Set.copyOf(blocks.values());
+    }
+
+    @Override
+    public String toString() {
+        return "ServerBlockManager("
+                + "server=" + server
+                + ')';
     }
 
 }

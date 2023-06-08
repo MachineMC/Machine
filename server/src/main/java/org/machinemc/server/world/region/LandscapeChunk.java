@@ -33,7 +33,7 @@ import org.machinemc.api.world.blocks.*;
 import org.machinemc.landscape.Landscape;
 import org.machinemc.landscape.Segment;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.chunk.SectionImpl;
+import org.machinemc.server.chunk.ChunkSection;
 import org.machinemc.server.chunk.WorldChunk;
 import org.machinemc.server.utils.WeaklyTimedCache;
 import org.machinemc.server.world.blocks.WorldBlockManager;
@@ -258,7 +258,7 @@ public class LandscapeChunk extends WorldChunk {
         try {
             return sections.get(index, () -> {
                 final Segment segment = getSegment(index);
-                final SectionImpl section = new SectionImpl(this, index, () -> {
+                final ChunkSection section = new ChunkSection(this, index, () -> {
                     segment.push(); // if compound is requested we push the segment in case it's changed later
                     return segment.getDataCompound();
                 });

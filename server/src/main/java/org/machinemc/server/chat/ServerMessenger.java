@@ -28,13 +28,10 @@ import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.style.ChatColor;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutSystemChatMessage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -43,14 +40,14 @@ import java.util.stream.Collectors;
  * Default implementation of server's messenger.
  */
 @RequiredArgsConstructor
-public class MessengerImpl implements Messenger {
+public class ServerMessenger implements Messenger {
 
     protected final AtomicInteger idCounter = new AtomicInteger(0);
     private static final String CODEC_TYPE = "minecraft:chat_type";
 
     private final Map<Integer, ChatType> chatTypes = new ConcurrentHashMap<>();
     @Getter
-    private final Machine server;
+    private final Server server;
 
     @Getter @Setter
     private TranslationComponent cannotSendMessage = TranslationComponent.of("chat.cannotSend").modify()
@@ -62,16 +59,16 @@ public class MessengerImpl implements Messenger {
      * @param server server
      * @return new messenger
      */
-    public static Messenger createDefault(final Machine server) {
-        final Messenger messenger = new MessengerImpl(server);
-        messenger.addChatType(ChatTypeImpl.chat());
-        messenger.addChatType(ChatTypeImpl.sayCommand());
-        messenger.addChatType(ChatTypeImpl.msgCommandIncoming());
-        messenger.addChatType(ChatTypeImpl.msgCommandOutgoing());
-        messenger.addChatType(ChatTypeImpl.teamMsgCommandIncoming());
-        messenger.addChatType(ChatTypeImpl.teamMsgCommandOutgoing());
-        messenger.addChatType(ChatTypeImpl.emoteCommand());
-        messenger.addChatType(ChatTypeImpl.tellraw());
+    public static Messenger createDefault(final Server server) {
+        final Messenger messenger = new ServerMessenger(server);
+        messenger.addChatType(ServerChatType.chat());
+        messenger.addChatType(ServerChatType.sayCommand());
+        messenger.addChatType(ServerChatType.msgCommandIncoming());
+        messenger.addChatType(ServerChatType.msgCommandOutgoing());
+        messenger.addChatType(ServerChatType.teamMsgCommandIncoming());
+        messenger.addChatType(ServerChatType.teamMsgCommandOutgoing());
+        messenger.addChatType(ServerChatType.emoteCommand());
+        messenger.addChatType(ServerChatType.tellraw());
         return messenger;
     }
 
@@ -157,4 +154,10 @@ public class MessengerImpl implements Messenger {
                 .toList());
     }
 
+    @Override
+    public String toString() {
+        return "Messenger("
+                + Arrays.toString(chatTypes.values().toArray(new ChatType[0]))
+                + ')';
+    }
 }

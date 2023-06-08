@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  * Default implementation of the section.
  */
 @Getter
-public class SectionImpl implements Section {
+public class ChunkSection implements Section {
 
     private final Chunk source;
     private final int index;
@@ -47,7 +47,7 @@ public class SectionImpl implements Section {
 
     private final Map<Integer, BlockEntity> clientBlockEntities = new ConcurrentHashMap<>();
 
-    public SectionImpl(final Chunk source, final int index, final Supplier<NBTCompound> dataSupplier) {
+    public ChunkSection(final Chunk source, final int index, final Supplier<NBTCompound> dataSupplier) {
         this.source = source;
         this.index = index;
         blockPalette = AdaptivePalette.blocks();
@@ -97,4 +97,11 @@ public class SectionImpl implements Section {
         biomePalette.write(buf);
     }
 
+    @Override
+    public String toString() {
+        return "Section("
+                + "source=" + source
+                + ", index=" + index
+                + ')';
+    }
 }

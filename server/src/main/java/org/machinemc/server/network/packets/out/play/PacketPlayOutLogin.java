@@ -25,7 +25,7 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

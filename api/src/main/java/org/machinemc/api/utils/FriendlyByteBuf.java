@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.utils;
+package org.machinemc.api.utils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -22,18 +22,12 @@ import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.inventory.Item;
-import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.api.utils.Writable;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.Material;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
-import org.machinemc.server.auth.MessageSignatureImpl;
-import org.machinemc.server.auth.PublicKeyDataImpl;
-import org.machinemc.server.entities.player.PlayerTexturesImpl;
 import org.machinemc.api.inventory.ItemStack;
 
 import java.io.*;
@@ -468,7 +462,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public PublicKeyData readPublicKey() {
         final Instant instant = Instant.ofEpochMilli(readLong());
-        return new PublicKeyDataImpl(Crypt.pubicKeyFrom(readByteArray()), readByteArray(), instant);
+        return new PublicKeyData(Crypt.pubicKeyFrom(readByteArray()), readByteArray(), instant);
     }
 
     @Override
@@ -487,7 +481,7 @@ public class FriendlyByteBuf implements ServerBuffer {
         final String value = readString(StandardCharsets.UTF_8);
         final String signature = readBoolean() ? readString(StandardCharsets.UTF_8) : null;
         try {
-            return PlayerTexturesImpl.buildSkin(value, signature);
+            return PlayerTextures.buildSkin(value, signature);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
@@ -515,7 +509,7 @@ public class FriendlyByteBuf implements ServerBuffer {
         final Instant timestamp = readInstant();
         final long salt = readLong();
         final byte[] signature = readByteArray();
-        return new MessageSignatureImpl(timestamp, salt, signature);
+        return new MessageSignature(timestamp, salt, signature);
     }
 
     @Override
@@ -573,6 +567,11 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public FriendlyByteBuf clone() {
         return new FriendlyByteBuf(bytes());
+    }
+
+    @Override
+    public String toString() {
+        return "FriendlyByteBuf";
     }
 
 }

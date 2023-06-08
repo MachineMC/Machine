@@ -23,7 +23,8 @@ import org.machinemc.api.file.ServerFile;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.dimensions.DimensionType;
-import org.machinemc.server.world.dimensions.DimensionTypeImpl;
+import org.machinemc.api.Server;
+import org.machinemc.server.world.dimensions.ServerDimensionType;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -40,15 +41,15 @@ public class DimensionsJson implements ServerFile, ServerProperty {
     public static final String DIMENSIONS_FILE_NAME = "dimensions.json";
 
     @Getter
-    private final Machine server;
+    private final Server server;
     private final Set<DimensionType> dimensions = new LinkedHashSet<>();
 
-    public DimensionsJson(final Machine server, final File file) throws IOException {
+    public DimensionsJson(final Server server, final File file) throws IOException {
         this.server = server;
         final JsonParser parser = new JsonParser();
         final JsonObject dimensions = parser.parse(new FileReader(file)).getAsJsonObject();
 
-        final DimensionType original = DimensionTypeImpl.createDefault();
+        final DimensionType original = ServerDimensionType.createDefault();
 
         for (final Map.Entry<String, JsonElement> dimensionKey : dimensions.entrySet()) {
             final NamespacedKey key;
@@ -81,7 +82,7 @@ public class DimensionsJson implements ServerFile, ServerProperty {
                 infiniburn = original.getInfiniburn();
             }
 
-            this.dimensions.add(DimensionTypeImpl.builder()
+            this.dimensions.add(ServerDimensionType.builder()
                     .name(key)
                     .natural(dimension.has("natural")
                             ? dimension.get("natural").getAsBoolean()
@@ -150,6 +151,11 @@ public class DimensionsJson implements ServerFile, ServerProperty {
     @Override
     public @Nullable InputStream getOriginal() {
         return Machine.CLASS_LOADER.getResourceAsStream(DIMENSIONS_FILE_NAME);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 
 }

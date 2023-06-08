@@ -17,7 +17,6 @@ package org.machinemc.api.utils;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
-import org.machinemc.server.Server;
 import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.player.PlayerTextures;
@@ -37,15 +36,6 @@ import java.util.UUID;
  * Special byte buffer for implementing Minecraft Protocol.
  */
 public interface ServerBuffer extends Cloneable {
-
-    /**
-     * Creates new instance of the classic buffer implementation.
-     * @return new default server buffer
-     * @throws UnsupportedOperationException if the creator hasn't been initialized
-     */
-    static ServerBuffer create() {
-        return Server.createServerBuffer();
-    }
 
     /**
      * Returns content of the full buffer, doesn't move with

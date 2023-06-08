@@ -18,9 +18,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Machine;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.entities.LivingEntity;
+import org.machinemc.api.Server;
 
 import java.util.Map;
 import java.util.UUID;
@@ -38,7 +38,7 @@ public abstract class ServerLivingEntity extends ServerEntity implements LivingE
     private float absorptionAmount;
     private boolean fallFlying;
 
-    public ServerLivingEntity(final Machine server, final EntityType entityType, final UUID uuid) {
+    public ServerLivingEntity(final Server server, final EntityType entityType, final UUID uuid) {
         super(server, entityType, uuid);
     }
 

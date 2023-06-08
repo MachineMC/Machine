@@ -16,12 +16,12 @@ package org.machinemc.server.entities;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.machinemc.server.Machine;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.entities.EntityManager;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.Server;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,10 +32,10 @@ import java.util.stream.Collectors;
  * Default entity manager implementation.
  */
 @RequiredArgsConstructor
-public class EntityManagerImpl implements EntityManager {
+public class ServerEntityManager implements EntityManager {
 
     @Getter
-    private final Machine server;
+    private final Server server;
     private final Map<UUID, Entity> entityMap = new ConcurrentHashMap<>();
 
     /**
@@ -43,8 +43,8 @@ public class EntityManagerImpl implements EntityManager {
      * @param server server
      * @return new manager
      */
-    public static EntityManagerImpl createDefault(final Machine server) {
-        return new EntityManagerImpl(server);
+    public static ServerEntityManager createDefault(final Server server) {
+        return new ServerEntityManager(server);
     }
 
     @Override

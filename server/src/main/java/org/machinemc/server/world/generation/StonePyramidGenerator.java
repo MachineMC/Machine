@@ -24,15 +24,14 @@ import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.generation.GeneratedSection;
 import org.machinemc.api.world.generation.Generator;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Machine;
-import org.machinemc.server.Server;
+import org.machinemc.api.Server;
 
 /**
  * Generator that generates stone pyramids.
  */
 public class StonePyramidGenerator implements Generator {
 
-    private final Machine server;
+    private final Server server;
     @Getter
     private final long seed;
 
@@ -42,7 +41,7 @@ public class StonePyramidGenerator implements Generator {
 
     private final Biome biome;
 
-    public StonePyramidGenerator(final Machine server, final long seed) {
+    public StonePyramidGenerator(final Server server, final long seed) {
         this.server = server;
         this.seed = seed;
         final BlockManager manager = server.getBlockManager();

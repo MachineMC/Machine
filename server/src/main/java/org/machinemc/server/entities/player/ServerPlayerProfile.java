@@ -15,10 +15,10 @@
 package org.machinemc.server.entities.player;
 
 import lombok.*;
+import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.server.auth.MojangAuth;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.entities.player.PlayerProfile;
-import org.machinemc.api.entities.player.PlayerTextures;
 
 import java.util.UUID;
 
@@ -27,7 +27,7 @@ import java.util.UUID;
  */
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PlayerProfileImpl implements PlayerProfile {
+public class ServerPlayerProfile implements PlayerProfile {
 
     private String username;
     @Getter(AccessLevel.NONE)
@@ -44,8 +44,8 @@ public class PlayerProfileImpl implements PlayerProfile {
      */
     public static PlayerProfile online(final String username,
                                        final UUID uuid,
-                                       final @Nullable PlayerTexturesImpl textures) {
-        return new PlayerProfileImpl(
+                                       final @Nullable PlayerTextures textures) {
+        return new ServerPlayerProfile(
                 username,
                 uuid,
                 textures,
@@ -59,7 +59,7 @@ public class PlayerProfileImpl implements PlayerProfile {
      * @return new player profile
      */
     public static PlayerProfile offline(final String username) {
-        return new PlayerProfileImpl(
+        return new ServerPlayerProfile(
                 username,
                 MojangAuth.getOfflineUUID(username),
                 null,

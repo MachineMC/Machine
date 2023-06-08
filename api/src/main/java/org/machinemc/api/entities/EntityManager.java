@@ -88,7 +88,7 @@ public interface EntityManager extends ServerProperty {
 
     /**
      * Adds entity into the manager.
-     * @see World#spawn(Entity, org.machinemc.api.world.Location)
+     * @see World#spawn(Entity)
      * @param entity entity to add
      */
     @ApiStatus.Internal

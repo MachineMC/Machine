@@ -16,7 +16,7 @@ package org.machinemc.server.world;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldManager;
@@ -29,11 +29,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Default implementation of the world manager.
  */
 @RequiredArgsConstructor
-public class WorldManagerImpl implements WorldManager {
+public class ServerWorldManager implements WorldManager {
 
     private final Set<World> worlds = new CopyOnWriteArraySet<>();
     @Getter
-    private final Machine server;
+    private final Server server;
 
     @Override
     public void addWorld(final World world) {
@@ -69,6 +69,13 @@ public class WorldManagerImpl implements WorldManager {
     @Override
     public Set<World> getWorlds() {
         return Collections.unmodifiableSet(worlds);
+    }
+
+    @Override
+    public String toString() {
+        return "ServerWorldManager("
+                + "server=" + server
+                + ')';
     }
 
 }

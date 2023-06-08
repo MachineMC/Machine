@@ -17,7 +17,7 @@ package org.machinemc.server.network.packets;
 /**
  * Packet sent from server to client.
  */
-public abstract class PacketOut extends PacketImpl {
+public abstract class PacketOut extends ServerPacket {
 
     /**
      * Creates mapping and creator for the packet. Each PacketOut has to call this in static block.
@@ -40,5 +40,10 @@ public abstract class PacketOut extends PacketImpl {
      * @return clone of the packet
      */
     public abstract PacketOut clone();
+
+    @Override
+    public String toString() {
+        return "PacketOut";
+    }
 
 }

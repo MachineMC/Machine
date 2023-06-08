@@ -16,8 +16,8 @@ package org.machinemc.server.world.biomes;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.machinemc.api.Server;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Machine;
 import org.machinemc.api.utils.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.biomes.Biome;
@@ -32,23 +32,23 @@ import java.util.stream.Collectors;
  * Default implementation of biome manager.
  */
 @RequiredArgsConstructor
-public class BiomeManagerImpl implements BiomeManager {
+public class ServerBiomeManager implements BiomeManager {
 
     protected final AtomicInteger idCounter = new AtomicInteger(0);
     private static final String CODEC_TYPE = "minecraft:worldgen/biome";
 
     private final Map<Integer, Biome> biomes = new ConcurrentHashMap<>();
     @Getter
-    private final Machine server;
+    private final Server server;
 
     /**
      * Creates manager with default settings.
      * @param server server to create manager for
      * @return newly created manager
      */
-    public static BiomeManager createDefault(final Machine server) {
-        final BiomeManagerImpl manager = new BiomeManagerImpl(server);
-        manager.addBiome(BiomeImpl.createDefault());
+    public static BiomeManager createDefault(final Server server) {
+        final ServerBiomeManager manager = new ServerBiomeManager(server);
+        manager.addBiome(ServerBiome.createDefault());
         return manager;
     }
 
@@ -119,6 +119,13 @@ public class BiomeManagerImpl implements BiomeManager {
         return new ArrayList<>(biomes.values().stream()
                 .map(this::getBiomeNBT)
                 .toList());
+    }
+
+    @Override
+    public String toString() {
+        return "ServerBiomeManager("
+                + "server=" + server
+                + ')';
     }
 
 }

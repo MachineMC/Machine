@@ -16,8 +16,8 @@ package org.machinemc.server.world.dimensions;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.machinemc.api.Server;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Machine;
 import org.machinemc.api.utils.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.dimensions.DimensionType;
@@ -34,23 +34,23 @@ import static org.machinemc.api.chunk.Chunk.CHUNK_SECTION_SIZE;
  * Default implementation of the dimension manager.
  */
 @RequiredArgsConstructor
-public class DimensionTypeManagerImpl implements DimensionTypeManager {
+public class ServerDimensionTypeManager implements DimensionTypeManager {
 
     protected final AtomicInteger idCounter = new AtomicInteger(0);
     private static final String CODEC_TYPE = "minecraft:dimension_type";
 
     private final Map<Integer, DimensionType> dimensionTypes = new ConcurrentHashMap<>();
     @Getter
-    private final Machine server;
+    private final Server server;
 
     /**
      * Creates dimension manager with default values.
      * @param server server
      * @return new manager
      */
-    public static DimensionTypeManager createDefault(final Machine server) {
-        final DimensionTypeManagerImpl manager = new DimensionTypeManagerImpl(server);
-        manager.addDimension(DimensionTypeImpl.createDefault());
+    public static DimensionTypeManager createDefault(final Server server) {
+        final ServerDimensionTypeManager manager = new ServerDimensionTypeManager(server);
+        manager.addDimension(ServerDimensionType.createDefault());
         return manager;
     }
 
@@ -132,6 +132,13 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
         return new ArrayList<>(dimensionTypes.values().stream()
                 .map(this::getDimensionNBT)
                 .toList());
+    }
+
+    @Override
+    public String toString() {
+        return "ServerDimensionTypeManager("
+                + "server=" + server
+                + ')';
     }
 
 }

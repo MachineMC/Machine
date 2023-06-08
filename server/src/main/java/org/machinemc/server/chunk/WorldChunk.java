@@ -19,7 +19,7 @@ import org.machinemc.api.chunk.Section;
 import org.machinemc.api.entities.Player;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTLongArray;
-import org.machinemc.server.Server;
+import org.machinemc.api.Server;
 import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.world.World;
 import org.machinemc.server.chunk.data.ChunkData;
@@ -27,7 +27,7 @@ import org.machinemc.server.chunk.data.LightData;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutChunkData;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutUnloadChunk;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutUpdateLight;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.server.utils.math.MathUtils;
 
 import java.util.*;
@@ -162,6 +162,15 @@ public abstract class WorldChunk implements Chunk {
      */
     public PacketPlayOutUpdateLight createLightPacket() {
         return new PacketPlayOutUpdateLight(chunkX, chunkZ, createLightData(getSections()));
+    }
+
+    @Override
+    public String toString() {
+        return "Chunk("
+                + "world=" + world
+                + ", chunkX=" + chunkX
+                + ", chunkZ=" + chunkZ
+                + ')';
     }
 
 }

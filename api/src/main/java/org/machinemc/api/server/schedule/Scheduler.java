@@ -96,6 +96,13 @@ public class Scheduler {
         return new TaskBuilder(new TaskSession(task));
     }
 
+    @Override
+    public String toString() {
+        return "Scheduler("
+                + "running=" + running
+                + ')';
+    }
+
     /**
      * Builder for tasks.
      */

@@ -25,7 +25,6 @@ import java.util.function.Predicate;
 /**
  * Represents server's connection.
  */
-@ApiStatus.NonExtendable
 public interface ServerConnection extends ServerProperty {
 
     /**

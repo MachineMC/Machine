@@ -28,7 +28,7 @@ import java.util.Map;
  */
 @Builder
 @Getter
-public class BiomeImpl implements Biome {
+public class ServerBiome implements Biome {
 
     private final NamespacedKey name;
     @Builder.Default private final float depth = 0.125F;
@@ -36,7 +36,7 @@ public class BiomeImpl implements Biome {
     @Builder.Default private final float scale = 0.05F;
     @Builder.Default private final float downfall = 0.4F;
     @Builder.Default private final Category category = Category.NONE;
-    @Builder.Default private final BiomeEffects effects = BiomeEffectsImpl.createDefault();
+    @Builder.Default private final BiomeEffects effects = ServerBiomeEffects.createDefault();
     @Builder.Default private final Precipitation precipitation = Precipitation.RAIN;
     @Builder.Default private final TemperatureModifier temperatureModifier = TemperatureModifier.NONE;
 
@@ -45,7 +45,7 @@ public class BiomeImpl implements Biome {
      * @return newly created biome
      */
     public static Biome createDefault() {
-        return BiomeImpl.builder()
+        return ServerBiome.builder()
                 .name(NamespacedKey.of(NamespacedKey.MINECRAFT_NAMESPACE, "plains"))
                 .build();
     }
@@ -67,4 +67,10 @@ public class BiomeImpl implements Biome {
         return element;
     }
 
+    @Override
+    public String toString() {
+        return "ServerBiome("
+                + "name=" + name
+                + ')';
+    }
 }

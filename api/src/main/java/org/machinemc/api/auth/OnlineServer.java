@@ -14,7 +14,8 @@
  */
 package org.machinemc.api.auth;
 
-import org.machinemc.api.server.ServerProperty;
+import lombok.Getter;
+import org.machinemc.api.Server;
 
 import javax.crypto.SecretKey;
 import java.security.KeyPair;
@@ -24,17 +25,21 @@ import java.security.PublicKey;
 /**
  * Class that adds functionality to the server in online mode.
  */
-public interface OnlineServer extends ServerProperty {
+@Getter
+public class OnlineServer {
 
-    /**
-     * @return server's key
-     */
-    KeyPair getKey();
+    private final Server server;
+    protected final KeyPair key;
+
+    public OnlineServer(final Server server) {
+        this.server = server;
+        key = Crypt.generateKeyPair();
+    }
 
     /**
      * @return sequence of random 4 bytes used for verification
      */
-    default byte[] nextVerifyToken() {
+    public byte[] nextVerifyToken() {
         return Crypt.nextVerifyToken();
     }
 
@@ -44,7 +49,7 @@ public interface OnlineServer extends ServerProperty {
      * @param keyBytes encrypted secret key
      * @return secret key
      */
-    default SecretKey getSecretKey(PrivateKey privateKey, byte[] keyBytes) {
+    public SecretKey getSecretKey(final PrivateKey privateKey, final byte[] keyBytes) {
         return Crypt.decryptByteToSecretKey(privateKey, keyBytes);
     }
 
@@ -55,8 +60,13 @@ public interface OnlineServer extends ServerProperty {
      * @param secretKey secret key shared between server and client
      * @return digested data
      */
-    default byte[] digestData(String baseServerID, PublicKey publicKey, SecretKey secretKey) {
+    public byte[] digestData(final String baseServerID, final PublicKey publicKey, final SecretKey secretKey) {
         return Crypt.digestData(baseServerID, publicKey, secretKey);
+    }
+
+    @Override
+    public String toString() {
+        return "OnlineServer";
     }
 
 }

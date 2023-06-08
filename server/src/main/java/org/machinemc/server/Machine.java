@@ -19,6 +19,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
+import org.machinemc.api.Server;
 import org.machinemc.api.auth.OnlineServer;
 import org.machinemc.api.world.*;
 import org.machinemc.api.world.biomes.Biome;
@@ -26,13 +27,12 @@ import org.machinemc.application.*;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
-import org.machinemc.server.auth.OnlineServerImpl;
 import org.machinemc.api.chat.Messenger;
-import org.machinemc.server.chat.MessengerImpl;
+import org.machinemc.server.chat.ServerMessenger;
 import org.machinemc.api.commands.CommandExecutor;
-import org.machinemc.server.commands.ServerCommands;
+import org.machinemc.server.commands.MachineCommands;
 import org.machinemc.api.entities.EntityManager;
-import org.machinemc.server.entities.EntityManagerImpl;
+import org.machinemc.server.entities.ServerEntityManager;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.file.*;
@@ -40,22 +40,21 @@ import org.machinemc.server.file.*;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.server.network.NettyServer;
 import org.machinemc.server.translation.TranslatorDispatcher;
-import org.machinemc.server.exception.ExceptionHandlerImpl;
-import org.machinemc.server.server.PlayerManagerImpl;
+import org.machinemc.server.exception.ServerExceptionHandler;
+import org.machinemc.server.server.ServerPlayerManager;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.server.world.*;
 import org.machinemc.api.world.biomes.BiomeManager;
-import org.machinemc.server.world.biomes.BiomeImpl;
-import org.machinemc.server.world.biomes.BiomeManagerImpl;
+import org.machinemc.server.world.biomes.ServerBiome;
+import org.machinemc.server.world.biomes.ServerBiomeManager;
 import org.machinemc.api.world.blocks.BlockManager;
-import org.machinemc.server.world.blocks.BlockManagerImpl;
+import org.machinemc.server.world.blocks.ServerBlockManager;
 import org.machinemc.api.world.dimensions.DimensionType;
-import org.machinemc.server.world.dimensions.DimensionTypeImpl;
+import org.machinemc.server.world.dimensions.ServerDimensionType;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
-import org.machinemc.server.world.dimensions.DimensionTypeManagerImpl;
+import org.machinemc.server.world.dimensions.ServerDimensionTypeManager;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.server.utils.FileUtils;
-import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.server.utils.NetworkUtils;
 
 import java.io.*;
@@ -140,10 +139,6 @@ public final class Machine implements Server, RunnableServer {
     @Getter
     protected World defaultWorld;
 
-    static {
-        Factories.bufferFactory = FriendlyByteBuf::new;
-    }
-
     public Machine(final ServerContext context) throws Exception {
         if (context.application() == null)
             throw new NullPointerException();
@@ -166,7 +161,7 @@ public final class Machine implements Server, RunnableServer {
         this.platform = context.platform();
 
         scheduler = new Scheduler(4);
-        exceptionHandler = new ExceptionHandlerImpl(this);
+        exceptionHandler = new ServerExceptionHandler(this);
     }
 
     /**
@@ -204,7 +199,7 @@ public final class Machine implements Server, RunnableServer {
         }
 
         if (properties.isOnline()) {
-            onlineServer = new OnlineServerImpl(this);
+            onlineServer = new OnlineServer(this);
         } else {
             console.warning("The server will make no attempt to authenticate usernames and encrypt packets. Beware. "
                     + "While this makes the game possible to play without internet access, it also opens up "
@@ -212,12 +207,12 @@ public final class Machine implements Server, RunnableServer {
         }
 
         commandDispatcher = new CommandDispatcher<>();
-        ServerCommands.register(this, commandDispatcher);
+        MachineCommands.register(this, commandDispatcher);
 
-        blockManager = BlockManagerImpl.createDefault(this);
+        blockManager = ServerBlockManager.createDefault(this);
 
         // Loading dimensions json file
-        dimensionTypeManager = new DimensionTypeManagerImpl(this);
+        dimensionTypeManager = new ServerDimensionTypeManager(this);
         final File dimensionsFile = new File(directory, DimensionsJson.DIMENSIONS_FILE_NAME);
         if (!dimensionsFile.exists())
             FileUtils.createServerFile(directory, DimensionsJson.DIMENSIONS_FILE_NAME);
@@ -232,18 +227,18 @@ public final class Machine implements Server, RunnableServer {
         if (dimensions.size() == 0) {
             console.warning("There are no defined dimensions in the dimensions file, "
                     + "loading default dimension instead");
-            dimensionTypeManager.addDimension(DimensionTypeImpl.createDefault());
+            dimensionTypeManager.addDimension(ServerDimensionType.createDefault());
         } else {
             for (final DimensionType dimension : dimensions)
                 dimensionTypeManager.addDimension(dimension);
         }
         console.info("Registered " + dimensionTypeManager.getDimensions().size() + " dimension types");
 
-        messenger = MessengerImpl.createDefault(this);
+        messenger = ServerMessenger.createDefault(this);
         console.info("Registered " + messenger.getChatTypes().size() + " chat types");
 
         // Loading biomes json file
-        biomeManager = new BiomeManagerImpl(this);
+        biomeManager = new ServerBiomeManager(this);
         final File biomesFile = new File(directory, BiomesJson.BIOMES_FILE_NAME);
         if (!biomesFile.exists())
             FileUtils.createServerFile(directory, BiomesJson.BIOMES_FILE_NAME);
@@ -258,28 +253,28 @@ public final class Machine implements Server, RunnableServer {
         if (biomes.size() == 0) {
             console.warning("There are no defined biomes in the biomes file, "
                     + "loading default biome instead");
-            biomeManager.addBiome(BiomeImpl.createDefault());
+            biomeManager.addBiome(ServerBiome.createDefault());
         } else {
             for (final Biome biome : biomes)
                 biomeManager.addBiome(biome);
         }
         console.info("Registered " + biomeManager.getBiomes().size() + " biomes");
 
-        entityManager = EntityManagerImpl.createDefault(this);
+        entityManager = ServerEntityManager.createDefault(this);
 
-        playerManager = new PlayerManagerImpl(this);
+        playerManager = new ServerPlayerManager(this);
 
         try {
-            playerDataContainer = new PlayerDataContainerImpl(
+            playerDataContainer = new ServerPlayerDataContainer(
                     this,
-                    new File(directory, PlayerDataContainerImpl.DEFAULT_PLAYER_DATA_FOLDER)
+                    new File(directory, ServerPlayerDataContainer.DEFAULT_PLAYER_DATA_FOLDER)
             );
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
             application.stopServer(this);
         }
 
-        worldManager = new WorldManagerImpl(this);
+        worldManager = new ServerWorldManager(this);
         try {
             for (final Path path : Files.walk(directory.toPath(), 2).collect(Collectors.toSet())) {
                 if (!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;

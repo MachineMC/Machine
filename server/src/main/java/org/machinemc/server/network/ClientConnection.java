@@ -273,4 +273,11 @@ public class ClientConnection implements PlayerConnection {
     record EncryptionContext(Cipher encrypt, Cipher decrypt) {
     }
 
+    @Override
+    public String toString() {
+        return "ClientConnection("
+                + "state=" + state
+                + ", owner=" + owner
+                + ')';
+    }
 }

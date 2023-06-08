@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server;
+package org.machinemc.api;
 
 import com.google.gson.Gson;
 import com.mojang.brigadier.CommandDispatcher;
@@ -30,7 +30,6 @@ import org.machinemc.api.network.ServerConnection;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldManager;
 import org.machinemc.api.world.biomes.Biome;
@@ -49,19 +48,7 @@ import java.util.logging.Level;
 /**
  * Represents a Machine server.
  */
-@ApiStatus.NonExtendable
 public interface Server {
-
-    /**
-     * Creates new instance of the classic buffer implementation.
-     * @return new default server buffer
-     * @throws UnsupportedOperationException if the creator hasn't been initialized
-     */
-    static ServerBuffer createServerBuffer() {
-        if (Factories.bufferFactory == null)
-            throw new UnsupportedOperationException();
-        return Factories.bufferFactory.create();
-    }
 
     /**
      * @return server's brand

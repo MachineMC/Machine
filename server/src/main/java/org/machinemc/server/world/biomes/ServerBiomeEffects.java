@@ -29,14 +29,14 @@ import java.util.Map;
  */
 @Getter
 @Builder
-public class BiomeEffectsImpl implements BiomeEffects {
+public class ServerBiomeEffects implements BiomeEffects {
 
     /**
      * Creates the default biome effects.
      * @return newly created biome effects
      */
     public static BiomeEffects createDefault() {
-        return BiomeEffectsImpl.builder()
+        return ServerBiomeEffects.builder()
                 .build();
     }
 
@@ -81,6 +81,25 @@ public class BiomeEffectsImpl implements BiomeEffects {
                     "probability", biomeParticleProbability,
                     "options", biomeParticle.toNBT())));
         return compound;
+    }
+
+    @Override
+    public String toString() {
+        return "ServerBiomeEffects("
+                + "fogColor=" + fogColor
+                + ", skyColor=" + skyColor
+                + ", waterColor=" + waterColor
+                + ", waterFogColor=" + waterFogColor
+                + (foliageColor != null ? ", foliageColor=" + foliageColor : "")
+                + (grassColor != null ? ", grassColor=" + grassColor : "")
+                + (grassColorModifier != null ? ", grassColorModifier=" + grassColorModifier : "")
+                + (ambientSound != null ? ", ambientSound=" + ambientSound : "")
+                + (moodSound != null ? ", moodSound=" + moodSound : "")
+                + (additionsSound != null ? ", additionsSound=" + additionsSound : "")
+                + (music != null ? ", music=" + music : "")
+                + (biomeParticleProbability != null ? ", biomeParticleProbability=" + biomeParticleProbability : "")
+                + (biomeParticle != null ? ", biomeParticle=" + biomeParticle : "")
+                + ')';
     }
 
     /**

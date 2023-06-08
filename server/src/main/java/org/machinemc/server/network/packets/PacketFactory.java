@@ -16,7 +16,7 @@ package org.machinemc.server.network.packets;
 
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.server.utils.ClassUtils;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -76,7 +76,8 @@ public final class PacketFactory {
      * @param state state of the packet
      * @return class of the packet
      */
-    public static @Nullable Class<? extends Packet> getPacketByRawID(final int id, final PacketImpl.PacketState state) {
+    public static @Nullable Class<? extends Packet> getPacketByRawID(final int id,
+                                                                     final ServerPacket.PacketState state) {
         final Class<? extends Packet> in = IN_MAPPING.get(id | state.getMask());
         if (in != null) return in;
         for (final Map.Entry<Class<? extends Packet>, Integer> entry : OUT_MAPPING.entrySet()) {
@@ -107,7 +108,8 @@ public final class PacketFactory {
      * @param state state of the packet
      * @return id of the packet, -1 if it doesn't exist
      */
-    public static int getRawIDByPacket(final Class<? extends Packet> packetClass, final PacketImpl.PacketState state) {
+    public static int getRawIDByPacket(final Class<? extends Packet> packetClass,
+                                       final ServerPacket.PacketState state) {
         final Integer out = OUT_MAPPING.get(packetClass);
         if (out != null) return out & ~state.getMask();
         for (final Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {

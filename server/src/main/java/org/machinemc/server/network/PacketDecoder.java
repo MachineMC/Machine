@@ -23,7 +23,7 @@ import org.machinemc.api.network.packets.Packet;
 import org.machinemc.server.exception.ClientException;
 import org.machinemc.server.network.packets.PacketFactory;
 import org.machinemc.server.translation.TranslatorDispatcher;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.util.List;
 

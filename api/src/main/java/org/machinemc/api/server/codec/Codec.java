@@ -12,14 +12,14 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.server.codec;
+package org.machinemc.api.server.codec;
 
 import lombok.NoArgsConstructor;
 import org.machinemc.api.server.NBTSerializable;
-import org.machinemc.api.server.codec.CodecPart;
 import org.machinemc.nbt.NBTCompound;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,6 +41,11 @@ public class Codec implements NBTSerializable {
         for (final CodecPart part : codecParts)
             compound.set(part.getCodecType(), part.getCodecNBT());
         return compound;
+    }
+
+    @Override
+    public String toString() {
+        return "Codec(" + Arrays.toString(codecParts.toArray(new CodecPart[0])) + ")";
     }
 
 }

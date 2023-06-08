@@ -135,4 +135,11 @@ public class NettyServer implements ServerConnection {
         }
     }
 
+    @Override
+    public String toString() {
+        return "ServerConnection("
+                + "server=" + server
+                + ')';
+    }
+
 }

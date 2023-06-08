@@ -14,10 +14,7 @@
  */
 package org.machinemc.api.particles;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
@@ -28,6 +25,7 @@ import org.machinemc.nbt.NBTInt;
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShriekParticleOption implements ParticleOption {

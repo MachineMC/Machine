@@ -30,7 +30,7 @@ import static java.util.Map.entry;
  */
 @Builder
 @Getter
-public class DimensionTypeImpl implements DimensionType {
+public class ServerDimensionType implements DimensionType {
 
     private final NamespacedKey name;
     @Builder.Default private final boolean natural = true;
@@ -57,7 +57,7 @@ public class DimensionTypeImpl implements DimensionType {
      * @return default dimension type
      */
     public static DimensionType createDefault() {
-        return DimensionTypeImpl.builder()
+        return ServerDimensionType.builder()
                 .name(NamespacedKey.of(NamespacedKey.MINECRAFT_NAMESPACE, "overworld"))
                 .build();
     }
@@ -87,6 +87,13 @@ public class DimensionTypeImpl implements DimensionType {
         if (fixedTime != null)
             element.set("fixed_time", fixedTime);
         return element;
+    }
+
+    @Override
+    public String toString() {
+        return "ServerDimensionType("
+                + "name=" + name
+                + ')';
     }
 
 }

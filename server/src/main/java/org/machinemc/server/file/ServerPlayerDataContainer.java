@@ -17,10 +17,10 @@ package org.machinemc.server.file;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Machine;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.file.PlayerDataContainer;
 import org.machinemc.api.utils.NBTUtils;
+import org.machinemc.api.Server;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,16 +29,16 @@ import java.util.UUID;
 /**
  * Default implementation of player data container.
  */
-public class PlayerDataContainerImpl implements PlayerDataContainer {
+public class ServerPlayerDataContainer implements PlayerDataContainer {
 
     public static final String DEFAULT_PLAYER_DATA_FOLDER = "playerdata";
 
+    @Getter
+    private final Server server;
     @Getter(AccessLevel.PRIVATE)
     private final File playerDataFolder;
-    @Getter
-    private final Machine server;
 
-    public PlayerDataContainerImpl(final Machine server, final File folder) {
+    public ServerPlayerDataContainer(final Server server, final File folder) {
         this.server = server;
         playerDataFolder = folder;
         if (!playerDataFolder.exists() && !playerDataFolder.mkdirs())
@@ -83,6 +83,13 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
     @Override
     public void savePlayerData(final Player player) {
         player.serializeNBT(getPlayerDataFile(player.getUUID(), true));
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerDataContainer("
+                + "server=" + server
+                + ')';
     }
 
 }

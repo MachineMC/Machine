@@ -25,9 +25,9 @@ import org.machinemc.api.commands.CommandExecutor;
 /**
  * Class representing default server commands.
  */
-public final class ServerCommands {
+public final class MachineCommands {
 
-    private ServerCommands() {
+    private MachineCommands() {
         throw new UnsupportedOperationException();
     }
 

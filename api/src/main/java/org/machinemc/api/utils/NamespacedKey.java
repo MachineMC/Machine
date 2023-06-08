@@ -27,6 +27,7 @@ import java.util.Objects;
  * <p>
  * Valid characters for keys are [a-z0-9.-_/].
  */
+@SuppressWarnings("ClassCanBeRecord")
 public final class NamespacedKey {
 
     public static final String

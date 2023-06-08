@@ -15,11 +15,11 @@
 package org.machinemc.server.world.generation;
 
 import lombok.Getter;
+import org.machinemc.api.Server;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.generation.GeneratedSection;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Machine;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
@@ -31,7 +31,7 @@ import org.machinemc.api.world.generation.Generator;
 @Getter
 public class FlatStoneGenerator implements Generator {
 
-    private final Machine server;
+    private final Server server;
     @Getter
     private final long seed;
 
@@ -40,7 +40,7 @@ public class FlatStoneGenerator implements Generator {
 
     private final Biome biome;
 
-    public FlatStoneGenerator(final Machine server, final long seed) {
+    public FlatStoneGenerator(final Server server, final long seed) {
         this.server = server;
         this.seed = seed;
         final BlockManager manager = server.getBlockManager();

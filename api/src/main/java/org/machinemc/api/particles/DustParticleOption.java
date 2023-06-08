@@ -14,10 +14,7 @@
  */
 package org.machinemc.api.particles;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.nbt.NBT;
@@ -33,6 +30,7 @@ import org.machinemc.scriptive.style.HexColor;
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class DustParticleOption implements ParticleOption {

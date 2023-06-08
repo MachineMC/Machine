@@ -15,7 +15,7 @@
 package org.machinemc.server.network.packets;
 
 import org.machinemc.api.network.packets.Packet;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.server.utils.ZLib;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.io.IOException;
 /**
  * Default packet implementation.
  */
-public abstract class PacketImpl implements Packet {
+public abstract class ServerPacket implements Packet {
 
     /**
      * @return mapped ID of the packet
@@ -39,7 +39,7 @@ public abstract class PacketImpl implements Packet {
     /**
      * @return clone of the packet
      */
-    public abstract PacketImpl clone();
+    public abstract ServerPacket clone();
 
     /**
      * Serializes the full packet.
@@ -112,6 +112,11 @@ public abstract class PacketImpl implements Packet {
         } catch (IOException exception) {
             return new byte[0];
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Packet";
     }
 
 }

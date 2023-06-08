@@ -16,10 +16,7 @@ package org.machinemc.api.particles;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.server.NBTSerializable;
@@ -40,6 +37,7 @@ import java.util.UUID;
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class VibrationParticleOption implements ParticleOption {

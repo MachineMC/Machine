@@ -16,7 +16,7 @@ package org.machinemc.server.server;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.PlayerManager;
 
@@ -31,11 +31,11 @@ import java.util.stream.Collectors;
  * Default player manager implementation.
  */
 @RequiredArgsConstructor
-public class PlayerManagerImpl implements PlayerManager {
+public class ServerPlayerManager implements PlayerManager {
 
     private final Map<UUID, Player> playerMap = new ConcurrentHashMap<>();
     @Getter
-    private final Machine server;
+    private final Server server;
 
     @Override
     public void addPlayer(final Player player) {
@@ -68,4 +68,10 @@ public class PlayerManagerImpl implements PlayerManager {
         return getPlayers().stream().filter(predicate).collect(Collectors.toSet());
     }
 
+    @Override
+    public String toString() {
+        return "ServerPlayerManager("
+                + "server=" + server
+                + ')';
+    }
 }

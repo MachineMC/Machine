@@ -32,8 +32,9 @@ import org.machinemc.server.Machine;
 import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.entities.Entity;
+import org.machinemc.api.Server;
 import org.machinemc.server.chunk.ChunkUtils;
-import org.machinemc.server.chunk.SectionImpl;
+import org.machinemc.server.chunk.ChunkSection;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.dimensions.DimensionType;
@@ -101,7 +102,7 @@ public class ServerWorld extends AbstractWorld {
     }
 
     public ServerWorld(final File folder,
-                       final Machine server,
+                       final Server server,
                        final NamespacedKey name,
                        final DimensionType dimensionType,
                        final WorldType worldType,
@@ -309,7 +310,7 @@ public class ServerWorld extends AbstractWorld {
                 // of conversion between Landscape segment and section is
                 // skipped which makes the process of loading newly generated
                 // chunks much faster.
-                final Section section = new SectionImpl(chunk, i,  () -> {
+                final Section section = new ChunkSection(chunk, i,  () -> {
                     segment.push(); // if compound is requested we push the segment in case it's changed later
                     return segment.getDataCompound();
                 });

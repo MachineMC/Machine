@@ -34,7 +34,6 @@ import static org.machinemc.api.network.packets.Packet.PacketState.*;
 /**
  * Represents a connection of a client.
  */
-@ApiStatus.NonExtendable
 public interface PlayerConnection extends ServerProperty {
 
     /**
