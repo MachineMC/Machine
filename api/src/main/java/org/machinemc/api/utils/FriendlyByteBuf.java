@@ -31,12 +31,16 @@ import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
 import org.machinemc.api.inventory.ItemStack;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * Special byte buffer for implementing Minecraft Protocol.
@@ -49,20 +53,16 @@ public class FriendlyByteBuf implements ServerBuffer {
     public static final int CONTINUE_BIT = 0x80;
 
     public FriendlyByteBuf() {
-        this(new byte[0]);
+        this(Unpooled.buffer());
     }
 
     public FriendlyByteBuf(final byte[] bytes) {
-        buf = Unpooled.buffer(0);
+        this();
         buf.writeBytes(bytes);
     }
 
     public FriendlyByteBuf(final ByteBuf byteBuf) {
         buf = byteBuf;
-    }
-
-    public FriendlyByteBuf(final DataInputStream dataInputStream) throws IOException {
-        this(dataInputStream.readAllBytes());
     }
 
     @Override
@@ -86,22 +86,59 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public DataOutputStream stream() throws IOException {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final DataOutputStream stream = new DataOutputStream(buffer);
-        stream.write(bytes());
-        return stream;
+    public <T> T read(final Function<ServerBuffer, T> function) {
+        return function.apply(this);
     }
 
     @Override
-    public DataOutputStream writeToStream(final DataOutputStream stream) throws IOException {
-        stream.write(bytes());
-        return stream;
+    public <T> FriendlyByteBuf write(final T item, final BiConsumer<ServerBuffer, T> consumer) {
+        consumer.accept(this, item);
+        return this;
     }
 
     @Override
     public FriendlyByteBuf write(final Writable writable) {
         writable.write(this);
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf write(final ServerBuffer buf) {
+        writeBytes(buf.finish());
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf write(final ServerBuffer buf, final int length) {
+        writeBytes(buf.readBytes(length));
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf write(final ByteBuf buf) {
+        this.buf.writeBytes(buf);
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf write(final ByteBuf buf, final int length) {
+        final byte[] read = new byte[length];
+        buf.readBytes(read);
+        writeBytes(read);
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf write(final ByteBuffer buf) {
+        this.buf.writeBytes(buf);
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf write(final ByteBuffer buf, final int length) {
+        final byte[] read = new byte[length];
+        buf.get(read);
+        writeBytes(read);
         return this;
     }
 
@@ -151,8 +188,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public FriendlyByteBuf writeByteArray(final byte[] bytes) {
         writeVarInt(bytes.length);
-        for (final byte b : bytes)
-            writeByte(b);
+        writeBytes(bytes);
         return this;
     }
 
@@ -325,7 +361,7 @@ public class FriendlyByteBuf implements ServerBuffer {
         final int length = readVarInt();
         for (int i = 0; i < length; i++)
             strings.add(readString(charset));
-        return strings;
+        return Collections.unmodifiableList(strings);
     }
 
     @Override
@@ -333,6 +369,23 @@ public class FriendlyByteBuf implements ServerBuffer {
         writeVarInt(strings.size());
         for (final String string : strings)
             writeString(string, charset);
+        return this;
+    }
+
+    @Override
+    public <T> List<T> readList(final Function<ServerBuffer, T> function) {
+        final List<T> list = new ArrayList<>();
+        final int length = readVarInt();
+        for (int i = 0; i < length; i++)
+            list.add(function.apply(this));
+        return Collections.unmodifiableList(list);
+    }
+
+    @Override
+    public <T> FriendlyByteBuf writeList(final List<T> list, final BiConsumer<ServerBuffer, T> consumer) {
+        writeVarInt(list.size());
+        for (final T item : list)
+            consumer.accept(this, item);
         return this;
     }
 
@@ -377,9 +430,6 @@ public class FriendlyByteBuf implements ServerBuffer {
             throw new RuntimeException(exception);
         }
         buf.readerIndex(bytes.length - is.available());
-        try {
-            is.close();
-        } catch (IOException ignored) { }
         return compound;
     }
 
@@ -388,9 +438,6 @@ public class FriendlyByteBuf implements ServerBuffer {
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         compound.writeAll(os);
         buf.writeBytes(os.toByteArray());
-        try {
-            os.close();
-        } catch (IOException ignored) { }
         return this;
     }
 
@@ -542,7 +589,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public ServerBuffer setReaderIndex(final int index) {
+    public ServerBuffer readerIndex(final int index) {
         buf.readerIndex(index);
         return this;
     }
@@ -553,7 +600,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public ServerBuffer setWriterIndex(final int index) {
+    public ServerBuffer writerIndex(final int index) {
         buf.writerIndex(index);
         return this;
     }

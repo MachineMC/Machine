@@ -28,7 +28,7 @@ import java.util.Objects;
  * Valid characters for keys are [a-z0-9.-_/].
  */
 @SuppressWarnings("ClassCanBeRecord")
-public final class NamespacedKey {
+public final class NamespacedKey implements Writable {
 
     public static final String
             MINECRAFT_NAMESPACE = "minecraft",
@@ -196,6 +196,11 @@ public final class NamespacedKey {
      */
     protected static boolean isValidKey(final char c) {
         return isValidNamespace(c) || c == '/';
+    }
+
+    @Override
+    public void write(final ServerBuffer buf) {
+        buf.writeNamespacedKey(this);
     }
 
 }

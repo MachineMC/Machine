@@ -14,6 +14,7 @@
  */
 package org.machinemc.api.inventory;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
@@ -172,6 +173,7 @@ public interface Item extends Writable, Cloneable {
      * Writes the item in to a buffer.
      * @param buf buffer to write into
      */
+    @ApiStatus.NonExtendable
     default void write(ServerBuffer buf) {
         buf.writeSlot(this);
     }

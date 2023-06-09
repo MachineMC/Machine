@@ -14,6 +14,9 @@
  */
 package org.machinemc.api.auth;
 
+import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.api.utils.Writable;
+
 import java.time.Instant;
 import java.util.Arrays;
 
@@ -23,7 +26,7 @@ import java.util.Arrays;
  * @param salt salt
  * @param signature signature
  */
-public record MessageSignature(Instant timestamp, long salt, byte[] signature) {
+public record MessageSignature(Instant timestamp, long salt, byte[] signature) implements Writable {
 
     @Override
     public String toString() {
@@ -32,6 +35,11 @@ public record MessageSignature(Instant timestamp, long salt, byte[] signature) {
                 + ", salt=" + salt
                 + ", signature=" + Arrays.toString(signature)
                 + ')';
+    }
+
+    @Override
+    public void write(final ServerBuffer buf) {
+        buf.writeSignature(this);
     }
 
 }
