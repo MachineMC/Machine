@@ -16,9 +16,6 @@ package org.machinemc.server.network.packets;
 
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.FriendlyByteBuf;
-import org.machinemc.server.utils.ZLib;
-
-import java.io.IOException;
 
 /**
  * Default packet implementation.
@@ -46,77 +43,20 @@ public abstract class ServerPacket implements Packet {
      * @return serialized packet
      */
     public byte[] rawSerialize() {
-        return new FriendlyByteBuf()
-                .writeVarInt(getSize())
+        final byte[] id = new FriendlyByteBuf()
                 .writeVarInt(getID())
-                .writeBytes(serialize())
                 .bytes();
-    }
-
-    /**
-     * Returns the size of the packet ID and packet data.
-     * @return size of the packet
-     */
-    public int getSize() {
+        final byte[] data = serialize();
         return new FriendlyByteBuf()
-                .writeVarInt(getID())
-                .writeBytes(serialize())
-                .bytes().length;
-    }
-
-    /**
-     * Serializes the full compress packet.
-     * @param threshold threshold
-     * @return serialized compressed packet
-     */
-    public byte[] rawCompressedSerialize(final int threshold) {
-        final int size = getSize();
-        if (size < threshold) { // Packet is too small to be compressed
-            final byte[] data = new FriendlyByteBuf().writeVarInt(0) // Empty Data length
-                    .writeVarInt(getID())
-                    .writeBytes(serialize())
-                    .bytes();
-            return new FriendlyByteBuf()
-                    .writeVarInt(data.length)
-                    .writeBytes(data)
-                    .bytes();
-        }
-        final byte[] dataLength = new FriendlyByteBuf()
-                .writeVarInt(size)
+                .writeVarInt(id.length + data.length)
+                .writeBytes(id)
+                .writeBytes(data)
                 .bytes();
-        final byte[] compressed = getCompressedPacketData();
-        return new FriendlyByteBuf()
-                .writeVarInt(dataLength.length + compressed.length)
-                .writeVarInt(size)
-                .writeBytes(compressed)
-                .bytes();
-    }
-
-    /**
-     * Returns the compressed size of packet ID and packet data.
-     * @return compressed size of the packet
-     */
-    public int getCompressedSize() {
-        return getCompressedPacketData().length;
-    }
-
-    /**
-     * @return compressed packet data, id included
-     */
-    private byte[] getCompressedPacketData() {
-        try {
-            return ZLib.compress(new FriendlyByteBuf()
-                    .writeVarInt(getID())
-                    .writeBytes(serialize())
-                    .bytes());
-        } catch (IOException exception) {
-            return new byte[0];
-        }
     }
 
     @Override
     public String toString() {
-        return "Packet";
+        return getClass().getSimpleName();
     }
 
 }
