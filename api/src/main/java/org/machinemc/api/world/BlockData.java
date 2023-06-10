@@ -27,7 +27,7 @@ import java.util.Map;
  * return unique id depending on its material and properties.
  */
 // This class is used by the code generators, edit with caution.
-public abstract class BlockData implements Cloneable {
+public abstract sealed class BlockData implements Cloneable permits BlockDataImpl {
 
     /**
      * Returns new instance of block data from id (mapped by vanilla server reports).

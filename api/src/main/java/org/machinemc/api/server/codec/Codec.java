@@ -15,12 +15,11 @@
 package org.machinemc.api.server.codec;
 
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.nbt.NBTCompound;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Codec containing NBTCompound representing certain registries
@@ -41,6 +40,13 @@ public class Codec implements NBTSerializable {
         for (final CodecPart part : codecParts)
             compound.set(part.getCodecType(), part.getCodecNBT());
         return compound;
+    }
+
+    /**
+     * @return all parts of this codec
+     */
+    public @Unmodifiable List<CodecPart> getParts() {
+        return Collections.unmodifiableList(codecParts);
     }
 
     @Override

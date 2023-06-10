@@ -34,7 +34,7 @@ public interface ParticleOption extends NBTSerializable, Writable {
      * Particle options implementation for particles that have no
      * additional data.
      */
-    class SimpleOptions implements ParticleOption {
+    final class SimpleOptions implements ParticleOption {
 
         @Override
         public NBTCompound toNBT() {
