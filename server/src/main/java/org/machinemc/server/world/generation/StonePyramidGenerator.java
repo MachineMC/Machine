@@ -26,6 +26,8 @@ import org.machinemc.api.world.generation.Generator;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.api.Server;
 
+import java.util.Objects;
+
 /**
  * Generator that generates stone pyramids.
  */
@@ -48,14 +50,16 @@ public class StonePyramidGenerator implements Generator {
         final BlockType air = manager.getBlockType(NamespacedKey.minecraft("air"));
         final BlockType stone = manager.getBlockType(NamespacedKey.minecraft("stone"));
         final BlockType sign = manager.getBlockType(NamespacedKey.minecraft("oak_sign"));
-        if (air == null || stone == null || sign == null) throw new IllegalStateException();
+        Objects.requireNonNull(air, "Air block type is missing in the server block manager");
+        Objects.requireNonNull(stone, "Stone block type is missing in the server block manager");
+        Objects.requireNonNull(sign, "Sign block type is missing in the server block manager");
         this.air = air;
         this.stone = stone;
         this.sign = sign;
         Biome biome = server.getBiome(NamespacedKey.minecraft("plains"));
         if (biome == null)
             biome = server.getBiomeManager().getBiomes().stream().iterator().next();
-        if (biome == null) throw new IllegalStateException();
+        Objects.requireNonNull(biome, "There are no available biomes in the server's biome manager");
         this.biome = biome;
     }
 

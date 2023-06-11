@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
@@ -90,7 +91,7 @@ public abstract class SwitchTerminal extends BaseTerminal {
     }
 
     private void addToHistory(@Nullable final ServerContainer source, final String message) {
-        if (message == null) throw new NullPointerException();
+        Objects.requireNonNull(message, "Message to add to the history can not be null");
         List<String> history = messageHistory.get(source);
         history.add(message);
         if (history.size() > HISTORY_SIZE)

@@ -340,7 +340,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public String readString(final Charset charset) {
         final int length = readVarInt();
-        if (length < 0) throw new IllegalStateException();
+        if (length < 0) throw new IllegalStateException("String has illegal length of: " + length);
         final byte[] bytes = new byte[length];
         for (int i = 0; i < length; i++)
             bytes[i] = buf.readByte();

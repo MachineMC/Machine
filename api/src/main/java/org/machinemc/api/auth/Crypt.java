@@ -53,8 +53,8 @@ public final class Crypt {
             final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ASYMMETRIC_ALGORITHM);
             keyPairGenerator.initialize(ASYMMETRIC_BITS);
             return keyPairGenerator.generateKeyPair();
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException(exception);
         }
     }
 
@@ -103,7 +103,7 @@ public final class Crypt {
         try {
             messageDigest = MessageDigest.getInstance(HASH_ALGORITHM);
         } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(exception);
         }
         for (final byte[] bs : bytes)
             messageDigest.update(bs);
@@ -142,8 +142,8 @@ public final class Crypt {
             final Cipher cipher = Cipher.getInstance(ENCRYPTION);
             cipher.init(mode, key, new IvParameterSpec(key.getEncoded()));
             return cipher;
-        } catch (GeneralSecurityException e) {
-            throw new RuntimeException(e);
+        } catch (GeneralSecurityException exception) {
+            throw new RuntimeException(exception);
         }
     }
 

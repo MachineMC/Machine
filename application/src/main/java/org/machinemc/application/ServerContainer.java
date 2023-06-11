@@ -33,16 +33,14 @@ public final class ServerContainer {
     private @Nullable RunnableServer instance;
 
     public ServerContainer(final File directory, final ServerPlatform platform) {
-        if (platform == null)
-            throw new NullPointerException();
+        Objects.requireNonNull(platform, "Server platform can not be null");
         this.platform = platform;
 
-        if (directory == null)
-            throw new NullPointerException();
+        Objects.requireNonNull(directory, "Server platform can not be null");
 
         this.directory = directory;
         if (!directory.exists() && !directory.mkdirs())
-            throw new RuntimeException();
+            throw new RuntimeException("Directory " + directory.getPath() + " can not be created");
     }
 
     /**

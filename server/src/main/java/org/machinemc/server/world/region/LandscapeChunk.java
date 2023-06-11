@@ -152,7 +152,10 @@ public class LandscapeChunk extends WorldChunk {
                 blockType = server.getBlockType(
                         LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType())
                 );
-                if (blockType == null) throw new IllegalStateException();
+                Objects.requireNonNull(blockType, "The provided default block type "
+                        + landscape.getHandler().getDefaultType()
+                        + " is missing"
+                        + "in the server block manager");
             }
             setSectionBlock(section, sectionIndex, x, sectionY, z, blockType);
         }
@@ -178,7 +181,10 @@ public class LandscapeChunk extends WorldChunk {
                 blockType = server.getBlockType(
                         LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType())
                 );
-                if (blockType == null) throw new IllegalStateException();
+                Objects.requireNonNull(blockType, "The provided default block type "
+                        + landscape.getHandler().getDefaultType()
+                        + " is missing"
+                        + "in the server block manager");
             }
             setSectionBlock(section, sectionIndex, x, sectionY, z, blockType);
         }
@@ -199,7 +205,10 @@ public class LandscapeChunk extends WorldChunk {
         Biome biome = world.getServer().getBiome(LazyNamespacedKey.lazy(segment.getBiome(x, sectionY, z)));
         if (biome != null) return biome;
         biome = world.getServer().getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()));
-        if (biome == null) throw new IllegalStateException();
+        Objects.requireNonNull(biome, "The provided default biome "
+                + landscape.getHandler().getDefaultBiome()
+                + " is missing"
+                + "in the server biome manager");
         setBiome(x, offsetY, z, biome);
         return biome;
     }

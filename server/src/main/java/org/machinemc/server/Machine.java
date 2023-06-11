@@ -140,24 +140,20 @@ public final class Machine implements Server, RunnableServer {
     protected World defaultWorld;
 
     public Machine(final ServerContext context) throws Exception {
-        if (context.application() == null)
-            throw new NullPointerException();
+        Objects.requireNonNull(context.application(), "Application of context can not be null");
         this.application = context.application();
 
         if (!context.directory().exists() && !context.directory().mkdirs())
-            throw new RuntimeException();
+            throw new RuntimeException("Failed to create the server directory");
         this.directory = context.directory();
 
-        if (context.name() == null)
-            throw new NullPointerException();
+        Objects.requireNonNull(context.name(), "Name of the server can not be null");
         this.name = context.name();
 
-        if (context.console() == null)
-            throw new NullPointerException();
+        Objects.requireNonNull(context.console(), "Console of the server can not be null");
         this.console = context.console();
 
-        if (context.platform() == null)
-            throw new NullPointerException();
+        Objects.requireNonNull(context.platform(), "Platform of the server can not be null");
         this.platform = context.platform();
 
         scheduler = new Scheduler(4);
@@ -168,7 +164,7 @@ public final class Machine implements Server, RunnableServer {
      * Starts the Machine server.
      */
     public void run() throws Exception {
-        if (running) throw new RuntimeException();
+        if (running) throw new RuntimeException("The server is already running");
 
         final long start = System.currentTimeMillis();
 
@@ -220,7 +216,7 @@ public final class Machine implements Server, RunnableServer {
         try {
             dimensions = new DimensionsJson(this, dimensionsFile).dimensions();
         } catch (Exception exception) {
-            console.severe("Failed to load the dimensions file");
+            exceptionHandler.handle(exception, "Failed to load the dimensions file");
         }
 
         // Registering all dimensions from the file into the manager
@@ -246,7 +242,7 @@ public final class Machine implements Server, RunnableServer {
         try {
             biomes = new BiomesJson(this, biomesFile).biomes();
         } catch (Exception exception) {
-            console.severe("Failed to load the biomes file");
+            exceptionHandler.handle(exception, "Failed to load the biomes file");
         }
 
         // Registering all biomes from the file into the manager
@@ -270,7 +266,7 @@ public final class Machine implements Server, RunnableServer {
                     new File(directory, ServerPlayerDataContainer.DEFAULT_PLAYER_DATA_FOLDER)
             );
         } catch (Exception exception) {
-            exceptionHandler.handle(exception);
+            exceptionHandler.handle(exception, "Failed to create player data container");
             application.stopServer(this);
         }
 
@@ -290,7 +286,7 @@ public final class Machine implements Server, RunnableServer {
                     worldManager.addWorld(world);
                     console.info("Registered world '" + world.getName() + "'");
                 } catch (IOException exception) {
-                    console.severe("World file '" + path + "' failed to load");
+                    exceptionHandler.handle(exception);
                 }
             }
         } catch (Exception exception) {
@@ -335,16 +331,16 @@ public final class Machine implements Server, RunnableServer {
         }
         console.info("Loaded all packet translators");
 
-        try {
-            Scheduler.task((input, session) -> {
+        Scheduler.task((input, session) -> {
+            try {
                 connection = new NettyServer(this);
                 connection.start();
-                return null;
-            }).async().run(scheduler);
-        } catch (Exception exception) {
-            exceptionHandler.handle(exception);
-            application.stopServer(this);
-        }
+            } catch (Exception exception) {
+                exceptionHandler.handle(exception);
+                application.stopServer(this);
+            }
+            return null;
+        }).async().run(scheduler);
 
         try {
             console.start();
@@ -396,7 +392,7 @@ public final class Machine implements Server, RunnableServer {
         console.info("Saved all player data");
         console.info("Closing the connection...");
         try {
-            connection.close();
+            connection.close().sync();
         } catch (Exception ignored) { }
         console.info("Connection has been closed");
         console.info("Saving worlds...");

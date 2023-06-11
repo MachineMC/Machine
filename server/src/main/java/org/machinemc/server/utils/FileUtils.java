@@ -97,7 +97,7 @@ public final class FileUtils {
 
         final File parent = targetFile.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs())
-            throw new RuntimeException();
+            throw new RuntimeException("Failed to create the parent directory of " + target.getPath());
 
         final InputStream in = Machine.CLASS_LOADER.getResourceAsStream(sourceFile.getPath());
         if (in == null) return false;
@@ -134,7 +134,7 @@ public final class FileUtils {
         final UUID uuid = UUID.randomUUID();
         try {
             if (!uidFile.exists() && !uidFile.createNewFile())
-                throw new IllegalStateException();
+                throw new IllegalStateException("Failed to create the uuid file");
             final @Cleanup DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(uidFile));
             dataOutputStream.writeLong(uuid.getMostSignificantBits());
             dataOutputStream.writeLong(uuid.getLeastSignificantBits());

@@ -71,8 +71,8 @@ public class ServerPlayerDataContainer implements PlayerDataContainer {
             if (!playerDataFile.exists() && !playerDataFile.createNewFile())
                 throw new RuntimeException("Can't create the player data file for " + uuid);
             return playerDataFile;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
         }
     }
 

@@ -91,8 +91,11 @@ public class ClientConnection implements PlayerConnection {
     @Synchronized
     public ChannelFuture send(final Packet packet) {
         if (!channel.isOpen())
-            throw new IllegalStateException();
-        if (!Packet.PacketState.out().contains(packet.getPacketState())) throw new UnsupportedOperationException();
+            throw new IllegalStateException("The channel is closed");
+        if (!Packet.PacketState.out().contains(packet.getPacketState()))
+            throw new UnsupportedOperationException("Packets of type "
+                    + packet.getPacketState()
+                    + " can not be sent to the client");
         final ChannelFuture channelfuture = channel.writeAndFlush(packet);
         channelfuture.addListener((ChannelFutureListener) future -> {
             if (future.cause() == null) return;

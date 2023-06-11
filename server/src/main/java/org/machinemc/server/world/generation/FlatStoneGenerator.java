@@ -25,6 +25,8 @@ import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.generation.Generator;
 
+import java.util.Objects;
+
 /**
  * Simple flat world stone generator.
  */
@@ -46,7 +48,8 @@ public class FlatStoneGenerator implements Generator {
         final BlockManager manager = server.getBlockManager();
         final BlockType air = manager.getBlockType(NamespacedKey.minecraft("air"));
         final BlockType stone = manager.getBlockType(NamespacedKey.minecraft("stone"));
-        if (air == null || stone == null) throw new IllegalStateException();
+        Objects.requireNonNull(air, "Air block type is missing in the server block manager");
+        Objects.requireNonNull(stone, "Stone block type is missing in the server block manager");
         this.air = air;
         this.stone = stone;
         Biome biome = server.getBiome(NamespacedKey.minecraft("plains"));

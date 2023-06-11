@@ -139,7 +139,7 @@ public class SmartTerminal extends SwitchTerminal {
      * @param completer new completer
      */
     public void setCompleter(final @Nullable SmartCompleter completer) {
-        if (reader != null) throw new UnsupportedOperationException();
+        if (reader != null) throw new UnsupportedOperationException("The terminal has been already started");
         this.completer = completer;
     }
 
@@ -148,7 +148,7 @@ public class SmartTerminal extends SwitchTerminal {
      * @param highlighter new highlighter
      */
     public void setHighlighter(final @Nullable SmartHighlighter highlighter) {
-        if (reader != null) throw new UnsupportedOperationException();
+        if (reader != null) throw new UnsupportedOperationException("The terminal has been already started");
         this.highlighter = highlighter;
     }
 
@@ -157,7 +157,7 @@ public class SmartTerminal extends SwitchTerminal {
      * @param history new history
      */
     public void setHistory(final @Nullable History history) {
-        if (reader != null) throw new UnsupportedOperationException();
+        if (reader != null) throw new UnsupportedOperationException("The terminal has been already started");
         this.history = history;
     }
 

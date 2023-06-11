@@ -30,7 +30,8 @@ public abstract class PacketIn extends ServerPacket {
                                    final int id,
                                    final PacketState state,
                                    final PacketCreator<? extends PacketIn> creator) {
-        if (!PacketState.in().contains(state)) throw new IllegalStateException();
+        if (!PacketState.in().contains(state))
+            throw new IllegalStateException("Packet of state " + state + " can not be registered as PacketIn");
         final int fullID = id | state.getMask();
         PacketFactory.IN_MAPPING.put(fullID, packetClass);
         PacketFactory.CREATORS.put(packetClass, creator);

@@ -30,7 +30,8 @@ public abstract class PacketOut extends ServerPacket {
                                    final int id,
                                    final PacketState state,
                                    final PacketCreator<? extends PacketOut> creator) {
-        if (!PacketState.out().contains(state)) throw new IllegalStateException();
+        if (!PacketState.out().contains(state))
+            throw new IllegalStateException("Packet of state " + state + " can not be registered as PacketOut");
         final int fullID = id | state.getMask();
         PacketFactory.OUT_MAPPING.put(packetClass, fullID);
         PacketFactory.CREATORS.put(packetClass, creator);

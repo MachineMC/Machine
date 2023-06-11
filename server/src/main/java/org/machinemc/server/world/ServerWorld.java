@@ -48,10 +48,7 @@ import org.machinemc.server.world.region.LandscapeHelper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
@@ -88,7 +85,7 @@ public class ServerWorld extends AbstractWorld {
     public static World createDefault(final Machine server) {
         final File directory = new File(server.getDirectory(), DEFAULT_WORLD_FOLDER + "/");
         if (!directory.exists() && !directory.mkdirs())
-            throw new RuntimeException();
+            throw new RuntimeException("Failed to create the world directory " + directory.getPath());
         final World world = new ServerWorld(
                 directory,
                 server,
@@ -131,7 +128,9 @@ public class ServerWorld extends AbstractWorld {
                         blockType = server.getBlockType(
                                 LazyNamespacedKey.lazy(landscapeHelper.getHandler().getDefaultType())
                         );
-                        if (blockType == null) throw new IllegalStateException();
+                        Objects.requireNonNull(blockType, "Provided default block type "
+                                + landscapeHelper.getHandler().getDefaultType()
+                                + " is not registered in the server block manager");
                     }
                     return blockType;
                 }
@@ -168,9 +167,9 @@ public class ServerWorld extends AbstractWorld {
     @Override
     @Synchronized
     public void load() {
-        if (loaded) throw new UnsupportedOperationException();
+        if (loaded) throw new UnsupportedOperationException("The world has already been loaded");
         if (!regionFolder.mkdirs() && !regionFolder.exists())
-            throw new IllegalStateException();
+            throw new IllegalStateException("Could not create the region folder for the world");
         loaded = true;
         getServer().getConsole().info("Loaded world '" + getName() + "'");
     }
@@ -178,7 +177,7 @@ public class ServerWorld extends AbstractWorld {
     @Override
     @Synchronized
     public void unload() throws IOException {
-        if (!loaded) throw new UnsupportedOperationException();
+        if (!loaded) throw new UnsupportedOperationException("The world has not been loaded yet");
         loaded = false;
         save();
         landscapeHelper.close();
