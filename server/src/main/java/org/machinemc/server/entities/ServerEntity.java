@@ -23,7 +23,6 @@ import org.machinemc.api.entities.Player;
 import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.ServerConnection;
 import org.machinemc.api.network.packets.Packet;
-import org.machinemc.api.utils.NBTUtils;
 import org.machinemc.api.world.EntityPosition;
 import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
@@ -253,9 +252,9 @@ public abstract class ServerEntity implements Entity {
     @Override
     public NBTCompound toNBT() {
         final NBTCompound compound = new NBTCompound(Map.ofEntries(
-                entry("Pos", NBTUtils.list(location.getX(), location.getY(), location.getZ())),
-                entry("Motion", NBTUtils.list(0, 0, 0)), // TODO implement motion
-                entry("Rotation", NBTUtils.list(location.getYaw(), location.getPitch())),
+                entry("Pos", new NBTList(location.getX(), location.getY(), location.getZ())),
+                entry("Motion", new NBTList(0, 0, 0)), // TODO implement motion
+                entry("Rotation", new NBTList(location.getYaw(), location.getPitch())),
                 entry("FallDistance", fallDistance),
                 entry("Fire", remainingFireTicks),
                 entry("Air", (short) 0),

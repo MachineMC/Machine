@@ -14,9 +14,7 @@
  */
 package org.machinemc.api.utils;
 
-import org.jetbrains.annotations.Contract;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.nbt.NBTList;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,17 +26,6 @@ public final class NBTUtils {
 
     private NBTUtils() {
         throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Creates an NBT list from objects.
-     * Note: the objects must all be of the same type
-     * @param objects The objects to use
-     * @return NBT double list
-     */
-    @Contract("_ -> new")
-    public static NBTList list(final Object... objects) {
-        return new NBTList(objects);
     }
 
     /**
