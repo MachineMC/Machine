@@ -81,6 +81,36 @@ public final class FileUtils {
     }
 
     /**
+     * Creates new file from the file in server's resources.
+     * @param target file to be created or directory where the file should be
+     *               created, in case directory is provided, name of the
+     *               source file is used
+     * @param source path to the source
+     * @return true if creation was successful
+     */
+    public static boolean createServerFile(final File target, final String source) {
+        final File sourceFile = new File(source);
+        File targetFile = target;
+
+        if (targetFile.isDirectory())
+            targetFile = new File(targetFile, sourceFile.getName());
+
+        final File parent = targetFile.getParentFile();
+        if (parent != null && !parent.exists() && !parent.mkdirs())
+            throw new RuntimeException("Failed to create the parent directory of " + target.getPath());
+
+        final InputStream in = Machine.CLASS_LOADER.getResourceAsStream(sourceFile.getPath());
+        if (in == null) return false;
+
+        try {
+            Files.copy(in, targetFile.toPath());
+            return true;
+        } catch (IOException exception) {
+            return false;
+        }
+    }
+
+    /**
      * @return location of loaded class files
      */
     public static File getSourceLocation() {
@@ -104,7 +134,7 @@ public final class FileUtils {
         final UUID uuid = UUID.randomUUID();
         try {
             if (!uidFile.exists() && !uidFile.createNewFile())
-                throw new IllegalStateException();
+                throw new IllegalStateException("Failed to create the uuid file");
             final @Cleanup DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(uidFile));
             dataOutputStream.writeLong(uuid.getMostSignificantBits());
             dataOutputStream.writeLong(uuid.getLeastSignificantBits());

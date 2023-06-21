@@ -111,10 +111,10 @@ public class WorldBlockImpl implements WorldBlock {
 
     @Override
     public String toString() {
-        return "WorldBlock["
+        return "WorldBlock("
                 + world
                 + ", " + position
-                + ']';
+                + ')';
     }
 
     @Override

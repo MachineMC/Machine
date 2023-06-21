@@ -92,6 +92,13 @@ public class BlockTypeImpl implements BlockType {
         return handlers.remove(handler);
     }
 
+    @Override
+    public String toString() {
+        return "BlockType("
+                + "name=" + name
+                + ')';
+    }
+
     /**
      * Default block properties implementation.
      */

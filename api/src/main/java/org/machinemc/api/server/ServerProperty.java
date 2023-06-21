@@ -14,7 +14,7 @@
  */
 package org.machinemc.api.server;
 
-import org.machinemc.server.Server;
+import org.machinemc.api.Server;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.logging.Console;
 

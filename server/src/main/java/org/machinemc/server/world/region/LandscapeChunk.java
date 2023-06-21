@@ -33,7 +33,7 @@ import org.machinemc.api.world.blocks.*;
 import org.machinemc.landscape.Landscape;
 import org.machinemc.landscape.Segment;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.chunk.SectionImpl;
+import org.machinemc.server.chunk.ChunkSection;
 import org.machinemc.server.chunk.WorldChunk;
 import org.machinemc.server.utils.WeaklyTimedCache;
 import org.machinemc.server.world.blocks.WorldBlockManager;
@@ -152,7 +152,10 @@ public class LandscapeChunk extends WorldChunk {
                 blockType = server.getBlockType(
                         LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType())
                 );
-                if (blockType == null) throw new IllegalStateException();
+                Objects.requireNonNull(blockType, "The provided default block type "
+                        + landscape.getHandler().getDefaultType()
+                        + " is missing"
+                        + "in the server block manager");
             }
             setSectionBlock(section, sectionIndex, x, sectionY, z, blockType);
         }
@@ -178,7 +181,10 @@ public class LandscapeChunk extends WorldChunk {
                 blockType = server.getBlockType(
                         LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType())
                 );
-                if (blockType == null) throw new IllegalStateException();
+                Objects.requireNonNull(blockType, "The provided default block type "
+                        + landscape.getHandler().getDefaultType()
+                        + " is missing"
+                        + "in the server block manager");
             }
             setSectionBlock(section, sectionIndex, x, sectionY, z, blockType);
         }
@@ -199,7 +205,10 @@ public class LandscapeChunk extends WorldChunk {
         Biome biome = world.getServer().getBiome(LazyNamespacedKey.lazy(segment.getBiome(x, sectionY, z)));
         if (biome != null) return biome;
         biome = world.getServer().getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()));
-        if (biome == null) throw new IllegalStateException();
+        Objects.requireNonNull(biome, "The provided default biome "
+                + landscape.getHandler().getDefaultBiome()
+                + " is missing"
+                + "in the server biome manager");
         setBiome(x, offsetY, z, biome);
         return biome;
     }
@@ -258,7 +267,7 @@ public class LandscapeChunk extends WorldChunk {
         try {
             return sections.get(index, () -> {
                 final Segment segment = getSegment(index);
-                final SectionImpl section = new SectionImpl(this, index, () -> {
+                final ChunkSection section = new ChunkSection(this, index, () -> {
                     segment.push(); // if compound is requested we push the segment in case it's changed later
                     return segment.getDataCompound();
                 });

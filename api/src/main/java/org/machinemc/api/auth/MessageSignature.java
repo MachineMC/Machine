@@ -18,32 +18,27 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
 
 import java.time.Instant;
+import java.util.Arrays;
 
 /**
- * Represents a signature of a message for new 1.19 chat system.
+ * Signature of a chat message.
+ * @param timestamp timestamp of the message
+ * @param salt salt
+ * @param signature signature
  */
-public interface MessageSignature extends Writable {
+public record MessageSignature(Instant timestamp, long salt, byte[] signature) implements Writable {
 
-    /**
-     * @return timestamp of the message
-     */
-    Instant timestamp();
+    @Override
+    public String toString() {
+        return "MessageSignature("
+                + "timestamp=" + timestamp
+                + ", salt=" + salt
+                + ", signature=" + Arrays.toString(signature)
+                + ')';
+    }
 
-    /**
-     * @return salt of the message
-     */
-    long salt();
-
-    /**
-     * @return encoded signature of the message
-     */
-    byte[] signature();
-
-    /**
-     * Writes the message signature into a buffer.
-     * @param buf buffer to write into
-     */
-    default void write(ServerBuffer buf) {
+    @Override
+    public void write(final ServerBuffer buf) {
         buf.writeSignature(this);
     }
 

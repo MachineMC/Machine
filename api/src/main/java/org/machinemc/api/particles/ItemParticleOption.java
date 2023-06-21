@@ -14,10 +14,7 @@
  */
 package org.machinemc.api.particles;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.inventory.Item;
 import org.machinemc.api.inventory.ItemStack;
@@ -33,6 +30,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemParticleOption implements ParticleOption {

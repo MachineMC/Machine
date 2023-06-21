@@ -17,7 +17,7 @@ package org.machinemc.server.network.packets;
 /**
  * Packet sent from client to server.
  */
-public abstract class PacketIn extends PacketImpl {
+public abstract class PacketIn extends ServerPacket {
 
     /**
      * Creates mapping and creator for the packet. Each PacketIn has to call this in static block.
@@ -30,7 +30,8 @@ public abstract class PacketIn extends PacketImpl {
                                    final int id,
                                    final PacketState state,
                                    final PacketCreator<? extends PacketIn> creator) {
-        if (!PacketState.in().contains(state)) throw new IllegalStateException();
+        if (!PacketState.in().contains(state))
+            throw new IllegalStateException("Packet of state " + state + " can not be registered as PacketIn");
         final int fullID = id | state.getMask();
         PacketFactory.IN_MAPPING.put(fullID, packetClass);
         PacketFactory.CREATORS.put(packetClass, creator);
@@ -40,5 +41,10 @@ public abstract class PacketIn extends PacketImpl {
      * @return clone of the packet
      */
     public abstract PacketIn clone();
+
+    @Override
+    public String toString() {
+        return "PacketIn";
+    }
 
 }

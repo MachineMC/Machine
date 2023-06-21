@@ -19,8 +19,8 @@ import org.machinemc.api.entities.player.PlayerProfile;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.server.auth.MojangAuth;
 import org.machinemc.server.entities.ServerPlayer;
-import org.machinemc.server.entities.player.PlayerProfileImpl;
-import org.machinemc.server.entities.player.PlayerTexturesImpl;
+import org.machinemc.server.entities.player.ServerPlayerProfile;
+import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.server.exception.ClientException;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.login.PacketLoginInEncryptionResponse;
@@ -80,10 +80,10 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
                 return;
             }
             final String authUsername = json.get("name").getAsString();
-            final PlayerTexturesImpl playerTextures = PlayerTexturesImpl.buildSkin(
+            final PlayerTextures playerTextures = PlayerTextures.buildSkin(
                     json.getAsJsonArray("properties").get(0)
             );
-            final PlayerProfile profile = PlayerProfileImpl.online(authUsername, authUUID, playerTextures);
+            final PlayerProfile profile = ServerPlayerProfile.online(authUsername, authUUID, playerTextures);
             connection.setCompression(256); // TODO should be in properties
             connection.send(new PacketLoginOutSuccess(authUUID, authUsername, profile.getTextures()));
             if (connection.getState() == ClientConnection.ClientState.DISCONNECTED)

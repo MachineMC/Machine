@@ -27,7 +27,7 @@ import java.util.*;
  * properties.
  */
 // This class is used by the code generators, edit with caution.
-class BlockDataImpl extends BlockData {
+non-sealed class BlockDataImpl extends BlockData {
 
     private static final Map<Integer, BlockDataImpl> TEMP_REGISTRY = new TreeMap<>();
     private static BlockDataImpl[] registryArray;

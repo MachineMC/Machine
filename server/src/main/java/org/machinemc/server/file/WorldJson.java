@@ -22,6 +22,7 @@ import org.machinemc.server.Machine;
 import org.machinemc.api.file.ServerFile;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
+import org.machinemc.api.Server;
 import org.machinemc.server.world.*;
 import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.Location;
@@ -39,7 +40,7 @@ public class WorldJson implements ServerFile, ServerProperty {
 
     public static final String WORLD_FILE_NAME = "world.json";
 
-    private final Machine server;
+    private final Server server;
 
     private final NamespacedKey name;
     private final DimensionType dimensionType;
@@ -49,7 +50,7 @@ public class WorldJson implements ServerFile, ServerProperty {
 
     private final File folder;
 
-    public WorldJson(final Machine server, final File file) throws IOException {
+    public WorldJson(final Server server, final File file) throws IOException {
         this.server = server;
         folder = file.getParentFile();
         final JsonParser parser = new JsonParser();
@@ -131,6 +132,11 @@ public class WorldJson implements ServerFile, ServerProperty {
         world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
         world.setDifficulty(server.getProperties().getDefaultDifficulty());
         return world;
+    }
+
+    @Override
+    public String toString() {
+        return getName() + "(" + name + ')';
     }
 
 }

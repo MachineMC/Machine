@@ -86,7 +86,8 @@ public final class ChunkUtils {
      * @return an index which can be used to store and retrieve later data linked to a block position
      */
     public static int getBlockIndex(final int x, final int y, final int z) {
-        if (x > 15 || x < 0 || z > 15 || z < 0 || y > 4096 || y < 0) throw new UnsupportedOperationException();
+        if (x > 15 || x < 0 || z > 15 || z < 0 || y > 4096 || y < 0)
+            throw new IllegalArgumentException("The block is out of chunk bounds");
         int index = 0;
         index |= y << 8;
         index |= z << 4;

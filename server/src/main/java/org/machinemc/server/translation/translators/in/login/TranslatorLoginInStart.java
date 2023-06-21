@@ -18,7 +18,7 @@ import org.machinemc.api.auth.OnlineServer;
 import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.api.entities.player.PlayerProfile;
-import org.machinemc.server.entities.player.PlayerProfileImpl;
+import org.machinemc.server.entities.player.ServerPlayerProfile;
 import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.login.PacketLoginInStart;
@@ -36,7 +36,7 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
     public void translateAfter(final ClientConnection connection, final PacketLoginInStart packet) {
         connection.setLoginUsername(packet.getUsername());
         if (!connection.getServer().isOnline()) {
-            final PlayerProfile profile = PlayerProfileImpl.offline(packet.getUsername());
+            final PlayerProfile profile = ServerPlayerProfile.offline(packet.getUsername());
             connection.send(new PacketLoginOutSuccess(profile.getUUID(), profile.getUsername(), profile.getTextures()));
             if (connection.getState() == PlayerConnection.ClientState.DISCONNECTED)
                 return;

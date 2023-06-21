@@ -21,7 +21,7 @@ import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.chunk.data.LightData;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
 @ToString

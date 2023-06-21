@@ -162,15 +162,13 @@ public final class Location extends EntityPosition implements Cloneable, Writabl
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Location(");
-        sb.append("x=").append(getX()).append(", ");
-        sb.append("y=").append(getY()).append(", ");
-        sb.append("z=").append(getZ()).append(", ");
-        sb.append("yaw=").append(getYaw()).append(", ");
-        sb.append("pitch=").append(getPitch()).append(", ");
-        sb.append("world=").append(world);
-        sb.append(')');
-        return sb.toString();
+        return "Location(" + "x=" + getX() + ", "
+                + "y=" + getY() + ", "
+                + "z=" + getZ() + ", "
+                + "yaw=" + getYaw() + ", "
+                + "pitch=" + getPitch() + ", "
+                + "world=" + world
+                + ')';
     }
 
 }

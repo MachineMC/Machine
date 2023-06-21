@@ -16,10 +16,7 @@ package org.machinemc.api.particles;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.server.NBTSerializable;
@@ -40,6 +37,7 @@ import java.util.UUID;
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class VibrationParticleOption implements ParticleOption {
@@ -121,9 +119,9 @@ public class VibrationParticleOption implements ParticleOption {
          */
         public static BlockPositionSource create(final NBTCompound source) {
             if (!source.containsKey("pos") || source.get("pos").tag() != NBT.Tag.LIST)
-                throw new NBTException();
+                throw new NBTException("NBT source does not contain valid position information");
             final NBTList list = source.getList("pos");
-            if (list.size() < 3) throw new NBTException();
+            if (list.size() < 3) throw new NBTException("NBT source does not contain valid position information");
             return new BlockPositionSource(new BlockPosition(
                     list.get(0).value(),
                     list.get(1).value(),
@@ -171,7 +169,7 @@ public class VibrationParticleOption implements ParticleOption {
         public static EntityPositionSource create(final NBTCompound source) {
             if (!source.containsKey("y_offset") || source.get("y_offset").tag() != NBT.Tag.FLOAT
                     || !source.containsKey("source_entity") || source.get("source_entity").tag() != NBT.Tag.LIST)
-                throw new NBTException();
+                throw new NBTException("NBT source does not contain valid position information");
 
             final float offset = source.get("y_offset").value();
             final NBTList entity = source.getList("source_entity");
@@ -181,7 +179,7 @@ public class VibrationParticleOption implements ParticleOption {
             else
                 entityID = source.get("entity_id").value();
 
-            if (entity.size() < 4) throw new NBTException();
+            if (entity.size() < 4) throw new NBTException("NBT source does not contain valid position information");
             final ByteBuf buf = Unpooled.buffer();
             for (int i = 0; i < 4; i++)
                 buf.writeInt(entity.get(i).value());

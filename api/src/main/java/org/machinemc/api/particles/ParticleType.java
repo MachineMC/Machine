@@ -105,4 +105,11 @@ public final class ParticleType<O extends ParticleOption> {
         return new Particle<>(this);
     }
 
+    @Override
+    public String toString() {
+        return "ParticleType("
+                + "name=" + name
+                + ')';
+    }
+
 }

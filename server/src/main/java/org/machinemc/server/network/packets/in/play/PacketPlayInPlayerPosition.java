@@ -21,7 +21,7 @@ import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketIn;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 @ToString
 @Getter @Setter

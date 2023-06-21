@@ -22,7 +22,7 @@ import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 

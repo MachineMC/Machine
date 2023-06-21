@@ -67,7 +67,7 @@ license {
 }
 
 checkstyle {
-    toolVersion = "10.3.1"
+    toolVersion = libs.versions.checkstyle.get()
     val checkstyleDir = File(mainDir, "checkstyle")
     configDirectory.set(checkstyleDir)
     configFile = File(checkstyleDir, "sun_checks.xml")

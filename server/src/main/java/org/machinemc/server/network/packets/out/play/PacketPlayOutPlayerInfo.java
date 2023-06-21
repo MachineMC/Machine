@@ -27,7 +27,7 @@ import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;

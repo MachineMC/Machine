@@ -27,8 +27,9 @@ import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.biomes.BiomeEffects;
 import org.machinemc.nbt.parser.NBTParser;
 import org.machinemc.server.Machine;
-import org.machinemc.server.world.biomes.BiomeEffectsImpl;
-import org.machinemc.server.world.biomes.BiomeImpl;
+import org.machinemc.api.Server;
+import org.machinemc.server.world.biomes.ServerBiomeEffects;
+import org.machinemc.server.world.biomes.ServerBiome;
 
 import java.io.File;
 import java.io.FileReader;
@@ -47,17 +48,16 @@ public class BiomesJson implements ServerFile, ServerProperty {
     public static final String BIOMES_FILE_NAME = "biomes.json";
 
     @Getter
-    private final Machine server;
+    private final Server server;
     private final Set<Biome> biomes = new LinkedHashSet<>();
 
-    public BiomesJson(final Machine server, final File file) throws IOException {
+    public BiomesJson(final Server server, final File file) throws IOException {
         this.server = server;
         final JsonParser parser = new JsonParser();
-        final JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
-        final JsonObject biomes = json.get("biomes").getAsJsonObject();
+        final JsonObject biomes = parser.parse(new FileReader(file)).getAsJsonObject();
 
         for (final Map.Entry<String, JsonElement> biomeKey : biomes.entrySet()) {
-            final Biome original = BiomeImpl.createDefault();
+            final Biome original = ServerBiome.createDefault();
             final NamespacedKey key;
             try {
                 key = NamespacedKey.parse(biomeKey.getKey());
@@ -141,7 +141,7 @@ public class BiomesJson implements ServerFile, ServerProperty {
                     final int tickDelay = moodSoundJson.get("tick_delay").getAsInt();
                     final int blockSearchExtent = moodSoundJson.get("block_search_extent").getAsInt();
                     final double offset = moodSoundJson.get("offset").getAsDouble();
-                    moodSound = new BiomeEffectsImpl.MoodSoundImpl(sound, tickDelay, blockSearchExtent, offset);
+                    moodSound = new ServerBiomeEffects.MoodSoundImpl(sound, tickDelay, blockSearchExtent, offset);
                 } catch (Exception ignored) {
                     moodSound = effects.getMoodSound();
                 }
@@ -151,7 +151,7 @@ public class BiomesJson implements ServerFile, ServerProperty {
                     final JsonObject additionsSoundJson = effectsJson.getAsJsonObject("additions_sound");
                     final NamespacedKey sound = NamespacedKey.parse(additionsSoundJson.get("sound").getAsString());
                     final double tickChance = additionsSoundJson.get("tick_chance").getAsDouble();
-                    additionsSound = new BiomeEffectsImpl.AdditionsSoundImpl(sound, tickChance);
+                    additionsSound = new ServerBiomeEffects.AdditionsSoundImpl(sound, tickChance);
                 } catch (Exception ignored) {
                     additionsSound = effects.getAdditionsSound();
                 }
@@ -163,7 +163,7 @@ public class BiomesJson implements ServerFile, ServerProperty {
                     final int minDelay = musicJson.get("min_delay").getAsInt();
                     final int maxDelay = musicJson.get("max_delay").getAsInt();
                     final boolean replaceCurrentMusic = musicJson.get("replace_current_music").getAsBoolean();
-                    music = new BiomeEffectsImpl.MusicImpl(sound, minDelay, maxDelay, replaceCurrentMusic);
+                    music = new ServerBiomeEffects.MusicImpl(sound, minDelay, maxDelay, replaceCurrentMusic);
                 } catch (Exception ignored) {
                     music = effects.getMusic();
                 }
@@ -179,7 +179,7 @@ public class BiomesJson implements ServerFile, ServerProperty {
                     particle = effects.getBiomeParticle();
                 }
 
-                effects = BiomeEffectsImpl.builder()
+                effects = ServerBiomeEffects.builder()
                         .fogColor(fogColor)
                         .skyColor(skyColor)
                         .waterColor(waterColor)
@@ -199,7 +199,7 @@ public class BiomesJson implements ServerFile, ServerProperty {
                 effects = original.getEffects();
             }
 
-            this.biomes.add(BiomeImpl.builder()
+            this.biomes.add(ServerBiome.builder()
                     .name(key)
                     .depth(biome.has("depth")
                             ? biome.get("depth").getAsFloat()
@@ -236,6 +236,11 @@ public class BiomesJson implements ServerFile, ServerProperty {
     @Override
     public @Nullable InputStream getOriginal() {
         return Machine.CLASS_LOADER.getResourceAsStream(BIOMES_FILE_NAME);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 
 }

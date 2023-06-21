@@ -15,15 +15,17 @@
 package org.machinemc.server.world.generation;
 
 import lombok.Getter;
+import org.machinemc.api.Server;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.generation.GeneratedSection;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Machine;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.generation.Generator;
+
+import java.util.Objects;
 
 /**
  * Simple flat world stone generator.
@@ -31,7 +33,7 @@ import org.machinemc.api.world.generation.Generator;
 @Getter
 public class FlatStoneGenerator implements Generator {
 
-    private final Machine server;
+    private final Server server;
     @Getter
     private final long seed;
 
@@ -40,13 +42,14 @@ public class FlatStoneGenerator implements Generator {
 
     private final Biome biome;
 
-    public FlatStoneGenerator(final Machine server, final long seed) {
+    public FlatStoneGenerator(final Server server, final long seed) {
         this.server = server;
         this.seed = seed;
         final BlockManager manager = server.getBlockManager();
         final BlockType air = manager.getBlockType(NamespacedKey.minecraft("air"));
         final BlockType stone = manager.getBlockType(NamespacedKey.minecraft("stone"));
-        if (air == null || stone == null) throw new IllegalStateException();
+        Objects.requireNonNull(air, "Air block type is missing in the server block manager");
+        Objects.requireNonNull(stone, "Stone block type is missing in the server block manager");
         this.air = air;
         this.stone = stone;
         Biome biome = server.getBiome(NamespacedKey.minecraft("plains"));

@@ -17,8 +17,8 @@ package org.machinemc.server.world;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.machinemc.api.world.biomes.Biome;
-import org.machinemc.server.Machine;
 import org.machinemc.api.entities.Entity;
+import org.machinemc.api.Server;
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutChangeDifficulty;
@@ -39,7 +39,7 @@ import static org.machinemc.server.chunk.ChunkUtils.getSectionRelativeCoordinate
 @Getter
 public abstract class AbstractWorld implements World {
 
-    private final Machine server;
+    private final Server server;
 
     private final NamespacedKey name;
     @Getter(AccessLevel.NONE)
@@ -51,7 +51,7 @@ public abstract class AbstractWorld implements World {
     private Location worldSpawn = Location.of(0, 0, 0, this);
     protected boolean loaded = false;
 
-    public AbstractWorld(final Machine server,
+    public AbstractWorld(final Server server,
                          final NamespacedKey name,
                          final UUID uuid,
                          final DimensionType dimensionType,
@@ -123,6 +123,14 @@ public abstract class AbstractWorld implements World {
             if (!(entity instanceof ServerPlayer player)) continue;
             player.sendPacket(packet);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "World("
+                + "name=" + name
+                + ", uuid=" + uuid
+                + ')';
     }
 
 }

@@ -16,7 +16,7 @@ package org.machinemc.server.auth;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.machinemc.server.entities.player.PlayerTexturesImpl;
+import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.server.utils.UUIDUtils;
 
 import java.net.HttpURLConnection;
@@ -106,7 +106,7 @@ public final class MojangAuth {
      * @param uuid online uuid of the account
      * @return skin of the registered account, null if the account doesn't exist
      */
-    public static CompletableFuture<PlayerTexturesImpl> getSkin(final UUID uuid) {
+    public static CompletableFuture<PlayerTextures> getSkin(final UUID uuid) {
         final String url = String.format(MINECRAFT_PROFILE_URL, uuid);
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -119,7 +119,7 @@ public final class MojangAuth {
                     return null;
                 final JsonObject json = (JsonObject) new JsonParser().parse(response.body());
                 final JsonObject properties = json.getAsJsonArray("properties").get(0).getAsJsonObject();
-                return PlayerTexturesImpl.buildSkin(properties);
+                return PlayerTextures.buildSkin(properties);
             } catch (Exception ignored) { }
             return null;
         });
@@ -130,7 +130,7 @@ public final class MojangAuth {
      * @param username username of the account
      * @return skin of the registered account, null if the account doesn't exist
      */
-    public static CompletableFuture<PlayerTexturesImpl> getSkin(final String username) {
+    public static CompletableFuture<PlayerTextures> getSkin(final String username) {
         return CompletableFuture.supplyAsync(() -> getSkin(getUUID(username).join()).join());
     }
 

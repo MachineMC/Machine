@@ -143,6 +143,13 @@ public class TaskSession {
             asyncScheduledFuture.cancel(true);
     }
 
+    @Override
+    public String toString() {
+        return "TaskSession("
+                + "running=" + running
+                + ')';
+    }
+
     /**
      * Represents the execution of the task.
      */

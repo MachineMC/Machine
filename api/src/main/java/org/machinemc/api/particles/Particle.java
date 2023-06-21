@@ -76,4 +76,5 @@ public class Particle<O extends ParticleOption> implements NBTSerializable, Writ
     public String toString() {
         return type.getName().toString() + options.toNBT().toString();
     }
+
 }

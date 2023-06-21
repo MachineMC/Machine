@@ -14,10 +14,7 @@
  */
 package org.machinemc.api.particles;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockData;
@@ -32,6 +29,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class BlockParticleOption implements ParticleOption {

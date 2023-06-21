@@ -14,26 +14,24 @@
  */
 package org.machinemc.server.logging;
 
-import org.machinemc.api.logging.Console;
-
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.util.logging.Level;
+import java.io.OutputStream;
 
 public class FormattedOutputStream extends FilterOutputStream {
 
     private static final byte[] LINE_SEPARATOR = System.lineSeparator().getBytes();
 
-    private final Console console;
-    private final Level level;
+    private final Logger logger;
     private final String linePrefix;
     private EolTrackerByteArrayOutputStream buf = new EolTrackerByteArrayOutputStream();
 
-    public FormattedOutputStream(final Console console, final Level level, final String linePrefix) {
-        super(console.getOutputStream());
-        this.level = level;
-        this.console = console;
+    public FormattedOutputStream(final Logger logger,
+                                 final OutputStream out,
+                                 final String linePrefix) {
+        super(out);
+        this.logger = logger;
         this.linePrefix = linePrefix;
     }
 
@@ -42,7 +40,7 @@ public class FormattedOutputStream extends FilterOutputStream {
         buf.write(b);
         if (buf.isLineComplete()) {
             final String line = new String(buf.toByteArray(), 0, buf.size() - LINE_SEPARATOR.length);
-            console.log(level, linePrefix + line);
+            logger.log(linePrefix + line);
             buf = new EolTrackerByteArrayOutputStream();
         }
     }
@@ -61,4 +59,5 @@ public class FormattedOutputStream extends FilterOutputStream {
         }
 
     }
+
 }

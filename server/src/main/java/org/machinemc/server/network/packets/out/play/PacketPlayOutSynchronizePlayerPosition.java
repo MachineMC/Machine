@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.Location;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.util.Collections;
 import java.util.EnumSet;

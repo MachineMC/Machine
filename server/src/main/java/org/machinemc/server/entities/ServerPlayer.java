@@ -35,11 +35,11 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.style.ChatColor;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutSynchronizePlayerPosition.TeleportFlags;
-import org.machinemc.server.server.codec.Codec;
+import org.machinemc.api.server.codec.Codec;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -80,7 +80,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     private boolean teleporting = false;
     private Location teleportLocation;
 
-    private ServerPlayer(final Machine server, final PlayerProfile profile, final ClientConnection connection) {
+    private ServerPlayer(final Server server, final PlayerProfile profile, final ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUUID());
         this.profile = profile;
         if (connection.getOwner() != null)
@@ -103,7 +103,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
      * @param connection connection of the player
      * @return created player instance
      */
-    public static ServerPlayer spawn(final Machine server,
+    public static ServerPlayer spawn(final Server server,
                                      final PlayerProfile profile,
                                      final ClientConnection connection) {
 
@@ -402,6 +402,11 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     @Override
     public void save() {
         getServer().getPlayerDataContainer().savePlayerData(this);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 
 }

@@ -29,7 +29,7 @@ import org.machinemc.api.world.World;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTList;
 import org.machinemc.scriptive.components.Component;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.server.utils.EntityUtils;
 
@@ -43,7 +43,7 @@ import static java.util.Map.entry;
 public abstract class ServerEntity implements Entity {
 
     @Getter
-    private final Machine server;
+    private final Server server;
 
     @Getter
     private final EntityType entityType;
@@ -79,7 +79,7 @@ public abstract class ServerEntity implements Entity {
     @Getter @Setter
     private int portalCooldown;
 
-    public ServerEntity(final Machine server, final EntityType entityType, final UUID uuid) {
+    public ServerEntity(final Server server, final EntityType entityType, final UUID uuid) {
         this.server = server;
         this.entityType = entityType;
         this.uuid = uuid;
@@ -333,4 +333,10 @@ public abstract class ServerEntity implements Entity {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Entity("
+                + "uuid=" + uuid
+                + ')';
+    }
 }

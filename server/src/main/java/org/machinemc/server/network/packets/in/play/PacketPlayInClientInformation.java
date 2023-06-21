@@ -22,7 +22,7 @@ import org.machinemc.api.chat.ChatMode;
 import org.machinemc.api.entities.player.Hand;
 import org.machinemc.api.entities.player.SkinPart;
 import org.machinemc.server.network.packets.PacketIn;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 
 import java.nio.charset.StandardCharsets;

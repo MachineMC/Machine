@@ -24,6 +24,7 @@ import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.WorldType;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.machinemc.api.Server;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -42,7 +43,7 @@ public class ServerPropertiesImpl implements ServerProperties {
     public static final String PROPERTIES_FILE_NAME = "server.properties";
     public static final String ICON_FILE_NAME = "icon.png";
 
-    private final Machine server;
+    private final Server server;
 
     private final String serverIp;
     private final @Range(from = 0, to = 65536) int serverPort;
@@ -60,7 +61,7 @@ public class ServerPropertiesImpl implements ServerProperties {
 
     private static final int ICON_SIZE = 64;
 
-    public ServerPropertiesImpl(final Machine server, final File file) throws IOException {
+    public ServerPropertiesImpl(final Server server, final File file) throws IOException {
         this.server = server;
         final Properties original = new Properties();
 
@@ -155,6 +156,11 @@ public class ServerPropertiesImpl implements ServerProperties {
     @Override
     public @Nullable InputStream getOriginal() {
         return Machine.CLASS_LOADER.getResourceAsStream(PROPERTIES_FILE_NAME);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 
 }

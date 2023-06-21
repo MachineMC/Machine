@@ -47,25 +47,6 @@ public interface Packet extends Cloneable {
     byte[] rawSerialize();
 
     /**
-     * Returns the size of the packet, including both id and data.
-     * @return size of the packet
-     */
-    int getSize();
-
-    /**
-     * Serializes the full compress packet.
-     * @param threshold threshold
-     * @return serialized compressed packet
-     */
-    byte[] rawCompressedSerialize(int threshold);
-
-    /**
-     * Returns the size of compressed packet, including both id and data.
-     * @return compressed size of the packet
-     */
-    int getCompressedSize();
-
-    /**
      * @return clone of this packet
      */
     Packet clone();

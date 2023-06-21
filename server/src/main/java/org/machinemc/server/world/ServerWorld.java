@@ -32,8 +32,9 @@ import org.machinemc.server.Machine;
 import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.entities.Entity;
+import org.machinemc.api.Server;
 import org.machinemc.server.chunk.ChunkUtils;
-import org.machinemc.server.chunk.SectionImpl;
+import org.machinemc.server.chunk.ChunkSection;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.dimensions.DimensionType;
@@ -47,10 +48,7 @@ import org.machinemc.server.world.region.LandscapeHelper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
@@ -85,8 +83,11 @@ public class ServerWorld extends AbstractWorld {
      * @return default server world
      */
     public static World createDefault(final Machine server) {
+        final File directory = new File(server.getDirectory(), DEFAULT_WORLD_FOLDER + "/");
+        if (!directory.exists() && !directory.mkdirs())
+            throw new RuntimeException("Failed to create the world directory " + directory.getPath());
         final World world = new ServerWorld(
-                new File(DEFAULT_WORLD_FOLDER + "/"),
+                directory,
                 server,
                 NamespacedKey.machine("main"),
                 server.getDimensionTypeManager().getDimensions().iterator().next(),
@@ -98,7 +99,7 @@ public class ServerWorld extends AbstractWorld {
     }
 
     public ServerWorld(final File folder,
-                       final Machine server,
+                       final Server server,
                        final NamespacedKey name,
                        final DimensionType dimensionType,
                        final WorldType worldType,
@@ -127,7 +128,9 @@ public class ServerWorld extends AbstractWorld {
                         blockType = server.getBlockType(
                                 LazyNamespacedKey.lazy(landscapeHelper.getHandler().getDefaultType())
                         );
-                        if (blockType == null) throw new IllegalStateException();
+                        Objects.requireNonNull(blockType, "Provided default block type "
+                                + landscapeHelper.getHandler().getDefaultType()
+                                + " is not registered in the server block manager");
                     }
                     return blockType;
                 }
@@ -164,9 +167,9 @@ public class ServerWorld extends AbstractWorld {
     @Override
     @Synchronized
     public void load() {
-        if (loaded) throw new UnsupportedOperationException();
+        if (loaded) throw new UnsupportedOperationException("The world has already been loaded");
         if (!regionFolder.mkdirs() && !regionFolder.exists())
-            throw new IllegalStateException();
+            throw new IllegalStateException("Could not create the region folder for the world");
         loaded = true;
         getServer().getConsole().info("Loaded world '" + getName() + "'");
     }
@@ -174,7 +177,7 @@ public class ServerWorld extends AbstractWorld {
     @Override
     @Synchronized
     public void unload() throws IOException {
-        if (!loaded) throw new UnsupportedOperationException();
+        if (!loaded) throw new UnsupportedOperationException("The world has not been loaded yet");
         loaded = false;
         save();
         landscapeHelper.close();
@@ -306,7 +309,7 @@ public class ServerWorld extends AbstractWorld {
                 // of conversion between Landscape segment and section is
                 // skipped which makes the process of loading newly generated
                 // chunks much faster.
-                final Section section = new SectionImpl(chunk, i,  () -> {
+                final Section section = new ChunkSection(chunk, i,  () -> {
                     segment.push(); // if compound is requested we push the segment in case it's changed later
                     return segment.getDataCompound();
                 });
