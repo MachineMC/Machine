@@ -62,6 +62,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Machine implements Server, RunnableServer {
 
@@ -93,68 +94,64 @@ public final class Machine implements Server, RunnableServer {
     private final ServerPlatform platform;
 
     @Getter
-    protected TranslatorDispatcher translatorDispatcher;
+    private TranslatorDispatcher translatorDispatcher;
 
     @Getter
-    protected final ExceptionHandler exceptionHandler;
+    private final ExceptionHandler exceptionHandler;
 
     @Getter
     private @Nullable OnlineServer onlineServer;
 
     @Getter
-    protected final Gson gson = new GsonBuilder()
+    private final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
     @Getter
-    protected ServerProperties properties;
+    private ServerProperties properties;
 
     @Getter
-    protected final Scheduler scheduler;
+    private final Scheduler scheduler;
 
     @Getter
-    protected CommandDispatcher<CommandExecutor> commandDispatcher;
+    private CommandDispatcher<CommandExecutor> commandDispatcher;
 
     @Getter
-    protected DimensionTypeManager dimensionTypeManager;
+    private DimensionTypeManager dimensionTypeManager;
     @Getter
-    protected Messenger messenger;
+    private Messenger messenger;
     @Getter
-    protected ComponentSerializer componentSerializer;
+    private ComponentSerializer componentSerializer;
     @Getter
-    protected WorldManager worldManager;
+    private WorldManager worldManager;
     @Getter
-    protected BiomeManager biomeManager;
+    private BiomeManager biomeManager;
     @Getter
-    protected EntityManager entityManager;
+    private EntityManager entityManager;
     @Getter
-    protected PlayerManager playerManager;
+    private PlayerManager playerManager;
     @Getter
-    protected BlockManager blockManager;
+    private BlockManager blockManager;
     @Getter
     private PlayerDataContainer playerDataContainer;
 
     @Getter
-    protected NettyServer connection;
+    private NettyServer connection;
 
     @Getter
-    protected World defaultWorld;
+    private World defaultWorld;
 
     public Machine(final ServerContext context) throws Exception {
-        Objects.requireNonNull(context.application(), "Application of context can not be null");
-        this.application = context.application();
+        this.application = Objects.requireNonNull(context.application(), "Application of context can not be null");
 
         if (!context.directory().exists() && !context.directory().mkdirs())
             throw new RuntimeException("Failed to create the server directory");
         this.directory = context.directory();
 
-        Objects.requireNonNull(context.name(), "Name of the server can not be null");
-        this.name = context.name();
+        this.name = Objects.requireNonNull(context.name(), "Name of the server can not be null");
 
-        Objects.requireNonNull(context.console(), "Console of the server can not be null");
-        this.console = context.console();
+        this.console = Objects.requireNonNull(context.console(), "Console of the server can not be null");
 
-        Objects.requireNonNull(context.platform(), "Platform of the server can not be null");
-        this.platform = context.platform();
+        this.platform = Objects.requireNonNull(context.platform(), "Platform of the server can not be null");
 
         scheduler = new Scheduler(4);
         exceptionHandler = new ServerExceptionHandler(this);
@@ -271,8 +268,8 @@ public final class Machine implements Server, RunnableServer {
         }
 
         worldManager = new ServerWorldManager(this);
-        try {
-            for (final Path path : Files.walk(directory.toPath(), 2).collect(Collectors.toSet())) {
+        try (Stream<Path> paths = Files.walk(directory.toPath(), 2)) {
+            for (final Path path : paths.collect(Collectors.toSet())) {
                 if (!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;
                 if (path.getNameCount() < 3) continue;
                 if (!Files.isSameFile(directory.toPath(), path.getParent().getParent())) continue;

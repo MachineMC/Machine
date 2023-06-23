@@ -23,7 +23,7 @@ import org.machinemc.api.world.Material;
  * Default item implementation.
  */
 @Data
-public class ItemStack implements Item {
+class ItemStack implements Item {
 
     private static final Material[] REGISTRY;
 
@@ -62,13 +62,13 @@ public class ItemStack implements Item {
         return material.getId();
     }
 
-    public ItemStack(final Material material) {
+    ItemStack(final Material material) {
         if (material.getId() == -1)
             throw new IllegalStateException("Material " + material + " can't have item form");
         this.material = material;
     }
 
-    public ItemStack(final Material material, final byte amount) {
+    ItemStack(final Material material, final byte amount) {
         this(material);
         this.amount = amount;
     }

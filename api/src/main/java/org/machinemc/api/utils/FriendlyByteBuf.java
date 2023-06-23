@@ -28,7 +28,6 @@ import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
-import org.machinemc.api.inventory.ItemStack;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -482,9 +481,9 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public Item readSlot() {
         if (!readBoolean())
-            return new ItemStack(Material.AIR);
-        final Material material = ItemStack.getMaterial(readVarInt());
-        final ItemStack itemStack = new ItemStack(material != null ? material : Material.AIR, readByte());
+            return Item.of(Material.AIR);
+        final Material material = Item.getMaterial(readVarInt());
+        final Item itemStack = Item.of(material != null ? material : Material.AIR, readByte());
         final NBTCompound compound = readNBT();
         itemStack.setNBTCompound(compound);
         return itemStack;

@@ -50,17 +50,13 @@ public class StonePyramidGenerator implements Generator {
         final BlockType air = manager.getBlockType(NamespacedKey.minecraft("air"));
         final BlockType stone = manager.getBlockType(NamespacedKey.minecraft("stone"));
         final BlockType sign = manager.getBlockType(NamespacedKey.minecraft("oak_sign"));
-        Objects.requireNonNull(air, "Air block type is missing in the server block manager");
-        Objects.requireNonNull(stone, "Stone block type is missing in the server block manager");
-        Objects.requireNonNull(sign, "Sign block type is missing in the server block manager");
-        this.air = air;
-        this.stone = stone;
-        this.sign = sign;
+        this.air = Objects.requireNonNull(air, "Air block type is missing in the server block manager");
+        this.stone = Objects.requireNonNull(stone, "Stone block type is missing in the server block manager");
+        this.sign = Objects.requireNonNull(sign, "Sign block type is missing in the server block manager");
         Biome biome = server.getBiome(NamespacedKey.minecraft("plains"));
         if (biome == null)
             biome = server.getBiomeManager().getBiomes().stream().iterator().next();
-        Objects.requireNonNull(biome, "There are no available biomes in the server's biome manager");
-        this.biome = biome;
+        this.biome = Objects.requireNonNull(biome, "There are no available biomes in the server's biome manager");
     }
 
     @Override

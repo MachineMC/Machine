@@ -17,7 +17,6 @@ package org.machinemc.api.particles;
 import lombok.*;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.inventory.Item;
-import org.machinemc.api.inventory.ItemStack;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.Material;
 import org.machinemc.nbt.NBT;
@@ -35,7 +34,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class ItemParticleOption implements ParticleOption {
 
-    private static final Item DEFAULT_ITEM = new ItemStack(Material.STONE);
+    private static final Item DEFAULT_ITEM = Item.of(Material.STONE);
 
     private @Nullable Item item;
 
@@ -72,7 +71,7 @@ public class ItemParticleOption implements ParticleOption {
         else
             tag = new NBTCompound();
 
-        item = new ItemStack(material);
+        item = Item.of(material);
         item.setAmount((byte) amount);
         item.setNBTCompound(tag);
     }

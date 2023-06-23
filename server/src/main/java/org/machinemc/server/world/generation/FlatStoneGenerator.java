@@ -48,10 +48,8 @@ public class FlatStoneGenerator implements Generator {
         final BlockManager manager = server.getBlockManager();
         final BlockType air = manager.getBlockType(NamespacedKey.minecraft("air"));
         final BlockType stone = manager.getBlockType(NamespacedKey.minecraft("stone"));
-        Objects.requireNonNull(air, "Air block type is missing in the server block manager");
-        Objects.requireNonNull(stone, "Stone block type is missing in the server block manager");
-        this.air = air;
-        this.stone = stone;
+        this.air = Objects.requireNonNull(air, "Air block type is missing in the server block manager");
+        this.stone = Objects.requireNonNull(stone, "Stone block type is missing in the server block manager");
         Biome biome = server.getBiome(NamespacedKey.minecraft("plains"));
         if (biome == null)
             biome = server.getBiomeManager().getBiomes().stream().iterator().next();

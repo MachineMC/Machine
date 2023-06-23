@@ -15,6 +15,7 @@
 package org.machinemc.api.inventory;
 
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
@@ -56,6 +57,15 @@ public interface Item extends Writable, Cloneable {
      */
     static Item of(Material material) {
         return new ItemStack(material);
+    }
+
+    /**
+     * Returns a material from id (mapped by vanilla server reports).
+     * @param id id of the material
+     * @return material with the id
+     */
+    static @Nullable Material getMaterial(final int id) {
+        return ItemStack.getMaterial(id);
     }
 
     /**
