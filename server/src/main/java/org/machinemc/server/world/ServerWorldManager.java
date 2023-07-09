@@ -22,6 +22,7 @@ import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldManager;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -47,9 +48,7 @@ public class ServerWorldManager implements WorldManager {
 
     @Override
     public boolean isRegistered(final NamespacedKey name) {
-        final World world = getWorld(name);
-        if (world == null) return false;
-        return isRegistered(world);
+        return getWorld(name).map(this::isRegistered).orElse(false);
     }
 
     @Override
@@ -58,12 +57,12 @@ public class ServerWorldManager implements WorldManager {
     }
 
     @Override
-    public World getWorld(final NamespacedKey name) {
+    public Optional<World> getWorld(final NamespacedKey name) {
         for (final World world : getWorlds()) {
             if (!(world.getName().equals(name))) continue;
-            return world;
+            return Optional.of(world);
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override

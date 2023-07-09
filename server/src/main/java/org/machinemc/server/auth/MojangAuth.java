@@ -26,6 +26,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -83,7 +84,7 @@ public final class MojangAuth {
      * @param username username of the account
      * @return online UUID of account, null if the account doesn't exist
      */
-    public static CompletableFuture<UUID> getUUID(final String username) {
+    public static CompletableFuture<Optional<UUID>> getUUID(final String username) {
         final String url = String.format(USER_PROFILE_URL, username);
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -93,11 +94,11 @@ public final class MojangAuth {
                 final HttpResponse<String> response = HttpClient.newHttpClient()
                         .send(request, HttpResponse.BodyHandlers.ofString());
                 if (!(response.statusCode() == HttpURLConnection.HTTP_OK))
-                    return null;
+                    return Optional.empty();
                 final JsonObject json = (JsonObject) new JsonParser().parse(response.body());
                 return UUIDUtils.parseUUID(json.get("id").getAsString());
             } catch (Exception ignored) { }
-            return null;
+            return Optional.empty();
         });
     }
 
@@ -106,7 +107,7 @@ public final class MojangAuth {
      * @param uuid online uuid of the account
      * @return skin of the registered account, null if the account doesn't exist
      */
-    public static CompletableFuture<PlayerTextures> getSkin(final UUID uuid) {
+    public static CompletableFuture<Optional<PlayerTextures>> getSkin(final UUID uuid) {
         final String url = String.format(MINECRAFT_PROFILE_URL, uuid);
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -116,12 +117,12 @@ public final class MojangAuth {
                 final HttpResponse<String> response = HttpClient.newHttpClient()
                         .send(request, HttpResponse.BodyHandlers.ofString());
                 if (!(response.statusCode() == HttpURLConnection.HTTP_OK))
-                    return null;
+                    return Optional.empty();
                 final JsonObject json = (JsonObject) new JsonParser().parse(response.body());
                 final JsonObject properties = json.getAsJsonArray("properties").get(0).getAsJsonObject();
                 return PlayerTextures.buildSkin(properties);
             } catch (Exception ignored) { }
-            return null;
+            return Optional.empty();
         });
     }
 
@@ -130,8 +131,8 @@ public final class MojangAuth {
      * @param username username of the account
      * @return skin of the registered account, null if the account doesn't exist
      */
-    public static CompletableFuture<PlayerTextures> getSkin(final String username) {
-        return CompletableFuture.supplyAsync(() -> getSkin(getUUID(username).join()).join());
+    public static CompletableFuture<Optional<PlayerTextures>> getSkin(final String username) {
+        return CompletableFuture.supplyAsync(() -> getSkin(getUUID(username).join().orElse(null)).join());
     }
 
 }

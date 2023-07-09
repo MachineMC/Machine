@@ -25,10 +25,12 @@ import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.Colour;
 import org.machinemc.scriptive.style.HexColor;
 
+import java.util.Optional;
+
 /**
  * Particle options implementation for dust particles.
  */
-@Getter
+
 @Setter
 @ToString
 @NoArgsConstructor
@@ -38,6 +40,7 @@ public class DustParticleOption implements ParticleOption {
     private static final Colour DEFAULT_COLOR = ChatColor.WHITE;
 
     private @Nullable Colour color;
+    @Getter
     private float scale = 1;
 
     @Override
@@ -78,6 +81,13 @@ public class DustParticleOption implements ParticleOption {
         buf.writeFloat(color.getGreen() / 255f);
         buf.writeFloat(color.getBlue() / 255f);
         buf.writeFloat(scale);
+    }
+
+    /**
+     * @return color of the dust particles
+     */
+    public Optional<Colour> getColor() {
+        return Optional.ofNullable(color);
     }
 
 }

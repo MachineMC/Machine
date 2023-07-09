@@ -19,48 +19,55 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.Server;
 import org.machinemc.api.auth.OnlineServer;
-import org.machinemc.api.world.*;
+import org.machinemc.api.chat.Messenger;
+import org.machinemc.api.commands.CommandExecutor;
+import org.machinemc.api.entities.EntityManager;
+import org.machinemc.api.entities.Player;
+import org.machinemc.api.exception.ExceptionHandler;
+import org.machinemc.api.file.PlayerDataContainer;
+import org.machinemc.api.file.ServerProperties;
+import org.machinemc.api.server.PlayerManager;
+import org.machinemc.api.server.schedule.Scheduler;
+import org.machinemc.api.world.World;
+import org.machinemc.api.world.WorldManager;
 import org.machinemc.api.world.biomes.Biome;
+import org.machinemc.api.world.biomes.BiomeManager;
+import org.machinemc.api.world.blocks.BlockManager;
+import org.machinemc.api.world.dimensions.DimensionType;
+import org.machinemc.api.world.dimensions.DimensionTypeManager;
 import org.machinemc.application.*;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
-import org.machinemc.api.chat.Messenger;
 import org.machinemc.server.chat.ServerMessenger;
-import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.server.commands.MachineCommands;
-import org.machinemc.api.entities.EntityManager;
 import org.machinemc.server.entities.ServerEntityManager;
-import org.machinemc.api.entities.Player;
-import org.machinemc.api.exception.ExceptionHandler;
-import org.machinemc.api.file.*;
-import org.machinemc.server.file.*;
-import org.machinemc.api.server.PlayerManager;
-import org.machinemc.server.network.NettyServer;
-import org.machinemc.server.translation.TranslatorDispatcher;
 import org.machinemc.server.exception.ServerExceptionHandler;
+import org.machinemc.server.file.*;
+import org.machinemc.server.network.NettyServer;
 import org.machinemc.server.server.ServerPlayerManager;
-import org.machinemc.api.server.schedule.Scheduler;
-import org.machinemc.server.world.*;
-import org.machinemc.api.world.biomes.BiomeManager;
-import org.machinemc.server.world.biomes.ServerBiome;
-import org.machinemc.server.world.biomes.ServerBiomeManager;
-import org.machinemc.api.world.blocks.BlockManager;
-import org.machinemc.server.world.blocks.ServerBlockManager;
-import org.machinemc.api.world.dimensions.DimensionType;
-import org.machinemc.server.world.dimensions.ServerDimensionType;
-import org.machinemc.api.world.dimensions.DimensionTypeManager;
-import org.machinemc.server.world.dimensions.ServerDimensionTypeManager;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.server.translation.TranslatorDispatcher;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.server.utils.NetworkUtils;
+import org.machinemc.server.world.ServerWorld;
+import org.machinemc.server.world.ServerWorldManager;
+import org.machinemc.server.world.biomes.ServerBiome;
+import org.machinemc.server.world.biomes.ServerBiomeManager;
+import org.machinemc.server.world.blocks.ServerBlockManager;
+import org.machinemc.server.world.dimensions.ServerDimensionType;
+import org.machinemc.server.world.dimensions.ServerDimensionTypeManager;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -99,7 +106,6 @@ public final class Machine implements Server, RunnableServer {
     @Getter
     private final ExceptionHandler exceptionHandler;
 
-    @Getter
     private @Nullable OnlineServer onlineServer;
 
     @Getter
@@ -304,12 +310,12 @@ public final class Machine implements Server, RunnableServer {
                 application.stopServer(this);
             }
         }
-        defaultWorld = worldManager.getWorld(properties.getDefaultWorld());
-        if (defaultWorld == null) {
-            defaultWorld = worldManager.getWorlds().stream().iterator().next();
+        defaultWorld = worldManager.getWorld(properties.getDefaultWorld()).orElseGet(() -> {
+            final World def = worldManager.getWorlds().stream().iterator().next();
             console.warning("Default world in the server properties doesn't exist, "
-                    + "using '" + defaultWorld.getName() + "' instead");
-        }
+                    + "using '" + def.getName() + "' instead");
+            return def;
+        });
 
         for (final World world : worldManager.getWorlds()) {
             try {
@@ -375,6 +381,11 @@ public final class Machine implements Server, RunnableServer {
     }
 
     @Override
+    public Optional<OnlineServer> getOnlineServer() {
+        return Optional.ofNullable(onlineServer);
+    }
+
+    @Override
     public void shutdown() {
         running = false;
         console.info("Shutting down...");
@@ -430,8 +441,8 @@ public final class Machine implements Server, RunnableServer {
         playersJson.addProperty("online", 0);
         json.add("players", playersJson);
         json.addProperty("description", "%MOTD%");
-        if (properties.getIcon() != null)
-            json.addProperty("favicon", "data:image/png;base64," + properties.getEncodedIcon());
+        properties.getEncodedIcon().ifPresent(icon ->
+                json.addProperty("favicon", "data:image/png;base64," + icon));
         return gson
                 .toJson(json)
                 .replace("\"%MOTD%\"", properties.getMotd().toJson());

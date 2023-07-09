@@ -18,12 +18,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.network.packets.Packet;
-import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.server.network.packets.PacketOut;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -48,7 +48,7 @@ public class PacketLoginOutSuccess extends PacketOut {
     public PacketLoginOutSuccess(final ServerBuffer buf) {
         uuid = buf.readUUID();
         userName = buf.readString(StandardCharsets.UTF_8);
-        textures = buf.readTextures();
+        textures = buf.readTextures().orElse(null);
     }
 
     @Override

@@ -18,16 +18,16 @@ import com.google.common.base.Preconditions;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.scriptive.components.Component;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.entities.player.PlayerTextures;
-import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.server.network.packets.PacketOut;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -73,7 +73,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
             switch (action) {
                 case ADD_PLAYER -> {
                     name = buf.readString(StandardCharsets.UTF_8);
-                    skin = buf.readTextures();
+                    skin = buf.readTextures().orElse(null);
                     gamemode = Gamemode.fromID(buf.readVarInt());
                     latency = buf.readVarInt();
                     if (buf.readBoolean())
@@ -170,11 +170,11 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
         public PlayerInfoData(final Player player) {
             this(player.getUUID(),
                     player.getName(),
-                    player.getProfile().getTextures(),
+                    player.getProfile().getTextures().orElse(null),
                     player.getGamemode(),
                     player.getLatency(),
                     player.getPlayerListName(),
-                    player.getServer().isOnline() ? player.getConnection().getPublicKeyData() : null);
+                    player.getServer().isOnline() ? player.getConnection().getPublicKeyData().orElse(null) : null);
         }
 
         /**

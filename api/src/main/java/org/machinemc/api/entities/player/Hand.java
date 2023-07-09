@@ -15,8 +15,9 @@
 package org.machinemc.api.entities.player;
 
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+
+import java.util.Optional;
 
 /**
  * Representing player's hands.
@@ -49,11 +50,11 @@ public enum Hand {
      * @param name name of the hand
      * @return hand with given name
      */
-    public static @Nullable Hand getByName(final String name) {
+    public static Optional<Hand> getByName(final String name) {
         for (final Hand value : values()) {
-            if (value.name().equalsIgnoreCase(name)) return value;
+            if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }
-        return null;
+        return Optional.empty();
     }
 
 }

@@ -30,12 +30,12 @@ import org.machinemc.nbt.NBTList;
 import org.machinemc.nbt.exceptions.NBTException;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
  * Particle options implementation for vibration particles.
  */
-@Getter
 @Setter
 @ToString
 @NoArgsConstructor
@@ -45,6 +45,7 @@ public class VibrationParticleOption implements ParticleOption {
     private static final PositionSource DEFAULT_POSITION = new BlockPositionSource(new BlockPosition(0, 0, 0));
 
     private @Nullable PositionSource destination;
+    @Getter
     private int arrivalInTicks = 1;
 
     @Override
@@ -61,7 +62,8 @@ public class VibrationParticleOption implements ParticleOption {
             return;
         final PositionSourceType positionSourceType;
         try {
-            positionSourceType = PositionSourceType.get(NamespacedKey.parse(destinationCompound.get("type").value()));
+            positionSourceType = PositionSourceType.get(NamespacedKey.parse(destinationCompound.get("type").value()))
+                    .orElse(null);
             if (positionSourceType == PositionSourceType.BLOCK)
                 destination = BlockPositionSource.create(destinationCompound);
             else if (positionSourceType == PositionSourceType.ENTITY)
@@ -88,6 +90,13 @@ public class VibrationParticleOption implements ParticleOption {
         buf.writeNamespacedKey(destination.getType().name);
         destination.write(buf);
         buf.writeVarInt(arrivalInTicks);
+    }
+
+    /**
+     * @return the destination of the vibration particles
+     */
+    public Optional<PositionSource> getDestination() {
+        return Optional.ofNullable(destination);
     }
 
     /**
@@ -236,10 +245,10 @@ public class VibrationParticleOption implements ParticleOption {
          * @param name name of the position source type
          * @return position source type with given name
          */
-        public static @Nullable PositionSourceType get(final NamespacedKey name) {
+        public static Optional<PositionSourceType> get(final NamespacedKey name) {
             for (final PositionSourceType type : PositionSourceType.values())
-                if (type.name.equals(name)) return type;
-            return null;
+                if (type.name.equals(name)) return Optional.of(type);
+            return Optional.empty();
         }
 
     }

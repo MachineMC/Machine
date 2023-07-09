@@ -25,6 +25,7 @@ import org.machinemc.api.utils.Writable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Base64;
+import java.util.Optional;
 
 /**
  * Represents player's skin textures.
@@ -74,17 +75,17 @@ public record PlayerTextures(String value,
      * @param jsonElement json of the player textures
      * @return player textures from the json
      */
-    public static @Nullable PlayerTextures buildSkin(final JsonElement jsonElement) {
+    public static Optional<PlayerTextures> buildSkin(final JsonElement jsonElement) {
         if (!jsonElement.isJsonObject())
-            return null;
+            return Optional.empty();
         final JsonObject texturesJson = jsonElement.getAsJsonObject();
         if (!(texturesJson.has("value") && texturesJson.has("signature")))
-            return null;
+            return Optional.empty();
         try {
-            return buildSkin(
+            return Optional.of(buildSkin(
                     texturesJson.get("value").getAsString(),
                     texturesJson.get("signature").getAsString()
-            );
+            ));
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }

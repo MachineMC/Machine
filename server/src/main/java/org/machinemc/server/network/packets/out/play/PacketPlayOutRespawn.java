@@ -20,11 +20,11 @@ import lombok.Setter;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.entities.player.Gamemode;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.api.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
 @ToString
@@ -51,7 +51,7 @@ public class PacketPlayOutRespawn extends PacketOut {
         worldName = buf.readNamespacedKey();
         hashedSeed = buf.readLong();
         gamemode = Gamemode.fromID(buf.readByte());
-        previousGamemode = Gamemode.nullableFromID(buf.readByte());
+        previousGamemode = Gamemode.nullableFromID(buf.readByte()).orElse(null);
         isDebug = buf.readBoolean();
         isFlat = buf.readBoolean();
         copyMetadata = buf.readBoolean();

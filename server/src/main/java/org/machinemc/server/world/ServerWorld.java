@@ -18,29 +18,32 @@ import com.google.common.cache.Cache;
 import lombok.Getter;
 import lombok.Synchronized;
 import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.Server;
+import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.chunk.Section;
+import org.machinemc.api.entities.Entity;
+import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.LazyNamespacedKey;
+import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.*;
 import org.machinemc.api.world.biomes.Biome;
-import org.machinemc.api.world.blocks.*;
+import org.machinemc.api.world.blocks.BlockEntityType;
+import org.machinemc.api.world.blocks.BlockHandler;
+import org.machinemc.api.world.blocks.BlockType;
+import org.machinemc.api.world.blocks.WorldBlock;
+import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.api.world.generation.GeneratedSection;
+import org.machinemc.api.world.generation.Generator;
 import org.machinemc.landscape.Landscape;
 import org.machinemc.landscape.Segment;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.Machine;
-import org.machinemc.api.chunk.Chunk;
-import org.machinemc.api.entities.Player;
-import org.machinemc.api.entities.Entity;
-import org.machinemc.api.Server;
-import org.machinemc.server.chunk.ChunkUtils;
 import org.machinemc.server.chunk.ChunkSection;
+import org.machinemc.server.chunk.ChunkUtils;
 import org.machinemc.server.utils.FileUtils;
-import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.server.utils.WeaklyTimedCache;
 import org.machinemc.server.world.blocks.WorldBlockManager;
-import org.machinemc.api.world.generation.Generator;
 import org.machinemc.server.world.generation.StonePyramidGenerator;
 import org.machinemc.server.world.region.DefaultLandscapeHandler;
 import org.machinemc.server.world.region.LandscapeChunk;
@@ -48,7 +51,10 @@ import org.machinemc.server.world.region.LandscapeHelper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
@@ -115,26 +121,20 @@ public class ServerWorld extends AbstractWorld {
                         false,  // TODO auto save should be configurable
                         256)  // TODO auto save limit should be configurable
         );
-        worldBlockManager = new WorldBlockManager(this,
-                position -> {
-                    getChunk(position); // loads the chunk in case it's not generated yet
-                    final Segment segment = getSegment(position);
-                    BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(
-                            getSectionRelativeCoordinate(position.getX()),
-                            getSectionRelativeCoordinate(position.getY() - getDimensionType().getMinY()),
-                            getSectionRelativeCoordinate(position.getZ())
-                    )));
-                    if (blockType == null) {
-                        blockType = server.getBlockType(
-                                LazyNamespacedKey.lazy(landscapeHelper.getHandler().getDefaultType())
-                        );
-                        Objects.requireNonNull(blockType, "Provided default block type "
-                                + landscapeHelper.getHandler().getDefaultType()
-                                + " is not registered in the server block manager");
-                    }
-                    return blockType;
-                }
-        );
+        worldBlockManager = new WorldBlockManager(this, position -> {
+            getChunk(position); // loads the chunk in case it's not generated yet
+            final Segment segment = getSegment(position);
+            return server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(
+                    getSectionRelativeCoordinate(position.getX()),
+                    getSectionRelativeCoordinate(position.getY() - getDimensionType().getMinY()),
+                    getSectionRelativeCoordinate(position.getZ())
+            )))
+                    .or(() ->
+                            server.getBlockType(LazyNamespacedKey.lazy(landscapeHelper.getHandler().getDefaultType())))
+                    .orElseThrow(() -> new NullPointerException("Provided default block type "
+                            + landscapeHelper.getHandler().getDefaultType()
+                            + " is not registered in the server block manager"));
+        });
     }
 
     /**
@@ -357,12 +357,15 @@ public class ServerWorld extends AbstractWorld {
                                     segment.getNBT(x, y, z).clone());
                             section.getClientBlockEntities().put(Section.index(x, y, z),
                                     new Section.BlockEntity(
-                                            (byte) x, (short)
-                                            (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE
+                                            (byte) x,
+                                            (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE
                                                     + getDimensionType().getMinY()),
                                             (byte) z,
-                                    blockEntityType.getBlockEntityBase(state),
-                                    blockEntityType.getClientVisibleNBT(state)));
+                                            blockEntityType.getBlockEntityBase(state)
+                                                    .orElseThrow(NullPointerException::new),
+                                            blockEntityType.getClientVisibleNBT(state)
+                                                    .orElseThrow(NullPointerException::new)
+                                    ));
                         }
 
                         return blockType.getName().toString();
@@ -397,8 +400,10 @@ public class ServerWorld extends AbstractWorld {
                                                 (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE
                                                         + getDimensionType().getMinY()),
                                                 (byte) z,
-                                        blockEntityType.getBlockEntityBase(state),
-                                        blockEntityType.getClientVisibleNBT(state)));
+                                                blockEntityType.getBlockEntityBase(state)
+                                                        .orElseThrow(NullPointerException::new),
+                                                blockEntityType.getClientVisibleNBT(state)
+                                                        .orElseThrow(NullPointerException::new)));
                             }
 
                             return compound;

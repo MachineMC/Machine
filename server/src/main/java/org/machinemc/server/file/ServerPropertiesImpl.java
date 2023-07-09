@@ -14,17 +14,18 @@
  */
 package org.machinemc.server.file;
 
+import lombok.AccessLevel;
 import lombok.Getter;
-import org.machinemc.scriptive.components.Component;
-import org.machinemc.scriptive.components.TextComponent;
-import org.machinemc.server.Machine;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
+import org.machinemc.api.Server;
 import org.machinemc.api.file.ServerProperties;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.WorldType;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
-import org.machinemc.api.Server;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.components.TextComponent;
+import org.machinemc.server.Machine;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -32,6 +33,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -56,7 +58,9 @@ public class ServerPropertiesImpl implements ServerProperties {
     private final boolean reducedDebugScreen;
     private final int viewDistance, simulationDistance, tps, serverResponsiveness;
     private final String serverBrand;
+    @Getter(AccessLevel.NONE)
     private final @Nullable BufferedImage icon;
+    @Getter(AccessLevel.NONE)
     private final @Nullable String encodedIcon;
 
     private static final int ICON_SIZE = 64;
@@ -65,9 +69,8 @@ public class ServerPropertiesImpl implements ServerProperties {
         this.server = server;
         final Properties original = new Properties();
 
-        final InputStream originalInputStream = getOriginal();
-        if (originalInputStream == null)
-            throw new IllegalStateException("Default server properties file doesn't exist in the server");
+        final InputStream originalInputStream = getOriginal().orElseThrow(() ->
+                new IllegalStateException("Default server properties file doesn't exist in the server"));
 
         InputStreamReader stream = new InputStreamReader(originalInputStream, StandardCharsets.UTF_8);
         original.load(stream);
@@ -154,8 +157,18 @@ public class ServerPropertiesImpl implements ServerProperties {
     }
 
     @Override
-    public @Nullable InputStream getOriginal() {
-        return Machine.CLASS_LOADER.getResourceAsStream(PROPERTIES_FILE_NAME);
+    public Optional<InputStream> getOriginal() {
+        return Optional.ofNullable(Machine.CLASS_LOADER.getResourceAsStream(PROPERTIES_FILE_NAME));
+    }
+
+    @Override
+    public Optional<BufferedImage> getIcon() {
+        return Optional.ofNullable(icon);
+    }
+
+    @Override
+    public Optional<String> getEncodedIcon() {
+        return Optional.ofNullable(encodedIcon);
     }
 
     @Override

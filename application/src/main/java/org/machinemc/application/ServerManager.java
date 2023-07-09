@@ -26,7 +26,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Manager of Server containers.
@@ -73,7 +76,7 @@ public class ServerManager {
                 }
                 final ServerPlatform platform = application.getPlatform(
                         serverKey.getValue().getAsJsonObject().get("platform").getAsString()
-                );
+                ).orElse(null);
                 if (platform == null) {
                     application.severe("Server '" + serverKey.getKey()
                             + "' can not be loaded because it uses non-existing platform");

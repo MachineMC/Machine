@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -53,14 +54,14 @@ public abstract class BaseTerminal implements ApplicationTerminal {
 
     @Getter
     @Setter
-    private @Nullable DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
     @Getter @Setter
     private String
             configPrefix = "CONFIG",
             infoPrefix = "INFO",
             warningPrefix = "WARNING",
             severePrefix = "SEVERE";
-    @Getter @Setter
+    @Setter
     private @Nullable Colour
             configColor = null,
             infoColor = null,
@@ -106,6 +107,34 @@ public abstract class BaseTerminal implements ApplicationTerminal {
                     .forEach(component -> builder.append(component.flatten()));
             info(source, builder.toString());
         }
+    }
+
+    /**
+     * @return config color of the terminal
+     */
+    public Optional<Colour> getConfigColor() {
+        return Optional.ofNullable(configColor);
+    }
+
+    /**
+     * @return info color of the terminal
+     */
+    public Optional<Colour> getInfoColor() {
+        return Optional.ofNullable(infoColor);
+    }
+
+    /**
+     * @return warning color of the terminal
+     */
+    public Optional<Colour> getWarningColor() {
+        return Optional.ofNullable(warningColor);
+    }
+
+    /**
+     * @return severe color of the terminal
+     */
+    public Optional<Colour> getSevereColor() {
+        return Optional.ofNullable(severeColor);
     }
 
     @Override

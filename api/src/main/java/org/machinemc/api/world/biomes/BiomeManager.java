@@ -14,13 +14,13 @@
  */
 package org.machinemc.api.world.biomes;
 
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.server.codec.CodecPart;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.nbt.NBTCompound;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface BiomeManager extends CodecPart, ServerProperty {
@@ -38,10 +38,7 @@ public interface BiomeManager extends CodecPart, ServerProperty {
      * @return if the biome with given name was successfully removed
      */
     default boolean removeDimension(NamespacedKey name) {
-        final Biome biome = getBiome(name);
-        if (biome == null)
-            return false;
-        return removeBiome(biome);
+        return getBiome(name).map(this::removeBiome).orElse(false);
     }
 
     /**
@@ -58,10 +55,7 @@ public interface BiomeManager extends CodecPart, ServerProperty {
      * @return if the biome with given name is registered in this manager
      */
     default boolean isRegistered(NamespacedKey name) {
-        final Biome biome = getBiome(name);
-        if (biome == null)
-            return false;
-        return isRegistered(biome);
+        return getBiome(name).map(this::isRegistered).orElse(false);
     }
 
     /**
@@ -76,14 +70,14 @@ public interface BiomeManager extends CodecPart, ServerProperty {
      * @param name name of the biome
      * @return biome with given name in this manager
      */
-    @Nullable Biome getBiome(NamespacedKey name);
+    Optional<Biome> getBiome(NamespacedKey name);
 
     /**
      * Returns biome with given id registered in this manager.
      * @param id id of the biome
      * @return biome with given id in this manager
      */
-    @Nullable Biome getByID(int id);
+    Optional<Biome> getByID(int id);
 
     /**
      * Returns the id associated with the given biome registered in this manager.
@@ -102,11 +96,8 @@ public interface BiomeManager extends CodecPart, ServerProperty {
      * @param name name of the dimension
      * @return NBT of the given dimension
      */
-    default @Nullable NBTCompound getBiomeNBT(NamespacedKey name) {
-        final Biome biome = getBiome(name);
-        if (biome == null)
-            return null;
-        return getBiomeNBT(biome);
+    default Optional<NBTCompound> getBiomeNBT(NamespacedKey name) {
+        return getBiome(name).map(this::getBiomeNBT);
     }
 
     /**

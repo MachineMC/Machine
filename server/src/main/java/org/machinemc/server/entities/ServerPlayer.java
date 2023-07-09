@@ -15,9 +15,11 @@
 package org.machinemc.server.entities;
 
 import com.google.common.hash.Hashing;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.Server;
 import org.machinemc.api.chat.ChatMode;
 import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.entities.EntityType;
@@ -29,17 +31,16 @@ import org.machinemc.api.entities.player.SkinPart;
 import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.PlayerManager;
+import org.machinemc.api.server.codec.Codec;
 import org.machinemc.api.world.*;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.style.ChatColor;
-import org.machinemc.api.Server;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutSynchronizePlayerPosition.TeleportFlags;
-import org.machinemc.api.server.codec.Codec;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -56,7 +57,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Getter
     private Gamemode gamemode = Gamemode.CREATIVE; // for now
-    @Getter
+    @Getter(AccessLevel.NONE)
     private @Nullable Gamemode previousGamemode = null;
 
     @Getter @Setter
@@ -83,9 +84,9 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     private ServerPlayer(final Server server, final PlayerProfile profile, final ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUUID());
         this.profile = profile;
-        if (connection.getOwner() != null)
+        if (connection.getOwner().isPresent())
             throw new IllegalStateException("There can't be multiple players with the same ClientConnection");
-        if (connection.getState() != PlayerConnection.ClientState.PLAY)
+        if (connection.getState().orElse(null) != PlayerConnection.ClientState.PLAY)
             throw new IllegalStateException("Player's connection has to be in play state");
         connection.setOwner(this);
         connection.startKeepingAlive();
@@ -109,11 +110,11 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
         final PlayerManager manager = server.getPlayerManager();
 
-        if (connection.getState() != PlayerConnection.ClientState.PLAY) {
+        if (connection.getState().orElse(null) != PlayerConnection.ClientState.PLAY) {
             throw new IllegalStateException("Player can't be initialized if their connection isn't in play state");
         }
 
-        if (manager.getPlayer(profile.getUsername()) != null || manager.getPlayer(profile.getUUID()) != null) {
+        if (manager.getPlayer(profile.getUsername()).isPresent() || manager.getPlayer(profile.getUUID()).isPresent()) {
             connection.disconnect(TranslationComponent.of("disconnect.loginFailed"));
             throw new IllegalStateException("Session is already active");
         }
@@ -187,8 +188,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
         // Other players
         final Set<PlayerConnection> others = getServer().getConnection().getClients().stream()
-                .filter(connection -> connection.getState() == PlayerConnection.ClientState.PLAY)
-                .filter(connection -> connection.getOwner() != null)
+                .filter(connection -> connection.getState().orElse(null) == PlayerConnection.ClientState.PLAY)
+                .filter(connection -> connection.getOwner().isPresent())
                 .filter(connection -> connection != getConnection())
                 .collect(Collectors.toSet());
 
@@ -248,7 +249,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public void remove() {
-        if (connection.getState() != PlayerConnection.ClientState.DISCONNECTED)
+        if (connection.getState().orElse(null) != PlayerConnection.ClientState.DISCONNECTED)
             throw new IllegalStateException("You can't remove player from server until the connection is closed");
         super.remove();
         getWorld().remove(this);
@@ -282,6 +283,11 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
                         PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME,
                         this)
         );
+    }
+
+    @Override
+    public Optional<Gamemode> getPreviousGamemode() {
+        return Optional.ofNullable(previousGamemode);
     }
 
     @Override

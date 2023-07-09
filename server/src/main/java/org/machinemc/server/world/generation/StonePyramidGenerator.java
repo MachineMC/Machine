@@ -15,6 +15,7 @@
 package org.machinemc.server.world.generation;
 
 import lombok.Getter;
+import org.machinemc.api.Server;
 import org.machinemc.api.chunk.Section;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.World;
@@ -24,9 +25,8 @@ import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.generation.GeneratedSection;
 import org.machinemc.api.world.generation.Generator;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.api.Server;
 
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Generator that generates stone pyramids.
@@ -47,16 +47,16 @@ public class StonePyramidGenerator implements Generator {
         this.server = server;
         this.seed = seed;
         final BlockManager manager = server.getBlockManager();
-        final BlockType air = manager.getBlockType(NamespacedKey.minecraft("air"));
-        final BlockType stone = manager.getBlockType(NamespacedKey.minecraft("stone"));
-        final BlockType sign = manager.getBlockType(NamespacedKey.minecraft("oak_sign"));
-        this.air = Objects.requireNonNull(air, "Air block type is missing in the server block manager");
-        this.stone = Objects.requireNonNull(stone, "Stone block type is missing in the server block manager");
-        this.sign = Objects.requireNonNull(sign, "Sign block type is missing in the server block manager");
-        Biome biome = server.getBiome(NamespacedKey.minecraft("plains"));
-        if (biome == null)
-            biome = server.getBiomeManager().getBiomes().stream().iterator().next();
-        this.biome = Objects.requireNonNull(biome, "There are no available biomes in the server's biome manager");
+        this.air = manager.getBlockType(NamespacedKey.minecraft("air")).orElseThrow(() ->
+                new NullPointerException("Air block type is missing in the server block manager"));
+        this.stone = manager.getBlockType(NamespacedKey.minecraft("stone")).orElseThrow(() ->
+                new NullPointerException("Stone block type is missing in the server block manager"));
+        this.sign = manager.getBlockType(NamespacedKey.minecraft("oak_sign")).orElseThrow(() ->
+                new NullPointerException("Sign block type is missing in the server block manager"));
+        this.biome = server.getBiome(NamespacedKey.minecraft("plains"))
+                .or(() -> Optional.ofNullable(server.getBiomeManager().getBiomes().stream().iterator().next()))
+                .orElseThrow(() ->
+                        new NullPointerException("There are no available biomes in the server's biome manager"));
     }
 
     @Override

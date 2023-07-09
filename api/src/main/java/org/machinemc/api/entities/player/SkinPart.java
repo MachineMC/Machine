@@ -16,10 +16,10 @@ package org.machinemc.api.entities.player;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -44,11 +44,11 @@ public enum SkinPart {
      * @param name name of the skin part
      * @return skin part with given name
      */
-    public static @Nullable SkinPart getByName(final String name) {
+    public static Optional<SkinPart> getByName(final String name) {
         for (final SkinPart value : values()) {
-            if (value.name().equalsIgnoreCase(name)) return value;
+            if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }
-        return null;
+        return Optional.empty();
     }
 
     /**

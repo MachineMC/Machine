@@ -15,8 +15,9 @@
 package org.machinemc.api.world;
 
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+
+import java.util.Optional;
 
 /**
  * Difficulty of the world.
@@ -52,11 +53,11 @@ public enum Difficulty {
      * @param name name of the difficulty
      * @return difficulty with given name
      */
-    public static @Nullable Difficulty getByName(final String name) {
+    public static Optional<Difficulty> getByName(final String name) {
         for (final Difficulty value : values()) {
-            if (value.name().equalsIgnoreCase(name)) return value;
+            if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }
-        return null;
+        return Optional.empty();
     }
 
 }

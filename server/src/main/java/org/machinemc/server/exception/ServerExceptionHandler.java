@@ -16,12 +16,12 @@ package org.machinemc.server.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.machinemc.api.network.PlayerConnection;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.Server;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.logging.Console;
-import org.machinemc.api.Server;
+import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.server.ServerProperty;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -69,7 +69,7 @@ public class ServerExceptionHandler implements ExceptionHandler, ServerProperty 
         while (throwable.getCause() != null)
             throwable = throwable.getCause();
         console.severe("Client generated " + throwable.getClass().getName(),
-                "Login username: " + connection.getLoginUsername(),
+                "Login username: " + connection.getLoginUsername().orElse(null),
                 "Address: " + connection.getAddress(),
                 "Reason: " + exception.getMessage(),
                 "Stack trace:"

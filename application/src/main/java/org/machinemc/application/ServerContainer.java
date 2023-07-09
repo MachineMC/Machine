@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class ServerContainer {
 
@@ -29,7 +30,7 @@ public final class ServerContainer {
     @Getter
     private final ServerPlatform platform;
 
-    @Getter @Setter
+    @Setter
     private @Nullable RunnableServer instance;
 
     public ServerContainer(final File directory, final ServerPlatform platform) {
@@ -52,6 +53,13 @@ public final class ServerContainer {
      */
     public String getName() {
         return directory.getName();
+    }
+
+    /**
+     * @return instance of the container
+     */
+    public Optional<RunnableServer> getInstance() {
+        return Optional.ofNullable(instance);
     }
 
     @Override

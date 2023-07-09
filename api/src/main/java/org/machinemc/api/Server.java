@@ -16,6 +16,8 @@ package org.machinemc.api;
 
 import com.google.gson.Gson;
 import com.mojang.brigadier.CommandDispatcher;
+import org.jetbrains.annotations.Range;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.auth.OnlineServer;
 import org.machinemc.api.chat.Messenger;
 import org.machinemc.api.commands.CommandExecutor;
@@ -37,10 +39,10 @@ import org.machinemc.api.world.biomes.BiomeManager;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
-import org.jetbrains.annotations.*;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -98,7 +100,7 @@ public interface Server {
     /**
      * @return server's online module if it's in online mode
      */
-    OnlineServer getOnlineServer();
+    Optional<OnlineServer> getOnlineServer();
 
     /**
      * @return gson formatter used by the server.
@@ -258,7 +260,7 @@ public interface Server {
      * @param name name of the world
      * @return world with given name
      */
-    default @Nullable World getWorld(NamespacedKey name) {
+    default Optional<World> getWorld(NamespacedKey name) {
         return getWorldManager().getWorld(name);
     }
 
@@ -273,7 +275,7 @@ public interface Server {
      * @param name name of the player
      * @return player with given name
      */
-    default @Nullable Player getPlayer(String name) {
+    default Optional<Player> getPlayer(String name) {
         return getPlayerManager().getPlayer(name);
     }
 
@@ -281,7 +283,7 @@ public interface Server {
      * @param uuid uuid of the player
      * @return player with given uuid
      */
-    default @Nullable Player getPlayer(UUID uuid) {
+    default Optional<Player> getPlayer(UUID uuid) {
         return getPlayerManager().getPlayer(uuid);
     }
 
@@ -296,7 +298,7 @@ public interface Server {
      * @param uuid uuid of the entity
      * @return entity with given uuid in server's entity manager
      */
-    default @Nullable Entity getEntity(UUID uuid) {
+    default Optional<Entity> getEntity(UUID uuid) {
         return getEntityManager().getEntity(uuid);
     }
 
@@ -304,7 +306,7 @@ public interface Server {
      * @param name name of the block type
      * @return block type with given name registered in server's block type manager
      */
-    default @Nullable BlockType getBlockType(NamespacedKey name) {
+    default Optional<BlockType> getBlockType(NamespacedKey name) {
         return getBlockManager().getBlockType(name);
     }
 
@@ -312,7 +314,7 @@ public interface Server {
      * @param name name of the biome
      * @return biome with given name registered in server's biome manager
      */
-    default @Nullable Biome getBiome(NamespacedKey name) {
+    default Optional<Biome> getBiome(NamespacedKey name) {
         return getBiomeManager().getBiome(name);
     }
 

@@ -15,10 +15,11 @@
 package org.machinemc.api.world.blocks;
 
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Material;
+
+import java.util.Optional;
 
 /**
  * Represents a base block entity types that are required on client side
@@ -145,11 +146,11 @@ public enum BlockEntityBase {
      * @param name name of the block entity base
      * @return block entity base with given name
      */
-    public static @Nullable BlockEntityBase getByName(final String name) {
+    public static Optional<BlockEntityBase> getByName(final String name) {
         for (final BlockEntityBase value : values()) {
-            if (value.name().equalsIgnoreCase(name)) return value;
+            if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -157,12 +158,12 @@ public enum BlockEntityBase {
      * @param material material supported by the block entity base
      * @return block entity base of given material
      */
-    public static @Nullable BlockEntityBase getByMaterial(final Material material) {
+    public static Optional<BlockEntityBase> getByMaterial(final Material material) {
         for (final BlockEntityBase value : values()) {
             for (final Material supported : value.materials)
-                if (supported.equals(material)) return value;
+                if (supported.equals(material)) return Optional.of(value);
         }
-        return null;
+        return Optional.empty();
     }
 
 }

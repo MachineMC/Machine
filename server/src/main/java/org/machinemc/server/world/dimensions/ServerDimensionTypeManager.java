@@ -17,11 +17,10 @@ package org.machinemc.server.world.dimensions;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.machinemc.api.Server;
-import org.machinemc.nbt.NBTCompound;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
+import org.machinemc.nbt.NBTCompound;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -83,17 +82,17 @@ public class ServerDimensionTypeManager implements DimensionTypeManager {
     }
 
     @Override
-    public DimensionType getDimension(final NamespacedKey name) {
+    public Optional<DimensionType> getDimension(final NamespacedKey name) {
         for (final DimensionType dimensionType : getDimensions()) {
             if (!(dimensionType.getName().equals(name))) continue;
-            return dimensionType;
+            return Optional.of(dimensionType);
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public @Nullable DimensionType getByID(final int id) {
-        return dimensionTypes.get(id);
+    public Optional<DimensionType> getByID(final int id) {
+        return Optional.ofNullable(dimensionTypes.get(id));
     }
 
     @Override

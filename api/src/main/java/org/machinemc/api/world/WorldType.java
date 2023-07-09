@@ -14,7 +14,7 @@
  */
 package org.machinemc.api.world;
 
-import org.jetbrains.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * World type of a server world. Changes some properties
@@ -30,12 +30,12 @@ public enum WorldType {
      * @param name name of the world type
      * @return world type with given name
      */
-    public static @Nullable WorldType getByName(final String name) {
+    public static Optional<WorldType> getByName(final String name) {
         for (final WorldType value : values()) {
             if (value.name().equalsIgnoreCase(name))
-                return value;
+                return Optional.of(value);
         }
-        return null;
+        return Optional.empty();
     }
 
 }

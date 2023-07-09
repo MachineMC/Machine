@@ -16,10 +16,10 @@ package org.machinemc.api.world;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Visual data of a block, to create a new instance
@@ -34,7 +34,7 @@ public abstract sealed class BlockData implements Cloneable permits BlockDataImp
      * @param id id of the block data
      * @return new instance of the block data with the given id
      */
-    public static BlockData getBlockData(final int id) {
+    public static Optional<BlockData> getBlockData(final int id) {
         return BlockDataImpl.getBlockData(id);
     }
 
@@ -46,7 +46,7 @@ public abstract sealed class BlockData implements Cloneable permits BlockDataImp
      * @param text text to parse
      * @return parsed block data or null if the text is invalid
      */
-    public static @Nullable BlockData parse(final String text) {
+    public static Optional<BlockData> parse(final String text) {
         return BlockDataImpl.parse(text);
     }
 

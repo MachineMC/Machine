@@ -19,8 +19,8 @@ import com.google.common.collect.Multimap;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.machinemc.server.Machine;
 import org.machinemc.api.network.packets.Packet;
+import org.machinemc.server.Machine;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.PacketFactory;
 import org.machinemc.server.utils.ClassUtils;
@@ -69,7 +69,7 @@ public class TranslatorDispatcher {
                         + " packet translator, it has no default constructor");
                 continue;
             }
-            final Packet.PacketState state = PacketFactory.getRegisteredState(translator.packetClass());
+            final Packet.PacketState state = PacketFactory.getRegisteredState(translator.packetClass()).orElse(null);
             if (state == null) continue;
             if (Packet.PacketState.in().contains(state))
                 dispatcher.registerInTranslator(translator);

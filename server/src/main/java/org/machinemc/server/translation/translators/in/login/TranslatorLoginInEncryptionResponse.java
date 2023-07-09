@@ -16,11 +16,11 @@ package org.machinemc.server.translation.translators.in.login;
 
 import org.machinemc.api.auth.OnlineServer;
 import org.machinemc.api.entities.player.PlayerProfile;
+import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.server.auth.MojangAuth;
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.entities.player.ServerPlayerProfile;
-import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.server.exception.ClientException;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.login.PacketLoginInEncryptionResponse;
@@ -45,12 +45,12 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
 
     @Override
     public void translateAfter(final ClientConnection connection, final PacketLoginInEncryptionResponse packet) {
-        final OnlineServer onlineServer = connection.getServer().getOnlineServer();
+        final OnlineServer onlineServer = connection.getServer().getOnlineServer().orElse(null);
         if (onlineServer == null) {
             connection.disconnect();
             return;
         }
-        if (connection.getLoginUsername() == null) {
+        if (connection.getLoginUsername().isEmpty()) {
             connection.disconnect();
             return;
         }
@@ -63,7 +63,7 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
                 onlineServer.getKey().getPublic(),
                 secretkey)
         ).toString(16);
-        final String username = URLEncoder.encode(connection.getLoginUsername(), StandardCharsets.UTF_8);
+        final String username = URLEncoder.encode(connection.getLoginUsername().orElse(null), StandardCharsets.UTF_8);
 
         MojangAuth.getAuthData(serverID, username).thenAccept(json -> {
             if (json == null) {
@@ -74,7 +74,7 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
                 }
                 return;
             }
-            final UUID authUUID = UUIDUtils.parseUUID(json.get("id").getAsString());
+            final UUID authUUID = UUIDUtils.parseUUID(json.get("id").getAsString()).orElse(null);
             if (authUUID == null) {
                 connection.disconnect();
                 return;
@@ -82,11 +82,11 @@ public class TranslatorLoginInEncryptionResponse extends PacketTranslator<Packet
             final String authUsername = json.get("name").getAsString();
             final PlayerTextures playerTextures = PlayerTextures.buildSkin(
                     json.getAsJsonArray("properties").get(0)
-            );
+            ).orElse(null);
             final PlayerProfile profile = ServerPlayerProfile.online(authUsername, authUUID, playerTextures);
             connection.setCompression(256); // TODO should be in properties
-            connection.send(new PacketLoginOutSuccess(authUUID, authUsername, profile.getTextures()));
-            if (connection.getState() == ClientConnection.ClientState.DISCONNECTED)
+            connection.send(new PacketLoginOutSuccess(authUUID, authUsername, profile.getTextures().orElse(null)));
+            if (connection.getState().orElse(null) == ClientConnection.ClientState.DISCONNECTED)
                 return;
             connection.setState(ClientConnection.ClientState.PLAY);
             ServerPlayer.spawn(connection.getServer(), profile, connection);

@@ -25,10 +25,11 @@ import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.Colour;
 import org.machinemc.scriptive.style.HexColor;
 
+import java.util.Optional;
+
 /**
  * Particle options implementation for color transition dust particles.
  */
-@Getter
 @Setter
 @ToString
 @NoArgsConstructor
@@ -39,6 +40,7 @@ public class TransitionParticleOption implements ParticleOption {
 
     private @Nullable Colour from;
     private @Nullable Colour to;
+    @Getter
     private float scale = 1;
 
     @Override
@@ -101,6 +103,20 @@ public class TransitionParticleOption implements ParticleOption {
         buf.writeFloat(to.getRed() / 255f);
         buf.writeFloat(to.getGreen() / 255f);
         buf.writeFloat(to.getBlue() / 255f);
+    }
+
+    /**
+     * @return the 'from' color of the transition particles
+     */
+    public Optional<Colour> getFrom() {
+        return Optional.ofNullable(from);
+    }
+
+    /**
+     * @return the 'to' color of the transition particles
+     */
+    public Optional<Colour> getTo() {
+        return Optional.ofNullable(to);
     }
 
 }

@@ -15,9 +15,9 @@
 package org.machinemc.api.utils;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * An identifying object used to fetch and/or store unique objects,
@@ -27,7 +27,6 @@ import java.util.Objects;
  * <p>
  * Valid characters for keys are [a-z0-9.-_/].
  */
-@SuppressWarnings("ClassCanBeRecord")
 public final class NamespacedKey implements Writable {
 
     public static final String
@@ -37,7 +36,7 @@ public final class NamespacedKey implements Writable {
     private final String namespace;
     private final String key;
 
-    protected NamespacedKey(final String namespace, final String key) {
+    NamespacedKey(final String namespace, final String key) {
         this.namespace = namespace;
         this.key = key;
     }
@@ -64,11 +63,9 @@ public final class NamespacedKey implements Writable {
      */
     @Contract("_ -> new")
     public static NamespacedKey parse(final String namespacedKey) {
-        final String[] key = parseNamespacedKey(namespacedKey);
-        if (key == null)
-            throw new IllegalArgumentException("The namespaced key '" + namespacedKey + "' "
-                    + "does not have a separator character ':'");
-
+        final String[] key = parseNamespacedKey(namespacedKey).orElseThrow(() ->
+                new IllegalArgumentException("The namespaced key '" + namespacedKey + "' "
+                        + "does not have a separator character ':'"));
         return NamespacedKey.of(key[0], key[1]);
     }
 
@@ -135,7 +132,7 @@ public final class NamespacedKey implements Writable {
      * @return a string array where the first value is the namespace and the second value is the namespace,
      * or null if that input doesn't have a separator character ':'
      */
-    protected static String @Nullable [] parseNamespacedKey(final String input) {
+    private static Optional<String[]> parseNamespacedKey(final String input) {
         final String[] namespacedKey = new String[2];
         final char[] chars = input.toCharArray();
         StringBuilder builder = new StringBuilder();
@@ -151,9 +148,9 @@ public final class NamespacedKey implements Writable {
             builder.append(c);
         }
         if (!separator)
-            return null;
+            return Optional.empty();
         namespacedKey[1] = builder.toString();
-        return namespacedKey;
+        return Optional.of(namespacedKey);
     }
 
     /**
@@ -164,7 +161,7 @@ public final class NamespacedKey implements Writable {
      * @param key the key
      * @return whether the namespace and key follow their formats
      */
-    protected static boolean isValidNamespacedKey(final String namespace, final String key) {
+    private static boolean isValidNamespacedKey(final String namespace, final String key) {
         if (namespace.isEmpty())
             return false;
         for (final char c : namespace.toCharArray()) {
@@ -185,7 +182,7 @@ public final class NamespacedKey implements Writable {
      * @param c the character
      * @return whether character is allowed in a namespace
      */
-    protected static boolean isValidNamespace(final char c) {
+    private static boolean isValidNamespace(final char c) {
         return Character.isAlphabetic(c) || Character.isDigit(c) || c == '.' || c == '-' || c == '_';
     }
 
@@ -194,7 +191,7 @@ public final class NamespacedKey implements Writable {
      * @param c the character
      * @return whether character is allowed in a key
      */
-    protected static boolean isValidKey(final char c) {
+    private static boolean isValidKey(final char c) {
         return isValidNamespace(c) || c == '/';
     }
 

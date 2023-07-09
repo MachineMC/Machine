@@ -15,12 +15,13 @@
 package org.machinemc.api.inventory;
 
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
-import org.machinemc.nbt.NBTCompound;
+import org.jetbrains.annotations.Contract;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
-import org.jetbrains.annotations.Contract;
 import org.machinemc.api.world.Material;
+import org.machinemc.nbt.NBTCompound;
+
+import java.util.Optional;
 
 /**
  * Represents an item in inventory.
@@ -64,7 +65,7 @@ public interface Item extends Writable, Cloneable {
      * @param id id of the material
      * @return material with the id
      */
-    static @Nullable Material getMaterial(final int id) {
+    static Optional<Material> getMaterial(final int id) {
         return ItemStack.getMaterial(id);
     }
 

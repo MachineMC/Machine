@@ -14,15 +14,15 @@
  */
 package org.machinemc.api.file;
 
+import org.jetbrains.annotations.Range;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.WorldType;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 import org.machinemc.scriptive.components.Component;
 
 import java.awt.image.BufferedImage;
+import java.util.Optional;
 
 public interface ServerProperties extends ServerFile, ServerProperty {
 
@@ -99,11 +99,11 @@ public interface ServerProperties extends ServerFile, ServerProperty {
     /**
      * @return server's icon
      */
-    @Nullable BufferedImage getIcon();
+    Optional<BufferedImage> getIcon();
 
     /**
      * @return encoded server icon
      */
-    @Nullable String getEncodedIcon();
+    Optional<String> getEncodedIcon();
 
 }

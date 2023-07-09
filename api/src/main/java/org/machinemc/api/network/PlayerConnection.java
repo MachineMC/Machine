@@ -17,16 +17,18 @@ package org.machinemc.api.network;
 import io.netty.channel.ChannelFuture;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.ServerProperty;
-import org.jetbrains.annotations.*;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TranslationComponent;
 
 import java.net.InetSocketAddress;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.machinemc.api.network.packets.Packet.PacketState.*;
@@ -39,17 +41,17 @@ public interface PlayerConnection extends ServerProperty {
     /**
      * @return client state of the connection
      */
-    ClientState getState();
+    Optional<ClientState> getState();
 
     /**
      * @return public key data of the connection
      */
-    @Nullable PublicKeyData getPublicKeyData();
+    Optional<PublicKeyData> getPublicKeyData();
 
     /**
      * @return login username of the connection
      */
-    String getLoginUsername();
+    Optional<String> getLoginUsername();
 
     /**
      * @return address with which the client connected
@@ -59,7 +61,7 @@ public interface PlayerConnection extends ServerProperty {
     /**
      * @return owner of the connection
      */
-    @Nullable Player getOwner();
+    Optional<? extends Player> getOwner();
 
     /**
      * Disconnects the client and closes the connection.
@@ -107,8 +109,8 @@ public interface PlayerConnection extends ServerProperty {
         PLAY(PLAY_IN, PLAY_OUT),
         DISCONNECTED(null, null);
 
-        protected final @Nullable Packet.PacketState in;
-        protected final @Nullable Packet.PacketState out;
+        private final @Nullable Packet.PacketState in;
+        private final @Nullable Packet.PacketState out;
 
         /**
          * Returns client states using the given packet state.

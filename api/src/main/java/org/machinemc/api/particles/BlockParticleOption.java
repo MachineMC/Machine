@@ -14,7 +14,10 @@
  */
 package org.machinemc.api.particles;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockData;
@@ -23,11 +26,11 @@ import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Particle options implementation for block particles.
  */
-@Getter
 @Setter
 @ToString
 @NoArgsConstructor
@@ -70,7 +73,7 @@ public class BlockParticleOption implements ParticleOption {
         }
         builder.append(']');
 
-        setBlockData(BlockData.parse(builder.toString()));
+        setBlockData(BlockData.parse(builder.toString()).orElse(null));
     }
 
     @Override
@@ -90,6 +93,13 @@ public class BlockParticleOption implements ParticleOption {
     @Override
     public void write(final ServerBuffer buf) {
         buf.writeVarInt(blockData != null ? blockData.getID() : DEFAULT_STATE.getID());
+    }
+
+    /**
+     * @return block data of the block particles
+     */
+    public Optional<BlockData> getBlockData() {
+        return Optional.ofNullable(blockData);
     }
 
 }

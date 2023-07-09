@@ -17,6 +17,7 @@ package org.machinemc.server.entities;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.Server;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.entities.Player;
@@ -29,7 +30,6 @@ import org.machinemc.api.world.World;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTList;
 import org.machinemc.scriptive.components.Component;
-import org.machinemc.api.Server;
 import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.server.utils.EntityUtils;
 
@@ -104,9 +104,9 @@ public abstract class ServerEntity implements Entity {
     }
 
     @Override
-    public @Nullable Component getCustomName() {
+    public Optional<Component> getCustomName() {
         // TODO return custom name metadata
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -265,8 +265,7 @@ public abstract class ServerEntity implements Entity {
                 entry("WorldUUIDMost", getWorld().getUUID().getMostSignificantBits())
         ));
         compound.setUUID("UUID", uuid);
-        if (getCustomName() != null)
-            compound.set("CustomName", getCustomName().toJson());
+        getCustomName().ifPresent(customName -> compound.set("CustomName", customName.toJson()));
         if (isCustomNameVisible())
             compound.set("CustomNameVisible", (byte) (isCustomNameVisible() ? 1 : 0));
         if (silent)

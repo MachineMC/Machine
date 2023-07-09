@@ -29,7 +29,10 @@ import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.biomes.BiomeManager;
-import org.machinemc.api.world.blocks.*;
+import org.machinemc.api.world.blocks.BlockEntityType;
+import org.machinemc.api.world.blocks.BlockHandler;
+import org.machinemc.api.world.blocks.BlockType;
+import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.landscape.Landscape;
 import org.machinemc.landscape.Segment;
 import org.machinemc.nbt.NBTCompound;
@@ -147,16 +150,13 @@ public class LandscapeChunk extends WorldChunk {
         final Section section = sections.getIfPresent(sectionIndex);
         // updates the visual and client nbt if the section is present
         if (section != null) {
-            BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(x, sectionY, z)));
-            if (blockType == null) {
-                blockType = server.getBlockType(
-                        LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType())
-                );
-                Objects.requireNonNull(blockType, "The provided default block type "
-                        + landscape.getHandler().getDefaultType()
-                        + " is missing"
-                        + "in the server block manager");
-            }
+            final BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(x, sectionY, z)))
+                    .orElseGet(() -> server.getBlockType(
+                            LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType())
+                    ).orElseThrow(() -> new NullPointerException("The provided default block type "
+                            + landscape.getHandler().getDefaultType()
+                            + " is missing"
+                            + "in the server block manager")));
             setSectionBlock(section, sectionIndex, x, sectionY, z, blockType);
         }
 
@@ -176,16 +176,14 @@ public class LandscapeChunk extends WorldChunk {
         final Section section = sections.getIfPresent(sectionIndex);
         // updates the visual and client nbt if the section is present
         if (section != null) {
-            BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(x, sectionY, z)));
-            if (blockType == null) {
-                blockType = server.getBlockType(
-                        LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType())
-                );
-                Objects.requireNonNull(blockType, "The provided default block type "
-                        + landscape.getHandler().getDefaultType()
-                        + " is missing"
-                        + "in the server block manager");
-            }
+            final BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(segment.getBlock(x, sectionY, z)))
+                    .orElseGet(() ->
+                            server.getBlockType(
+                                    LazyNamespacedKey.lazy(segment.getSource().getHandler().getDefaultType())
+                            ).orElseThrow(() -> new NullPointerException("The provided default block type "
+                                            + landscape.getHandler().getDefaultType()
+                                            + " is missing"
+                                            + "in the server block manager")));
             setSectionBlock(section, sectionIndex, x, sectionY, z, blockType);
         }
 
@@ -202,15 +200,17 @@ public class LandscapeChunk extends WorldChunk {
 
         final Segment segment = getSegment(sectionIndex);
 
-        Biome biome = world.getServer().getBiome(LazyNamespacedKey.lazy(segment.getBiome(x, sectionY, z)));
-        if (biome != null) return biome;
-        biome = world.getServer().getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()));
-        Objects.requireNonNull(biome, "The provided default biome "
-                + landscape.getHandler().getDefaultBiome()
-                + " is missing"
-                + "in the server biome manager");
-        setBiome(x, offsetY, z, biome);
-        return biome;
+        return world.getServer().getBiome(LazyNamespacedKey.lazy(segment.getBiome(x, sectionY, z)))
+                .orElseGet(() -> {
+                    final Biome def =
+                            world.getServer().getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()))
+                                    .orElseThrow(() -> new NullPointerException("The provided default biome "
+                                            + landscape.getHandler().getDefaultBiome()
+                                            + " is missing"
+                                            + "in the server biome manager"));
+                    setBiome(x, offsetY, z, def);
+                    return def;
+                });
     }
 
     @Override
@@ -323,20 +323,18 @@ public class LandscapeChunk extends WorldChunk {
                     setSectionBlock(section, sectionIndex, x, y, z, blockType);
                     return;
                 }
-                BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(blockName));
-                if (blockType == null)
-                    blockType = server.getBlockType(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultType()));
-                assert blockType != null;
+                final BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(blockName))
+                        .or(() -> server.getBlockType(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultType())))
+                        .orElseThrow();
                 types.put(blockName, blockType);
                 setSectionBlock(section, sectionIndex, x, y, z, blockType); // handles dynamic visuals and client nbt
             });
 
         // Only a single block type is present in the source segment
         } else {
-            BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(source.getBlockPalette().get(0)));
-            if (blockType == null)
-                blockType = server.getBlockType(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultType()));
-            assert blockType != null;
+            final BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(source.getBlockPalette().get(0)))
+                    .or(() -> server.getBlockType(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultType())))
+                    .orElseThrow();
 
             // Doesn't have dynamic visual, the palette only needs
             // to be filled with single value
@@ -444,8 +442,8 @@ public class LandscapeChunk extends WorldChunk {
                         (byte) x,
                         (short) (y + sectionIndex * Chunk.CHUNK_SECTION_SIZE + getBottom()),
                         (byte) z,
-                        blockEntityType.getBlockEntityBase(state),
-                        blockEntityType.getClientVisibleNBT(state))
+                        blockEntityType.getBlockEntityBase(state).orElseThrow(NullPointerException::new),
+                        blockEntityType.getClientVisibleNBT(state).orElseThrow(NullPointerException::new))
         );
     }
 
@@ -465,19 +463,19 @@ public class LandscapeChunk extends WorldChunk {
                     biomesPalette.set(x / 4, y / 4, z / 4, biomes.get(biomeName));
                     return;
                 }
-                Biome biome = biomeManager.getBiome(LazyNamespacedKey.lazy(biomeName));
-                if (biome == null)
-                    biome = biomeManager.getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()));
-                assert biome != null;
+                final Biome biome = biomeManager.getBiome(LazyNamespacedKey.lazy(biomeName))
+                        .or(() ->
+                                biomeManager.getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome())))
+                        .orElseThrow();
                 final int id = biomeManager.getBiomeID(biome);
                 biomes.put(biomeName, id);
                 biomesPalette.set(x / 4, y / 4, z / 4, id);
             });
         } else {
             final BiomeManager biomeManager = server.getBiomeManager();
-            Biome biome = biomeManager.getBiome(LazyNamespacedKey.lazy(source.getBiomePalette().get(0)));
-            if (biome == null)
-                biome = biomeManager.getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome()));
+            final Biome biome = biomeManager.getBiome(LazyNamespacedKey.lazy(source.getBiomePalette().get(0)))
+                    .or(() -> biomeManager.getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome())))
+                    .orElseThrow();
             biomesPalette.fill(biomeManager.getBiomeID(biome));
         }
     }

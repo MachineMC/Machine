@@ -29,15 +29,13 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -482,8 +480,8 @@ public class FriendlyByteBuf implements ServerBuffer {
     public Item readSlot() {
         if (!readBoolean())
             return Item.of(Material.AIR);
-        final Material material = Item.getMaterial(readVarInt());
-        final Item itemStack = Item.of(material != null ? material : Material.AIR, readByte());
+        final Material material = Item.getMaterial(readVarInt()).orElse(Material.AIR);
+        final Item itemStack = Item.of(material, readByte());
         final NBTCompound compound = readNBT();
         itemStack.setNBTCompound(compound);
         return itemStack;
@@ -520,14 +518,14 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public @Nullable PlayerTextures readTextures() {
+    public Optional<PlayerTextures> readTextures() {
         if (readVarInt() == 0)
-            return null;
+            return Optional.empty();
         readString(StandardCharsets.UTF_8);
         final String value = readString(StandardCharsets.UTF_8);
         final String signature = readBoolean() ? readString(StandardCharsets.UTF_8) : null;
         try {
-            return PlayerTextures.buildSkin(value, signature);
+            return Optional.of(PlayerTextures.buildSkin(value, signature));
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }

@@ -17,11 +17,10 @@ package org.machinemc.server.world.biomes;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.machinemc.api.Server;
-import org.machinemc.nbt.NBTCompound;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.biomes.BiomeManager;
+import org.machinemc.nbt.NBTCompound;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,17 +69,17 @@ public class ServerBiomeManager implements BiomeManager {
     }
 
     @Override
-    public @Nullable Biome getBiome(final NamespacedKey name) {
+    public Optional<Biome> getBiome(final NamespacedKey name) {
         for (final Biome biome : getBiomes()) {
             if (!(biome.getName().equals(name))) continue;
-            return biome;
+            return Optional.of(biome);
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public @Nullable Biome getByID(final int id) {
-        return biomes.get(id);
+    public Optional<Biome> getByID(final int id) {
+        return Optional.ofNullable(biomes.get(id));
     }
 
     @Override

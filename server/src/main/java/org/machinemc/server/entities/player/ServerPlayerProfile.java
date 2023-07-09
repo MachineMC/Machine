@@ -14,12 +14,16 @@
  */
 package org.machinemc.server.entities.player;
 
-import lombok.*;
-import org.machinemc.api.entities.player.PlayerTextures;
-import org.machinemc.server.auth.MojangAuth;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.entities.player.PlayerProfile;
+import org.machinemc.api.entities.player.PlayerTextures;
+import org.machinemc.server.auth.MojangAuth;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -32,6 +36,7 @@ public class ServerPlayerProfile implements PlayerProfile {
     private String username;
     @Getter(AccessLevel.NONE)
     private final UUID uuid;
+    @Getter(AccessLevel.NONE)
     private final @Nullable PlayerTextures textures;
     private final boolean online;
 
@@ -70,6 +75,11 @@ public class ServerPlayerProfile implements PlayerProfile {
     @Override
     public UUID getUUID() {
         return uuid;
+    }
+
+    @Override
+    public Optional<PlayerTextures> getTextures() {
+        return Optional.ofNullable(textures);
     }
 
 }

@@ -29,7 +29,7 @@ public class TranslatorPlayInPlayerPositionAndRotation extends PacketTranslator<
 
     @Override
     public boolean translate(final ClientConnection connection, final PacketPlayInPlayerPositionAndRotation packet) {
-        player = connection.getOwner();
+        player = connection.getOwner().orElse(null);
         if (player == null)
             return false;
         position = packet.getPosition();

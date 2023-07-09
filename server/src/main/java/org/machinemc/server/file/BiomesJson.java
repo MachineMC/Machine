@@ -18,7 +18,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.Server;
 import org.machinemc.api.file.ServerFile;
 import org.machinemc.api.particles.Particle;
 import org.machinemc.api.server.ServerProperty;
@@ -27,18 +27,14 @@ import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.biomes.BiomeEffects;
 import org.machinemc.nbt.parser.NBTParser;
 import org.machinemc.server.Machine;
-import org.machinemc.api.Server;
-import org.machinemc.server.world.biomes.ServerBiomeEffects;
 import org.machinemc.server.world.biomes.ServerBiome;
+import org.machinemc.server.world.biomes.ServerBiomeEffects;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents biomes json server file.
@@ -112,12 +108,12 @@ public class BiomesJson implements ServerFile, ServerProperty {
                 if (effectsJson.has("foliage_color"))
                     foliageColor = effectsJson.get("foliage_color").getAsInt();
                 else
-                    foliageColor = effects.getFoliageColor();
+                    foliageColor = effects.getFoliageColor().orElse(null);
                 final Integer grassColor;
                 if (effectsJson.has("grass_color"))
                     grassColor = effectsJson.get("grass_color").getAsInt();
                 else
-                    grassColor = effects.getGrassColor();
+                    grassColor = effects.getGrassColor().orElse(null);
 
                 BiomeEffects.GrassColorModifier grassModifier;
                 try {
@@ -125,13 +121,13 @@ public class BiomesJson implements ServerFile, ServerProperty {
                             effectsJson.get("grass_color_modifier").getAsString().toUpperCase()
                     );
                 } catch (Exception ignored) {
-                    grassModifier = effects.getGrassColorModifier();
+                    grassModifier = effects.getGrassColorModifier().orElse(null);
                 }
                 NamespacedKey ambientSound;
                 try {
                     ambientSound = NamespacedKey.parse(effectsJson.get("ambient_sound").getAsString());
                 } catch (Exception ignored) {
-                    ambientSound = effects.getAmbientSound();
+                    ambientSound = effects.getAmbientSound().orElse(null);
                 }
 
                 BiomeEffects.MoodSound moodSound;
@@ -143,7 +139,7 @@ public class BiomesJson implements ServerFile, ServerProperty {
                     final double offset = moodSoundJson.get("offset").getAsDouble();
                     moodSound = new ServerBiomeEffects.MoodSoundImpl(sound, tickDelay, blockSearchExtent, offset);
                 } catch (Exception ignored) {
-                    moodSound = effects.getMoodSound();
+                    moodSound = effects.getMoodSound().orElse(null);
                 }
 
                 BiomeEffects.AdditionsSound additionsSound;
@@ -153,7 +149,7 @@ public class BiomesJson implements ServerFile, ServerProperty {
                     final double tickChance = additionsSoundJson.get("tick_chance").getAsDouble();
                     additionsSound = new ServerBiomeEffects.AdditionsSoundImpl(sound, tickChance);
                 } catch (Exception ignored) {
-                    additionsSound = effects.getAdditionsSound();
+                    additionsSound = effects.getAdditionsSound().orElse(null);
                 }
 
                 BiomeEffects.Music music;
@@ -165,7 +161,7 @@ public class BiomesJson implements ServerFile, ServerProperty {
                     final boolean replaceCurrentMusic = musicJson.get("replace_current_music").getAsBoolean();
                     music = new ServerBiomeEffects.MusicImpl(sound, minDelay, maxDelay, replaceCurrentMusic);
                 } catch (Exception ignored) {
-                    music = effects.getMusic();
+                    music = effects.getMusic().orElse(null);
                 }
 
                 Float biomeParticleProbability;
@@ -173,10 +169,11 @@ public class BiomesJson implements ServerFile, ServerProperty {
                 try {
                     final JsonObject particleJson = effectsJson.getAsJsonObject("particle");
                     biomeParticleProbability = particleJson.get("probability").getAsFloat();
-                    particle = Particle.fromNBT(new NBTParser(particleJson.get("options").getAsString()).parse());
+                    particle = Particle.fromNBT(new NBTParser(particleJson.get("options").getAsString()).parse())
+                            .orElse(null);
                 } catch (Exception ignored) {
-                    biomeParticleProbability = effects.getBiomeParticleProbability();
-                    particle = effects.getBiomeParticle();
+                    biomeParticleProbability = effects.getBiomeParticleProbability().orElse(null);
+                    particle = effects.getBiomeParticle().orElse(null);
                 }
 
                 effects = ServerBiomeEffects.builder()
@@ -234,8 +231,8 @@ public class BiomesJson implements ServerFile, ServerProperty {
     }
 
     @Override
-    public @Nullable InputStream getOriginal() {
-        return Machine.CLASS_LOADER.getResourceAsStream(BIOMES_FILE_NAME);
+    public Optional<InputStream> getOriginal() {
+        return Optional.ofNullable(Machine.CLASS_LOADER.getResourceAsStream(BIOMES_FILE_NAME));
     }
 
     @Override

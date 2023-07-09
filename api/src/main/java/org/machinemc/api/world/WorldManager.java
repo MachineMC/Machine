@@ -14,11 +14,11 @@
  */
 package org.machinemc.api.world;
 
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -62,7 +62,7 @@ public interface WorldManager extends ServerProperty {
      * @param name name of the world
      * @return world with given name in this manager
      */
-    @Nullable World getWorld(NamespacedKey name);
+    Optional<World> getWorld(NamespacedKey name);
 
     /**
      * @return unmodifiable set of all worlds registered in this manager

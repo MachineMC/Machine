@@ -16,12 +16,11 @@ package org.machinemc.server.entities;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.machinemc.api.Server;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.entities.EntityManager;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.world.World;
-import org.jetbrains.annotations.Nullable;
-import org.machinemc.api.Server;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -96,8 +95,8 @@ public class ServerEntityManager implements EntityManager {
     }
 
     @Override
-    public @Nullable Entity getEntity(final UUID uuid) {
-        return entityMap.get(uuid);
+    public Optional<Entity> getEntity(final UUID uuid) {
+        return Optional.ofNullable(entityMap.get(uuid));
     }
 
     @Override

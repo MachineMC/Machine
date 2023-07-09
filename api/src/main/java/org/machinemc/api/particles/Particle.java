@@ -16,7 +16,6 @@ package org.machinemc.api.particles;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.utils.ServerBuffer;
@@ -25,6 +24,7 @@ import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a particle object.
@@ -43,15 +43,15 @@ public class Particle<O extends ParticleOption> implements NBTSerializable, Writ
      * @param compound compound of the particle
      * @return particle created from the compound
      */
-    public static @Nullable Particle<?> fromNBT(final NBTCompound compound) {
+    public static Optional<Particle<?>> fromNBT(final NBTCompound compound) {
         if (!compound.containsKey("type") || compound.get("type").tag() != NBT.Tag.STRING)
-            return null;
+            return Optional.empty();
         final NamespacedKey name = NamespacedKey.minecraft(compound.get("type").value());
-        final ParticleType<?> particleType = ParticleType.get(name);
-        if (particleType == null) return null;
-        final Particle<?> particle = particleType.create();
-        particle.getOptions().load(compound);
-        return particle;
+        return ParticleType.get(name).map(particleType -> {
+            final Particle<?> particle = particleType.create();
+            particle.getOptions().load(compound);
+            return particle;
+        });
     }
 
     public Particle(final ParticleType<O> type) {

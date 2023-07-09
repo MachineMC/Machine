@@ -17,7 +17,6 @@ package org.machinemc.api.world;
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
@@ -41,12 +40,12 @@ non-sealed class BlockDataImpl extends BlockData {
      * @param id id of the block data
      * @return new instance of the block data with the given id
      */
-    public static @Nullable BlockData getBlockData(final int id) {
-        if (id < 0) return null;
-        if (registryArray.length <= id) return null;
+    public static Optional<BlockData> getBlockData(final int id) {
+        if (id < 0) return Optional.empty();
+        if (registryArray.length <= id) return Optional.empty();
         final BlockDataImpl data = registryArray[id];
-        if (data == null) return null;
-        if (data.id != -1) return data.clone();
+        if (data == null) return Optional.empty();
+        if (data.id != -1) return Optional.ofNullable(data.clone());
 
         final BlockDataImpl clone = (BlockDataImpl) data.clone();
         final Object[][] available = clone.getAcceptedProperties();
@@ -79,7 +78,7 @@ non-sealed class BlockDataImpl extends BlockData {
         }
 
         clone.loadProperties(newData);
-        return clone;
+        return Optional.of(clone);
     }
 
     /**
@@ -90,7 +89,7 @@ non-sealed class BlockDataImpl extends BlockData {
      * @param text text to parse
      * @return parsed block data or null if the text is invalid
      */
-    public static @Nullable BlockData parse(final String text) {
+    public static Optional<BlockData> parse(final String text) {
         final String lowercase = text.toLowerCase();
 
         final StringBuilder materialName = new StringBuilder();
@@ -106,13 +105,13 @@ non-sealed class BlockDataImpl extends BlockData {
                     .replace("minecraft:", "")
                     .toUpperCase());
         } catch (Throwable throwable) {
-            return null;
+            return Optional.empty();
         }
         final BlockDataImpl blockData = (BlockDataImpl) material.createBlockData();
 
-        if (blockData == null) return null;
-        if (blockData.getData().length == 0) return blockData;
-        if (text.length() == materialName.length()) return blockData;
+        if (blockData == null) return Optional.empty();
+        if (blockData.getData().length == 0) return Optional.of(blockData);
+        if (text.length() == materialName.length()) return Optional.of(blockData);
 
         final StringBuilder propertiesText = new StringBuilder();
         for (int i = materialName.length() + 1; i < lowercase.length(); i++) {
@@ -145,7 +144,7 @@ non-sealed class BlockDataImpl extends BlockData {
         }
 
         blockData.loadProperties(data);
-        return blockData;
+        return Optional.of(blockData);
     }
 
     /**

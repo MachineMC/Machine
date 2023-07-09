@@ -21,6 +21,7 @@ import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.PlayerManager;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,14 +49,15 @@ public class ServerPlayerManager implements PlayerManager {
     }
 
     @Override
-    public Player getPlayer(final UUID uuid) {
-        return playerMap.get(uuid);
+    public Optional<Player> getPlayer(final UUID uuid) {
+        return Optional.ofNullable(playerMap.get(uuid));
     }
 
     @Override
-    public Player getPlayer(final String name) {
-        return playerMap.values().stream().filter(player -> player.getName().equals(name))
-                .findFirst().orElse(null);
+    public Optional<Player> getPlayer(final String name) {
+        return playerMap.values().stream()
+                .filter(player -> player.getName().equals(name))
+                .findFirst();
     }
 
     @Override

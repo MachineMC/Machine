@@ -15,7 +15,6 @@
 package org.machinemc.server.world.blocks;
 
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.Server;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Material;
@@ -25,6 +24,7 @@ import org.machinemc.scriptive.style.HexColor;
 
 import java.awt.*;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -83,8 +83,8 @@ public class ServerBlockManager implements BlockManager {
     }
 
     @Override
-    public @Nullable BlockType getBlockType(final NamespacedKey name) {
-        return blocks.get(name);
+    public Optional<BlockType> getBlockType(final NamespacedKey name) {
+        return Optional.ofNullable(blocks.get(name));
     }
 
     @Override

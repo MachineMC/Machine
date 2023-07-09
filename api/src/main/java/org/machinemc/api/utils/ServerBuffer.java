@@ -15,22 +15,23 @@
 package org.machinemc.api.utils;
 
 import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.machinemc.nbt.NBTCompound;
-import org.machinemc.scriptive.components.Component;
-import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.inventory.Item;
 import org.machinemc.api.world.BlockPosition;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.nbt.NBTCompound;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentSerializer;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -460,7 +461,7 @@ public interface ServerBuffer extends Cloneable {
      * @return next player textures
      */
     @Contract("-> _")
-    @Nullable PlayerTextures readTextures();
+    Optional<PlayerTextures> readTextures();
 
     /**
      * @param playerSkin player textures to write

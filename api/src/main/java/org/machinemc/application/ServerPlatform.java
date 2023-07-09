@@ -14,7 +14,7 @@
  */
 package org.machinemc.application;
 
-import org.jetbrains.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Represents a server platform.
@@ -39,7 +39,7 @@ public interface ServerPlatform {
     /**
      * @return description of the platform
      */
-    @Nullable String getDescription();
+    Optional<String> getDescription();
 
     /**
      * Creates new runnable server instance of this platform for given context.

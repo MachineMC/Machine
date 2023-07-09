@@ -15,8 +15,10 @@
 package org.machinemc.api.network.packets;
 
 import lombok.Getter;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.Range;
+import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -79,11 +81,11 @@ public interface Packet extends Cloneable {
          * @param mask mask of the packet state
          * @return packet state with given mask
          */
-        public static @Nullable PacketState fromMask(final @Range(from = 0, to = 0b111) int mask) {
+        public static Optional<PacketState> fromMask(final @Range(from = 0, to = 0b111) int mask) {
             for (final PacketState state : values()) {
-                if (state.mask == mask) return state;
+                if (state.mask == mask) return Optional.of(state);
             }
-            return null;
+            return Optional.empty();
         }
 
         /**

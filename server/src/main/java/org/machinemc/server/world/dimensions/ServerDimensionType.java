@@ -14,14 +14,17 @@
  */
 package org.machinemc.server.world.dimensions;
 
-import lombok.*;
-import org.machinemc.nbt.NBTCompound;
-import org.machinemc.api.utils.NamespacedKey;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.dimensions.DimensionType;
+import org.machinemc.nbt.NBTCompound;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Map.entry;
 
@@ -37,6 +40,7 @@ public class ServerDimensionType implements DimensionType {
     private final float ambientLight;
     private final boolean ceilingEnabled;
     @Builder.Default private final boolean skylightEnabled = true;
+    @Getter(AccessLevel.NONE)
     private final @Nullable Long fixedTime;
     @Builder.Default private final boolean raidCapable = true;
     private final boolean respawnAnchorSafe;
@@ -87,6 +91,11 @@ public class ServerDimensionType implements DimensionType {
         if (fixedTime != null)
             element.set("fixed_time", fixedTime);
         return element;
+    }
+
+    @Override
+    public Optional<Long> getFixedTime() {
+        return Optional.ofNullable(fixedTime);
     }
 
     @Override

@@ -17,8 +17,8 @@ package org.machinemc.server.chat;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.machinemc.api.Server;
 import org.machinemc.api.chat.ChatType;
 import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.chat.Messenger;
@@ -28,7 +28,6 @@ import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.style.ChatColor;
-import org.machinemc.api.Server;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutSystemChatMessage;
 
 import java.util.*;
@@ -90,17 +89,17 @@ public class ServerMessenger implements Messenger {
     }
 
     @Override
-    public @Nullable ChatType getChatType(final NamespacedKey name) {
+    public Optional<ChatType> getChatType(final NamespacedKey name) {
         for (final ChatType chatType : getChatTypes()) {
             if (!(chatType.getName().equals(name))) continue;
-            return chatType;
+            return Optional.of(chatType);
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public @Nullable ChatType getByID(final int id) {
-        return chatTypes.get(id);
+    public Optional<ChatType> getByID(final int id) {
+        return Optional.ofNullable(chatTypes.get(id));
     }
 
     @Override

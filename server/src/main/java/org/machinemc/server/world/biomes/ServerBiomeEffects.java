@@ -16,18 +16,18 @@ package org.machinemc.server.world.biomes;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.particles.Particle;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.biomes.BiomeEffects;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.nbt.NBTCompound;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Default biome effects implementation.
  */
-@Getter
 @Builder
 public class ServerBiomeEffects implements BiomeEffects {
 
@@ -40,9 +40,13 @@ public class ServerBiomeEffects implements BiomeEffects {
                 .build();
     }
 
+    @Getter
     @Builder.Default private final int fogColor = 0xC0D8FF;
+    @Getter
     @Builder.Default private final int skyColor = 0x78A7FF;
+    @Getter
     @Builder.Default private final int waterColor = 0x3F76E4;
+    @Getter
     @Builder.Default private final int waterFogColor = 0x50533;
     private final @Nullable Integer foliageColor;
     private final @Nullable Integer grassColor;
@@ -81,6 +85,51 @@ public class ServerBiomeEffects implements BiomeEffects {
                     "probability", biomeParticleProbability,
                     "options", biomeParticle.toNBT())));
         return compound;
+    }
+
+    @Override
+    public Optional<Integer> getFoliageColor() {
+        return Optional.ofNullable(foliageColor);
+    }
+
+    @Override
+    public Optional<Integer> getGrassColor() {
+        return Optional.ofNullable(grassColor);
+    }
+
+    @Override
+    public Optional<BiomeEffects.GrassColorModifier> getGrassColorModifier() {
+        return Optional.ofNullable(grassColorModifier);
+    }
+
+    @Override
+    public Optional<NamespacedKey> getAmbientSound() {
+        return Optional.ofNullable(ambientSound);
+    }
+
+    @Override
+    public Optional<BiomeEffects.MoodSound> getMoodSound() {
+        return Optional.ofNullable(moodSound);
+    }
+
+    @Override
+    public Optional<BiomeEffects.AdditionsSound> getAdditionsSound() {
+        return Optional.ofNullable(additionsSound);
+    }
+
+    @Override
+    public Optional<BiomeEffects.Music> getMusic() {
+        return Optional.ofNullable(music);
+    }
+
+    @Override
+    public Optional<Float> getBiomeParticleProbability() {
+        return Optional.ofNullable(biomeParticleProbability);
+    }
+
+    @Override
+    public Optional<Particle<?>> getBiomeParticle() {
+        return Optional.ofNullable(biomeParticle);
     }
 
     @Override

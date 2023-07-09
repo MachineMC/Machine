@@ -15,9 +15,9 @@
 package org.machinemc.api.world.blocks;
 
 import org.machinemc.api.world.Material;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.machinemc.api.world.Material.*;
 
@@ -107,14 +107,14 @@ public enum ToolCategory {
      * @param toolMaterial material to check for
      * @return category the given material is effective against
      */
-    public static @Nullable ToolCategory fromTool(final Material toolMaterial) {
-        if (List.of(AXES_MATERIALS).contains(toolMaterial)) return AXE;
-        if (List.of(PICKAXES_MATERIALS).contains(toolMaterial)) return PICKAXE;
-        if (List.of(SHEARS_MATERIALS).contains(toolMaterial)) return SHEARS;
-        if (List.of(SHOVELS_MATERIALS).contains(toolMaterial)) return SHOVEL;
-        if (List.of(SWORDS_MATERIALS).contains(toolMaterial)) return SWORD;
-        if (List.of(HOES_MATERIALS).contains(toolMaterial)) return HOE;
-        return null;
+    public static Optional<ToolCategory> fromTool(final Material toolMaterial) {
+        if (List.of(AXES_MATERIALS).contains(toolMaterial)) return Optional.of(AXE);
+        if (List.of(PICKAXES_MATERIALS).contains(toolMaterial)) return Optional.of(PICKAXE);
+        if (List.of(SHEARS_MATERIALS).contains(toolMaterial)) return Optional.of(SHEARS);
+        if (List.of(SHOVELS_MATERIALS).contains(toolMaterial)) return Optional.of(SHOVEL);
+        if (List.of(SWORDS_MATERIALS).contains(toolMaterial)) return Optional.of(SWORD);
+        if (List.of(HOES_MATERIALS).contains(toolMaterial)) return Optional.of(HOE);
+        return Optional.empty();
     }
 
 }

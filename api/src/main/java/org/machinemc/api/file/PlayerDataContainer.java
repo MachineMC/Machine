@@ -16,7 +16,6 @@ package org.machinemc.api.file;
 
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.ServerProperty;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.nbt.NBTCompound;
 
 import java.util.UUID;
@@ -38,7 +37,7 @@ public interface PlayerDataContainer extends ServerProperty {
      * @param uuid uuid of the player
      * @return player's data
      */
-    @Nullable NBTCompound getPlayerData(UUID uuid);
+    NBTCompound getPlayerData(UUID uuid);
 
     /**
      * Saves data of a player.

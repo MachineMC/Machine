@@ -16,11 +16,11 @@ package org.machinemc.server.file;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.machinemc.nbt.NBTCompound;
+import org.machinemc.api.Server;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.file.PlayerDataContainer;
 import org.machinemc.api.utils.NBTUtils;
-import org.machinemc.api.Server;
+import org.machinemc.nbt.NBTCompound;
 
 import java.io.File;
 import java.io.IOException;

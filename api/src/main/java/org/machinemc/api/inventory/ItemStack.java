@@ -15,9 +15,10 @@
 package org.machinemc.api.inventory;
 
 import lombok.*;
-import org.machinemc.nbt.NBTCompound;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.Material;
+import org.machinemc.nbt.NBTCompound;
+
+import java.util.Optional;
 
 /**
  * Default item implementation.
@@ -47,10 +48,10 @@ class ItemStack implements Item {
      * @return material with the id
      */
     @Synchronized
-    public static @Nullable Material getMaterial(final int id) {
-        if (id == -1) return null;
-        if (REGISTRY.length <= id) return null;
-        return REGISTRY[id];
+    public static Optional<Material> getMaterial(final int id) {
+        if (id == -1) return Optional.empty();
+        if (REGISTRY.length <= id) return Optional.empty();
+        return Optional.ofNullable(REGISTRY[id]);
     }
 
     /**

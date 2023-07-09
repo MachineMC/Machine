@@ -18,20 +18,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Getter;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.api.file.ServerFile;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.dimensions.DimensionType;
-import org.machinemc.api.Server;
+import org.machinemc.server.Machine;
 import org.machinemc.server.world.dimensions.ServerDimensionType;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * Represents dimensions json server file.
@@ -63,10 +62,9 @@ public class DimensionsJson implements ServerFile, ServerProperty {
 
             final JsonObject dimension = dimensionKey.getValue().getAsJsonObject();
 
-            Number fixedTime = dimension.has("fixed_time")
+            final Number fixedTime = dimension.has("fixed_time")
                     ? dimension.get("fixed_time").getAsNumber()
-                    : original.getFixedTime();
-            if (fixedTime != null && fixedTime.intValue() == -1) fixedTime = null; // nullable option
+                    : original.getFixedTime().filter(time -> time.intValue() != -1).orElse(null);
 
             NamespacedKey effects;
             try {
@@ -149,8 +147,8 @@ public class DimensionsJson implements ServerFile, ServerProperty {
     }
 
     @Override
-    public @Nullable InputStream getOriginal() {
-        return Machine.CLASS_LOADER.getResourceAsStream(DIMENSIONS_FILE_NAME);
+    public Optional<InputStream> getOriginal() {
+        return Optional.ofNullable(Machine.CLASS_LOADER.getResourceAsStream(DIMENSIONS_FILE_NAME));
     }
 
     @Override

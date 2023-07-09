@@ -14,7 +14,10 @@
  */
 package org.machinemc.api.particles;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.inventory.Item;
 import org.machinemc.api.utils.ServerBuffer;
@@ -23,11 +26,11 @@ import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Particle options implementation for item particles.
  */
-@Getter
 @Setter
 @ToString
 @NoArgsConstructor
@@ -89,6 +92,13 @@ public class ItemParticleOption implements ParticleOption {
     @Override
     public void write(final ServerBuffer buf) {
         buf.writeSlot(item);
+    }
+
+    /**
+     * @return item of the item particles
+     */
+    public Optional<Item> getItem() {
+        return Optional.ofNullable(item);
     }
 
 }

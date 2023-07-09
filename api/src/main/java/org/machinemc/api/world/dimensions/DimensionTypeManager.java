@@ -14,13 +14,13 @@
  */
 package org.machinemc.api.world.dimensions;
 
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.server.codec.CodecPart;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.nbt.NBTCompound;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -41,10 +41,7 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @return if the dimension with given name was successfully removed
      */
     default boolean removeDimension(NamespacedKey name) {
-        final DimensionType dimensionType = getDimension(name);
-        if (dimensionType == null)
-            return false;
-        return removeDimension(dimensionType);
+        return getDimension(name).map(this::removeDimension).orElse(false);
     }
 
     /**
@@ -61,10 +58,7 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @return if the dimension with given name is registered in this manager
      */
     default boolean isRegistered(NamespacedKey name) {
-        final DimensionType dimensionType = getDimension(name);
-        if (dimensionType == null)
-            return false;
-        return isRegistered(dimensionType);
+        return getDimension(name).map(this::isRegistered).orElse(false);
     }
 
     /**
@@ -79,14 +73,14 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @param name name of the dimension
      * @return dimension with given name in this manager
      */
-    @Nullable DimensionType getDimension(NamespacedKey name);
+    Optional<DimensionType> getDimension(NamespacedKey name);
 
     /**
      * Returns dimension with given id registered in this manager.
      * @param id id of the dimension
      * @return dimension with given id in this manager
      */
-    @Nullable DimensionType getByID(int id);
+    Optional<DimensionType> getByID(int id);
 
     /**
      * Returns the id associated with the given dimension registered in this manager.
@@ -105,11 +99,8 @@ public interface DimensionTypeManager extends CodecPart, ServerProperty {
      * @param name name of the dimension
      * @return NBT of the given dimension
      */
-    default @Nullable NBTCompound getDimensionNBT(NamespacedKey name) {
-        final DimensionType dimensionType = getDimension(name);
-        if (dimensionType == null)
-            return null;
-        return getDimensionNBT(dimensionType);
+    default Optional<NBTCompound> getDimensionNBT(NamespacedKey name) {
+        return getDimension(name).map(this::getDimensionNBT);
     }
 
     /**

@@ -15,11 +15,11 @@
 package org.machinemc.api.particles;
 
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.utils.NamespacedKey;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a type (base visual) of a particle.
@@ -40,7 +40,7 @@ public final class ParticleType<O extends ParticleOption> {
     @Getter
     private final NamespacedKey name;
     private final int id;
-    protected final ParticleOptionProvider<O> provider;
+    final ParticleOptionProvider<O> provider;
 
     static {
         AMBIENT_ENTITY_EFFECT = new ParticleType<>(NamespacedKey.minecraft("ambient_entity_effect"), 0);
@@ -72,8 +72,8 @@ public final class ParticleType<O extends ParticleOption> {
      * @param name name of the particle type
      * @return particle type with given name
      */
-    public static @Nullable ParticleType<?> get(final NamespacedKey name) {
-        return REGISTRY.get(name);
+    public static Optional<ParticleType<?>> get(final NamespacedKey name) {
+        return Optional.ofNullable(REGISTRY.get(name));
     }
 
     private ParticleType(final NamespacedKey name,

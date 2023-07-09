@@ -14,7 +14,9 @@
  */
 package org.machinemc.server.network;
 
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
@@ -35,6 +37,7 @@ import org.machinemc.server.network.packets.out.play.PacketPlayOutKeepAlive;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import java.net.InetSocketAddress;
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -47,18 +50,16 @@ public class ClientConnection implements PlayerConnection {
     @Getter
     private final Machine server;
 
-    @Getter
     private @Nullable ClientState state;
     private final Channel channel;
     @Getter
     private final InetSocketAddress address;
 
-    @Getter @Setter
+    @Setter
     private @Nullable PublicKeyData publicKeyData;
-    @Getter @Setter
+    @Setter
     private @Nullable String loginUsername;
 
-    @Getter
     private @Nullable ServerPlayer owner;
 
     @Getter
@@ -244,12 +245,32 @@ public class ClientConnection implements PlayerConnection {
         if (owner != null && owner.isActive()) owner.remove();
     }
 
+    @Override
+    public Optional<ClientState> getState() {
+        return Optional.ofNullable(state);
+    }
+
+    @Override
+    public Optional<PublicKeyData> getPublicKeyData() {
+        return Optional.ofNullable(publicKeyData);
+    }
+
+    @Override
+    public Optional<String> getLoginUsername() {
+        return Optional.ofNullable(loginUsername);
+    }
+
+    @Override
+    public Optional<ServerPlayer> getOwner() {
+        return Optional.ofNullable(owner);
+    }
+
     /**
      * @return secret key used for encryption
      */
-    public @Nullable SecretKey getSecretKey() {
+    public Optional<SecretKey> getSecretKey() {
         if (!isOpen()) throw new UnsupportedOperationException();
-        return secretKey;
+        return Optional.ofNullable(secretKey);
     }
 
     /**

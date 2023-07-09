@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @RequiredArgsConstructor
-@SuppressWarnings("ClassCanBeRecord")
 public class SmartCompleter implements Completer {
 
     private final SmartTerminal terminal;

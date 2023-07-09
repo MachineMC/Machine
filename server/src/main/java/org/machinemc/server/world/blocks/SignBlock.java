@@ -27,6 +27,7 @@ import org.machinemc.nbt.NBTInt;
 import org.machinemc.scriptive.style.HexColor;
 
 import java.awt.*;
+import java.util.Optional;
 
 public class SignBlock extends BlockTypeImpl implements BlockEntityType {
 
@@ -68,23 +69,22 @@ public class SignBlock extends BlockTypeImpl implements BlockEntityType {
     }
 
     @Override
-    public @Nullable BlockEntityBase getBlockEntityBase(final WorldBlock.State state) {
-        return BlockEntityBase.SIGN;
+    public Optional<BlockEntityBase> getBlockEntityBase(final WorldBlock.State state) {
+        return Optional.of(BlockEntityBase.SIGN);
     }
 
     @Override
-    public @Nullable NBTCompound getClientVisibleNBT(final WorldBlock.State state) {
-        final NBTCompound compound = getBaseClientVisibleNBT(state);
-        if (compound == null) return new NBTCompound();
+    public Optional<NBTCompound> getClientVisibleNBT(final WorldBlock.State state) {
+        return getBaseClientVisibleNBT(state).map(compound -> {
+            compound.set("Text1", "{\"text\":\"" + "Hello World!" + "\"}");
+            compound.set("Text2", "{\"text\":\"" + state.position().getX() + "\"}");
+            compound.set("Text3", "{\"text\":\"" + state.position().getY() + "\"}");
+            compound.set("Text4", "{\"text\":\"" + state.position().getZ() + "\"}");
 
-        compound.set("Text1", "{\"text\":\"" + "Hello World!" + "\"}");
-        compound.set("Text2", "{\"text\":\"" + state.position().getX() + "\"}");
-        compound.set("Text3", "{\"text\":\"" + state.position().getY() + "\"}");
-        compound.set("Text4", "{\"text\":\"" + state.position().getZ() + "\"}");
-
-        compound.set("Color", "black");
-        compound.set("GlowingText", false);
-        return compound;
+            compound.set("Color", "black");
+            compound.set("GlowingText", false);
+            return compound;
+        });
     }
 
 }
