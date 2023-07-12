@@ -38,7 +38,8 @@ public class SignBlock extends BlockTypeImpl implements BlockEntityType {
                         .resistance(0.1F)
                         .color(new HexColor(Color.ORANGE))
                         .build(),
-                null, true);
+                null,
+                true);
     }
 
     @Override

@@ -15,6 +15,7 @@
 package org.machinemc.api.utils;
 
 import com.google.common.base.Strings;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.nbt.*;
 import org.machinemc.nbt.visitor.NBTVisitor;
 import org.machinemc.scriptive.components.TextComponent;
@@ -23,6 +24,7 @@ import org.machinemc.scriptive.style.ChatColor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -62,12 +64,12 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
     private final TextComponent result;
 
     public PrettyNBTStringVisitor() {
-        this("    ", 0);
+        this(null, 0);
     }
 
-    public PrettyNBTStringVisitor(final String indentation, final int depth) {
+    public PrettyNBTStringVisitor(final @Nullable String indentation, final int depth) {
         this.result = TextComponent.of("");
-        this.indentation = indentation;
+        this.indentation = indentation != null ? indentation : "    ";
         this.depth = depth;
     }
 
@@ -77,54 +79,63 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
      * @return formatted nbt component
      */
     public TextComponent visitNBT(final NBT nbt) {
+        Objects.requireNonNull(nbt);
         nbt.accept(this);
         return result;
     }
 
     @Override
     public void visit(final NBTString nbtString) {
+        Objects.requireNonNull(nbtString);
         final String string = nbtString.toString();
         final TextComponent component = text(string.substring(1, string.length() - 1), STRING_COLOR);
         final char quote = string.charAt(0);
-        final TextComponent quoteComponent = TextComponent.of(quote + "").modify()
+        final TextComponent quoteComponent = TextComponent.of(String.valueOf(quote)).modify()
                 .color(ChatColor.WHITE)
                 .finish();
-        quoteComponent.setText(quote + "");
+        quoteComponent.setText(String.valueOf(quote));
         result.append(quoteComponent).append(component).append(quoteComponent);
     }
 
     @Override
     public void visit(final NBTByte nbtByte) {
+        Objects.requireNonNull(nbtByte);
         result.append(text(nbtByte.value(), NUMBER_COLOR)).append(text('b', DATA_TYPE_COLOR));
     }
 
     @Override
     public void visit(final NBTShort nbtShort) {
+        Objects.requireNonNull(nbtShort);
         result.append(text(nbtShort.value(), NUMBER_COLOR)).append(text('s', DATA_TYPE_COLOR));
     }
 
     @Override
     public void visit(final NBTInt nbtInt) {
+        Objects.requireNonNull(nbtInt);
         result.append(text(nbtInt.value(), NUMBER_COLOR));
     }
 
     @Override
     public void visit(final NBTLong nbtLong) {
+        Objects.requireNonNull(nbtLong);
         result.append(text(nbtLong.value(), NUMBER_COLOR)).append(text('L', DATA_TYPE_COLOR));
     }
 
     @Override
     public void visit(final NBTFloat nbtFloat) {
+        Objects.requireNonNull(nbtFloat);
         result.append(text(nbtFloat.value(), NUMBER_COLOR)).append(text('f', DATA_TYPE_COLOR));
     }
 
     @Override
     public void visit(final NBTDouble nbtDouble) {
+        Objects.requireNonNull(nbtDouble);
         result.append(text(nbtDouble.value(), NUMBER_COLOR)).append(text('d', DATA_TYPE_COLOR));
     }
 
     @Override
     public void visit(final NBTByteArray nbtByteArray) {
+        Objects.requireNonNull(nbtByteArray);
         final TextComponent dataType = text('B', DATA_TYPE_COLOR);
         result.append(LEFT_BRACE).append(dataType).append(SEMI_COLON);
         final byte[] bytes = nbtByteArray.value();
@@ -142,6 +153,7 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
 
     @Override
     public void visit(final NBTIntArray nbtIntArray) {
+        Objects.requireNonNull(nbtIntArray);
         final TextComponent dataType = text('I', DATA_TYPE_COLOR);
         result.append(LEFT_BRACE).append(dataType).append(SEMI_COLON);
         final int[] ints = nbtIntArray.value();
@@ -159,6 +171,7 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
 
     @Override
     public void visit(final NBTLongArray nbtLongArray) {
+        Objects.requireNonNull(nbtLongArray);
         final TextComponent dataType = text('L', DATA_TYPE_COLOR);
         result.append(LEFT_BRACE).append(dataType).append(SEMI_COLON);
         final long[] longs = nbtLongArray.value();
@@ -176,6 +189,7 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
 
     @Override
     public void visit(final NBTList nbtList) {
+        Objects.requireNonNull(nbtList);
         if (nbtList.isEmpty()) {
             result.append(LEFT_BRACE).append(RIGHT_BRACE);
             return;
@@ -202,6 +216,7 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
 
     @Override
     public void visit(final NBTCompound nbtCompound) {
+        Objects.requireNonNull(nbtCompound);
         if (nbtCompound.isEmpty()) {
             result.append(LEFT_CURLY_BRACE).append(RIGHT_CURLY_BRACE);
             return;
@@ -249,7 +264,7 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
      * @return component
      */
     private static TextComponent text(final Object string, final ChatColor color) {
-        return TextComponent.of(string + "").modify().color(color).finish();
+        return TextComponent.of(String.valueOf(string)).modify().color(color).finish();
     }
 
     /**
@@ -263,7 +278,7 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
         }
         final String escaped = NBTString.quoteAndEscape(string);
         final char quote = escaped.charAt(0);
-        final TextComponent quoteComponent = TextComponent.of(quote + "").modify()
+        final TextComponent quoteComponent = TextComponent.of(String.valueOf(quote)).modify()
                 .color(ChatColor.WHITE)
                 .finish();
         return (TextComponent) TextComponent.of("")

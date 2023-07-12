@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.ServerBuffer;
 
+import java.util.Objects;
+
 /**
  * Palette fully filled with one single value, can be used
  * as empty of singe-value fully filled palette.
@@ -35,6 +37,8 @@ public class FilledPalette implements Palette {
 
     @Override
     public void getAll(final EntryConsumer consumer) {
+        Objects.requireNonNull(consumer, "Consumer can not be null");
+
         final byte dimension = this.dimension;
         final int value = this.value;
         for (byte x = 0; x < dimension; x++)

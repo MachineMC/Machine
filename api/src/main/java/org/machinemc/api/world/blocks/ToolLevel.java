@@ -18,6 +18,7 @@ import lombok.Getter;
 import org.machinemc.api.world.Material;
 
 import java.util.Optional;
+import java.util.Objects;
 
 import static org.machinemc.api.world.Material.*;
 
@@ -68,6 +69,7 @@ public enum ToolLevel {
      * @return tool level of given material
      */
     public static Optional<ToolLevel> fromMaterial(final Material material) {
+        Objects.requireNonNull(material, "Materials of the tool level can not be null");
         for (final ToolLevel level : values()) {
             for (final Material tool : level.materials) {
                 if (material == tool) return Optional.of(level);
@@ -94,6 +96,7 @@ public enum ToolLevel {
      * @return mining speed of the material as shears
      */
     public static double shearsSpeed(final Material material) {
+        Objects.requireNonNull(material, "Materials of the tool level can not be null");
         return switch (material) {
             case VINE, GLOW_LICHEN -> 1;
             case WHITE_WOOL, ORANGE_WOOL, MAGENTA_WOOL,
@@ -117,6 +120,7 @@ public enum ToolLevel {
      * @return mining speed of the material as sword
      */
     public static double swordSpeed(final Material material) {
+        Objects.requireNonNull(material, "Materials of the tool level can not be null");
         return material == Material.COBWEB ? 15 : 1.5;
     }
 

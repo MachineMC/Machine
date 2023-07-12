@@ -18,6 +18,7 @@ import org.machinemc.api.world.Material;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 
 import static org.machinemc.api.world.Material.*;
 
@@ -108,6 +109,7 @@ public enum ToolCategory {
      * @return category the given material is effective against
      */
     public static Optional<ToolCategory> fromTool(final Material toolMaterial) {
+        Objects.requireNonNull(toolMaterial, "Material of the tool category can not be null");
         if (List.of(AXES_MATERIALS).contains(toolMaterial)) return Optional.of(AXE);
         if (List.of(PICKAXES_MATERIALS).contains(toolMaterial)) return Optional.of(PICKAXE);
         if (List.of(SHEARS_MATERIALS).contains(toolMaterial)) return Optional.of(SHEARS);

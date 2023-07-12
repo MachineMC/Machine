@@ -18,6 +18,7 @@ import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Range;
 
 import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Representing player's gamemode.
@@ -65,6 +66,7 @@ public enum Gamemode {
      * @return gamemode with given name
      */
     public static Optional<Gamemode> getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the gamemode can not be null");
         for (final Gamemode value : values()) {
             if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }

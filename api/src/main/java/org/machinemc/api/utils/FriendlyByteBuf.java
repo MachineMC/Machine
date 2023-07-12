@@ -29,8 +29,7 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -59,7 +58,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     public FriendlyByteBuf(final ByteBuf byteBuf) {
-        buf = byteBuf;
+        buf = Objects.requireNonNull(byteBuf);
     }
 
     @Override
@@ -84,41 +83,46 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public <T> T read(final Function<ServerBuffer, T> function) {
-        return function.apply(this);
+        return Objects.requireNonNull(function).apply(this);
     }
 
     @Override
-    public <T> FriendlyByteBuf write(final T item, final BiConsumer<ServerBuffer, T> consumer) {
-        consumer.accept(this, item);
+    public <T> FriendlyByteBuf write(final @Nullable T item, final BiConsumer<ServerBuffer, T> consumer) {
+        Objects.requireNonNull(consumer).accept(this, item);
         return this;
     }
 
     @Override
     public FriendlyByteBuf write(final Writable writable) {
+        Objects.requireNonNull(writable);
         writable.write(this);
         return this;
     }
 
     @Override
     public FriendlyByteBuf write(final ServerBuffer buf) {
+        Objects.requireNonNull(buf);
         writeBytes(buf.finish());
         return this;
     }
 
     @Override
     public FriendlyByteBuf write(final ServerBuffer buf, final int length) {
+        Objects.requireNonNull(buf);
         writeBytes(buf.readBytes(length));
         return this;
     }
 
     @Override
     public FriendlyByteBuf write(final ByteBuf buf) {
+        Objects.requireNonNull(buf);
         this.buf.writeBytes(buf);
         return this;
     }
 
     @Override
     public FriendlyByteBuf write(final ByteBuf buf, final int length) {
+        Objects.requireNonNull(buf);
         final byte[] read = new byte[length];
         buf.readBytes(read);
         writeBytes(read);
@@ -127,12 +131,14 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf write(final ByteBuffer buf) {
+        Objects.requireNonNull(buf);
         this.buf.writeBytes(buf);
         return this;
     }
 
     @Override
     public FriendlyByteBuf write(final ByteBuffer buf, final int length) {
+        Objects.requireNonNull(buf);
         final byte[] read = new byte[length];
         buf.get(read);
         writeBytes(read);
@@ -170,6 +176,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeBytes(final byte... bytes) {
+        Objects.requireNonNull(bytes);
         buf.writeBytes(bytes);
         return this;
     }
@@ -184,6 +191,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeByteArray(final byte[] bytes) {
+        Objects.requireNonNull(bytes);
         writeVarInt(bytes.length);
         writeBytes(bytes);
         return this;
@@ -233,6 +241,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeLongArray(final long[] longs) {
+        Objects.requireNonNull(longs);
         writeVarInt(longs.length);
         for (final long l : longs)
             writeLong(l);
@@ -300,6 +309,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeVarIntArray(final int[] ints) {
+        Objects.requireNonNull(ints);
         writeVarInt(ints.length);
         for (final int i : ints)
             writeVarInt(i);
@@ -336,6 +346,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public String readString(final Charset charset) {
+        Objects.requireNonNull(charset);
         final int length = readVarInt();
         if (length < 0) throw new IllegalStateException("String has illegal length of: " + length);
         final byte[] bytes = new byte[length];
@@ -346,6 +357,8 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeString(final String value, final Charset charset) {
+        Objects.requireNonNull(value);
+        Objects.requireNonNull(charset);
         final byte[] bytes = value.getBytes(charset);
         writeVarInt(bytes.length);
         buf.writeBytes(bytes);
@@ -354,6 +367,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public List<String> readStringList(final Charset charset) {
+        Objects.requireNonNull(charset);
         final List<String> strings = new ArrayList<>();
         final int length = readVarInt();
         for (int i = 0; i < length; i++)
@@ -363,6 +377,8 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeStringList(final List<String> strings, final Charset charset) {
+        Objects.requireNonNull(strings);
+        Objects.requireNonNull(charset);
         writeVarInt(strings.size());
         for (final String string : strings)
             writeString(string, charset);
@@ -371,6 +387,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public <T> List<T> readList(final Function<ServerBuffer, T> function) {
+        Objects.requireNonNull(function);
         final List<T> list = new ArrayList<>();
         final int length = readVarInt();
         for (int i = 0; i < length; i++)
@@ -380,6 +397,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public <T> FriendlyByteBuf writeList(final List<T> list, final BiConsumer<ServerBuffer, T> consumer) {
+        Objects.requireNonNull(list);
         writeVarInt(list.size());
         for (final T item : list)
             consumer.accept(this, item);
@@ -393,6 +411,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeUUID(final UUID uuid) {
+        Objects.requireNonNull(uuid);
         writeLong(uuid.getMostSignificantBits());
         writeLong(uuid.getLeastSignificantBits());
         return this;
@@ -409,6 +428,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeBlockPos(final BlockPosition position) {
+        Objects.requireNonNull(position);
         writeLong((((long) position.getX() & BlockPosition.PACKED_X_MASK) << 38)
                 | (((long) position.getY() & BlockPosition.PACKED_Y_MASK))
                 | (((long) position.getZ() & BlockPosition.PACKED_Z_MASK) << 12));
@@ -432,24 +452,29 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeNBT(final NBTCompound compound) {
+        Objects.requireNonNull(compound);
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         compound.writeAll(os);
         buf.writeBytes(os.toByteArray());
         return this;
     }
 
+    private final ComponentSerializer serializer = new ComponentSerializerImpl();
+
     @Override
     public Component readComponent() {
-        return readComponent(new ComponentSerializerImpl());
+        return readComponent(serializer);
     }
 
     @Override
     public Component readComponent(final ComponentSerializer serializer) {
+        Objects.requireNonNull(serializer);
         return serializer.deserializeJson(readString(StandardCharsets.UTF_8));
     }
 
     @Override
     public FriendlyByteBuf writeComponent(final Component component) {
+        Objects.requireNonNull(component);
         writeString(component.toJson(), StandardCharsets.UTF_8);
         return this;
     }
@@ -461,6 +486,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeNamespacedKey(final NamespacedKey namespacedKey) {
+        Objects.requireNonNull(namespacedKey);
         writeString(namespacedKey.toString(), StandardCharsets.UTF_8);
         return this;
     }
@@ -472,6 +498,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeInstant(final Instant instant) {
+        Objects.requireNonNull(instant);
         buf.writeLong(instant.toEpochMilli());
         return this;
     }
@@ -489,6 +516,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeSlot(final Item itemStack) {
+        Objects.requireNonNull(itemStack);
         if (itemStack.getMaterial() == Material.AIR) {
             writeBoolean(false);
             return this;
@@ -511,6 +539,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writePublicKey(final PublicKeyData publicKeyData) {
+        Objects.requireNonNull(publicKeyData);
         writeLong(publicKeyData.timestamp().toEpochMilli())
                 .writeByteArray(publicKeyData.publicKey().getEncoded())
                 .writeByteArray(publicKeyData.signature());
@@ -558,6 +587,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeSignature(final MessageSignature messageSignature) {
+        Objects.requireNonNull(messageSignature);
         writeInstant(messageSignature.timestamp());
         writeLong(messageSignature.salt());
         writeByteArray(messageSignature.signature());

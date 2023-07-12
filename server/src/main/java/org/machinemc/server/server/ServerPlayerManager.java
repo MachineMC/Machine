@@ -15,13 +15,13 @@
 package org.machinemc.server.server;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.machinemc.api.Server;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.server.PlayerManager;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,30 +31,37 @@ import java.util.stream.Collectors;
 /**
  * Default player manager implementation.
  */
-@RequiredArgsConstructor
 public class ServerPlayerManager implements PlayerManager {
 
     private final Map<UUID, Player> playerMap = new ConcurrentHashMap<>();
     @Getter
     private final Server server;
 
+    public ServerPlayerManager(final Server server) {
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+    }
+
     @Override
     public void addPlayer(final Player player) {
+        Objects.requireNonNull(player, "Player can not be null");
         playerMap.putIfAbsent(player.getUUID(), player);
     }
 
     @Override
     public void removePlayer(final Player player) {
+        Objects.requireNonNull(player, "Player can not be null");
         playerMap.remove(player.getUUID());
     }
 
     @Override
     public Optional<Player> getPlayer(final UUID uuid) {
+        Objects.requireNonNull(uuid, "UUID of player can not be null");
         return Optional.ofNullable(playerMap.get(uuid));
     }
 
     @Override
     public Optional<Player> getPlayer(final String name) {
+        Objects.requireNonNull(name, "Name of player can not be null");
         return playerMap.values().stream()
                 .filter(player -> player.getName().equals(name))
                 .findFirst();
@@ -67,6 +74,7 @@ public class ServerPlayerManager implements PlayerManager {
 
     @Override
     public Set<Player> getPlayers(final Predicate<Player> predicate) {
+        Objects.requireNonNull(predicate, "Predicate can not be null");
         return getPlayers().stream().filter(predicate).collect(Collectors.toSet());
     }
 

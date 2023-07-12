@@ -26,6 +26,7 @@ import org.machinemc.api.world.generation.GeneratedSection;
 import org.machinemc.api.world.generation.Generator;
 import org.machinemc.nbt.NBTCompound;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -44,7 +45,7 @@ public class StonePyramidGenerator implements Generator {
     private final Biome biome;
 
     public StonePyramidGenerator(final Server server, final long seed) {
-        this.server = server;
+        this.server = Objects.requireNonNull(server);
         this.seed = seed;
         final BlockManager manager = server.getBlockManager();
         this.air = manager.getBlockType(NamespacedKey.minecraft("air")).orElseThrow(() ->
@@ -69,6 +70,7 @@ public class StonePyramidGenerator implements Generator {
                                           final int chunkZ,
                                           final int sectionIndex,
                                           final World world) {
+        Objects.requireNonNull(world);
         if (sectionIndex < 4) {
             return new GeneratedSectionImpl(
                     new BlockType[]{stone},

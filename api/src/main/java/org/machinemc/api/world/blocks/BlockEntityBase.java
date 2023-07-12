@@ -20,6 +20,7 @@ import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Material;
 
 import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Represents a base block entity types that are required on client side
@@ -111,6 +112,7 @@ public enum BlockEntityBase {
      * @return whether the given material is supported by this block entity base
      */
     public boolean supports(final Material material) {
+        Objects.requireNonNull(material, "Material of the block entity base can not be null");
         for (final Material supported : materials) {
             if (supported.equals(material)) return true;
         }
@@ -147,6 +149,7 @@ public enum BlockEntityBase {
      * @return block entity base with given name
      */
     public static Optional<BlockEntityBase> getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the block entity base can not be null");
         for (final BlockEntityBase value : values()) {
             if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }
@@ -159,6 +162,7 @@ public enum BlockEntityBase {
      * @return block entity base of given material
      */
     public static Optional<BlockEntityBase> getByMaterial(final Material material) {
+        Objects.requireNonNull(material, "Material of the block entity base can not be null");
         for (final BlockEntityBase value : values()) {
             for (final Material supported : value.materials)
                 if (supported.equals(material)) return Optional.of(value);

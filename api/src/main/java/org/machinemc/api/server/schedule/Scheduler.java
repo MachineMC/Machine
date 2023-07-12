@@ -18,9 +18,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.jetbrains.annotations.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
@@ -93,6 +92,7 @@ public class Scheduler {
      */
     @Contract("_ -> new")
     public static TaskBuilder task(final TaskRunnable<?> task) {
+        Objects.requireNonNull(task, "Task can not be null");
         return new TaskBuilder(new TaskSession(task));
     }
 
@@ -110,10 +110,9 @@ public class Scheduler {
 
         private final TaskSession startPoint;
         private TaskSession current;
-        private final List<TaskSession> tasks = new ArrayList<>();
 
         protected TaskBuilder(final TaskSession startPoint) {
-            this.startPoint = startPoint;
+            this.startPoint = Objects.requireNonNull(startPoint);
             current = startPoint;
         }
 
@@ -182,7 +181,7 @@ public class Scheduler {
          */
         @Contract("_ -> this")
         public TaskBuilder unit(final TimeUnit unit) {
-            current.unit = unit;
+            current.unit = Objects.requireNonNull(unit, "Time unit can not be null");
             return this;
         }
 
@@ -193,6 +192,7 @@ public class Scheduler {
          */
         @Contract("_ -> this")
         public TaskBuilder then(final TaskRunnable<?> next) {
+            Objects.requireNonNull(next, "Next task in the chain can not be null");
             final TaskSession nextSession = new TaskSession(next);
             nextSession.previous = current;
             current.future = nextSession;
@@ -205,7 +205,7 @@ public class Scheduler {
          * @param scheduler scheduler to run the task on
          */
         public void run(final Scheduler scheduler) {
-            startPoint.run(scheduler);
+            startPoint.run(Objects.requireNonNull(scheduler, "Provided scheduler to run the task can not be null"));
         }
 
     }

@@ -17,6 +17,8 @@ package org.machinemc.api.world;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Range;
 
+import java.util.Objects;
+
 import java.util.Optional;
 
 /**
@@ -54,6 +56,7 @@ public enum Difficulty {
      * @return difficulty with given name
      */
     public static Optional<Difficulty> getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the world type can not be null");
         for (final Difficulty value : values()) {
             if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Handles the creation of Packet instances.
@@ -52,7 +53,7 @@ public final class PacketFactory {
     public static Optional<Packet> produce(final Class<? extends Packet> packetClass, final FriendlyByteBuf buf) {
         final PacketCreator<? extends Packet> creator = CREATORS.get(packetClass);
         if (creator == null) return Optional.empty();
-        return Optional.ofNullable(creator.create(buf));
+        return Optional.ofNullable(creator.create(Objects.requireNonNull(buf)));
     }
 
     /**
@@ -78,6 +79,7 @@ public final class PacketFactory {
      */
     public static Optional<Class<? extends Packet>> getPacketByRawID(final int id,
                                                                      final ServerPacket.PacketState state) {
+        Objects.requireNonNull(state);
         final Class<? extends Packet> in = IN_MAPPING.get(id | state.getMask());
         if (in != null) return Optional.of(in);
         for (final Map.Entry<Class<? extends Packet>, Integer> entry : OUT_MAPPING.entrySet()) {
@@ -110,6 +112,7 @@ public final class PacketFactory {
      */
     public static int getRawIDByPacket(final Class<? extends Packet> packetClass,
                                        final ServerPacket.PacketState state) {
+        Objects.requireNonNull(state);
         final Integer out = OUT_MAPPING.get(packetClass);
         if (out != null) return out & ~state.getMask();
         for (final Map.Entry<Integer, Class<? extends Packet>> entry : IN_MAPPING.entrySet()) {

@@ -25,6 +25,7 @@ import org.machinemc.api.utils.Writable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -89,6 +90,12 @@ public record PlayerTextures(String value,
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    public PlayerTextures {
+        Objects.requireNonNull(value, "Value of the skin can not be null");
+        Objects.requireNonNull(skinUrl, "Skin url can not be null");
+        Objects.requireNonNull(skinModel, "Skin model can not be null");
     }
 
     /**

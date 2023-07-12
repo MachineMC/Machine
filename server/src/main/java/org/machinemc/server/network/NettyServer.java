@@ -30,6 +30,7 @@ import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.server.Machine;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -59,7 +60,7 @@ public class NettyServer implements ServerConnection {
     private boolean running = false;
 
     public NettyServer(final Machine server) {
-        this.server = server;
+        this.server = Objects.requireNonNull(server, "Server can not be null");
         this.ip = server.getIp();
         this.port = server.getServerPort();
     }
@@ -94,11 +95,14 @@ public class NettyServer implements ServerConnection {
 
     @Override
     public void broadcastPacket(final Packet packet) {
+        Objects.requireNonNull(packet, "Packet can not be null");
         getClients().forEach(connection -> connection.send(packet));
     }
 
     @Override
     public void broadcastPacket(final Packet packet, final Predicate<PlayerConnection> predicate) {
+        Objects.requireNonNull(packet, "Packet can not be null");
+        Objects.requireNonNull(predicate);
         getClients().forEach(connection -> {
             if (predicate.test(connection))
                 connection.send(packet);
@@ -107,6 +111,9 @@ public class NettyServer implements ServerConnection {
 
     @Override
     public ChannelFuture disconnect(final PlayerConnection connection) {
+        Objects.requireNonNull(connection, "Connection can not be null");
+        if (connection.getServerConnection() != this)
+            throw new IllegalArgumentException("Provided connection is not connected to this server");
         return connection.disconnect(TranslationComponent.of("disconnect.disconnected"));
     }
 

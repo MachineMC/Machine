@@ -19,6 +19,7 @@ import org.machinemc.api.utils.Writable;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Signature of a chat message.
@@ -27,6 +28,11 @@ import java.util.Arrays;
  * @param signature signature
  */
 public record MessageSignature(Instant timestamp, long salt, byte[] signature) implements Writable {
+
+    public MessageSignature {
+        Objects.requireNonNull(timestamp, "Timestamp can not be null");
+        Objects.requireNonNull(signature, "Signature can not be null");
+    }
 
     @Override
     public String toString() {

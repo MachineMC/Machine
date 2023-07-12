@@ -26,10 +26,7 @@ import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.server.Machine;
 import org.machinemc.server.world.dimensions.ServerDimensionType;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -44,9 +41,13 @@ public class DimensionsJson implements ServerFile, ServerProperty {
     private final Set<DimensionType> dimensions = new LinkedHashSet<>();
 
     public DimensionsJson(final Server server, final File file) throws IOException {
-        this.server = server;
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        Objects.requireNonNull(file, "Source file can not be null");
         final JsonParser parser = new JsonParser();
-        final JsonObject dimensions = parser.parse(new FileReader(file)).getAsJsonObject();
+        final JsonObject dimensions;
+        try (FileReader fileReader = new FileReader(file)) {
+            dimensions = parser.parse(fileReader).getAsJsonObject();
+        }
 
         final DimensionType original = ServerDimensionType.createDefault();
 

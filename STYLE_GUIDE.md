@@ -15,6 +15,7 @@ subject to the following changes:
     - The maximum line length is now 120 characters.
     - There is no maximum limit on the length of a method.
     - Only one statement is permitted per line.
+    - There is no maximum parameter limit.
   - Switches:
     - Variable assignments inside switch cases are allowed.
     - Default case is not enforced.

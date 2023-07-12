@@ -25,6 +25,7 @@ import org.machinemc.nbt.NBTCompound;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Represents a particle object.
@@ -44,6 +45,7 @@ public class Particle<O extends ParticleOption> implements NBTSerializable, Writ
      * @return particle created from the compound
      */
     public static Optional<Particle<?>> fromNBT(final NBTCompound compound) {
+        Objects.requireNonNull(compound, "Source compound can not be null");
         if (!compound.containsKey("type") || compound.get("type").tag() != NBT.Tag.STRING)
             return Optional.empty();
         final NamespacedKey name = NamespacedKey.minecraft(compound.get("type").value());
@@ -55,7 +57,7 @@ public class Particle<O extends ParticleOption> implements NBTSerializable, Writ
     }
 
     public Particle(final ParticleType<O> type) {
-        this.type = type;
+        this.type = Objects.requireNonNull(type, "Type of a particle can not be null");
         options = type.provider.create(type);
     }
 
@@ -68,6 +70,7 @@ public class Particle<O extends ParticleOption> implements NBTSerializable, Writ
 
     @Override
     public void write(final ServerBuffer buf) {
+        Objects.requireNonNull(buf);
         buf.writeVarInt(type.getID());
         buf.write(options);
     }

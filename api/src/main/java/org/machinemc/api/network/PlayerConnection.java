@@ -29,6 +29,7 @@ import org.machinemc.scriptive.components.TranslationComponent;
 import java.net.InetSocketAddress;
 import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 
 import static org.machinemc.api.network.packets.Packet.PacketState.*;
@@ -42,6 +43,11 @@ public interface PlayerConnection extends ServerProperty {
      * @return client state of the connection
      */
     Optional<ClientState> getState();
+
+    /**
+     * @return server connection this player connection is connected to
+     */
+    ServerConnection getServerConnection();
 
     /**
      * @return public key data of the connection
@@ -119,6 +125,7 @@ public interface PlayerConnection extends ServerProperty {
          */
         @Contract(pure = true)
         public static ClientState[] fromState(final Packet.PacketState state) {
+            Objects.requireNonNull(state, "State can not be null");
             final Set<ClientState> clientStates = new LinkedHashSet<>();
             for (final ClientState clientState : values()) {
                 if (clientState.in == state || clientState.out == state)

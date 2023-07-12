@@ -20,6 +20,7 @@ import org.machinemc.api.utils.NamespacedKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Represents a type (base visual) of a particle.
@@ -79,10 +80,15 @@ public final class ParticleType<O extends ParticleOption> {
     private ParticleType(final NamespacedKey name,
                          final int id,
                          final ParticleOptionProvider<O> provider) {
+        Objects.requireNonNull(name, "Name of the particle can not be null");
+
+        if (REGISTRY.containsKey(name))
+            throw new IllegalArgumentException("Another particle with similar name already exists");
+
         REGISTRY.put(name, this);
         this.name = name;
         this.id = id;
-        this.provider = provider;
+        this.provider = Objects.requireNonNull(provider, "Particle option provider can not be null");
     }
 
     @SuppressWarnings("unchecked")

@@ -72,7 +72,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_, _ -> this")
-    <T> FriendlyByteBuf write(T item, BiConsumer<ServerBuffer, T> consumer);
+    <T> FriendlyByteBuf write(@Nullable T item, BiConsumer<ServerBuffer, T> consumer);
 
     /**
      * Writes a writable object into this buffer.

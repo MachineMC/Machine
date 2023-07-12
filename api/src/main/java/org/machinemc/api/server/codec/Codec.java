@@ -31,6 +31,7 @@ public class Codec implements NBTSerializable {
     private final List<CodecPart> codecParts = new ArrayList<>();
 
     public Codec(final CodecPart... codecParts) {
+        if (codecParts == null) return;
         this.codecParts.addAll(List.of(codecParts));
     }
 

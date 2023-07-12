@@ -29,6 +29,7 @@ import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.dimensions.DimensionType;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.machinemc.server.chunk.ChunkUtils.getSectionRelativeCoordinate;
@@ -57,11 +58,11 @@ public abstract class AbstractWorld implements World {
                          final DimensionType dimensionType,
                          final WorldType worldType,
                          final long seed) {
-        this.server = server;
-        this.name = name;
-        this.uuid = uuid;
-        this.dimensionType = dimensionType;
-        this.worldType = worldType;
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        this.name = Objects.requireNonNull(name, "Name can not be null");
+        this.uuid = Objects.requireNonNull(uuid, "UUID can not be null");
+        this.dimensionType = Objects.requireNonNull(dimensionType, "Dimension type can not be null");
+        this.worldType = Objects.requireNonNull(worldType, "World type can not be null");
         this.seed = seed;
         difficulty = server.getProperties().getDefaultDifficulty();
     }
@@ -73,6 +74,7 @@ public abstract class AbstractWorld implements World {
 
     @Override
     public WorldBlock getBlock(final BlockPosition position) {
+        Objects.requireNonNull(position, "Block position can not be null");
         return getChunk(position).getBlock(
                 getSectionRelativeCoordinate(position.getX()),
                 position.getY(),
@@ -81,6 +83,8 @@ public abstract class AbstractWorld implements World {
 
     @Override
     public void setBlock(final BlockType blockType, final BlockPosition position) {
+        Objects.requireNonNull(blockType, "Block type can not be null");
+        Objects.requireNonNull(position, "Block position can not be null");
         getChunk(position).setBlock(
                 getSectionRelativeCoordinate(position.getX()),
                 position.getY(),
@@ -90,6 +94,8 @@ public abstract class AbstractWorld implements World {
 
     @Override
     public void setBiome(final Biome biome, final BlockPosition position) {
+        Objects.requireNonNull(biome, "Biome can not be null");
+        Objects.requireNonNull(position, "Block position can not be null");
         getChunk(position).setBiome(
                 getSectionRelativeCoordinate(position.getX()),
                 position.getY(),
@@ -99,6 +105,7 @@ public abstract class AbstractWorld implements World {
 
     @Override
     public Biome getBiome(final BlockPosition position) {
+        Objects.requireNonNull(position, "Block position can not be null");
         return getChunk(position).getBiome(
                 getSectionRelativeCoordinate(position.getX()),
                 position.getY(),
@@ -107,7 +114,7 @@ public abstract class AbstractWorld implements World {
 
     @Override
     public void setDifficulty(final Difficulty difficulty) {
-        this.difficulty = difficulty;
+        this.difficulty = Objects.requireNonNull(difficulty, "Difficulty can not be null");
         final PacketOut packet = new PacketPlayOutChangeDifficulty(difficulty);
         for (final Entity entity : getEntities()) {
             if (!(entity instanceof ServerPlayer player)) continue;
@@ -117,7 +124,7 @@ public abstract class AbstractWorld implements World {
 
     @Override
     public void setWorldSpawn(final Location location) {
-        this.worldSpawn = location;
+        this.worldSpawn = Objects.requireNonNull(location, "World spawn can not be null");
         final PacketOut packet = new PacketPlayOutWorldSpawnPosition(location);
         for (final Entity entity : getEntities()) {
             if (!(entity instanceof ServerPlayer player)) continue;

@@ -15,7 +15,6 @@
 package org.machinemc.server.chat;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.Server;
@@ -38,7 +37,6 @@ import java.util.stream.Collectors;
 /**
  * Default implementation of server's messenger.
  */
-@RequiredArgsConstructor
 public class ServerMessenger implements Messenger {
 
     protected final AtomicInteger idCounter = new AtomicInteger(0);
@@ -52,6 +50,10 @@ public class ServerMessenger implements Messenger {
     private TranslationComponent cannotSendMessage = TranslationComponent.of("chat.cannotSend").modify()
             .color(ChatColor.RED)
             .finish();
+
+    public ServerMessenger(final Server server) {
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+    }
 
     /**
      * Creates messenger with default chat types.
@@ -73,6 +75,7 @@ public class ServerMessenger implements Messenger {
 
     @Override
     public void addChatType(final ChatType chatType) {
+        Objects.requireNonNull(chatType, "Chat type can not be null");
         if (isRegistered(chatType))
             throw new IllegalArgumentException("Chat type '" + chatType.getName() + "' is already registered");
         chatTypes.put(idCounter.getAndIncrement(), chatType);
@@ -80,16 +83,19 @@ public class ServerMessenger implements Messenger {
 
     @Override
     public boolean removeChatType(final ChatType chatType) {
+        Objects.requireNonNull(chatType, "Chat type can not be null");
         return chatTypes.remove(getChatTypeID(chatType)) == null;
     }
 
     @Override
     public boolean isRegistered(final ChatType chatType) {
+        Objects.requireNonNull(chatType, "Chat type can not be null");
         return chatTypes.containsValue(chatType);
     }
 
     @Override
     public Optional<ChatType> getChatType(final NamespacedKey name) {
+        Objects.requireNonNull(name, "Name of the chat type can not be null");
         for (final ChatType chatType : getChatTypes()) {
             if (!(chatType.getName().equals(name))) continue;
             return Optional.of(chatType);
@@ -104,6 +110,7 @@ public class ServerMessenger implements Messenger {
 
     @Override
     public int getChatTypeID(final ChatType chatType) {
+        Objects.requireNonNull(chatType, "Chat type can not be null");
         for (final Map.Entry<Integer, ChatType> entry : chatTypes.entrySet()) {
             if (entry.getValue().equals(chatType))
                 return entry.getKey();
@@ -119,6 +126,9 @@ public class ServerMessenger implements Messenger {
     // TODO Player Message impl once it's done
     @Override
     public boolean sendMessage(final Player player, final Component message, final MessageType messageType) {
+        Objects.requireNonNull(player, "Player can not be null");
+        Objects.requireNonNull(message, "Message can not be null");
+        Objects.requireNonNull(messageType, "Message type can not be null");
         if (Messenger.accepts(player, messageType)) {
             player.sendPacket(new PacketPlayOutSystemChatMessage(message, false));
             return true;
@@ -128,11 +138,13 @@ public class ServerMessenger implements Messenger {
 
     @Override
     public void sendRejectionMessage(final Player player) {
+        Objects.requireNonNull(player, "Player can not be null");
         player.sendPacket(new PacketPlayOutSystemChatMessage(cannotSendMessage, false));
     }
 
     @Override
     public NBTCompound getChatTypeNBT(final ChatType chatType) {
+        Objects.requireNonNull(chatType, "Chat type can not be null");
         final NBTCompound nbtCompound = chatType.toNBT();
         return new NBTCompound(Map.of(
                 "name", chatType.getName().toString(),
@@ -148,9 +160,9 @@ public class ServerMessenger implements Messenger {
 
     @Override
     public List<NBTCompound> getCodecElements() {
-        return new ArrayList<>(getChatTypes().stream()
+        return getChatTypes().stream()
                 .map(this::getChatTypeNBT)
-                .toList());
+                .toList();
     }
 
     @Override

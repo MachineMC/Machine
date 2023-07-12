@@ -14,7 +14,6 @@
  */
 package org.machinemc.server.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.Server;
@@ -24,11 +23,11 @@ import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.server.ServerProperty;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Default exception handler implementation.
  */
-@AllArgsConstructor
 public class ServerExceptionHandler implements ExceptionHandler, ServerProperty {
 
     @Getter
@@ -39,6 +38,11 @@ public class ServerExceptionHandler implements ExceptionHandler, ServerProperty 
         this(server, server.getConsole());
     }
 
+    public ServerExceptionHandler(final Server server, final Console console) {
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        this.console = Objects.requireNonNull(console, "Console can not be null");
+    }
+
     @Override
     public void handle(final Throwable throwable) {
         handle(throwable, null);
@@ -46,6 +50,7 @@ public class ServerExceptionHandler implements ExceptionHandler, ServerProperty 
 
     @Override
     public void handle(final Throwable throwable, final @Nullable String reason) {
+        if (throwable == null) return;
         if (throwable instanceof ClientException clientException) {
             handle(clientException);
             return;
@@ -64,6 +69,7 @@ public class ServerExceptionHandler implements ExceptionHandler, ServerProperty 
      * @param exception client exception to handle
      */
     protected void handle(final ClientException exception) {
+        if (exception == null) return;
         final PlayerConnection connection = exception.getConnection();
         Throwable throwable = exception;
         while (throwable.getCause() != null)

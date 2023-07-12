@@ -22,6 +22,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -74,6 +75,8 @@ public final class Crypt {
      * @return secret key
      */
     public static SecretKey decryptByteToSecretKey(final PrivateKey privateKey, final byte[] encryptedSecretKey) {
+        Objects.requireNonNull(privateKey);
+        Objects.requireNonNull(encryptedSecretKey);
         try {
             final Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
@@ -91,6 +94,9 @@ public final class Crypt {
      * @return digested data
      */
     public static byte[] digestData(final String baseServerID, final PublicKey publicKey, final SecretKey secretKey) {
+        Objects.requireNonNull(baseServerID);
+        Objects.requireNonNull(publicKey);
+        Objects.requireNonNull(secretKey);
         try {
             return digestData(baseServerID.getBytes(BYTE_ENCODING), secretKey.getEncoded(), publicKey.getEncoded());
         } catch (Exception exception) {
@@ -99,6 +105,7 @@ public final class Crypt {
     }
 
     private static byte[] digestData(final byte[]... bytes) {
+        Objects.requireNonNull(bytes);
         final MessageDigest messageDigest;
         try {
             messageDigest = MessageDigest.getInstance(HASH_ALGORITHM);
@@ -116,6 +123,7 @@ public final class Crypt {
      * @return public key
      */
     public static PublicKey pubicKeyFrom(final byte[] bytes) {
+        Objects.requireNonNull(bytes);
         final X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
         try {
             final KeyFactory keyFactory = KeyFactory.getInstance(ASYMMETRIC_ALGORITHM);

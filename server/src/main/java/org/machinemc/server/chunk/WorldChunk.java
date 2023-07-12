@@ -52,6 +52,7 @@ public abstract class WorldChunk implements Chunk {
     private final int height;
 
     public WorldChunk(final World world, final int chunkX, final int chunkZ) {
+        Objects.requireNonNull(world, "World can not be null");
         server = world.getServer();
         this.world = world;
         this.chunkX = chunkX;
@@ -65,11 +66,13 @@ public abstract class WorldChunk implements Chunk {
 
     @Override
     public void sendChunk(final Player player) {
+        Objects.requireNonNull(player, "Player can not be null");
         player.sendPacket(createChunkPacket());
     }
 
     @Override
     public void unloadChunk(final Player player) {
+        Objects.requireNonNull(player, "Player can not be null");
         player.sendPacket(new PacketPlayOutUnloadChunk(chunkX, chunkZ));
     }
 
@@ -82,6 +85,9 @@ public abstract class WorldChunk implements Chunk {
     public static ChunkData createChunkData(final List<Section> sections,
                                             final Section.BlockEntity[] blockEntities,
                                             final int height) {
+        Objects.requireNonNull(sections, "Sections can not be null");
+        Objects.requireNonNull(blockEntities, "Block entities can not be null");
+
         final int[] motionBlocking = new int[16 * 16];
         final int[] worldSurface = new int[16 * 16];
         for (int x = 0; x < 16; x++) {
@@ -110,6 +116,8 @@ public abstract class WorldChunk implements Chunk {
      * @return light data of this chunk
      */
     public static LightData createLightData(final List<Section> sections) {
+        Objects.requireNonNull(sections, "Sections can not be null");
+
         final BitSet skyMask = new BitSet();
         final BitSet blockMask = new BitSet();
         final BitSet emptySkyMask = new BitSet();

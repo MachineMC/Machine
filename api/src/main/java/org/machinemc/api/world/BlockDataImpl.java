@@ -14,7 +14,6 @@
  */
 package org.machinemc.api.world;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 import lombok.Getter;
 import org.jetbrains.annotations.Unmodifiable;
@@ -90,6 +89,7 @@ non-sealed class BlockDataImpl extends BlockData {
      * @return parsed block data or null if the text is invalid
      */
     public static Optional<BlockData> parse(final String text) {
+        Objects.requireNonNull(text, "Text to parse as block data can not be null");
         final String lowercase = text.toLowerCase();
 
         final StringBuilder materialName = new StringBuilder();
@@ -198,7 +198,7 @@ non-sealed class BlockDataImpl extends BlockData {
 
     @Override
     protected BlockDataImpl setMaterial(final Material material) {
-        this.material = material;
+        this.material = Objects.requireNonNull(material, "Material of the block data can not be null");
         return this;
     }
 
@@ -329,7 +329,7 @@ non-sealed class BlockDataImpl extends BlockData {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getMaterial(), getData());
+        return Objects.hash(getMaterial(), Arrays.hashCode(getData()));
     }
 
 }

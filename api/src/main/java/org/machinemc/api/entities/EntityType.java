@@ -19,6 +19,7 @@ import lombok.Getter;
 import org.machinemc.api.utils.NamespacedKey;
 
 import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Represents entity type (model) of the entity.
@@ -58,6 +59,7 @@ public enum EntityType {
      * @return entity type with given name
      */
     public static Optional<EntityType> getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the entity type can not be null");
         for (final EntityType value : values()) {
             if (value.name().equalsIgnoreCase(name)
                     || value.identifier.getKey().equalsIgnoreCase(name)

@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -63,6 +64,8 @@ public final class FileUtils {
      * @return true if creation was successful
      */
     public static boolean createFromDefaultAndLocate(final File file, final String path) {
+        Objects.requireNonNull(file);
+        Objects.requireNonNull(path);
         String fullPath = path;
         if (fullPath.endsWith("/")) {
             final File pathFile = new File(fullPath);
@@ -89,6 +92,8 @@ public final class FileUtils {
      * @return true if creation was successful
      */
     public static boolean createServerFile(final File target, final String source) {
+        Objects.requireNonNull(source);
+        Objects.requireNonNull(target);
         final File sourceFile = new File(source);
         File targetFile = target;
 
@@ -123,6 +128,7 @@ public final class FileUtils {
      * @return uuid saved in the file
      */
     public static UUID getOrCreateUUID(final File folder) {
+        Objects.requireNonNull(folder);
         final File uidFile = new File(folder, "uid.dat");
         if (uidFile.exists()) {
             try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(uidFile))) {

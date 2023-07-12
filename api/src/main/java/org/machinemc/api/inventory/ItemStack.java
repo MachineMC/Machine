@@ -20,6 +20,8 @@ import org.machinemc.nbt.NBTCompound;
 
 import java.util.Optional;
 
+import java.util.Objects;
+
 /**
  * Default item implementation.
  */
@@ -60,10 +62,11 @@ class ItemStack implements Item {
      * @return id of the material
      */
     public static int getID(final Material material) {
-        return material.getId();
+        return Objects.requireNonNull(material, "Material can not be null").getId();
     }
 
     ItemStack(final Material material) {
+        Objects.requireNonNull(material, "Material can not be null");
         if (material.getId() == -1)
             throw new IllegalStateException("Material " + material + " can't have item form");
         this.material = material;
@@ -76,6 +79,7 @@ class ItemStack implements Item {
 
     @Override
     public ItemStack withMaterial(final Material material) {
+        Objects.requireNonNull(material, "Material can not be null");
         final ItemStack itemStack = clone();
         itemStack.setMaterial(material);
         return itemStack;
@@ -95,11 +99,12 @@ class ItemStack implements Item {
 
     @Override
     public void setNBTCompound(final NBTCompound compound) {
-        this.nbtCompound = compound;
+        this.nbtCompound = Objects.requireNonNull(compound, "NBTCompound can not be null");
     }
 
     @Override
     public ItemStack withNBTCompound(final NBTCompound compound) {
+        Objects.requireNonNull(compound, "NBTCompound can not be null");
         final ItemStack itemStack = clone();
         itemStack.setNBTCompound(compound);
         return itemStack;
@@ -112,11 +117,12 @@ class ItemStack implements Item {
 
     @Override
     public void setType(final Material material) {
-        this.material = material;
+        this.material = Objects.requireNonNull(material, "Material can not be null");
     }
 
     @Override
     public ItemStack withType(final Material type) {
+        Objects.requireNonNull(material, "Material can not be null");
         final ItemStack itemStack = clone();
         itemStack.setMaterial(type);
         return itemStack;

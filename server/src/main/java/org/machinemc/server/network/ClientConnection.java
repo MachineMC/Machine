@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.auth.Crypt;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.network.PlayerConnection;
+import org.machinemc.api.network.ServerConnection;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.scriptive.components.Component;
@@ -214,6 +215,11 @@ public class ClientConnection implements PlayerConnection {
         keepAliveResponse = System.currentTimeMillis();
     }
 
+
+    @Override
+    public ServerConnection getServerConnection() {
+        return nettyServer;
+    }
 
     @Override
     public ChannelFuture disconnect(final Component reason) {

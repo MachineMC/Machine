@@ -16,8 +16,6 @@ package org.machinemc.server.translation;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.server.Machine;
@@ -27,11 +25,11 @@ import org.machinemc.server.utils.ClassUtils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Translator dispatcher, calls registered translators from received packets.
  */
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TranslatorDispatcher {
 
     @Getter
@@ -77,6 +75,10 @@ public class TranslatorDispatcher {
                 dispatcher.registerOutTranslator(translator);
         }
         return dispatcher;
+    }
+
+    TranslatorDispatcher(final Machine server) {
+        this.server = Objects.requireNonNull(server, "Server of translator dispatcher can not be null");
     }
 
     /**
@@ -156,6 +158,7 @@ public class TranslatorDispatcher {
      * @return true if the packet wasn't cancelled
      */
     public boolean playIn(final ClientConnection connection, final Packet packet) {
+        Objects.requireNonNull(connection, "Connection can not be null");
         boolean result = true;
         for (final PacketTranslator<? extends Packet> translator : inTranslators.get(packet.getClass()))
             result = translator.rawTranslate(connection, packet);
@@ -169,6 +172,7 @@ public class TranslatorDispatcher {
      * @return true if the packet wasn't cancelled
      */
     public boolean playOut(final ClientConnection connection, final Packet packet) {
+        Objects.requireNonNull(connection, "Connection can not be null");
         boolean result = true;
         for (final PacketTranslator<? extends Packet> translator : outTranslators.get(packet.getClass()))
             result = translator.rawTranslate(connection, packet);
@@ -193,6 +197,7 @@ public class TranslatorDispatcher {
      * @param packet packet
      */
     public void playInAfter(final ClientConnection connection, final Packet packet) {
+        Objects.requireNonNull(connection, "Connection can not be null");
         for (final PacketTranslator<? extends Packet> translator : inTranslators.get(packet.getClass()))
             translator.rawTranslateAfter(connection, packet);
     }
@@ -203,6 +208,7 @@ public class TranslatorDispatcher {
      * @param packet packet
      */
     public void playOutAfter(final ClientConnection connection, final Packet packet) {
+        Objects.requireNonNull(connection, "Connection can not be null");
         for (final PacketTranslator<? extends Packet> translator : outTranslators.get(packet.getClass()))
             translator.rawTranslateAfter(connection, packet);
     }

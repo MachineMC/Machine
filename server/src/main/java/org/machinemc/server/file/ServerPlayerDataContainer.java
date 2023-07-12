@@ -24,6 +24,7 @@ import org.machinemc.nbt.NBTCompound;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -39,8 +40,8 @@ public class ServerPlayerDataContainer implements PlayerDataContainer {
     private final File playerDataFolder;
 
     public ServerPlayerDataContainer(final Server server, final File folder) {
-        this.server = server;
-        playerDataFolder = folder;
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        playerDataFolder = Objects.requireNonNull(folder, "Player data folder can not be null");
         if (!playerDataFolder.exists() && !playerDataFolder.mkdirs())
             throw new RuntimeException("Can't create the player data folder");
     }
@@ -52,6 +53,7 @@ public class ServerPlayerDataContainer implements PlayerDataContainer {
 
     @Override
     public NBTCompound getPlayerData(final UUID uuid) {
+        Objects.requireNonNull(uuid, "UUID can not be null");
         final File playerDataFile = getPlayerDataFile(uuid, true);
         return NBTUtils.deserializeNBTFile(playerDataFile);
     }
@@ -63,6 +65,7 @@ public class ServerPlayerDataContainer implements PlayerDataContainer {
      * @return player's data file
      */
     private File getPlayerDataFile(final UUID uuid, final boolean create) {
+        Objects.requireNonNull(uuid, "UUID can not be null");
         final File playerDataFile = new File(playerDataFolder, uuid + ".dat");
         if (!create) return playerDataFile;
         try {
@@ -82,6 +85,7 @@ public class ServerPlayerDataContainer implements PlayerDataContainer {
      */
     @Override
     public void savePlayerData(final Player player) {
+        Objects.requireNonNull(player, "Player can not be null");
         player.serializeNBT(getPlayerDataFile(player.getUUID(), true));
     }
 

@@ -18,6 +18,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -54,6 +55,7 @@ public class TaskSession {
      * @param scheduler scheduler to run the task on
      */
     protected void run(final Scheduler scheduler) {
+        Objects.requireNonNull(scheduler);
         if (running)
             throw new IllegalStateException("You can't run the same task twice");
         running = true;

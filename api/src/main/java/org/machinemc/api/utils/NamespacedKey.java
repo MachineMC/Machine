@@ -37,8 +37,8 @@ public final class NamespacedKey implements Writable {
     private final String key;
 
     NamespacedKey(final String namespace, final String key) {
-        this.namespace = namespace;
-        this.key = key;
+        this.namespace = Objects.requireNonNull(namespace, "Namespace can not be null");
+        this.key = Objects.requireNonNull(key, "Key can not be null");
     }
 
     /**
@@ -49,6 +49,8 @@ public final class NamespacedKey implements Writable {
      */
     @Contract("_, _ -> new")
     public static NamespacedKey of(final String namespace, final String key) {
+        Objects.requireNonNull(namespace, "Namespace can not be null");
+        Objects.requireNonNull(key, "Key can not be null");
         if (!isValidNamespacedKey(namespace, key))
             throw new IllegalArgumentException("The key '" + namespace + ":" + key + "' "
                     + "doesn't match the identifier format.");
@@ -133,6 +135,7 @@ public final class NamespacedKey implements Writable {
      * or null if that input doesn't have a separator character ':'
      */
     private static Optional<String[]> parseNamespacedKey(final String input) {
+        Objects.requireNonNull(input, "Text to parse can not be null");
         final String[] namespacedKey = new String[2];
         final char[] chars = input.toCharArray();
         StringBuilder builder = new StringBuilder();

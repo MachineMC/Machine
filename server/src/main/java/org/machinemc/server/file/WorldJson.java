@@ -31,6 +31,7 @@ import org.machinemc.server.world.AbstractWorld;
 import org.machinemc.server.world.ServerWorld;
 
 import java.io.*;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -52,10 +53,14 @@ public class WorldJson implements ServerFile, ServerProperty {
     private final File folder;
 
     public WorldJson(final Server server, final File file) throws IOException {
-        this.server = server;
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        Objects.requireNonNull(file, "Source file can not be null");
         folder = file.getParentFile();
         final JsonParser parser = new JsonParser();
-        final JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
+        final JsonObject json;
+        try (FileReader fileReader = new FileReader(file)) {
+            json = parser.parse(fileReader).getAsJsonObject();
+        }
 
         final NamespacedKey name;
         try {

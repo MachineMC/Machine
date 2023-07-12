@@ -21,6 +21,7 @@ import org.machinemc.server.utils.IntegerList;
 import org.machinemc.server.utils.math.MathUtils;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -40,7 +41,7 @@ public class FlexiblePalette implements Palette {
     protected IntObjectHashMap<Integer> valueToPaletteMap;
 
     protected FlexiblePalette(final AdaptivePalette adaptivePalette, final byte bitsPerEntry) {
-        this.adaptivePalette = adaptivePalette;
+        this.adaptivePalette = Objects.requireNonNull(adaptivePalette, "Adaptive palette can not be null");
         this.bitsPerEntry = bitsPerEntry;
         this.paletteToValueList = new IntegerList(1);
         this.paletteToValueList.add(0);
@@ -116,6 +117,8 @@ public class FlexiblePalette implements Palette {
 
     @Override
     public void setAll(final EntrySupplier supplier) {
+        Objects.requireNonNull(supplier, "Supplier can not be null");
+
         final int[] cache = WRITE_CACHE.get();
         final int dimension = dimension();
         int fillValue = -1;
@@ -162,6 +165,8 @@ public class FlexiblePalette implements Palette {
 
     @Override
     public void replaceAll(final EntryFunction function) {
+        Objects.requireNonNull(function, "Function can not be null");
+
         final int[] cache = WRITE_CACHE.get();
         final AtomicInteger arrayIndex = new AtomicInteger();
         final AtomicInteger count = new AtomicInteger();
@@ -236,6 +241,8 @@ public class FlexiblePalette implements Palette {
      * @param consumeEmpty if empty (zero) values should be accepted
      */
     private void retrieveAll(final EntryConsumer consumer, final boolean consumeEmpty) {
+        Objects.requireNonNull(consumer, "Consumer can not be null");
+
         if (!consumeEmpty && count == 0) return;
 
         final long[] values = this.values;

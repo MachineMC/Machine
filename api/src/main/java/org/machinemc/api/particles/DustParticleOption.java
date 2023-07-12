@@ -27,6 +27,8 @@ import org.machinemc.scriptive.style.HexColor;
 
 import java.util.Optional;
 
+import java.util.Objects;
+
 /**
  * Particle options implementation for dust particles.
  */
@@ -45,6 +47,7 @@ public class DustParticleOption implements ParticleOption {
 
     @Override
     public void load(final NBTCompound compound) {
+        Objects.requireNonNull(compound, "Source compound can not be null");
         final NBTList colors = compound.getList("color");
         if (colors.size() < 3)
             color = DEFAULT_COLOR;
@@ -76,6 +79,7 @@ public class DustParticleOption implements ParticleOption {
 
     @Override
     public void write(final ServerBuffer buf) {
+        Objects.requireNonNull(buf);
         final Colour color = this.color != null ? this.color : DEFAULT_COLOR;
         buf.writeFloat(color.getRed() / 255f);
         buf.writeFloat(color.getGreen() / 255f);

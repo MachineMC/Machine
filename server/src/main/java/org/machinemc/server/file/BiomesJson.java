@@ -26,6 +26,8 @@ import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.biomes.BiomeEffects;
 import org.machinemc.nbt.parser.NBTParser;
+import org.machinemc.scriptive.style.Colour;
+import org.machinemc.scriptive.style.HexColor;
 import org.machinemc.server.Machine;
 import org.machinemc.server.world.biomes.ServerBiome;
 import org.machinemc.server.world.biomes.ServerBiomeEffects;
@@ -48,9 +50,13 @@ public class BiomesJson implements ServerFile, ServerProperty {
     private final Set<Biome> biomes = new LinkedHashSet<>();
 
     public BiomesJson(final Server server, final File file) throws IOException {
-        this.server = server;
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        Objects.requireNonNull(file, "Source file can not be null");
         final JsonParser parser = new JsonParser();
-        final JsonObject biomes = parser.parse(new FileReader(file)).getAsJsonObject();
+        final JsonObject biomes;
+        try (FileReader fileReader = new FileReader(file)) {
+            biomes = parser.parse(fileReader).getAsJsonObject();
+        }
 
         for (final Map.Entry<String, JsonElement> biomeKey : biomes.entrySet()) {
             final Biome original = ServerBiome.createDefault();
@@ -94,26 +100,26 @@ public class BiomesJson implements ServerFile, ServerProperty {
                 effects = original.getEffects();
                 final int fogColor = effectsJson.has("fog_color")
                         ? effectsJson.get("fog_color").getAsInt()
-                        : effects.getFogColor();
+                        : effects.getFogColor().getRGB();
                 final int skyColor = effectsJson.has("sky_color")
                         ? effectsJson.get("sky_color").getAsInt()
-                        : effects.getSkyColor();
+                        : effects.getSkyColor().getRGB();
                 final int waterColor = effectsJson.has("water_color")
                         ? effectsJson.get("water_color").getAsInt()
-                        : effects.getWaterColor();
+                        : effects.getWaterColor().getRGB();
                 final int waterFogColor = effectsJson.has("water_fog_color")
                         ? effectsJson.get("water_fog_color").getAsInt()
-                        : effects.getWaterFogColor();
+                        : effects.getWaterFogColor().getRGB();
                 final Integer foliageColor;
                 if (effectsJson.has("foliage_color"))
                     foliageColor = effectsJson.get("foliage_color").getAsInt();
                 else
-                    foliageColor = effects.getFoliageColor().orElse(null);
+                    foliageColor = effects.getFoliageColor().map(Colour::getRGB).orElse(null);
                 final Integer grassColor;
                 if (effectsJson.has("grass_color"))
                     grassColor = effectsJson.get("grass_color").getAsInt();
                 else
-                    grassColor = effects.getGrassColor().orElse(null);
+                    grassColor = effects.getGrassColor().map(Colour::getRGB).orElse(null);
 
                 BiomeEffects.GrassColorModifier grassModifier;
                 try {
@@ -177,12 +183,12 @@ public class BiomesJson implements ServerFile, ServerProperty {
                 }
 
                 effects = ServerBiomeEffects.builder()
-                        .fogColor(fogColor)
-                        .skyColor(skyColor)
-                        .waterColor(waterColor)
-                        .waterFogColor(waterFogColor)
-                        .foliageColor(foliageColor)
-                        .grassColor(grassColor)
+                        .fogColor(new HexColor(fogColor))
+                        .skyColor(new HexColor(skyColor))
+                        .waterColor(new HexColor(waterColor))
+                        .waterFogColor(new HexColor(waterFogColor))
+                        .foliageColor(foliageColor != null ? new HexColor(foliageColor) : null)
+                        .grassColor(grassColor != null ? new HexColor(grassColor) : null)
                         .grassColorModifier(grassModifier)
                         .ambientSound(ambientSound)
                         .moodSound(moodSound)

@@ -14,9 +14,27 @@
  */
 package org.machinemc.api.chat;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
+
 public enum MessageType {
 
     CHAT,
-    SYSTEM
+    SYSTEM;
+
+    /**
+     * Returns message type of given name.
+     * @param name name of the message type
+     * @return message type with given name
+     */
+    public static @Nullable MessageType getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the message type can not be null");
+        for (final MessageType value : values()) {
+            if (value.name().equalsIgnoreCase(name))
+                return value;
+        }
+        return null;
+    }
 
 }

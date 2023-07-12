@@ -24,11 +24,11 @@ import org.machinemc.scriptive.style.ChatStyle;
 import org.machinemc.scriptive.style.TextFormat;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Getter
 @Builder
-@SuppressWarnings("ClassCanBeRecord")
 public class ServerChatType implements ChatType {
 
     private final NamespacedKey name;
@@ -39,6 +39,12 @@ public class ServerChatType implements ChatType {
             "chat.type.text.narrate",
             null,
             null);
+
+    ServerChatType(final NamespacedKey name, final Element chatElement, final Element narrationElement) {
+        this.name = Objects.requireNonNull(name, "Name can not be null");
+        this.chatElement = Objects.requireNonNull(chatElement, "Chat element can not be null");
+        this.narrationElement = Objects.requireNonNull(narrationElement, "Narration element can not be null");
+    }
 
     /**
      * Creates the default 'chat' chat type.

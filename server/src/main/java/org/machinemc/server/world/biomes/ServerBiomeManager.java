@@ -15,7 +15,6 @@
 package org.machinemc.server.world.biomes;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.machinemc.api.Server;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.biomes.Biome;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 /**
  * Default implementation of biome manager.
  */
-@RequiredArgsConstructor
 public class ServerBiomeManager implements BiomeManager {
 
     protected final AtomicInteger idCounter = new AtomicInteger(0);
@@ -51,8 +49,13 @@ public class ServerBiomeManager implements BiomeManager {
         return manager;
     }
 
+    public ServerBiomeManager(final Server server) {
+        this.server = Objects.requireNonNull(server, "Server of biome manager can not be null");
+    }
+
     @Override
     public void addBiome(final Biome biome) {
+        Objects.requireNonNull(biome, "Biome can not be null");
         if (isRegistered(biome.getName()))
             throw new IllegalStateException("Biome '" + biome.getName() + "' is already registered");
         biomes.put(idCounter.getAndIncrement(), biome);
@@ -60,16 +63,19 @@ public class ServerBiomeManager implements BiomeManager {
 
     @Override
     public boolean removeBiome(final Biome biome) {
+        Objects.requireNonNull(biome, "Biome can not be null");
         return biomes.remove(getBiomeID(biome)) == null;
     }
 
     @Override
     public boolean isRegistered(final Biome biome) {
+        Objects.requireNonNull(biome, "Biome can not be null");
         return biomes.containsValue(biome);
     }
 
     @Override
     public Optional<Biome> getBiome(final NamespacedKey name) {
+        Objects.requireNonNull(name, "Name of biome can not be null");
         for (final Biome biome : getBiomes()) {
             if (!(biome.getName().equals(name))) continue;
             return Optional.of(biome);
@@ -84,6 +90,7 @@ public class ServerBiomeManager implements BiomeManager {
 
     @Override
     public int getBiomeID(final Biome biome) {
+        Objects.requireNonNull(biome, "Biome can not be null");
         for (final Map.Entry<Integer, Biome> entry : biomes.entrySet()) {
             if (entry.getValue().equals(biome))
                 return entry.getKey();
@@ -98,6 +105,7 @@ public class ServerBiomeManager implements BiomeManager {
 
     @Override
     public NBTCompound getBiomeNBT(final Biome biome) {
+        Objects.requireNonNull(biome, "Biome can not be null");
         if (!isRegistered(biome))
             throw new IllegalStateException();
         final NBTCompound nbtCompound = biome.toNBT();
@@ -115,9 +123,9 @@ public class ServerBiomeManager implements BiomeManager {
 
     @Override
     public List<NBTCompound> getCodecElements() {
-        return new ArrayList<>(biomes.values().stream()
+        return biomes.values().stream()
                 .map(this::getBiomeNBT)
-                .toList());
+                .toList();
     }
 
     @Override

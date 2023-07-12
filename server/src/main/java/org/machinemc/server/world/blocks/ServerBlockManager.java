@@ -25,6 +25,7 @@ import org.machinemc.scriptive.style.HexColor;
 import java.awt.*;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,10 +37,6 @@ public class ServerBlockManager implements BlockManager {
     private final Map<NamespacedKey, BlockType> blocks = new ConcurrentHashMap<>();
     @Getter
     private final Server server;
-
-    public ServerBlockManager(final Server server) {
-        this.server = server;
-    }
 
     /**
      * Creates manager with default settings.
@@ -60,8 +57,13 @@ public class ServerBlockManager implements BlockManager {
         return manager;
     }
 
+    public ServerBlockManager(final Server server) {
+        this.server = Objects.requireNonNull(server, "Server of block manager can not be null");
+    }
+
     @Override
     public void addBlock(final BlockType blockType) {
+        Objects.requireNonNull(blockType, "Block type can not be null");
         if (isRegistered(blockType.getName()))
             throw new IllegalStateException("Block '" + blockType.getName() + "' is already registered");
         blocks.put(blockType.getName(), blockType);
@@ -69,21 +71,25 @@ public class ServerBlockManager implements BlockManager {
 
     @Override
     public void removeBlock(final BlockType blockType) {
+        Objects.requireNonNull(blockType, "Block type can not be null");
         blocks.remove(blockType.getName());
     }
 
     @Override
     public boolean isRegistered(final NamespacedKey name) {
+        Objects.requireNonNull(name, "Name of block type can not be null");
         return blocks.containsKey(name);
     }
 
     @Override
     public boolean isRegistered(final BlockType blockType) {
+        Objects.requireNonNull(blockType, "Block type can not be null");
         return blocks.containsValue(blockType);
     }
 
     @Override
     public Optional<BlockType> getBlockType(final NamespacedKey name) {
+        Objects.requireNonNull(name, "Name of block type can not be null");
         return Optional.ofNullable(blocks.get(name));
     }
 

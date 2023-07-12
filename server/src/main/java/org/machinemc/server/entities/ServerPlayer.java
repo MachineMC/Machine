@@ -83,7 +83,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     private ServerPlayer(final Server server, final PlayerProfile profile, final ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUUID());
-        this.profile = profile;
+        this.profile = Objects.requireNonNull(profile, "Player profile can not be null");
+        Objects.requireNonNull(connection, "Player's connection can not be null");
         if (connection.getOwner().isPresent())
             throw new IllegalStateException("There can't be multiple players with the same ClientConnection");
         if (connection.getState().orElse(null) != PlayerConnection.ClientState.PLAY)
@@ -107,6 +108,9 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     public static ServerPlayer spawn(final Server server,
                                      final PlayerProfile profile,
                                      final ClientConnection connection) {
+        Objects.requireNonNull(server, "Server can not be null");
+        Objects.requireNonNull(profile, "Player profile can not be null");
+        Objects.requireNonNull(connection, "Player's connection can not be null");
 
         final PlayerManager manager = server.getPlayerManager();
 
@@ -292,6 +296,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public void setGamemode(final Gamemode gamemode) {
+        Objects.requireNonNull(gamemode, "Gamemode can not be null");
         previousGamemode = this.gamemode;
         this.gamemode = gamemode;
         sendGamemodeChange(gamemode);
@@ -312,6 +317,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
      * @param difficulty new difficulty
      */
     private void sendDifficultyChange(final Difficulty difficulty) {
+        Objects.requireNonNull(difficulty, "Difficulty can not be null");
         sendPacket(new PacketPlayOutChangeDifficulty(difficulty));
     }
 
@@ -320,6 +326,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
      * @param location new world spawn
      */
     private void sendWorldSpawnChange(final Location location) {
+        Objects.requireNonNull(location, "Location can not be null");
         sendPacket(new PacketPlayOutWorldSpawnPosition(location));
     }
 
@@ -328,6 +335,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
      * @param gamemode new gamemode
      */
     private void sendGamemodeChange(final Gamemode gamemode) {
+        Objects.requireNonNull(gamemode, "Gamemode can not be null");
         sendPacket(new PacketPlayOutGameEvent(PacketPlayOutGameEvent.Event.CHANGE_GAMEMODE, gamemode.getID()));
     }
 
@@ -340,13 +348,14 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     public void synchronizePosition(final Location location,
                                     final Set<TeleportFlags> flags,
                                     final boolean dismountVehicle) {
-        teleporting = true;
 
         final double x = location.getX() - (flags.contains(TeleportFlags.X) ? getLocation().getX() : 0d);
         final double y = location.getY() - (flags.contains(TeleportFlags.Y) ? getLocation().getY() : 0d);
         final double z = location.getZ() - (flags.contains(TeleportFlags.Z) ? getLocation().getZ() : 0d);
         final float yaw = location.getYaw() - (flags.contains(TeleportFlags.YAW) ? getLocation().getYaw() : 0f);
         final float pitch = location.getPitch() - (flags.contains(TeleportFlags.PITCH) ? getLocation().getPitch() : 0f);
+
+        teleporting = true;
 
         teleportLocation = new Location(x, y, z, yaw, pitch, getWorld());
         if (++teleportID == Integer.MAX_VALUE)

@@ -56,6 +56,7 @@ public class ServerDimensionTypeManager implements DimensionTypeManager {
     @Override
     @SuppressWarnings("ConstantConditions")
     public void addDimension(final DimensionType dimensionType) {
+        Objects.requireNonNull(dimensionType, "Dimension type can not be null");
         if (isRegistered(dimensionType.getName()))
             throw new IllegalStateException("Dimension type '" + dimensionType.getName() + "' is already registered");
         if (dimensionType.getMinY() % CHUNK_SECTION_SIZE != 0
@@ -73,11 +74,13 @@ public class ServerDimensionTypeManager implements DimensionTypeManager {
 
     @Override
     public boolean removeDimension(final DimensionType dimensionType) {
+        Objects.requireNonNull(dimensionType, "Dimension type can not be null");
         return dimensionTypes.remove(getDimensionID(dimensionType)) == null;
     }
 
     @Override
     public boolean isRegistered(final DimensionType dimensionType) {
+        Objects.requireNonNull(dimensionType, "Dimension type can not be null");
         return dimensionTypes.containsValue(dimensionType);
     }
 
@@ -97,6 +100,7 @@ public class ServerDimensionTypeManager implements DimensionTypeManager {
 
     @Override
     public int getDimensionID(final DimensionType dimensionType) {
+        Objects.requireNonNull(dimensionType, "Dimension type can not be null");
         for (final Map.Entry<Integer, DimensionType> entry : dimensionTypes.entrySet()) {
             if (entry.getValue().equals(dimensionType))
                 return entry.getKey();
@@ -111,6 +115,7 @@ public class ServerDimensionTypeManager implements DimensionTypeManager {
 
     @Override
     public NBTCompound getDimensionNBT(final DimensionType dimensionType) {
+        Objects.requireNonNull(dimensionType, "Dimension type can not be null");
         if (!isRegistered(dimensionType))
             throw new IllegalStateException();
         final NBTCompound nbtCompound = dimensionType.toNBT();
@@ -128,9 +133,9 @@ public class ServerDimensionTypeManager implements DimensionTypeManager {
 
     @Override
     public List<NBTCompound> getCodecElements() {
-        return new ArrayList<>(dimensionTypes.values().stream()
+        return dimensionTypes.values().stream()
                 .map(this::getDimensionNBT)
-                .toList());
+                .toList();
     }
 
     @Override

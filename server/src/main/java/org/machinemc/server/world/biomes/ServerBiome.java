@@ -22,6 +22,7 @@ import org.machinemc.api.world.biomes.BiomeEffects;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Default biome implementation.
@@ -31,14 +32,34 @@ import java.util.Map;
 public class ServerBiome implements Biome {
 
     private final NamespacedKey name;
-    @Builder.Default private final float depth = 0.125F;
-    @Builder.Default private final float temperature = 0.8F;
-    @Builder.Default private final float scale = 0.05F;
-    @Builder.Default private final float downfall = 0.4F;
-    @Builder.Default private final Category category = Category.NONE;
-    @Builder.Default private final BiomeEffects effects = ServerBiomeEffects.createDefault();
-    @Builder.Default private final Precipitation precipitation = Precipitation.RAIN;
-    @Builder.Default private final TemperatureModifier temperatureModifier = TemperatureModifier.NONE;
+    @Builder.Default private float depth = 0.125F;
+    @Builder.Default private float temperature = 0.8F;
+    @Builder.Default private float scale = 0.05F;
+    @Builder.Default private float downfall = 0.4F;
+    @Builder.Default private Category category = Category.NONE;
+    @Builder.Default private BiomeEffects effects = ServerBiomeEffects.createDefault();
+    @Builder.Default private Precipitation precipitation = Precipitation.RAIN;
+    @Builder.Default private TemperatureModifier temperatureModifier = TemperatureModifier.NONE;
+
+    ServerBiome(final NamespacedKey name,
+                final float depth,
+                final float temperature,
+                final float scale,
+                final float downfall,
+                final Category category,
+                final BiomeEffects effects,
+                final Precipitation precipitation,
+                final TemperatureModifier temperatureModifier) {
+        this.name = Objects.requireNonNull(name, "Name of biome can not be null");
+        this.depth = depth;
+        this.temperature = temperature;
+        this.scale = scale;
+        this.downfall = downfall;
+        this.category = category;
+        this.effects = effects;
+        this.precipitation = precipitation;
+        this.temperatureModifier = temperatureModifier;
+    }
 
     /**
      * Creates the default biome.

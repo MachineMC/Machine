@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.server.schedule.Scheduler;
 
+import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
@@ -49,7 +50,7 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
                 .weakValues()
                 .build();
         this.delay = delay;
-        this.referenceTime = referenceTime;
+        this.referenceTime = Objects.requireNonNull(referenceTime);
     }
 
     /**

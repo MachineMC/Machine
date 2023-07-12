@@ -80,9 +80,9 @@ public abstract class ServerEntity implements Entity {
     private int portalCooldown;
 
     public ServerEntity(final Server server, final EntityType entityType, final UUID uuid) {
-        this.server = server;
-        this.entityType = entityType;
-        this.uuid = uuid;
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        this.entityType = Objects.requireNonNull(entityType, "Entity type can not be null");
+        this.uuid = Objects.requireNonNull(uuid, "UUID can not be null");
         entityID = EntityUtils.getEmptyID();
         location = new Location(0, 0, 0, getServer().getDefaultWorld());
         active = false;
@@ -137,12 +137,12 @@ public abstract class ServerEntity implements Entity {
 
     @Override
     public boolean addTag(final String tag) {
-        return tags.size() < 1024 && tags.add(tag);
+        return tags.size() < 1024 && tags.add(Objects.requireNonNull(tag, "Tag can not be null"));
     }
 
     @Override
     public boolean removeTag(final String tag) {
-        return tags.remove(tag);
+        return tags.remove(Objects.requireNonNull(tag, "Tag can not be null"));
     }
 
     /**
@@ -150,6 +150,7 @@ public abstract class ServerEntity implements Entity {
      * @param setPreviousLocation whether the previous location should be updated
      */
     protected void setLocation(final Location location, final boolean setPreviousLocation) {
+        Objects.requireNonNull(location, "Location can not be null");
         if (setPreviousLocation)
             previousLocation = this.location;
         this.location = location;
@@ -190,6 +191,7 @@ public abstract class ServerEntity implements Entity {
      * @param onGround if the entity is on ground
      */
     public void handleMovement(final EntityPosition position, final boolean onGround) {
+        Objects.requireNonNull(position, "Position can not be null");
 
         final Location currentLocation = getLocation();
 
@@ -286,6 +288,7 @@ public abstract class ServerEntity implements Entity {
     @SuppressWarnings("unchecked")
     @Override
     public void load(final NBTCompound nbtCompound) {
+        Objects.requireNonNull(nbtCompound, "NBTCompound to load can not be null");
         List<Double> pos = (List<Double>) ((NBTList) nbtCompound.get("Pos")).revert();
         List<Double> motion = (List<Double>) ((NBTList) nbtCompound.get("Motion")).revert();
         List<Float> rotation = (List<Float>) ((NBTList) nbtCompound.get("Rotation")).revert();

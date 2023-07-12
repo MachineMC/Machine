@@ -33,6 +33,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -66,7 +67,8 @@ public class ServerPropertiesImpl implements ServerProperties {
     private static final int ICON_SIZE = 64;
 
     public ServerPropertiesImpl(final Server server, final File file) throws IOException {
-        this.server = server;
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        Objects.requireNonNull(file, "Source file can not be null");
         final Properties original = new Properties();
 
         final InputStream originalInputStream = getOriginal().orElseThrow(() ->
@@ -133,7 +135,7 @@ public class ServerPropertiesImpl implements ServerProperties {
 
         serverBrand = properties.getProperty("server-brand");
 
-        final File png = new File(ICON_FILE_NAME);
+        final File png = new File(server.getDirectory(), ICON_FILE_NAME);
         BufferedImage icon = null;
         String encodedIcon = null;
         if (png.exists()) {

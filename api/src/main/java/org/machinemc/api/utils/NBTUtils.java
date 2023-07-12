@@ -18,6 +18,7 @@ import org.machinemc.nbt.NBTCompound;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Utility class for NBT-related operations.
@@ -35,6 +36,8 @@ public final class NBTUtils {
      */
     public static void serializeNBT(final File file, final NBTCompound nbt) {
         try {
+            Objects.requireNonNull(file, "File can not be null");
+            Objects.requireNonNull(nbt, "NBTCompound can not be null");
             if (!file.exists() && !file.createNewFile())
                 throw new IOException("Unable to create file at " + file.getAbsolutePath());
             nbt.write(file);
@@ -51,7 +54,7 @@ public final class NBTUtils {
     public static NBTCompound deserializeNBTFile(final File file) {
         try {
             final NBTCompound compound = new NBTCompound();
-            compound.read(file);
+            compound.read(Objects.requireNonNull(file, "File can not be null"));
             return compound;
         } catch (IOException e) {
             throw new RuntimeException("Couldn't read file at " + file.getAbsolutePath(), e);

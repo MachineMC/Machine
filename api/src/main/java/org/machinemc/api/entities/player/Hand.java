@@ -19,6 +19,8 @@ import org.jetbrains.annotations.Range;
 
 import java.util.Optional;
 
+import java.util.Objects;
+
 /**
  * Representing player's hands.
  */
@@ -51,6 +53,7 @@ public enum Hand {
      * @return hand with given name
      */
     public static Optional<Hand> getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the hand can not be null");
         for (final Hand value : values()) {
             if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }

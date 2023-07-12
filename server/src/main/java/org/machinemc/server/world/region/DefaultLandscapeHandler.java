@@ -22,6 +22,7 @@ import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.landscape.LandscapeHandler;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Setter
@@ -37,7 +38,8 @@ public class DefaultLandscapeHandler implements LandscapeHandler {
                                    final BiomeManager biomeManager,
                                    final boolean autoSave,
                                    final int autoSaveLimit) {
-
+        Objects.requireNonNull(blockManager);
+        Objects.requireNonNull(biomeManager);
         if (blockManager.isRegistered(NamespacedKey.minecraft("air"))) {
             defaultBlock = NamespacedKey.minecraft("air");
         } else {

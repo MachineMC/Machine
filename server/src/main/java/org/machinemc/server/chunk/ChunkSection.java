@@ -24,6 +24,7 @@ import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.ServerBuffer;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -48,13 +49,13 @@ public class ChunkSection implements Section {
     private final Map<Integer, BlockEntity> clientBlockEntities = new ConcurrentHashMap<>();
 
     public ChunkSection(final Chunk source, final int index, final Supplier<NBTCompound> dataSupplier) {
-        this.source = source;
+        this.source = Objects.requireNonNull(source, "Source chunk can not be null");
         this.index = index;
+        this.dataSupplier = Objects.requireNonNull(dataSupplier, "NBT supplier can not be null");
         blockPalette = AdaptivePalette.blocks();
         biomePalette = AdaptivePalette.biomes();
         skyLight = new byte[0];
         blockLight = new byte[0];
-        this.dataSupplier = dataSupplier;
     }
 
     @Override
@@ -71,6 +72,7 @@ public class ChunkSection implements Section {
     @Override
     @Synchronized
     public void mergeData(final NBTCompound compound) {
+        Objects.requireNonNull(compound, "NBTCompound can not be null");
         dataSupplier.get().putAll(compound.clone());
     }
 

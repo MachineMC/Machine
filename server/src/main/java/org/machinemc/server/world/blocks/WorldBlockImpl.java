@@ -32,18 +32,18 @@ import java.util.function.Supplier;
  * Default world block implementation.
  * @see WorldBlockManager
  */
-@SuppressWarnings("ClassCanBeRecord")
 public class WorldBlockImpl implements WorldBlock {
 
     private final World world;
     private final BlockPosition position;
     private final Supplier<BlockType> blockTypeSupplier;
 
-    protected WorldBlockImpl(final World world, final BlockPosition position,
+    protected WorldBlockImpl(final World world,
+                             final BlockPosition position,
                              final Supplier<BlockType> blockTypeSupplier) {
-        this.world = world;
-        this.position = position;
-        this.blockTypeSupplier = blockTypeSupplier;
+        this.world = Objects.requireNonNull(world, "World of world block can not be null");
+        this.position = Objects.requireNonNull(position, "Position of world block can not be null");
+        this.blockTypeSupplier = Objects.requireNonNull(blockTypeSupplier, "Block type supplier can not be null");
     }
 
     @Override

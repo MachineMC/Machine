@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Range;
 
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -45,6 +46,7 @@ public enum SkinPart {
      * @return skin part with given name
      */
     public static Optional<SkinPart> getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the skin part can not be null");
         for (final SkinPart value : values()) {
             if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }
@@ -57,6 +59,9 @@ public enum SkinPart {
      * @return created mask from given skin parts
      */
     public static @Range(from = 0, to = 255) int skinMask(final SkinPart... parts) {
+        Objects.requireNonNull(parts, "Skin parts can not be null");
+        for (final SkinPart skinPart : parts)
+            Objects.requireNonNull(skinPart, "Skin parts can not be null");
         int mask = 0;
         for (final SkinPart part : parts)
             mask |= part.mask;

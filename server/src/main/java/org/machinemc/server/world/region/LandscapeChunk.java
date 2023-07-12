@@ -67,6 +67,9 @@ public class LandscapeChunk extends WorldChunk {
                           final int chunkZ,
                           final LandscapeHelper helper) throws ExecutionException {
         super(world, chunkX, chunkZ);
+        Objects.requireNonNull(worldBlockManager, "World block manager can not be null");
+        Objects.requireNonNull(helper, "Landscape helper can not be null");
+
         landscape = helper.get(chunkX * 16, chunkZ * 16);
         this.worldBlockManager = worldBlockManager;
         segmentX = getSectionRelativeCoordinate(chunkX);
@@ -93,6 +96,7 @@ public class LandscapeChunk extends WorldChunk {
     @Override
     @Synchronized
     public void setBlock(final int x, final int y, final int z, final BlockType blockType) {
+        Objects.requireNonNull(blockType, "Block type can not be null");
         checkCoordinates(x, y, z);
         final int offsetY = y - getBottom();
         final int sectionY = getSectionRelativeCoordinate(offsetY);
@@ -139,6 +143,7 @@ public class LandscapeChunk extends WorldChunk {
     @Override
     @Synchronized
     public void mergeBlockNBT(final int x, final int y, final int z, final NBTCompound compound) {
+        Objects.requireNonNull(compound, "NBT compound can not be null");
         checkCoordinates(x, y, z);
         final int offsetY = y - getBottom();
         final int sectionY = getSectionRelativeCoordinate(offsetY);
@@ -216,6 +221,7 @@ public class LandscapeChunk extends WorldChunk {
     @Override
     @Synchronized
     public void setBiome(final int x, final int y, final int z, final Biome biome) {
+        Objects.requireNonNull(biome, "Biome can not be null");
         checkCoordinates(x, y, z);
         final int offsetY = y - getBottom();
         final int sectionY = getSectionRelativeCoordinate(offsetY);
@@ -297,6 +303,7 @@ public class LandscapeChunk extends WorldChunk {
     @UnstableApi
     @Synchronized
     public void setSection(final int index, final Section section) {
+        Objects.requireNonNull(section);
         sections.put(index, section);
     }
 
@@ -311,6 +318,8 @@ public class LandscapeChunk extends WorldChunk {
      * @see #setSectionBlock(Section, int, int, int, int, BlockType)
      */
     public void readSectionBlockData(final Section section, final int sectionIndex, final Segment source) {
+        Objects.requireNonNull(section);
+        Objects.requireNonNull(source);
 
         // More than single block type is present in the source segment
         if (source.getBlockCount() != 1) {
@@ -375,6 +384,8 @@ public class LandscapeChunk extends WorldChunk {
                                 @Range(from = 0, to = 15) final int y,
                                 @Range(from = 0, to = 15) final int z,
                                 final BlockType blockType) {
+        Objects.requireNonNull(section);
+        Objects.requireNonNull(blockType);
         BlockData visual;
 
         // Calculating dynamic visual
@@ -423,6 +434,9 @@ public class LandscapeChunk extends WorldChunk {
                                       final int y,
                                       final int z,
                                       final BlockEntityType blockEntityType) {
+        Objects.requireNonNull(section);
+        Objects.requireNonNull(blockEntityType);
+
         // If the block type doesn't support client nbt we remove it from client block entities
         if (!blockEntityType.sendsToClient()) {
             section.getClientBlockEntities().remove(Section.index(x, y, z));
@@ -453,6 +467,9 @@ public class LandscapeChunk extends WorldChunk {
      * @param source segment source
      */
     public void readSectionBiomeData(final Section section, final Segment source) {
+        Objects.requireNonNull(section);
+        Objects.requireNonNull(source);
+
         final Palette biomesPalette = section.getBiomePalette();
         if (source.getBiomesCount() != 1) {
             final Map<String, Integer> biomes = new HashMap<>();

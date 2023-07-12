@@ -15,6 +15,7 @@
 package org.machinemc.api.world;
 
 import java.util.Optional;
+import java.util.Objects;
 
 /**
  * World type of a server world. Changes some properties
@@ -31,6 +32,7 @@ public enum WorldType {
      * @return world type with given name
      */
     public static Optional<WorldType> getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the world type can not be null");
         for (final WorldType value : values()) {
             if (value.name().equalsIgnoreCase(name))
                 return Optional.of(value);

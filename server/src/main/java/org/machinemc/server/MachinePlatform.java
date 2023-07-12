@@ -25,6 +25,7 @@ import org.machinemc.server.utils.ClassUtils;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Default Machine server platform.
@@ -58,6 +59,7 @@ public class MachinePlatform implements ServerPlatform {
 
     @Override
     public void load(final ServerApplication application) {
+        Objects.requireNonNull(application, "Provided application for Machine platform is null");
         Arrays.stream(Material.values()).forEach(Material::createBlockData);
         BlockData.finishRegistration();
         application.info("Loaded materials and block data");

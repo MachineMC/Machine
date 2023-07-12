@@ -19,6 +19,7 @@ import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.utils.NamespacedKey;
 
 import java.util.Optional;
+import org.machinemc.scriptive.style.Colour;
 
 /**
  * Represents effects in a certain biome.
@@ -28,32 +29,32 @@ public interface BiomeEffects extends NBTSerializable {
     /**
      * @return fog color of the biome
      */
-    int getFogColor();
+    Colour getFogColor();
 
     /**
      * @return sky color of the biome
      */
-    int getSkyColor();
+    Colour getSkyColor();
 
     /**
      * @return water color of the biome
      */
-    int getWaterColor();
+    Colour getWaterColor();
 
     /**
      * @return water fog color of the biome
      */
-    int getWaterFogColor();
+    Colour getWaterFogColor();
 
     /**
      * @return foliage color of the biome
      */
-    Optional<Integer> getFoliageColor();
+    Optional<Colour> getFoliageColor();
 
     /**
      * @return grass color of the biome
      */
-    Optional<Integer> getGrassColor();
+    Optional<Colour> getGrassColor();
 
     /**
      * @return grass color modifier of the biome

@@ -26,6 +26,7 @@ import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -43,6 +44,7 @@ public class ItemParticleOption implements ParticleOption {
 
     @Override
     public void load(final NBTCompound compound) {
+        Objects.requireNonNull(compound, "Source compound can not be null");
         final NBTCompound value;
         if (!compound.containsKey("value") || compound.get("value").tag() != NBT.Tag.COMPOUND)
             return;
@@ -91,6 +93,7 @@ public class ItemParticleOption implements ParticleOption {
 
     @Override
     public void write(final ServerBuffer buf) {
+        Objects.requireNonNull(buf);
         buf.writeSlot(item);
     }
 

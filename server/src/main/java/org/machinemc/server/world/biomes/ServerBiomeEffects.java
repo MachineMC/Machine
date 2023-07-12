@@ -21,9 +21,12 @@ import org.machinemc.api.particles.Particle;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.biomes.BiomeEffects;
 import org.machinemc.nbt.NBTCompound;
+import org.machinemc.scriptive.style.Colour;
+import org.machinemc.scriptive.style.HexColor;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Default biome effects implementation.
@@ -41,35 +44,63 @@ public class ServerBiomeEffects implements BiomeEffects {
     }
 
     @Getter
-    @Builder.Default private final int fogColor = 0xC0D8FF;
+    @Builder.Default private Colour fogColor = new HexColor(0xC0D8FF);
     @Getter
-    @Builder.Default private final int skyColor = 0x78A7FF;
+    @Builder.Default private Colour skyColor = new HexColor(0x78A7FF);
     @Getter
-    @Builder.Default private final int waterColor = 0x3F76E4;
+    @Builder.Default private Colour waterColor = new HexColor(0x3F76E4);
     @Getter
-    @Builder.Default private final int waterFogColor = 0x50533;
-    private final @Nullable Integer foliageColor;
-    private final @Nullable Integer grassColor;
-    private final @Nullable BiomeEffects.GrassColorModifier grassColorModifier;
-    private final @Nullable NamespacedKey ambientSound;
-    private final @Nullable MoodSound moodSound;
-    private final @Nullable AdditionsSound additionsSound;
-    private final @Nullable Music music;
-    private final @Nullable Float biomeParticleProbability;
-    private final @Nullable Particle<?> biomeParticle;
+    @Builder.Default private Colour waterFogColor = new HexColor(0x50533);
+    @Builder.Default private @Nullable Colour foliageColor = null;
+    @Builder.Default private @Nullable Colour grassColor = null;
+    @Builder.Default private @Nullable BiomeEffects.GrassColorModifier grassColorModifier = null;
+    @Builder.Default private @Nullable NamespacedKey ambientSound = null;
+    @Builder.Default private @Nullable MoodSound moodSound = null;
+    @Builder.Default private @Nullable AdditionsSound additionsSound = null;
+    @Builder.Default private @Nullable Music music = null;
+    @Builder.Default private @Nullable Float biomeParticleProbability = null;
+    @Builder.Default private @Nullable Particle<?> biomeParticle = null;
+
+    ServerBiomeEffects(final Colour fogColor,
+                       final Colour skyColor,
+                       final Colour waterColor,
+                       final Colour waterFogColor,
+                       final @Nullable Colour foliageColor,
+                       final @Nullable Colour grassColor,
+                       final @Nullable BiomeEffects.GrassColorModifier grassColorModifier,
+                       final @Nullable NamespacedKey ambientSound,
+                       final @Nullable MoodSound moodSound,
+                       final @Nullable AdditionsSound additionsSound,
+                       final @Nullable Music music,
+                       final @Nullable Float biomeParticleProbability,
+                       final @Nullable Particle<?> biomeParticle) {
+        this.fogColor = Objects.requireNonNull(fogColor, "Fog color of biome effects can not be null");
+        this.skyColor = Objects.requireNonNull(skyColor, "Sky color of biome effects can not be null");
+        this.waterColor = Objects.requireNonNull(waterColor, "Water color of biome effects can not be null");
+        this.waterFogColor = Objects.requireNonNull(waterFogColor, "Water fog color of biome effects can not be null");
+        this.foliageColor = foliageColor;
+        this.grassColor = grassColor;
+        this.grassColorModifier = grassColorModifier;
+        this.ambientSound = ambientSound;
+        this.moodSound = moodSound;
+        this.additionsSound = additionsSound;
+        this.music = music;
+        this.biomeParticleProbability = biomeParticleProbability;
+        this.biomeParticle = biomeParticle;
+    }
 
     @Override
     public NBTCompound toNBT() {
         final NBTCompound compound = new NBTCompound(Map.of(
-                "fog_color", fogColor,
-                "sky_color", skyColor,
-                "water_color", waterColor,
-                "water_fog_color", waterFogColor
+                "fog_color", fogColor.getRGB(),
+                "sky_color", skyColor.getRGB(),
+                "water_color", waterColor.getRGB(),
+                "water_fog_color", waterFogColor.getRGB()
         ));
         if (foliageColor != null)
-            compound.set("foliage_color", foliageColor);
+            compound.set("foliage_color", foliageColor.getRGB());
         if (grassColor != null)
-            compound.set("grass_color", grassColor);
+            compound.set("grass_color", grassColor.getRGB());
         if (grassColorModifier != null)
             compound.set("grass_color_modifier", grassColorModifier.name().toLowerCase());
         if (ambientSound != null)
@@ -88,12 +119,12 @@ public class ServerBiomeEffects implements BiomeEffects {
     }
 
     @Override
-    public Optional<Integer> getFoliageColor() {
+    public Optional<Colour> getFoliageColor() {
         return Optional.ofNullable(foliageColor);
     }
 
     @Override
-    public Optional<Integer> getGrassColor() {
+    public Optional<Colour> getGrassColor() {
         return Optional.ofNullable(grassColor);
     }
 
@@ -135,12 +166,12 @@ public class ServerBiomeEffects implements BiomeEffects {
     @Override
     public String toString() {
         return "ServerBiomeEffects("
-                + "fogColor=" + fogColor
-                + ", skyColor=" + skyColor
-                + ", waterColor=" + waterColor
-                + ", waterFogColor=" + waterFogColor
-                + (foliageColor != null ? ", foliageColor=" + foliageColor : "")
-                + (grassColor != null ? ", grassColor=" + grassColor : "")
+                + "fogColor=" + fogColor.getRGB()
+                + ", skyColor=" + skyColor.getRGB()
+                + ", waterColor=" + waterColor.getRGB()
+                + ", waterFogColor=" + waterFogColor.getRGB()
+                + (foliageColor != null ? ", foliageColor=" + foliageColor.getRGB() : "")
+                + (grassColor != null ? ", grassColor=" + grassColor.getRGB() : "")
                 + (grassColorModifier != null ? ", grassColorModifier=" + grassColorModifier : "")
                 + (ambientSound != null ? ", ambientSound=" + ambientSound : "")
                 + (moodSound != null ? ", moodSound=" + moodSound : "")

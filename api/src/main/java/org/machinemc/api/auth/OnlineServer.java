@@ -21,6 +21,7 @@ import javax.crypto.SecretKey;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Objects;
 
 /**
  * Class that adds functionality to the server in online mode.
@@ -32,7 +33,9 @@ public class OnlineServer {
     protected final KeyPair key;
 
     public OnlineServer(final Server server) {
-        this.server = server;
+        if (server.getOnlineServer().isPresent())
+            throw new IllegalArgumentException("Online server for provided server already exists");
+        this.server = Objects.requireNonNull(server, "Server can not be null");
         key = Crypt.generateKeyPair();
     }
 

@@ -24,6 +24,7 @@ import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.nbt.NBTCompound;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.Map.entry;
@@ -31,30 +32,30 @@ import static java.util.Map.entry;
 /**
  * Default implementation of the dimension type.
  */
-@Builder
 @Getter
+@Builder
 public class ServerDimensionType implements DimensionType {
 
     private final NamespacedKey name;
-    @Builder.Default private final boolean natural = true;
-    private final float ambientLight;
-    private final boolean ceilingEnabled;
-    @Builder.Default private final boolean skylightEnabled = true;
+    @Builder.Default private boolean natural = true;
+    @Builder.Default private float ambientLight = 0;
+    @Builder.Default private boolean ceilingEnabled = false;
+    @Builder.Default private boolean skylightEnabled = true;
     @Getter(AccessLevel.NONE)
-    private final @Nullable Long fixedTime;
-    @Builder.Default private final boolean raidCapable = true;
-    private final boolean respawnAnchorSafe;
-    private final boolean ultrawarm;
-    @Builder.Default private final boolean bedSafe = true;
-    @Builder.Default private final NamespacedKey effects = NamespacedKey.minecraft("overworld");
-    private final boolean piglinSafe;
-    @Builder.Default private final @Range(from = -2032, to = 2016) int minY = -64;
-    @Builder.Default private final @Range(from = 0, to = 4064) int height = 384;
-    @Builder.Default private final @Range(from = 0, to = 4064) int logicalHeight = 384;
-    @Builder.Default private final int coordinateScale = 1;
-    @Builder.Default private final NamespacedKey infiniburn = NamespacedKey.minecraft("infiniburn_overworld");
-    @Builder.Default private final int monsterSpawnBlockLightLimit = 5;
-    @Builder.Default private final int monsterSpawnLightLevel = 1;
+    @Builder.Default private @Nullable Long fixedTime = null;
+    @Builder.Default private boolean raidCapable = true;
+    @Builder.Default private boolean respawnAnchorSafe = false;
+    @Builder.Default private boolean ultrawarm = false;
+    @Builder.Default private boolean bedSafe = true;
+    @Builder.Default private NamespacedKey effects = NamespacedKey.minecraft("overworld");
+    @Builder.Default private boolean piglinSafe = false;
+    @Builder.Default private @Range(from = -2032, to = 2016) int minY = -64;
+    @Builder.Default private @Range(from = 0, to = 4064) int height = 384;
+    @Builder.Default private @Range(from = 0, to = 4064) int logicalHeight = 384;
+    @Builder.Default private int coordinateScale = 1;
+    @Builder.Default private NamespacedKey infiniburn = NamespacedKey.minecraft("infiniburn_overworld");
+    @Builder.Default private int monsterSpawnBlockLightLimit = 5;
+    @Builder.Default private int monsterSpawnLightLevel = 1;
 
     /**
      * Creates the default dimension type.
@@ -64,6 +65,46 @@ public class ServerDimensionType implements DimensionType {
         return ServerDimensionType.builder()
                 .name(NamespacedKey.of(NamespacedKey.MINECRAFT_NAMESPACE, "overworld"))
                 .build();
+    }
+
+    ServerDimensionType(final NamespacedKey name,
+                        final boolean natural,
+                        final float ambientLight,
+                        final boolean ceilingEnabled,
+                        final boolean skylightEnabled,
+                        final @Nullable Long fixedTime,
+                        final boolean raidCapable,
+                        final boolean respawnAnchorSafe,
+                        final boolean ultrawarm,
+                        final boolean bedSafe,
+                        final NamespacedKey effects,
+                        final boolean piglinSafe,
+                        final int minY,
+                        final int height,
+                        final int logicalHeight,
+                        final int coordinateScale,
+                        final NamespacedKey infiniburn,
+                        final int monsterSpawnBlockLightLimit,
+                        final int monsterSpawnLightLevel) {
+        this.name = Objects.requireNonNull(name, "Dimension name can not be null");
+        this.natural = natural;
+        this.ambientLight = ambientLight;
+        this.ceilingEnabled = ceilingEnabled;
+        this.skylightEnabled = skylightEnabled;
+        this.fixedTime = fixedTime;
+        this.raidCapable = raidCapable;
+        this.respawnAnchorSafe = respawnAnchorSafe;
+        this.ultrawarm = ultrawarm;
+        this.bedSafe = bedSafe;
+        this.effects =  Objects.requireNonNull(effects, "Effects can not be null");
+        this.piglinSafe = piglinSafe;
+        this.minY = minY;
+        this.height = height;
+        this.logicalHeight = logicalHeight;
+        this.coordinateScale = coordinateScale;
+        this.infiniburn = Objects.requireNonNull(infiniburn, "Infiniburn can not be null");
+        this.monsterSpawnBlockLightLimit = monsterSpawnBlockLightLimit;
+        this.monsterSpawnLightLevel = monsterSpawnLightLevel;
     }
 
     @Override

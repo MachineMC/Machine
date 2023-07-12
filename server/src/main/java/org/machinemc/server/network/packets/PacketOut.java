@@ -14,6 +14,8 @@
  */
 package org.machinemc.server.network.packets;
 
+import java.util.Objects;
+
 /**
  * Packet sent from server to client.
  */
@@ -30,6 +32,9 @@ public abstract class PacketOut extends ServerPacket {
                                    final int id,
                                    final PacketState state,
                                    final PacketCreator<? extends PacketOut> creator) {
+        Objects.requireNonNull(packetClass, "Packet class can not be null");
+        Objects.requireNonNull(state, "Packet state can not be null");
+        Objects.requireNonNull(creator, "Packet creator can not be null");
         if (!PacketState.out().contains(state))
             throw new IllegalStateException("Packet of state " + state + " can not be registered as PacketOut");
         final int fullID = id | state.getMask();

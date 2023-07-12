@@ -51,10 +51,7 @@ import org.machinemc.server.world.region.LandscapeHelper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
@@ -89,6 +86,7 @@ public class ServerWorld extends AbstractWorld {
      * @return default server world
      */
     public static World createDefault(final Machine server) {
+        Objects.requireNonNull(server, "Server can not be null");
         final File directory = new File(server.getDirectory(), DEFAULT_WORLD_FOLDER + "/");
         if (!directory.exists() && !directory.mkdirs())
             throw new RuntimeException("Failed to create the world directory " + directory.getPath());
@@ -111,7 +109,7 @@ public class ServerWorld extends AbstractWorld {
                        final WorldType worldType,
                        final long seed) {
         super(server, name, FileUtils.getOrCreateUUID(folder), dimensionType, worldType, seed);
-        this.folder = folder;
+        this.folder = Objects.requireNonNull(folder, "World directory can not be null");
         regionFolder = new File(folder.getPath() + "/region/");
         landscapeHelper = new LandscapeHelper(this,
                 regionFolder,
@@ -197,6 +195,7 @@ public class ServerWorld extends AbstractWorld {
      * @param player player to load
      */
     public void loadPlayer(final Player player) {
+        Objects.requireNonNull(player, "Player to load can not be null");
         // TODO this should take player's view distance
         final Scheduler scheduler = getServer().getScheduler();
         final int chunksPerTask = 10;
@@ -263,6 +262,7 @@ public class ServerWorld extends AbstractWorld {
 
     @Override
     public boolean spawn(final Entity entity) {
+        Objects.requireNonNull(entity, "Entity to spawn can not be null");
         if (entity.getWorld() != this) return false;
         if (entity instanceof Player player)
             loadPlayer(player);
@@ -271,6 +271,7 @@ public class ServerWorld extends AbstractWorld {
 
     @Override
     public boolean remove(final Entity entity) {
+        Objects.requireNonNull(entity, "Entity to remove can not be null");
         if (!entityList.contains(entity)) return false;
         if (entity instanceof Player player)
             unloadPlayer(player);
