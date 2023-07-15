@@ -370,7 +370,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     public boolean handleTeleportConfirm(final int teleportId) {
         if (!teleporting || this.teleportId != teleportId) {
             teleporting = false;
-            connection.disconnect(TranslationComponent.of("multidisconnect.invalid_player_movement"));
+            connection.disconnect(TranslationComponent.of("multiplayer.disconnect.invalid_player_movement"));
             return false;
         }
         teleporting = false;
