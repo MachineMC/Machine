@@ -29,7 +29,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutEntityAnimation extends PacketOut {
 
-    private static final int ID = 0x03;
+    private static final int ID = 0x04;
 
     private int entityId;
     private Animation animation;

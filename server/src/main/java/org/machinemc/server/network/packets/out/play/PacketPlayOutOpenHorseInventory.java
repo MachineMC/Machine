@@ -28,7 +28,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutOpenHorseInventory extends PacketOut {
 
-    private static final int ID = 0x1E;
+    private static final int ID = 0x20;
 
     private byte windowId;
     private int slotCount;

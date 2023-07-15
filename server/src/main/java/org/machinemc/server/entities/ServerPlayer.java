@@ -69,6 +69,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     private Set<SkinPart> displayedSkinParts;
     @Getter @Setter
     private Hand mainHand;
+    @Getter
+    private boolean listed = true;
     @Getter @Setter
     private int latency = 0;
     @Getter
@@ -180,7 +182,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
                 getWorld().getWorldType() == WorldType.FLAT,
                 false,
                 null,
-                null
+                null,
+                getPortalCooldown()
         ));
 
         super.init();
@@ -210,12 +213,16 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         // Player Position
 
         // Player info
-        sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, this));
+        final EnumSet<PacketPlayOutPlayerInfo.Action> actions = EnumSet.of(
+                PacketPlayOutPlayerInfo.Action.ADD_PLAYER,
+                PacketPlayOutPlayerInfo.Action.UPDATE_LATENCY
+        );
+        sendPacket(new PacketPlayOutPlayerInfo(actions, this));
         for (final Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
             if (player == this)
                 continue;
-            sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, player));
-            player.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, this));
+            sendPacket(new PacketPlayOutPlayerInfo(actions, player));
+            player.sendPacket(new PacketPlayOutPlayerInfo(actions, this));
         }
 
         // Set Chunk Cache Center
@@ -226,9 +233,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         // Set Default Spawn Position
         sendWorldSpawnChange(getWorld().getWorldSpawn());
 
-
         // Synchronize Player Position
-        synchronizePosition(getLocation(), Collections.emptySet(), false);
+        synchronizePosition(new EntityPosition(0, 0, 0), EnumSet.allOf(TeleportFlags.class));
         for (final Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
             if (player == this)
                 continue;
@@ -252,9 +258,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
             throw new IllegalStateException("You can't remove player from server until the connection is closed");
         super.remove();
         getWorld().remove(this);
-        getServer().getConnection().broadcastPacket(
-                new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this)
-        );
+        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfoRemove(getUuid()));
         getServer().getPlayerManager().removePlayer(this);
         final TranslationComponent leaveMessage = TranslationComponent.of(
                 "multiplayer.player.left", TranslationComponent.of(getName())
@@ -277,11 +281,10 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     @Override
     public void setPlayerListName(final @Nullable Component playerListName) {
         this.playerListName = playerListName != null ? playerListName : TextComponent.of(getName());
-        getServer().getConnection().broadcastPacket(
-                new PacketPlayOutPlayerInfo(
-                        PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME,
-                        this)
-        );
+        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(
+                EnumSet.of(PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME),
+                this
+        ));
     }
 
     @Override
@@ -289,6 +292,19 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         previousGamemode = this.gamemode;
         this.gamemode = gamemode;
         sendGamemodeChange(gamemode);
+        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(
+                EnumSet.of(PacketPlayOutPlayerInfo.Action.UPDATE_GAMEMODE),
+                this
+        ));
+    }
+
+    @Override
+    public void setListed(final boolean listed) {
+        this.listed = listed;
+        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(
+                EnumSet.of(PacketPlayOutPlayerInfo.Action.UPDATE_LISTED),
+                this
+        ));
     }
 
     @Override
@@ -327,28 +343,24 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     /**
      * Synchronizes player's position.
-     * @param location new location
+     * @param position new position
      * @param flags teleport flags
-     * @param dismountVehicle if player dismounted a vehicle
      */
-    public void synchronizePosition(final Location location,
-                                    final Set<TeleportFlags> flags,
-                                    final boolean dismountVehicle) {
+    public void synchronizePosition(final EntityPosition position, final Set<TeleportFlags> flags) {
         teleporting = true;
 
-        final double x = location.getX() - (flags.contains(TeleportFlags.X) ? getLocation().getX() : 0d);
-        final double y = location.getY() - (flags.contains(TeleportFlags.Y) ? getLocation().getY() : 0d);
-        final double z = location.getZ() - (flags.contains(TeleportFlags.Z) ? getLocation().getZ() : 0d);
-        final float yaw = location.getYaw() - (flags.contains(TeleportFlags.YAW) ? getLocation().getYaw() : 0f);
-        final float pitch = location.getPitch() - (flags.contains(TeleportFlags.PITCH) ? getLocation().getPitch() : 0f);
+        final double x = position.getX() + (flags.contains(TeleportFlags.X) ? getLocation().getX() : 0d);
+        final double y = position.getY() + (flags.contains(TeleportFlags.Y) ? getLocation().getY() : 0d);
+        final double z = position.getZ() + (flags.contains(TeleportFlags.Z) ? getLocation().getZ() : 0d);
+        final float yaw = position.getYaw() + (flags.contains(TeleportFlags.YAW) ? getLocation().getYaw() : 0f);
+        final float pitch = position.getPitch() + (flags.contains(TeleportFlags.PITCH) ? getLocation().getPitch() : 0f);
 
         teleportLocation = new Location(x, y, z, yaw, pitch, getWorld());
         if (++teleportId == Integer.MAX_VALUE)
             teleportId = 0;
 
-        sendPacket(new PacketPlayOutSynchronizePlayerPosition(location, flags, teleportId, dismountVehicle));
+        sendPacket(new PacketPlayOutSynchronizePlayerPosition(position, flags, teleportId));
     }
-
 
     /**
      * Handles the teleport confirmation of the player.

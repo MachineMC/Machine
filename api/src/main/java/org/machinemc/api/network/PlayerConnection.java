@@ -28,6 +28,7 @@ import org.machinemc.scriptive.components.TranslationComponent;
 import java.net.InetSocketAddress;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.machinemc.api.network.packets.Packet.PacketState.*;
 
@@ -41,6 +42,11 @@ public interface PlayerConnection extends ServerProperty {
      * @return client state of the connection
      */
     ClientState getState();
+
+    /**
+     * @return session id of the connection
+     */
+    @Nullable UUID getSessionId();
 
     /**
      * @return public key data of the connection

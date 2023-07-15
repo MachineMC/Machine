@@ -28,7 +28,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutSpawnExperienceOrb extends PacketOut {
 
-    private static final int ID = 0x01;
+    private static final int ID = 0x02;
 
     private int entityId;
     private EntityPosition position;

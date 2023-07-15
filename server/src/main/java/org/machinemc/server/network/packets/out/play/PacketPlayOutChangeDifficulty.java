@@ -28,7 +28,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter
 public class PacketPlayOutChangeDifficulty extends PacketOut {
 
-    private static final int ID = 0x0B;
+    private static final int ID = 0x0C;
 
     @Setter
     private Difficulty difficulty;

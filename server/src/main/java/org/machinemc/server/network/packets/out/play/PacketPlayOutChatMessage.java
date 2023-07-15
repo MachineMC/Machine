@@ -32,7 +32,7 @@ import java.util.UUID;
 @Getter @Setter
 public class PacketPlayOutChatMessage extends PacketOut {
 
-    private static final int ID = 0x33;
+    private static final int ID = 0x35;
 
     private Component signedMessage;
     private @Nullable Component unsignedMessage;

@@ -26,7 +26,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @ToString
 public class PacketPlayOutBorderSize extends PacketOut {
 
-    private static final int ID = 0x46;
+    private static final int ID = 0x49;
 
     @Getter @Setter
     private double diameter;

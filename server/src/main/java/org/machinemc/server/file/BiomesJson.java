@@ -76,13 +76,6 @@ public class BiomesJson implements ServerFile, ServerProperty {
                 category = original.getCategory();
             }
 
-            Biome.Precipitation precipitation;
-            try {
-                precipitation = Biome.Precipitation.valueOf(biome.get("precipitation").getAsString().toUpperCase());
-            } catch (Exception ignored) {
-                precipitation = original.getPrecipitation();
-            }
-
             Biome.TemperatureModifier temperatureModifier;
             try {
                 temperatureModifier = Biome.TemperatureModifier.valueOf(
@@ -213,9 +206,11 @@ public class BiomesJson implements ServerFile, ServerProperty {
                     .downfall(biome.has("downfall")
                             ? biome.get("downfall").getAsFloat()
                             : original.getDownfall())
+                    .precipitation(biome.has("has_precipitation")
+                            ? biome.get("has_precipitation").getAsBoolean()
+                            : original.hasPrecipitation())
                     .category(category)
                     .effects(effects)
-                    .precipitation(precipitation)
                     .temperatureModifier(temperatureModifier)
                     .build());
         }

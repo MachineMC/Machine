@@ -29,7 +29,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutWorldSpawnPosition extends PacketOut {
 
-    private static final int ID = 0x4D;
+    private static final int ID = 0x50;
 
     private BlockPosition position;
     private float angle;

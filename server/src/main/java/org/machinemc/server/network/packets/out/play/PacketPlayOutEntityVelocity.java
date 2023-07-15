@@ -28,7 +28,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutEntityVelocity extends PacketOut {
 
-    private static final int ID = 0x52;
+    private static final int ID = 0x54;
 
     private int entityId;
     private short velocityX, velocityY, velocityZ;

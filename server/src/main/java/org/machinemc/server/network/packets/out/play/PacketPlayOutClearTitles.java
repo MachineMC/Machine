@@ -26,7 +26,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @ToString
 public class PacketPlayOutClearTitles extends PacketOut {
 
-    private static final int ID = 0x0D;
+    private static final int ID = 0x0E;
 
     @Getter @Setter
     private boolean reset;

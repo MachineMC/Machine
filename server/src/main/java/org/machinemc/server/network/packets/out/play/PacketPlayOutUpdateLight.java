@@ -28,7 +28,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutUpdateLight extends PacketOut {
 
-    private static final int ID = 0x24;
+    private static final int ID = 0x27;
 
     private int chunkX, chunkZ;
     private LightData lightData;

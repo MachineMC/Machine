@@ -67,8 +67,8 @@ import java.util.stream.Collectors;
 public final class Machine implements Server, RunnableServer {
 
     public static final String SERVER_BRAND = "Machine";
-    public static final String SERVER_IMPLEMENTATION_VERSION = "1.19.2";
-    public static final int SERVER_IMPLEMENTATION_PROTOCOL = 760;
+    public static final String SERVER_IMPLEMENTATION_VERSION = "1.20.1";
+    public static final int SERVER_IMPLEMENTATION_PROTOCOL = 763;
     public static final int DEFAULT_TPS = 20;
 
     public static final ClassLoader CLASS_LOADER = Machine.class.getClassLoader();

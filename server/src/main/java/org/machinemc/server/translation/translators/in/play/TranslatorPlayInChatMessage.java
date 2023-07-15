@@ -18,7 +18,7 @@ import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.chat.Messenger;
 import org.machinemc.api.entities.Player;
 import org.machinemc.scriptive.components.TextComponent;
-import org.machinemc.scriptive.util.ChatUtils;
+import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.play.PacketPlayInChatMessage;
@@ -43,11 +43,13 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
         final ServerPlayer player = connection.getOwner();
         if (player == null)
             return;
-        final String message = ChatUtils.DEFAULT_CHAT_FORMAT
-                .replace("%name%", player.getName())
-                .replace("%message%", packet.getMessage());
+        final TranslationComponent message = TranslationComponent.of(
+                "chat.type.text",
+                player.getDisplayName(),
+                TextComponent.of(packet.getMessage())
+        );
         for (final Player serverPlayer : connection.getServer().getPlayerManager().getPlayers())
-            serverPlayer.sendMessage(player.getUuid(), TextComponent.of(message), MessageType.SYSTEM);
+            serverPlayer.sendMessage(player.getUuid(), message, MessageType.SYSTEM);
         connection.getServer().getConsole().info(message);
     }
 

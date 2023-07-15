@@ -19,31 +19,27 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.scriptive.components.Component;
-import org.jetbrains.annotations.Nullable;
-import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
 @ToString
-@Getter @Setter
-public class PacketPlayOutChatPreview extends PacketOut {
+public class PacketPlayOutSetTabListHeaderAndFooter extends PacketOut {
 
-    private static final int ID = 0x0C;
+    private static final int ID = 0x65;
 
-    private int queryId;
-    private @Nullable Component preview;
+    @Getter @Setter
+    private Component header, footer;
 
     static {
-        register(PacketPlayOutChatPreview.class, ID, Packet.PacketState.PLAY_OUT,
-                PacketPlayOutChatPreview::new);
+        register(PacketPlayOutSetTabListHeaderAndFooter.class, ID, PacketState.PLAY_OUT,
+                PacketPlayOutSetTabListHeaderAndFooter::new);
     }
 
-    public PacketPlayOutChatPreview(final ServerBuffer buf) {
-        queryId = buf.readVarInt();
-        if (buf.readBoolean())
-            preview = buf.readComponent();
+    public PacketPlayOutSetTabListHeaderAndFooter(final ServerBuffer buf) {
+        header = buf.readComponent();
+        footer = buf.readComponent();
     }
 
     @Override
@@ -52,24 +48,21 @@ public class PacketPlayOutChatPreview extends PacketOut {
     }
 
     @Override
-    public Packet.PacketState getPacketState() {
-        return Packet.PacketState.PLAY_OUT;
+    public PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
     }
 
     @Override
     public byte[] serialize() {
-        final FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeInt(queryId)
-                .writeBoolean(preview != null);
-        if (preview != null) {
-            buf.writeComponent(preview);
-        }
-        return buf.bytes();
+        return new FriendlyByteBuf()
+                .writeComponent(header)
+                .writeComponent(footer)
+                .bytes();
     }
 
     @Override
     public PacketOut clone() {
-        return new PacketPlayOutChatPreview(new FriendlyByteBuf(serialize()));
+        return new PacketPlayOutSetTabListHeaderAndFooter(new FriendlyByteBuf(serialize()));
     }
 
 }

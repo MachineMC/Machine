@@ -14,7 +14,6 @@
  */
 package org.machinemc.server.network.packets.out.play;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -22,22 +21,27 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+import java.util.UUID;
+
 @ToString
-public class PacketPlayOutDisplayChatPreview extends PacketOut {
+public class PacketPlayOutPlayerInfoRemove extends PacketOut {
 
-    private static final int ID = 0x4E;
-
-    @Getter @Setter
-    private boolean chatPreviewSetting;
+    private static final int ID = 0x39;
 
     static {
-        register(PacketPlayOutDisplayChatPreview.class, ID, PacketState.PLAY_OUT,
-                PacketPlayOutDisplayChatPreview::new);
+        register(PacketPlayOutPlayerInfoRemove.class, ID, PacketState.PLAY_OUT,
+                PacketPlayOutPlayerInfoRemove::new);
     }
 
-    public PacketPlayOutDisplayChatPreview(final ServerBuffer buf) {
-        chatPreviewSetting = buf.readBoolean();
+    @Getter @Setter
+    private UUID[] uuids;
+
+    public PacketPlayOutPlayerInfoRemove(final UUID... uuids) {
+        this.uuids = uuids;
+    }
+
+    public PacketPlayOutPlayerInfoRemove(final ServerBuffer buf) {
+        uuids = buf.readArray(UUID.class, ServerBuffer::readUUID);
     }
 
     @Override
@@ -53,13 +57,12 @@ public class PacketPlayOutDisplayChatPreview extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeBoolean(chatPreviewSetting)
+                .writeArray(uuids, ServerBuffer::writeUUID)
                 .bytes();
     }
 
     @Override
     public PacketOut clone() {
-        return new PacketPlayOutDisplayChatPreview(new FriendlyByteBuf(serialize()));
+        return new PacketPlayOutPlayerInfoRemove(new FriendlyByteBuf(serialize()));
     }
-
 }

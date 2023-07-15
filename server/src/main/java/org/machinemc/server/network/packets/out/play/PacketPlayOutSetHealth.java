@@ -27,7 +27,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutSetHealth extends PacketOut {
 
-    private static final int ID = 0x55;
+    private static final int ID = 0x57;
 
     private float health;
     private int food;

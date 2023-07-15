@@ -26,7 +26,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @ToString
 public class PacketPlayOutCamera extends PacketOut {
 
-    private static final int ID = 0x49;
+    private static final int ID = 0x4C;
 
     @Getter @Setter
     private int cameraId;

@@ -25,12 +25,13 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 
 @AllArgsConstructor
 @ToString
+@Getter @Setter
 public class PacketPlayOutOpenSignEditor extends PacketOut {
 
-    private static final int ID = 0x2E;
+    private static final int ID = 0x31;
 
-    @Getter @Setter
     private BlockPosition position;
+    private boolean frontText;
 
     static {
         register(PacketPlayOutOpenSignEditor.class, ID, PacketState.PLAY_OUT,
@@ -39,6 +40,7 @@ public class PacketPlayOutOpenSignEditor extends PacketOut {
 
     public PacketPlayOutOpenSignEditor(final ServerBuffer buf) {
         position = buf.readBlockPos();
+        frontText = buf.readBoolean();
     }
 
     @Override
@@ -55,6 +57,7 @@ public class PacketPlayOutOpenSignEditor extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeBlockPos(position)
+                .writeBoolean(frontText)
                 .bytes();
     }
 

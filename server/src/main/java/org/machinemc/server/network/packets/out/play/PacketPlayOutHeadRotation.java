@@ -28,7 +28,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutHeadRotation extends PacketOut {
 
-    private static final int ID = 0x3F;
+    private static final int ID = 0x42;
 
     private int entityId;
     private float angle;

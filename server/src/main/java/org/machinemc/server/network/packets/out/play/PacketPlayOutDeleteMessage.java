@@ -19,33 +19,25 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.server.utils.FriendlyByteBuf;
 
-import java.util.UUID;
-
 @AllArgsConstructor
 @ToString
-@Getter @Setter
-public class PacketPlayOutSpawnPlayer extends PacketOut {
+public class PacketPlayOutDeleteMessage extends PacketOut {
 
-    private static final int ID = 0x03;
+    private static final int ID = 0x19;
 
-    private int entityId;
-    private UUID uuid;
-    private EntityPosition position;
-
+    @Getter @Setter
+    private byte[] signature;
 
     static {
-        register(PacketPlayOutSpawnPlayer.class, ID, PacketState.PLAY_OUT,
-                PacketPlayOutSpawnPlayer::new);
+        register(PacketPlayOutDeleteMessage.class, ID, PacketState.PLAY_OUT,
+                PacketPlayOutDeleteMessage::new);
     }
 
-    public PacketPlayOutSpawnPlayer(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
-        uuid = buf.readUUID();
-        position = EntityPosition.read(buf);
+    public PacketPlayOutDeleteMessage(final ServerBuffer buf) {
+        signature = buf.readByteArray();
     }
 
     @Override
@@ -61,15 +53,13 @@ public class PacketPlayOutSpawnPlayer extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
-                .writeUUID(uuid)
-                .write(position)
+                .writeByteArray(signature)
                 .bytes();
     }
 
     @Override
     public PacketOut clone() {
-        return new PacketPlayOutSpawnPlayer(new FriendlyByteBuf(serialize()));
+        return new PacketPlayOutDeleteMessage(new FriendlyByteBuf(serialize()));
     }
 
 }

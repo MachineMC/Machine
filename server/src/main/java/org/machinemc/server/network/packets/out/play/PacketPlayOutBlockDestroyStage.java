@@ -28,7 +28,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutBlockDestroyStage extends PacketOut {
 
-    private static final int ID = 0x06;
+    private static final int ID = 0x07;
 
     private int entityId;
     private BlockPosition position;

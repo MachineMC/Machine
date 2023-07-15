@@ -29,7 +29,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutChunkData extends PacketOut {
 
-    private static final int ID = 0x21;
+    private static final int ID = 0x24;
 
     private int chunkX;
     private int chunkZ;

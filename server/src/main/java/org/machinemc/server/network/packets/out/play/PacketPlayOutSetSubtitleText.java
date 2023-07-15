@@ -28,7 +28,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @ToString
 public class PacketPlayOutSetSubtitleText extends PacketOut {
 
-    private static final int ID = 0x5B;
+    private static final int ID = 0x5D;
 
     @Getter @Setter
     private Component text;

@@ -27,7 +27,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutSetExperience extends PacketOut {
 
-    private static final int ID = 0x54;
+    private static final int ID = 0x56;
 
     private float experienceBar; // Between 0 and 1
     private int level, totalExperience;

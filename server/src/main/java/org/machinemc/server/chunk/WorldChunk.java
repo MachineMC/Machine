@@ -134,8 +134,7 @@ public abstract class WorldChunk implements Chunk {
                 emptyBlockMask.set(index);
             }
         }
-        return new LightData(true,
-                skyMask, blockMask,
+        return new LightData(skyMask, blockMask,
                 emptySkyMask, emptyBlockMask,
                 skyLights, blockLights);
     }

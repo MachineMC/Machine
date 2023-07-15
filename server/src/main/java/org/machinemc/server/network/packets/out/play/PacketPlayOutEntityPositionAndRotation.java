@@ -28,7 +28,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutEntityPositionAndRotation  extends PacketOut {
 
-    private static final int ID = 0x29;
+    private static final int ID = 0x2C;
 
     static {
         register(PacketPlayOutEntityPositionAndRotation.class, ID, PacketState.PLAY_OUT,

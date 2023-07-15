@@ -28,7 +28,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
 
-    private static final int ID = 0x30;
+    private static final int ID = 0x33;
 
     private byte windowId;
     private NamespacedKey recipe;

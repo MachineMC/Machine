@@ -27,7 +27,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @ToString
 public class PacketPlayOutSetActionBarText extends PacketOut {
 
-    private static final int ID = 0x43;
+    private static final int ID = 0x46;
 
     @Getter @Setter
     private Component actionBar;

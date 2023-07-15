@@ -12,34 +12,34 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.network.packets.out.play;
+package org.machinemc.server.network.packets.in.play;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.machinemc.scriptive.components.Component;
+import lombok.*;
+import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.server.network.packets.PacketOut;
+import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.server.utils.FriendlyByteBuf;
+
+import java.util.UUID;
 
 @AllArgsConstructor
 @ToString
-public class PacketPlayOutSetTablistHeaderAndFooter extends PacketOut {
+@Getter @Setter
+public class PacketPlayInPlayerSession extends PacketIn {
 
-    private static final int ID = 0x63;
-
-    @Getter @Setter
-    private Component header, footer;
+    private static final int ID = 0x06;
 
     static {
-        register(PacketPlayOutSetTablistHeaderAndFooter.class, ID, PacketState.PLAY_OUT,
-                PacketPlayOutSetTablistHeaderAndFooter::new);
+        register(PacketPlayInPlayerSession.class, ID, PacketState.PLAY_IN,
+                PacketPlayInPlayerSession::new);
     }
 
-    public PacketPlayOutSetTablistHeaderAndFooter(final ServerBuffer buf) {
-        header = buf.readComponent();
-        footer = buf.readComponent();
+    private UUID sessionId;
+    private PublicKeyData publicKey;
+
+    public PacketPlayInPlayerSession(final ServerBuffer buf) {
+        sessionId = buf.readUUID();
+        publicKey = buf.readPublicKey();
     }
 
     @Override
@@ -49,20 +49,20 @@ public class PacketPlayOutSetTablistHeaderAndFooter extends PacketOut {
 
     @Override
     public PacketState getPacketState() {
-        return PacketState.PLAY_OUT;
+        return PacketState.PLAY_IN;
     }
 
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeComponent(header)
-                .writeComponent(footer)
+                .writeUUID(sessionId)
+                .writePublicKey(publicKey)
                 .bytes();
     }
 
     @Override
-    public PacketOut clone() {
-        return new PacketPlayOutSetTablistHeaderAndFooter(new FriendlyByteBuf(serialize()));
+    public PacketIn clone() {
+        return new PacketPlayInPlayerSession(new FriendlyByteBuf(serialize()));
     }
 
 }

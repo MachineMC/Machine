@@ -29,7 +29,7 @@ import java.nio.charset.StandardCharsets;
 @Getter @Setter
 public class PacketPlayOutDisplayObjective extends PacketOut {
 
-    private static final int ID = 0x4F;
+    private static final int ID = 0x51;
 
     // The position of the scoreboard.
     // 0: list,

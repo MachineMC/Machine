@@ -37,12 +37,16 @@ import org.machinemc.server.entities.player.PlayerTexturesImpl;
 import org.machinemc.api.inventory.ItemStack;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * Special byte buffer for implementing Minecraft Protocol.
@@ -108,6 +112,38 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public FriendlyByteBuf write(final Writable writable) {
         writable.write(this);
+        return this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T[] readArray(final Class<T> type, final Function<ServerBuffer, T> reader) {
+        final T[] array = (T[]) Array.newInstance(type, readVarInt());
+        for (int i = 0; i < array.length; i++)
+            array[i] = reader.apply(this);
+        return array;
+    }
+
+    @Override
+    public <T> FriendlyByteBuf writeArray(final T[] array, final BiConsumer<ServerBuffer, T> consumer) {
+        writeVarInt(array.length);
+        for (final T value : array)
+            consumer.accept(this, value);
+        return this;
+    }
+
+    @Override
+    public <T> Optional<T> readOptional(final Class<T> type, final Function<ServerBuffer, T> reader) {
+        if (!readBoolean())
+            return Optional.empty();
+        return Optional.ofNullable(reader.apply(this));
+    }
+
+    @Override
+    public <T> FriendlyByteBuf writeOptional(final @Nullable T value, final BiConsumer<ServerBuffer, T> writer) {
+        writeBoolean(value != null);
+        if (value != null)
+            writer.accept(this, value);
         return this;
     }
 
@@ -485,7 +521,7 @@ public class FriendlyByteBuf implements ServerBuffer {
             return null;
         readString(StandardCharsets.UTF_8);
         final String value = readString(StandardCharsets.UTF_8);
-        final String signature = readBoolean() ? readString(StandardCharsets.UTF_8) : null;
+        final String signature = readOptional(String.class, buf -> buf.readString(StandardCharsets.UTF_8)).orElse(null);
         try {
             return PlayerTexturesImpl.buildSkin(value, signature);
         } catch (Exception exception) {
@@ -502,11 +538,7 @@ public class FriendlyByteBuf implements ServerBuffer {
         writeVarInt(1);
         writeString("textures", StandardCharsets.UTF_8);
         writeString(playerSkin.value(), StandardCharsets.UTF_8);
-        final String signature = playerSkin.signature();
-        if (signature != null) {
-            writeBoolean(true);
-            writeString(signature, StandardCharsets.UTF_8);
-        } else writeBoolean(false);
+        writeOptional(playerSkin.signature(), (buf, s) -> buf.writeString(s, StandardCharsets.UTF_8));
         return this;
     }
 

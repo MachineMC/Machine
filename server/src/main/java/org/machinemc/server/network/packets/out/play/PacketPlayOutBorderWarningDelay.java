@@ -27,7 +27,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @ToString
 public class PacketPlayOutBorderWarningDelay extends PacketOut {
 
-    private static final int ID = 0x47;
+    private static final int ID = 0x4A;
 
     @Getter @Setter
     private int warningTime;

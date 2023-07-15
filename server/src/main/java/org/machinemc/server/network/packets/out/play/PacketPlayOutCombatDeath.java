@@ -29,10 +29,9 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutCombatDeath extends PacketOut {
 
-    private static final int ID = 0x36;
+    private static final int ID = 0x38;
 
     private int playerId;
-    private int entityId;
     private Component deathMessage;
 
     static {
@@ -42,7 +41,6 @@ public class PacketPlayOutCombatDeath extends PacketOut {
 
     public PacketPlayOutCombatDeath(final ServerBuffer buf) {
         playerId = buf.readVarInt();
-        entityId = buf.readInt();
         deathMessage = buf.readComponent();
     }
 
@@ -60,7 +58,6 @@ public class PacketPlayOutCombatDeath extends PacketOut {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeVarInt(playerId)
-                .writeInt(entityId)
                 .writeComponent(deathMessage)
                 .bytes();
     }

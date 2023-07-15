@@ -59,6 +59,17 @@ public interface Player extends HumanEntity, CommandExecutor, NBTSerializable {
     ChatMode getChatMode();
 
     /**
+     * @return whether the player should be listed on the player list
+     */
+    boolean isListed();
+
+    /**
+     * Sets whether the player should be listed on the player list.
+     * @param listed new value
+     */
+    void setListed(boolean listed);
+
+    /**
      * @return player's latency
      */
     int getLatency();

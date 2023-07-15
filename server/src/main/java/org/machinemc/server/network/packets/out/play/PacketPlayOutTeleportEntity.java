@@ -28,7 +28,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @Getter @Setter
 public class PacketPlayOutTeleportEntity extends PacketOut {
 
-    private static final int ID = 0x66;
+    private static final int ID = 0x68;
 
     private int entityId;
     private EntityPosition position;

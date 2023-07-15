@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets;
 @Getter @Setter
 public class PacketPlayOutUpdateScore extends PacketOut {
 
-    private static final int ID = 0x59;
+    private static final int ID = 0x5B;
 
     private String entityName;
     private Action action;

@@ -31,7 +31,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * Special byte buffer for implementing Minecraft Protocol.
@@ -84,6 +87,46 @@ public interface ServerBuffer extends Cloneable {
      */
     @Contract("_ -> this")
     ServerBuffer write(Writable writable);
+
+    /**
+     * Read an array of a specific reader.
+     *
+     * @param <T>        array type
+     * @param arrayClass array class
+     * @param reader     reader
+     * @return next array
+     */
+    <T> T[] readArray(Class<T> arrayClass, Function<ServerBuffer, T> reader);
+
+    /**
+     * Write an array to the buffer using a specific writer.
+     * @param array array to write
+     * @param writer writer
+     * @return this
+     * @param <T> array type
+     */
+    @Contract("_, _ -> this")
+    <T> ServerBuffer writeArray(T[] array, BiConsumer<ServerBuffer, T> writer);
+
+    /**
+     * Read an optional of a specific reader.
+     *
+     * @param <T>    type
+     * @param type   type
+     * @param reader reader
+     * @return next optional value
+     */
+    <T> Optional<T> readOptional(Class<T> type, Function<ServerBuffer, T> reader);
+
+    /**
+     * Write an optional value to the buffer using a specific writer.
+     * @param value optional value to write
+     * @param writer writer
+     * @return this
+     * @param <T> type
+     */
+    @Contract("_, _ -> this")
+    <T> ServerBuffer writeOptional(@Nullable T value, BiConsumer<ServerBuffer, T> writer);
 
     /**
      * @return next boolean

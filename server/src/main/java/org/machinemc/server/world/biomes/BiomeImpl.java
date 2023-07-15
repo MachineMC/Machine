@@ -35,9 +35,10 @@ public class BiomeImpl implements Biome {
     @Builder.Default private final float temperature = 0.8F;
     @Builder.Default private final float scale = 0.05F;
     @Builder.Default private final float downfall = 0.4F;
+    @Getter(AccessLevel.NONE)
+    @Builder.Default private final boolean precipitation = true;
     @Builder.Default private final Category category = Category.NONE;
     @Builder.Default private final BiomeEffects effects = BiomeEffectsImpl.createDefault();
-    @Builder.Default private final Precipitation precipitation = Precipitation.RAIN;
     @Builder.Default private final TemperatureModifier temperatureModifier = TemperatureModifier.NONE;
 
     /**
@@ -50,6 +51,10 @@ public class BiomeImpl implements Biome {
                 .build();
     }
 
+    @Override
+    public boolean hasPrecipitation() {
+        return precipitation;
+    }
 
     @Override
     public NBTCompound toNBT() {
@@ -59,7 +64,7 @@ public class BiomeImpl implements Biome {
                 "scale", scale,
                 "downfall", downfall,
                 "category", category.name().toLowerCase(Locale.ROOT),
-                "precipitation", precipitation.name().toLowerCase(Locale.ROOT),
+                "has_precipitation", precipitation,
                 "effects", effects.toNBT()
         ));
         if (temperatureModifier != TemperatureModifier.NONE)

@@ -18,11 +18,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.api.auth.PublicKeyData;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.server.utils.FriendlyByteBuf;
-import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -35,7 +34,6 @@ public class PacketLoginInStart extends PacketIn {
     private static final int ID = 0x00;
 
     private String username;
-    private @Nullable PublicKeyData publicKeyData;
     private @Nullable UUID uuid;
 
     static {
@@ -46,10 +44,7 @@ public class PacketLoginInStart extends PacketIn {
 
     public PacketLoginInStart(final ServerBuffer buf) {
         username = buf.readString(StandardCharsets.UTF_8);
-        if (buf.readBoolean())
-            publicKeyData = buf.readPublicKey();
-        if (buf.readBoolean())
-            uuid = buf.readUUID();
+        uuid = buf.readOptional(UUID.class, ServerBuffer::readUUID).orElse(null);
     }
 
     @Override
@@ -64,15 +59,10 @@ public class PacketLoginInStart extends PacketIn {
 
     @Override
     public byte[] serialize() {
-        final FriendlyByteBuf buf = new FriendlyByteBuf()
+        return new FriendlyByteBuf()
                 .writeString(username, StandardCharsets.UTF_8)
-                .writeBoolean(publicKeyData != null);
-        if (publicKeyData != null)
-            buf.write(publicKeyData);
-        buf.writeBoolean(uuid != null);
-        if (uuid != null)
-            buf.writeUUID(uuid);
-        return buf.bytes();
+                .writeOptional(uuid, ServerBuffer::writeUUID)
+                .bytes();
     }
 
     @Override

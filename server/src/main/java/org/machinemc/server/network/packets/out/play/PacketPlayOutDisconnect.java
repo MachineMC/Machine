@@ -27,7 +27,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 @ToString
 public class PacketPlayOutDisconnect extends PacketOut {
 
-    private static final int ID = 0x19;
+    private static final int ID = 0x1A;
 
     @Getter @Setter
     private Component reason;

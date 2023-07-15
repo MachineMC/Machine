@@ -45,6 +45,11 @@ public interface Biome extends NBTSerializable {
     float getDownfall();
 
     /**
+     * @return whether the biome has precipitation
+     */
+    boolean hasPrecipitation();
+
+    /**
      * @return category of the biome
      */
     Category getCategory();
@@ -55,21 +60,9 @@ public interface Biome extends NBTSerializable {
     BiomeEffects getEffects();
 
     /**
-     * @return precipitation of the biome
-     */
-    Precipitation getPrecipitation();
-
-    /**
      * @return temperature modifier of the biome
      */
     TemperatureModifier getTemperatureModifier();
-
-    /**
-     * Represents the raining type in the biome.
-     */
-    enum Precipitation {
-        NONE, RAIN, SNOW;
-    }
 
     /**
      * Represents category of the biome.

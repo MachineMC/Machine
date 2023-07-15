@@ -35,9 +35,7 @@ public class ChunkData implements Writable {
     public ChunkData(final ServerBuffer buf) {
         heightmaps = buf.readNBT();
         data = buf.readByteArray();
-        blockEntities = new Section.BlockEntity[buf.readVarInt()];
-        for (int i = 0; i < blockEntities.length; i++)
-            blockEntities[i] = new Section.BlockEntity(buf);
+        blockEntities = buf.readArray(Section.BlockEntity.class, Section.BlockEntity::new);
     }
 
     /**
@@ -48,9 +46,7 @@ public class ChunkData implements Writable {
     public void write(final ServerBuffer buf) {
         buf.writeNBT(this.heightmaps);
         buf.writeByteArray(data);
-        buf.writeVarInt(blockEntities.length);
-        for (final Section.BlockEntity blockEntity : blockEntities)
-            blockEntity.write(buf);
+        buf.writeArray(blockEntities, ServerBuffer::write);
     }
 
 }

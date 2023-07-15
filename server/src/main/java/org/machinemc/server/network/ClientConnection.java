@@ -36,6 +36,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import java.net.InetSocketAddress;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Player connection implementation using netty.
@@ -53,6 +54,8 @@ public class ClientConnection implements PlayerConnection {
     @Getter
     private final InetSocketAddress address;
 
+    @Getter @Setter
+    private @Nullable UUID sessionId;
     @Getter @Setter
     private @Nullable PublicKeyData publicKeyData;
     @Getter @Setter

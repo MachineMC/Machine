@@ -24,6 +24,7 @@ import org.machinemc.server.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 
 import java.nio.charset.StandardCharsets;
+import java.util.BitSet;
 
 @AllArgsConstructor
 @ToString
@@ -34,6 +35,8 @@ public class PacketPlayInChatMessage extends PacketIn {
 
     private String message;
     private MessageSignature messageSignature;
+    private int messageCount;
+    private BitSet acknowledged;
 
     static {
         register(PacketPlayInChatMessage.class, ID, PacketState.PLAY_IN,
@@ -43,6 +46,8 @@ public class PacketPlayInChatMessage extends PacketIn {
     public PacketPlayInChatMessage(final ServerBuffer buf) {
         message = buf.readString(StandardCharsets.UTF_8);
         messageSignature = buf.readSignature();
+        messageCount = buf.readVarInt();
+        acknowledged = BitSet.valueOf(buf.readLongArray());
     }
 
     @Override
@@ -60,6 +65,8 @@ public class PacketPlayInChatMessage extends PacketIn {
         return new FriendlyByteBuf()
                 .writeString(message, StandardCharsets.UTF_8)
                 .writeSignature(messageSignature)
+                .writeVarInt(messageCount)
+                .writeLongArray(acknowledged.toLongArray())
                 .bytes();
     }
 
