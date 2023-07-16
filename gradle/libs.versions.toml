@@ -21,6 +21,7 @@ machine-scriptive = "1.1"
 cadixdev-licenser = "0.6.1"
 jetbrains-kotlin-jvm = "1.7.20"
 checkstyle = "10.3.1"
+johnrengelman-shadow = "7.1.2"
 
 
 [libraries]
@@ -54,3 +55,4 @@ machine-scriptive = { module = "org.machinemc:scriptive", version.ref = "machine
 
 [plugins]
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrains-kotlin-jvm" }
+johnrengelman-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "johnrengelman-shadow" }

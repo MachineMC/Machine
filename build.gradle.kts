@@ -2,6 +2,7 @@
 plugins {
     application
     alias(libs.plugins.jetbrains.kotlin.jvm)
+    alias(libs.plugins.johnrengelman.shadow)
     id("machine.java-conventions-library")
 }
 
@@ -26,15 +27,36 @@ application {
 }
 
 tasks {
+    build {
+        dependsOn(shadowJar)
+    }
+    shadowJar {
+        mergeServiceFiles()
+        archiveClassifier.set("")
+        destinationDirectory.set(file("build/libs"))
+    }
     jar {
         manifest {
             attributes["Main-Class"] = application.mainClass
         }
     }
-    buildAll {
-        manifest {
-            attributes["Main-Class"] = application.mainClass
-        }
+    distTar {
+        dependsOn(shadowJar)
+    }
+    distZip {
+        dependsOn(shadowJar)
+    }
+    startScripts {
+        dependsOn(shadowJar)
+    }
+    shadowDistTar {
+        dependsOn(jar)
+    }
+    shadowDistZip {
+        dependsOn(jar)
+    }
+    startShadowScripts {
+        dependsOn(jar)
     }
 }
 
