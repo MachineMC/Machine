@@ -6,7 +6,6 @@ Please, go through these steps before you submit a PR.
 2. If not, then make sure that:
     - You have done your changes in a separate branch.
     - You have a descriptive commit message with a short title (first line).
-    - You have only one commit (if not, squash them into one commit).
     - You follow contributing guide lines; [CONTRIBUTING.md](../CONTRIBUTING.md) and [STYLE_GUIDE.md](../STYLE_GUIDE.md).
     - Tests don't throw any error. If they do, fix them first.
     - Check style doesn't throw any error. If it does fix the style of the code.

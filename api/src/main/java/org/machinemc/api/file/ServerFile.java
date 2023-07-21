@@ -14,9 +14,8 @@
  */
 package org.machinemc.api.file;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.io.InputStream;
+import java.util.Optional;
 
 /**
  * Represents a file of the server.
@@ -32,6 +31,6 @@ public interface ServerFile {
      * @return stream of the file from the resources if
      * default version exists.
      */
-    @Nullable InputStream getOriginal();
+    Optional<InputStream> getOriginal();
 
 }

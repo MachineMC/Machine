@@ -24,6 +24,7 @@ import org.machinemc.api.chunk.palette.Palette;
 import org.machinemc.api.utils.ServerBuffer;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -31,7 +32,7 @@ import java.util.function.Supplier;
  * Default implementation of the section.
  */
 @Getter
-public class SectionImpl implements Section {
+public class ChunkSection implements Section {
 
     private final Chunk source;
     private final int index;
@@ -47,14 +48,14 @@ public class SectionImpl implements Section {
 
     private final Map<Integer, BlockEntity> clientBlockEntities = new ConcurrentHashMap<>();
 
-    public SectionImpl(final Chunk source, final int index, final Supplier<NBTCompound> dataSupplier) {
-        this.source = source;
+    public ChunkSection(final Chunk source, final int index, final Supplier<NBTCompound> dataSupplier) {
+        this.source = Objects.requireNonNull(source, "Source chunk can not be null");
         this.index = index;
+        this.dataSupplier = Objects.requireNonNull(dataSupplier, "NBT supplier can not be null");
         blockPalette = AdaptivePalette.blocks();
         biomePalette = AdaptivePalette.biomes();
         skyLight = new byte[0];
         blockLight = new byte[0];
-        this.dataSupplier = dataSupplier;
     }
 
     @Override
@@ -71,6 +72,7 @@ public class SectionImpl implements Section {
     @Override
     @Synchronized
     public void mergeData(final NBTCompound compound) {
+        Objects.requireNonNull(compound, "NBTCompound can not be null");
         dataSupplier.get().putAll(compound.clone());
     }
 
@@ -97,4 +99,11 @@ public class SectionImpl implements Section {
         biomePalette.write(buf);
     }
 
+    @Override
+    public String toString() {
+        return "Section("
+                + "source=" + source
+                + ", index=" + index
+                + ')';
+    }
 }

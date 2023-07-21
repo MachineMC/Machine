@@ -22,6 +22,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -53,8 +54,8 @@ public final class Crypt {
             final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ASYMMETRIC_ALGORITHM);
             keyPairGenerator.initialize(ASYMMETRIC_BITS);
             return keyPairGenerator.generateKeyPair();
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException(exception);
         }
     }
 
@@ -74,6 +75,8 @@ public final class Crypt {
      * @return secret key
      */
     public static SecretKey decryptByteToSecretKey(final PrivateKey privateKey, final byte[] encryptedSecretKey) {
+        Objects.requireNonNull(privateKey);
+        Objects.requireNonNull(encryptedSecretKey);
         try {
             final Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
@@ -85,25 +88,29 @@ public final class Crypt {
 
     /**
      * Digest authentication process.
-     * @param baseServerId server id - always empty string
+     * @param baseServerID server id - always empty string
      * @param publicKey server's public key
      * @param secretKey secret key shared between server and client
      * @return digested data
      */
-    public static byte[] digestData(final String baseServerId, final PublicKey publicKey, final SecretKey secretKey) {
+    public static byte[] digestData(final String baseServerID, final PublicKey publicKey, final SecretKey secretKey) {
+        Objects.requireNonNull(baseServerID);
+        Objects.requireNonNull(publicKey);
+        Objects.requireNonNull(secretKey);
         try {
-            return digestData(baseServerId.getBytes(BYTE_ENCODING), secretKey.getEncoded(), publicKey.getEncoded());
+            return digestData(baseServerID.getBytes(BYTE_ENCODING), secretKey.getEncoded(), publicKey.getEncoded());
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
     }
 
     private static byte[] digestData(final byte[]... bytes) {
+        Objects.requireNonNull(bytes);
         final MessageDigest messageDigest;
         try {
             messageDigest = MessageDigest.getInstance(HASH_ALGORITHM);
         } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(exception);
         }
         for (final byte[] bs : bytes)
             messageDigest.update(bs);
@@ -116,6 +123,7 @@ public final class Crypt {
      * @return public key
      */
     public static PublicKey pubicKeyFrom(final byte[] bytes) {
+        Objects.requireNonNull(bytes);
         final X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
         try {
             final KeyFactory keyFactory = KeyFactory.getInstance(ASYMMETRIC_ALGORITHM);
@@ -142,8 +150,8 @@ public final class Crypt {
             final Cipher cipher = Cipher.getInstance(ENCRYPTION);
             cipher.init(mode, key, new IvParameterSpec(key.getEncoded()));
             return cipher;
-        } catch (GeneralSecurityException e) {
-            throw new RuntimeException(e);
+        } catch (GeneralSecurityException exception) {
+            throw new RuntimeException(exception);
         }
     }
 

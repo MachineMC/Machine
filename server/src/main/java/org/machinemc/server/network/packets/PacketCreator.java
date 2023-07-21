@@ -25,7 +25,7 @@ import org.machinemc.api.utils.ServerBuffer;
 public interface PacketCreator<T extends Packet> {
 
     /**
-     * Creates new packet instance from given {@link org.machinemc.server.utils.FriendlyByteBuf},
+     * Creates new packet instance from given {@link org.machinemc.api.utils.FriendlyByteBuf},
      * the buffer can't contain the packet size and ID, but only data
      * itself.
      * @param buf buffer with packet data

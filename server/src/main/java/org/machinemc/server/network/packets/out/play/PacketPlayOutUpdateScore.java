@@ -23,13 +23,14 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutUpdateScore extends PacketOut {
 
     private static final int ID = 0x59;
@@ -53,7 +54,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -66,7 +67,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
     public byte[] serialize() {
         final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeString(entityName, StandardCharsets.UTF_8)
-                .writeVarInt(action.getId())
+                .writeVarInt(action.getID())
                 .writeString(objectiveName, StandardCharsets.UTF_8);
         if (action != Action.REMOVE) {
             assert value != null;
@@ -84,7 +85,7 @@ public class PacketPlayOutUpdateScore extends PacketOut {
         UPDATE,
         REMOVE;
 
-        public int getId() {
+        public int getID() {
             return ordinal();
         }
 

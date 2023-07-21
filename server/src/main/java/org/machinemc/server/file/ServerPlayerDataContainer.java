@@ -16,31 +16,32 @@ package org.machinemc.server.file;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.file.PlayerDataContainer;
 import org.machinemc.api.utils.NBTUtils;
+import org.machinemc.nbt.NBTCompound;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
  * Default implementation of player data container.
  */
-public class PlayerDataContainerImpl implements PlayerDataContainer {
+public class ServerPlayerDataContainer implements PlayerDataContainer {
 
     public static final String DEFAULT_PLAYER_DATA_FOLDER = "playerdata";
 
+    @Getter
+    private final Server server;
     @Getter(AccessLevel.PRIVATE)
     private final File playerDataFolder;
-    @Getter
-    private final Machine server;
 
-    public PlayerDataContainerImpl(final Machine server, final File folder) {
-        this.server = server;
-        playerDataFolder = folder;
+    public ServerPlayerDataContainer(final Server server, final File folder) {
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        playerDataFolder = Objects.requireNonNull(folder, "Player data folder can not be null");
         if (!playerDataFolder.exists() && !playerDataFolder.mkdirs())
             throw new RuntimeException("Can't create the player data folder");
     }
@@ -52,6 +53,7 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
 
     @Override
     public NBTCompound getPlayerData(final UUID uuid) {
+        Objects.requireNonNull(uuid, "UUID can not be null");
         final File playerDataFile = getPlayerDataFile(uuid, true);
         return NBTUtils.deserializeNBTFile(playerDataFile);
     }
@@ -63,6 +65,7 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
      * @return player's data file
      */
     private File getPlayerDataFile(final UUID uuid, final boolean create) {
+        Objects.requireNonNull(uuid, "UUID can not be null");
         final File playerDataFile = new File(playerDataFolder, uuid + ".dat");
         if (!create) return playerDataFile;
         try {
@@ -71,8 +74,8 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
             if (!playerDataFile.exists() && !playerDataFile.createNewFile())
                 throw new RuntimeException("Can't create the player data file for " + uuid);
             return playerDataFile;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
         }
     }
 
@@ -82,7 +85,15 @@ public class PlayerDataContainerImpl implements PlayerDataContainer {
      */
     @Override
     public void savePlayerData(final Player player) {
-        player.serializeNBT(getPlayerDataFile(player.getUuid(), true));
+        Objects.requireNonNull(player, "Player can not be null");
+        player.serializeNBT(getPlayerDataFile(player.getUUID(), true));
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerDataContainer("
+                + "server=" + server
+                + ')';
     }
 
 }

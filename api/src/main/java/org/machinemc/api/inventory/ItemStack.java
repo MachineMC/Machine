@@ -14,22 +14,26 @@
  */
 package org.machinemc.api.inventory;
 
-import lombok.Data;
-import lombok.Synchronized;
-import org.machinemc.nbt.NBTCompound;
-import org.jetbrains.annotations.Nullable;
+import lombok.*;
 import org.machinemc.api.world.Material;
+import org.machinemc.nbt.NBTCompound;
+
+import java.util.Optional;
+
+import java.util.Objects;
 
 /**
  * Default item implementation.
  */
 @Data
-public class ItemStack implements Item {
+class ItemStack implements Item {
 
     private static final Material[] REGISTRY;
 
     private Material material;
     private byte amount = 1;
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private NBTCompound nbtCompound = new NBTCompound();
 
     static {
@@ -46,10 +50,10 @@ public class ItemStack implements Item {
      * @return material with the id
      */
     @Synchronized
-    public static @Nullable Material getMaterial(final int id) {
-        if (id == -1) return null;
-        if (REGISTRY.length <= id) return null;
-        return REGISTRY[id];
+    public static Optional<Material> getMaterial(final int id) {
+        if (id == -1) return Optional.empty();
+        if (REGISTRY.length <= id) return Optional.empty();
+        return Optional.ofNullable(REGISTRY[id]);
     }
 
     /**
@@ -57,23 +61,25 @@ public class ItemStack implements Item {
      * @param material material to get id from
      * @return id of the material
      */
-    public static int getId(final Material material) {
-        return material.getId();
+    public static int getID(final Material material) {
+        return Objects.requireNonNull(material, "Material can not be null").getId();
     }
 
-    public ItemStack(final Material material) {
+    ItemStack(final Material material) {
+        Objects.requireNonNull(material, "Material can not be null");
         if (material.getId() == -1)
             throw new IllegalStateException("Material " + material + " can't have item form");
         this.material = material;
     }
 
-    public ItemStack(final Material material, final byte amount) {
+    ItemStack(final Material material, final byte amount) {
         this(material);
         this.amount = amount;
     }
 
     @Override
     public ItemStack withMaterial(final Material material) {
+        Objects.requireNonNull(material, "Material can not be null");
         final ItemStack itemStack = clone();
         itemStack.setMaterial(material);
         return itemStack;
@@ -87,9 +93,20 @@ public class ItemStack implements Item {
     }
 
     @Override
-    public ItemStack withNbtCompound(final NBTCompound compound) {
+    public NBTCompound getNBTCompound() {
+        return nbtCompound;
+    }
+
+    @Override
+    public void setNBTCompound(final NBTCompound compound) {
+        this.nbtCompound = Objects.requireNonNull(compound, "NBTCompound can not be null");
+    }
+
+    @Override
+    public ItemStack withNBTCompound(final NBTCompound compound) {
+        Objects.requireNonNull(compound, "NBTCompound can not be null");
         final ItemStack itemStack = clone();
-        itemStack.setNbtCompound(compound);
+        itemStack.setNBTCompound(compound);
         return itemStack;
     }
 
@@ -100,11 +117,12 @@ public class ItemStack implements Item {
 
     @Override
     public void setType(final Material material) {
-        this.material = material;
+        this.material = Objects.requireNonNull(material, "Material can not be null");
     }
 
     @Override
     public ItemStack withType(final Material type) {
+        Objects.requireNonNull(material, "Material can not be null");
         final ItemStack itemStack = clone();
         itemStack.setMaterial(type);
         return itemStack;
@@ -136,7 +154,7 @@ public class ItemStack implements Item {
     public ItemStack clone() {
         final ItemStack clone = new ItemStack(material);
         clone.setAmount(amount);
-        clone.setNbtCompound(nbtCompound.clone());
+        clone.setNBTCompound(nbtCompound.clone());
         return clone;
     }
 

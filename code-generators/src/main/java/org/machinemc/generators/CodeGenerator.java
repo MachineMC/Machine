@@ -28,6 +28,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -71,8 +72,7 @@ public abstract class CodeGenerator {
         zip = new ZipOutputStream(new FileOutputStream(jar));
         if (jsonFile == null) return;
         final InputStream stream = getClass().getClassLoader().getResourceAsStream(jsonFile);
-        if (stream == null)
-            throw new FileNotFoundException();
+        Objects.requireNonNull(stream, "Json for the generator is missing");
         json = parser.parse(new InputStreamReader(stream)).getAsJsonObject();
     }
 

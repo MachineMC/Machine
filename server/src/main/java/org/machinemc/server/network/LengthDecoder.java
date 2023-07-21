@@ -20,7 +20,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 
 import java.util.List;
 
-import static org.machinemc.server.utils.FriendlyByteBuf.*;
+import static org.machinemc.api.utils.FriendlyByteBuf.*;
 
 /**
  * Channel handler that decodes the length of incoming packets.

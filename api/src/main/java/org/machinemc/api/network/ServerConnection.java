@@ -19,24 +19,30 @@ import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.ServerProperty;
 import org.jetbrains.annotations.*;
 
+import java.net.InetSocketAddress;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
 /**
  * Represents server's connection.
  */
-@ApiStatus.NonExtendable
 public interface ServerConnection extends ServerProperty {
 
     /**
      * @return server's ip
      */
-    String getIp();
+    String getIP();
 
     /**
      * @return server's port
      */
     @Range(from = 0, to = 65536) int getPort();
+
+    /**
+     * @return socket address of the server connection
+     */
+    Optional<InetSocketAddress> getAddress();
 
     /**
      * @return all player connections connected to the server

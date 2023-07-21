@@ -16,12 +16,11 @@ package org.machinemc.server.world.dimensions;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
+import org.machinemc.nbt.NBTCompound;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,29 +33,30 @@ import static org.machinemc.api.chunk.Chunk.CHUNK_SECTION_SIZE;
  * Default implementation of the dimension manager.
  */
 @RequiredArgsConstructor
-public class DimensionTypeManagerImpl implements DimensionTypeManager {
+public class ServerDimensionTypeManager implements DimensionTypeManager {
 
     protected final AtomicInteger idCounter = new AtomicInteger(0);
     private static final String CODEC_TYPE = "minecraft:dimension_type";
 
     private final Map<Integer, DimensionType> dimensionTypes = new ConcurrentHashMap<>();
     @Getter
-    private final Machine server;
+    private final Server server;
 
     /**
      * Creates dimension manager with default values.
      * @param server server
      * @return new manager
      */
-    public static DimensionTypeManager createDefault(final Machine server) {
-        final DimensionTypeManagerImpl manager = new DimensionTypeManagerImpl(server);
-        manager.addDimension(DimensionTypeImpl.createDefault());
+    public static DimensionTypeManager createDefault(final Server server) {
+        final ServerDimensionTypeManager manager = new ServerDimensionTypeManager(server);
+        manager.addDimension(ServerDimensionType.createDefault());
         return manager;
     }
 
     @Override
     @SuppressWarnings("ConstantConditions")
     public void addDimension(final DimensionType dimensionType) {
+        Objects.requireNonNull(dimensionType, "Dimension type can not be null");
         if (isRegistered(dimensionType.getName()))
             throw new IllegalStateException("Dimension type '" + dimensionType.getName() + "' is already registered");
         if (dimensionType.getMinY() % CHUNK_SECTION_SIZE != 0
@@ -74,30 +74,33 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
 
     @Override
     public boolean removeDimension(final DimensionType dimensionType) {
-        return dimensionTypes.remove(getDimensionId(dimensionType)) == null;
+        Objects.requireNonNull(dimensionType, "Dimension type can not be null");
+        return dimensionTypes.remove(getDimensionID(dimensionType)) == null;
     }
 
     @Override
     public boolean isRegistered(final DimensionType dimensionType) {
+        Objects.requireNonNull(dimensionType, "Dimension type can not be null");
         return dimensionTypes.containsValue(dimensionType);
     }
 
     @Override
-    public DimensionType getDimension(final NamespacedKey name) {
+    public Optional<DimensionType> getDimension(final NamespacedKey name) {
         for (final DimensionType dimensionType : getDimensions()) {
             if (!(dimensionType.getName().equals(name))) continue;
-            return dimensionType;
+            return Optional.of(dimensionType);
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public @Nullable DimensionType getById(final int id) {
-        return dimensionTypes.get(id);
+    public Optional<DimensionType> getByID(final int id) {
+        return Optional.ofNullable(dimensionTypes.get(id));
     }
 
     @Override
-    public int getDimensionId(final DimensionType dimensionType) {
+    public int getDimensionID(final DimensionType dimensionType) {
+        Objects.requireNonNull(dimensionType, "Dimension type can not be null");
         for (final Map.Entry<Integer, DimensionType> entry : dimensionTypes.entrySet()) {
             if (entry.getValue().equals(dimensionType))
                 return entry.getKey();
@@ -112,12 +115,13 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
 
     @Override
     public NBTCompound getDimensionNBT(final DimensionType dimensionType) {
+        Objects.requireNonNull(dimensionType, "Dimension type can not be null");
         if (!isRegistered(dimensionType))
             throw new IllegalStateException();
         final NBTCompound nbtCompound = dimensionType.toNBT();
         return new NBTCompound(Map.of(
                 "name", dimensionType.getName().toString(),
-                "id", getDimensionId(dimensionType),
+                "id", getDimensionID(dimensionType),
                 "element", nbtCompound
         ));
     }
@@ -129,9 +133,16 @@ public class DimensionTypeManagerImpl implements DimensionTypeManager {
 
     @Override
     public List<NBTCompound> getCodecElements() {
-        return new ArrayList<>(dimensionTypes.values().stream()
+        return dimensionTypes.values().stream()
                 .map(this::getDimensionNBT)
-                .toList());
+                .toList();
+    }
+
+    @Override
+    public String toString() {
+        return "ServerDimensionTypeManager("
+                + "server=" + server
+                + ')';
     }
 
 }

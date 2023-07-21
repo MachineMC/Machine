@@ -23,16 +23,17 @@ import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutChatPreview extends PacketOut {
 
     private static final int ID = 0x0C;
 
-    private int queryId;
+    private int queryID;
     private @Nullable Component preview;
 
     static {
@@ -41,13 +42,13 @@ public class PacketPlayOutChatPreview extends PacketOut {
     }
 
     public PacketPlayOutChatPreview(final ServerBuffer buf) {
-        queryId = buf.readVarInt();
+        queryID = buf.readVarInt();
         if (buf.readBoolean())
             preview = buf.readComponent();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -59,7 +60,7 @@ public class PacketPlayOutChatPreview extends PacketOut {
     @Override
     public byte[] serialize() {
         final FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeInt(queryId)
+                .writeInt(queryID)
                 .writeBoolean(preview != null);
         if (preview != null) {
             buf.writeComponent(preview);

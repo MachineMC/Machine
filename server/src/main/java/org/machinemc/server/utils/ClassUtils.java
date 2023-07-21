@@ -37,6 +37,7 @@ public final class ClassUtils {
      * @param classObject class to load
      */
     public static void loadClass(final Class<?> classObject) {
+        Objects.requireNonNull(classObject);
         try {
             Class.forName(classObject.getName(), true, Machine.CLASS_LOADER);
         } catch (ClassNotFoundException ignored) { }
@@ -48,6 +49,7 @@ public final class ClassUtils {
      * @throws IOException if jar is invalid
      */
     public static void loadClasses(final String basePackage) throws IOException {
+        Objects.requireNonNull(basePackage);
         final List<String> classNames = getClasses(basePackage);
         for (final String className : classNames) {
             try {
@@ -63,12 +65,14 @@ public final class ClassUtils {
      * @throws IOException if jar is invalid
      */
     public static List<String> getClasses(final String basePackage) throws IOException {
+        Objects.requireNonNull(basePackage);
         if (FileUtils.getSourceLocation().getName().endsWith(".jar"))
             return getJarClasses(basePackage);
         return getDirClasses(basePackage);
     }
 
     private static List<String> getJarClasses(final String basePackage) throws IOException {
+        Objects.requireNonNull(basePackage);
         final @Cleanup JarFile jar = new JarFile(FileUtils.getSourceLocation());
         final String packagePath = basePackage.replace('.', '/') + "/";
         final List<String> classNames = new ArrayList<>();
@@ -84,6 +88,7 @@ public final class ClassUtils {
     }
 
     private static List<String> getDirClasses(final String basePackage) {
+        Objects.requireNonNull(basePackage);
         final List<String> classNames = new ArrayList<>();
         final File parentDirectory = new File(FileUtils.getSourceLocation(), basePackage.replace('.', '/'));
         final String[] children = parentDirectory.list();

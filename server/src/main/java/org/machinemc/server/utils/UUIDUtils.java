@@ -18,6 +18,7 @@ import com.google.common.base.Preconditions;
 import org.intellij.lang.annotations.RegExp;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,13 +79,13 @@ public final class UUIDUtils {
      * @param string the string uuid
      * @return parsed uuid
      */
-    public static @Nullable UUID parseUUID(final @Nullable String string) {
+    public static Optional<UUID> parseUUID(final @Nullable String string) {
         if (string == null)
-            return null;
+            return Optional.empty();
         final Matcher matcher = UUID_PATTERN.matcher(string);
         if (!matcher.matches())
-            return null;
-        return UUID.fromString(matcher.replaceFirst(DASHES_UUID_REPLACE));
+            return Optional.empty();
+        return Optional.of(UUID.fromString(matcher.replaceFirst(DASHES_UUID_REPLACE)));
     }
 
 }

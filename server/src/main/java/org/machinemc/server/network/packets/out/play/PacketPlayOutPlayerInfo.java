@@ -18,22 +18,23 @@ import com.google.common.base.Preconditions;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.scriptive.components.Component;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.entities.player.PlayerTextures;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+@Getter
+@Setter
 @ToString
-@Getter @Setter
 public class PacketPlayOutPlayerInfo extends PacketOut {
 
     private static final int ID = 0x37;
@@ -73,7 +74,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
             switch (action) {
                 case ADD_PLAYER -> {
                     name = buf.readString(StandardCharsets.UTF_8);
-                    skin = buf.readTextures();
+                    skin = buf.readTextures().orElse(null);
                     gamemode = Gamemode.fromID(buf.readVarInt());
                     latency = buf.readVarInt();
                     if (buf.readBoolean())
@@ -84,7 +85,10 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                 }
                 case UPDATE_GAMEMODE -> gamemode = Gamemode.fromID(buf.readVarInt());
                 case UPDATE_LATENCY -> latency = buf.readVarInt();
-                case UPDATE_DISPLAY_NAME -> displayName = buf.readComponent();
+                case UPDATE_DISPLAY_NAME -> {
+                    if (buf.readBoolean())
+                        displayName = buf.readComponent();
+                }
                 case REMOVE_PLAYER -> {
                 }
             }
@@ -94,7 +98,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -106,7 +110,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     @Override
     public byte[] serialize() {
         final FriendlyByteBuf buf = new FriendlyByteBuf();
-        buf.writeVarInt(action.getId())
+        buf.writeVarInt(action.getID())
                 .writeVarInt(playerInfoDataArray.length);
         for (final PlayerInfoData playerInfoData : playerInfoDataArray)
             playerInfoData.write(action, buf);
@@ -128,7 +132,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
         /**
          * @return id of the action
          */
-        public int getId() {
+        public int getID() {
             return ordinal();
         }
 
@@ -165,13 +169,13 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                                  @Nullable PublicKeyData publicKeyData) {
 
         public PlayerInfoData(final Player player) {
-            this(player.getUuid(),
+            this(player.getUUID(),
                     player.getName(),
-                    player.getProfile().getTextures(),
+                    player.getProfile().getTextures().orElse(null),
                     player.getGamemode(),
                     player.getLatency(),
                     player.getPlayerListName(),
-                    player.getServer().isOnline() ? player.getConnection().getPublicKeyData() : null);
+                    player.getServer().isOnline() ? player.getConnection().getPublicKeyData().orElse(null) : null);
         }
 
         /**
@@ -189,7 +193,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     assert gamemode != null;
                     buf.writeString(name, StandardCharsets.UTF_8)
                             .writeTextures(playerTextures)
-                            .writeVarInt(gamemode.getId())
+                            .writeVarInt(gamemode.getID())
                             .writeVarInt(latency)
                             .writeBoolean(listName != null);
                     if (listName != null)
@@ -200,7 +204,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                 }
                 case UPDATE_GAMEMODE -> {
                     assert gamemode != null;
-                    buf.writeVarInt(gamemode.getId());
+                    buf.writeVarInt(gamemode.getID());
                 }
                 case UPDATE_LATENCY -> buf.writeVarInt(latency);
                 case UPDATE_DISPLAY_NAME -> {

@@ -28,9 +28,9 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
 
     @Override
     public boolean translate(final ClientConnection connection, final PacketPlayInChatMessage packet) {
-        final ServerPlayer player = connection.getOwner();
-        if (player == null)
+        if (connection.getOwner().isEmpty())
             return false;
+        final ServerPlayer player = connection.getOwner().get();
         if (!Messenger.canReceiveMessage(player)) {
             connection.getServer().getMessenger().sendRejectionMessage(player);
             return false;
@@ -40,14 +40,14 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
 
     @Override
     public void translateAfter(final ClientConnection connection, final PacketPlayInChatMessage packet) {
-        final ServerPlayer player = connection.getOwner();
-        if (player == null)
+        if (connection.getOwner().isEmpty())
             return;
+        final ServerPlayer player = connection.getOwner().get();
         final String message = ChatUtils.DEFAULT_CHAT_FORMAT
                 .replace("%name%", player.getName())
                 .replace("%message%", packet.getMessage());
         for (final Player serverPlayer : connection.getServer().getPlayerManager().getPlayers())
-            serverPlayer.sendMessage(player.getUuid(), TextComponent.of(message), MessageType.SYSTEM);
+            serverPlayer.sendMessage(player.getUUID(), TextComponent.of(message), MessageType.SYSTEM);
         connection.getServer().getConsole().info(message);
     }
 

@@ -34,6 +34,7 @@ import org.machinemc.server.logging.DynamicConsole;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -45,11 +46,8 @@ public class SmartTerminal extends SwitchTerminal {
     private final Terminal terminal;
     private @Nullable LineReader reader;
 
-    @Getter
     private @Nullable SmartCompleter completer;
-    @Getter
     private @Nullable SmartHighlighter highlighter;
-    @Getter
     private @Nullable History history;
 
     private final String prompt = "> ";
@@ -97,8 +95,7 @@ public class SmartTerminal extends SwitchTerminal {
         reader = builder.build();
 
         reader.getKeyMaps().get(LineReader.MAIN).bind((Widget) () -> {
-            if (getCurrent() == null) return true;
-            getApplication().exitServer(getCurrent());
+            getCurrent().ifPresent(current -> getApplication().exitServer(current));
             return true;
         }, KeyMap.alt('x'));
 
@@ -135,21 +132,42 @@ public class SmartTerminal extends SwitchTerminal {
     }
 
     /**
+     * @return completer of the terminal
+     */
+    public Optional<SmartCompleter> getCompleter() {
+        return Optional.ofNullable(completer);
+    }
+
+    /**
      * Updates terminal's completer.
      * @param completer new completer
      */
     public void setCompleter(final @Nullable SmartCompleter completer) {
-        if (reader != null) throw new UnsupportedOperationException();
+        if (reader != null) throw new UnsupportedOperationException("The terminal has been already started");
         this.completer = completer;
+    }
+
+    /**
+     * @return highlighter of the terminal
+     */
+    public Optional<SmartHighlighter> getHighlighter() {
+        return Optional.ofNullable(highlighter);
     }
 
     /**
      * Updates terminal's highlighter.
      * @param highlighter new highlighter
-     */
+    Z */
     public void setHighlighter(final @Nullable SmartHighlighter highlighter) {
-        if (reader != null) throw new UnsupportedOperationException();
+        if (reader != null) throw new UnsupportedOperationException("The terminal has been already started");
         this.highlighter = highlighter;
+    }
+
+    /**
+     * @return history of the terminal
+     */
+    public Optional<History> getHistory() {
+        return Optional.ofNullable(history);
     }
 
     /**
@@ -157,7 +175,7 @@ public class SmartTerminal extends SwitchTerminal {
      * @param history new history
      */
     public void setHistory(final @Nullable History history) {
-        if (reader != null) throw new UnsupportedOperationException();
+        if (reader != null) throw new UnsupportedOperationException("The terminal has been already started");
         this.history = history;
     }
 

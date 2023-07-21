@@ -19,8 +19,8 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.BlockData;
+import org.machinemc.scriptive.style.Colour;
 
-import java.awt.*;
 import java.util.List;
 
 /**
@@ -83,7 +83,7 @@ public interface BlockType {
         /**
          * @return color of the block type
          */
-        Color getColor();
+        Colour getColor();
 
         /**
          * @return if the block type has a collision

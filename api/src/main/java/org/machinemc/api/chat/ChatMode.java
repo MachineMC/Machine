@@ -15,7 +15,10 @@
 package org.machinemc.api.chat;
 
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+
+import java.util.Objects;
 
 /**
  * Represents players chat mode option.
@@ -41,6 +44,20 @@ public enum ChatMode {
     public static ChatMode fromID(final @Range(from = 0, to = 2) int id) {
         Preconditions.checkArgument(id < values().length, "Unsupported ChatMode type");
         return values()[id];
+    }
+
+    /**
+     * Returns chat mode of given name.
+     * @param name name of the chat mode
+     * @return chat mode with given name
+     */
+    public static @Nullable ChatMode getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the chat mode can not be null");
+        for (final ChatMode value : values()) {
+            if (value.name().equalsIgnoreCase(name))
+                return value;
+        }
+        return null;
     }
 
 }

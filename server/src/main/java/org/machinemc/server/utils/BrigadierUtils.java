@@ -18,6 +18,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
+import java.util.Objects;
+
 /**
  * Utils for Brigadier library.
  */
@@ -38,6 +40,8 @@ public final class BrigadierUtils {
      */
     public static <T> LiteralCommandNode<T> buildRedirect(final String alias,
                                                           final LiteralCommandNode<T> destination) {
+        Objects.requireNonNull(alias);
+        Objects.requireNonNull(destination);
         final LiteralArgumentBuilder<T> builder = LiteralArgumentBuilder
                 .<T>literal(alias.toLowerCase())
                 .requires(destination.getRequirement())

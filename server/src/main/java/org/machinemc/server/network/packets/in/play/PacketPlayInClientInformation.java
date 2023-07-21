@@ -22,14 +22,15 @@ import org.machinemc.api.chat.ChatMode;
 import org.machinemc.api.entities.player.Hand;
 import org.machinemc.api.entities.player.SkinPart;
 import org.machinemc.server.network.packets.PacketIn;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
+@Getter
+@Setter
 @ToString
-@Getter @Setter
 @AllArgsConstructor
 public class PacketPlayInClientInformation extends PacketIn {
 
@@ -61,7 +62,7 @@ public class PacketPlayInClientInformation extends PacketIn {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -78,7 +79,7 @@ public class PacketPlayInClientInformation extends PacketIn {
                 .writeVarInt(chatMode.getID())
                 .writeBoolean(chatColor)
                 .writeByte((byte) SkinPart.skinMask(displayedSkinParts.toArray(new SkinPart[0])))
-                .writeVarInt(mainHand.getId())
+                .writeVarInt(mainHand.getID())
                 .writeBoolean(enableTextFiltering)
                 .writeBoolean(allowServerListings)
                 .bytes();

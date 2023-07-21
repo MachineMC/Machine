@@ -14,10 +14,11 @@
  */
 package org.machinemc.api.world.dimensions;
 
+import org.jetbrains.annotations.Range;
 import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
+
+import java.util.Optional;
 
 /**
  * Dimension type of world.
@@ -52,7 +53,7 @@ public interface DimensionType extends NBTSerializable {
     /**
      * @return fixed time of the dimension
      */
-    @Nullable Long getFixedTime();
+    Optional<Long> getFixedTime();
 
     /**
      * @return if the dimension is capable of raids

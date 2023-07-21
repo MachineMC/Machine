@@ -21,11 +21,11 @@ import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.Difficulty;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
-@ToString
 @Getter
+@ToString
+@AllArgsConstructor
 public class PacketPlayOutChangeDifficulty extends PacketOut {
 
     private static final int ID = 0x0B;
@@ -46,7 +46,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -58,7 +58,7 @@ public class PacketPlayOutChangeDifficulty extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeByte((byte) difficulty.getId())
+                .writeByte((byte) difficulty.getID())
                 .writeBoolean(isLocked)
                 .bytes();
     }

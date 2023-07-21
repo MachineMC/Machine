@@ -14,12 +14,12 @@
  */
 package org.machinemc.api.world.blocks;
 
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -52,9 +52,7 @@ public interface BlockManager extends ServerProperty {
      * @param name name of the block to remove
      */
     default void removeBlock(NamespacedKey name) {
-        final BlockType block = getBlockType(name);
-        if (block == null) return;
-        removeBlock(block);
+        getBlockType(name).ifPresent(this::removeBlock);
     }
 
     /**
@@ -92,7 +90,7 @@ public interface BlockManager extends ServerProperty {
      * @param name name of the block type
      * @return block type with given name in this manager
      */
-    @Nullable BlockType getBlockType(NamespacedKey name);
+    Optional<BlockType> getBlockType(NamespacedKey name);
 
     /**
      * @return unmodifiable set of all block types registered in this manager

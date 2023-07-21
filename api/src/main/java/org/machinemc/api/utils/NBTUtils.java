@@ -14,12 +14,11 @@
  */
 package org.machinemc.api.utils;
 
-import org.jetbrains.annotations.Contract;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.nbt.NBTList;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Utility class for NBT-related operations.
@@ -31,23 +30,14 @@ public final class NBTUtils {
     }
 
     /**
-     * Creates an NBT list from objects.
-     * Note: the objects must all be of the same type
-     * @param objects The objects to use
-     * @return NBT double list
-     */
-    @Contract("_ -> new")
-    public static NBTList list(final Object... objects) {
-        return new NBTList(objects);
-    }
-
-    /**
      * Serializes NBT to a file (creates the file if it doesn't exist).
      * @param file The file to serialize to
      * @param nbt The NBT to serialize
      */
     public static void serializeNBT(final File file, final NBTCompound nbt) {
         try {
+            Objects.requireNonNull(file, "File can not be null");
+            Objects.requireNonNull(nbt, "NBTCompound can not be null");
             if (!file.exists() && !file.createNewFile())
                 throw new IOException("Unable to create file at " + file.getAbsolutePath());
             nbt.write(file);
@@ -64,7 +54,7 @@ public final class NBTUtils {
     public static NBTCompound deserializeNBTFile(final File file) {
         try {
             final NBTCompound compound = new NBTCompound();
-            compound.read(file);
+            compound.read(Objects.requireNonNull(file, "File can not be null"));
             return compound;
         } catch (IOException e) {
             throw new RuntimeException("Couldn't read file at " + file.getAbsolutePath(), e);

@@ -23,6 +23,7 @@ import org.machinemc.generators.materials.MaterialsLibGenerator;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 public final class Generators {
@@ -55,9 +56,9 @@ public final class Generators {
 
         final File versionsFile = new File(outputDir, "versions.json");
         final InputStream is = getClass().getClassLoader().getResourceAsStream("versions.json");
+        Objects.requireNonNull(is, "Versions json is missing");
         final byte[] data;
         try (is) {
-            if (is == null) throw new NullPointerException();
             data = is.readAllBytes();
         }
 

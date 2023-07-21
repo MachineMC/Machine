@@ -14,7 +14,6 @@
  */
 package org.machinemc.application.terminal;
 
-import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.logging.Console;
@@ -24,9 +23,7 @@ import org.machinemc.application.ServerContainer;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
@@ -35,7 +32,6 @@ import java.util.logging.Level;
  */
 public abstract class SwitchTerminal extends BaseTerminal {
 
-    @Getter
     private @Nullable ServerContainer current;
 
     // History of application for the null key
@@ -90,7 +86,7 @@ public abstract class SwitchTerminal extends BaseTerminal {
     }
 
     private void addToHistory(@Nullable final ServerContainer source, final String message) {
-        if (message == null) throw new NullPointerException();
+        Objects.requireNonNull(message, "Message to add to the history can not be null");
         List<String> history = messageHistory.get(source);
         history.add(message);
         if (history.size() > HISTORY_SIZE)
@@ -106,8 +102,8 @@ public abstract class SwitchTerminal extends BaseTerminal {
     public int execute(final String input) {
         final String formatted = CommandExecutor.formatCommandInput(input);
         if (formatted.length() == 0) return 0;
-        if (current == null || current.getInstance() == null) return executeApplication(formatted);
-        return current.getInstance().getConsole().execute(formatted);
+        if (current == null || current.getInstance().isEmpty()) return executeApplication(formatted);
+        return current.getInstance().get().getConsole().execute(formatted);
     }
 
     /**
@@ -116,5 +112,12 @@ public abstract class SwitchTerminal extends BaseTerminal {
      * @param history history
      */
     public abstract void refreshHistory(List<String> history);
+
+    /**
+     * @return the current server container
+     */
+    public Optional<ServerContainer> getCurrent() {
+        return Optional.ofNullable(current);
+    }
 
 }

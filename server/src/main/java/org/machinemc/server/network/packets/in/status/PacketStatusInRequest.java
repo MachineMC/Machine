@@ -17,11 +17,11 @@ package org.machinemc.server.network.packets.in.status;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import org.machinemc.server.network.packets.PacketIn;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 
-@AllArgsConstructor
 @ToString
+@AllArgsConstructor
 public class PacketStatusInRequest extends PacketIn {
 
     private static final int ID = 0x00;
@@ -37,7 +37,7 @@ public class PacketStatusInRequest extends PacketIn {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

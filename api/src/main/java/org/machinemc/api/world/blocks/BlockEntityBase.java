@@ -15,10 +15,12 @@
 package org.machinemc.api.world.blocks;
 
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Material;
+
+import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Represents a base block entity types that are required on client side
@@ -110,6 +112,7 @@ public enum BlockEntityBase {
      * @return whether the given material is supported by this block entity base
      */
     public boolean supports(final Material material) {
+        Objects.requireNonNull(material, "Material of the block entity base can not be null");
         for (final Material supported : materials) {
             if (supported.equals(material)) return true;
         }
@@ -119,7 +122,7 @@ public enum BlockEntityBase {
     /**
      * @return numeric id of the block entity base used by Minecraft protocol.
      */
-    public @Range(from = 0, to = 37) int getId() {
+    public @Range(from = 0, to = 37) int getID() {
         return ordinal();
     }
 
@@ -145,11 +148,12 @@ public enum BlockEntityBase {
      * @param name name of the block entity base
      * @return block entity base with given name
      */
-    public static @Nullable BlockEntityBase getByName(final String name) {
+    public static Optional<BlockEntityBase> getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the block entity base can not be null");
         for (final BlockEntityBase value : values()) {
-            if (value.name().equalsIgnoreCase(name)) return value;
+            if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -157,12 +161,13 @@ public enum BlockEntityBase {
      * @param material material supported by the block entity base
      * @return block entity base of given material
      */
-    public static @Nullable BlockEntityBase getByMaterial(final Material material) {
+    public static Optional<BlockEntityBase> getByMaterial(final Material material) {
+        Objects.requireNonNull(material, "Material of the block entity base can not be null");
         for (final BlockEntityBase value : values()) {
             for (final Material supported : value.materials)
-                if (supported.equals(material)) return value;
+                if (supported.equals(material)) return Optional.of(value);
         }
-        return null;
+        return Optional.empty();
     }
 
 }

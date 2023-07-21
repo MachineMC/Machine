@@ -14,22 +14,22 @@
  */
 package org.machinemc.api.file;
 
+import org.jetbrains.annotations.Range;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.WorldType;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 import org.machinemc.scriptive.components.Component;
 
 import java.awt.image.BufferedImage;
+import java.util.Optional;
 
 public interface ServerProperties extends ServerFile, ServerProperty {
 
     /**
      * @return server ip defined in the server's properties
      */
-    String getServerIp();
+    String getServerIP();
 
     /**
      * @return server port defined in the server's properties
@@ -49,7 +49,7 @@ public interface ServerProperties extends ServerFile, ServerProperty {
     /**
      * @return server's motd defined in the server's properties
      */
-    Component getMotd();
+    Component getMOTD();
 
     /**
      * @return name of the default world defined in server's properties
@@ -84,7 +84,7 @@ public interface ServerProperties extends ServerFile, ServerProperty {
     /**
      * @return tps defined in the server's properties
      */
-    int getTps();
+    int getTPS();
 
     /**
      * @return server responsiveness defined in the server's properties
@@ -99,11 +99,11 @@ public interface ServerProperties extends ServerFile, ServerProperty {
     /**
      * @return server's icon
      */
-    @Nullable BufferedImage getIcon();
+    Optional<BufferedImage> getIcon();
 
     /**
      * @return encoded server icon
      */
-    @Nullable String getEncodedIcon();
+    Optional<String> getEncodedIcon();
 
 }

@@ -19,14 +19,15 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.Location;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+@Getter
+@Setter
 @ToString
-@Getter @Setter
 @AllArgsConstructor
 public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
 
@@ -40,7 +41,7 @@ public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
     private double x, y, z;
     private float yaw, pitch;
     private Set<TeleportFlags> flags;
-    private int teleportId;
+    private int teleportID;
     private boolean dismountVehicle;
 
     public PacketPlayOutSynchronizePlayerPosition(final ServerBuffer buf) {
@@ -50,20 +51,20 @@ public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
         yaw = buf.readFloat();
         pitch = buf.readFloat();
         flags = TeleportFlags.unpack(buf.readByte());
-        teleportId = buf.readVarInt();
+        teleportID = buf.readVarInt();
         dismountVehicle = buf.readBoolean();
     }
 
     public PacketPlayOutSynchronizePlayerPosition(final Location location,
                                                   final Set<TeleportFlags> flags,
-                                                  final int teleportId,
+                                                  final int teleportID,
                                                   final boolean dismountVehicle) {
         this(location.getX(), location.getY(), location.getZ(), location.getYaw(),
-                location.getPitch(), flags, teleportId, dismountVehicle);
+                location.getPitch(), flags, teleportID, dismountVehicle);
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -81,7 +82,7 @@ public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
                 .writeFloat(yaw)
                 .writeFloat(pitch)
                 .writeByte((byte) TeleportFlags.pack(flags))
-                .writeVarInt(teleportId)
+                .writeVarInt(teleportID)
                 .writeBoolean(dismountVehicle)
                 .bytes();
     }

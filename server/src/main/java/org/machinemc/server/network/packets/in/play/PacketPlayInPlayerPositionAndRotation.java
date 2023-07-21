@@ -21,10 +21,11 @@ import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketIn;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
+@Getter
+@Setter
 @ToString
-@Getter @Setter
 @AllArgsConstructor
 public class PacketPlayInPlayerPositionAndRotation extends PacketIn {
 
@@ -50,7 +51,7 @@ public class PacketPlayInPlayerPositionAndRotation extends PacketIn {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

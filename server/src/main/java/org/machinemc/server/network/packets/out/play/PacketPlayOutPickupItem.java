@@ -21,16 +21,16 @@ import lombok.ToString;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
 @ToString
+@AllArgsConstructor
 public class PacketPlayOutPickupItem extends PacketOut {
 
     private static final int ID = 0x65;
 
     @Getter @Setter
-    private int collectedEntityId, collectorEntityId, pickupItemCount;
+    private int collectedEntityID, collectorEntityID, pickupItemCount;
 
     static {
         register(PacketPlayOutPickupItem.class, ID, Packet.PacketState.PLAY_OUT,
@@ -38,13 +38,13 @@ public class PacketPlayOutPickupItem extends PacketOut {
     }
 
     public PacketPlayOutPickupItem(final ServerBuffer buf) {
-        collectedEntityId = buf.readVarInt();
-        collectorEntityId = buf.readVarInt();
+        collectedEntityID = buf.readVarInt();
+        collectorEntityID = buf.readVarInt();
         pickupItemCount = buf.readVarInt();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -56,8 +56,8 @@ public class PacketPlayOutPickupItem extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(collectedEntityId)
-                .writeVarInt(collectorEntityId)
+                .writeVarInt(collectedEntityID)
+                .writeVarInt(collectorEntityID)
                 .writeVarInt(pickupItemCount)
                 .bytes();
     }

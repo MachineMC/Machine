@@ -15,11 +15,12 @@
 package org.machinemc.api.particles;
 
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.utils.NamespacedKey;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Represents a type (base visual) of a particle.
@@ -39,9 +40,8 @@ public final class ParticleType<O extends ParticleOption> {
 
     @Getter
     private final NamespacedKey name;
-    @Getter
     private final int id;
-    protected final ParticleOptionProvider<O> provider;
+    final ParticleOptionProvider<O> provider;
 
     static {
         AMBIENT_ENTITY_EFFECT = new ParticleType<>(NamespacedKey.minecraft("ambient_entity_effect"), 0);
@@ -73,17 +73,22 @@ public final class ParticleType<O extends ParticleOption> {
      * @param name name of the particle type
      * @return particle type with given name
      */
-    public static @Nullable ParticleType<?> get(final NamespacedKey name) {
-        return REGISTRY.get(name);
+    public static Optional<ParticleType<?>> get(final NamespacedKey name) {
+        return Optional.ofNullable(REGISTRY.get(name));
     }
 
     private ParticleType(final NamespacedKey name,
                          final int id,
                          final ParticleOptionProvider<O> provider) {
+        Objects.requireNonNull(name, "Name of the particle can not be null");
+
+        if (REGISTRY.containsKey(name))
+            throw new IllegalArgumentException("Another particle with similar name already exists");
+
         REGISTRY.put(name, this);
         this.name = name;
         this.id = id;
-        this.provider = provider;
+        this.provider = Objects.requireNonNull(provider, "Particle option provider can not be null");
     }
 
     @SuppressWarnings("unchecked")
@@ -92,11 +97,25 @@ public final class ParticleType<O extends ParticleOption> {
     }
 
     /**
+     * @return id of the particle type
+     */
+    public int getID() {
+        return id;
+    }
+
+    /**
      * Create new particle from the type.
      * @return new particle of this type
      */
     public Particle<O> create() {
         return new Particle<>(this);
+    }
+
+    @Override
+    public String toString() {
+        return "ParticleType("
+                + "name=" + name
+                + ')';
     }
 
 }

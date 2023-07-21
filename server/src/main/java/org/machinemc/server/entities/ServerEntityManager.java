@@ -15,13 +15,11 @@
 package org.machinemc.server.entities;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.entities.EntityManager;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.world.World;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,24 +29,28 @@ import java.util.stream.Collectors;
 /**
  * Default entity manager implementation.
  */
-@RequiredArgsConstructor
-public class EntityManagerImpl implements EntityManager {
+public class ServerEntityManager implements EntityManager {
 
     @Getter
-    private final Machine server;
+    private final Server server;
     private final Map<UUID, Entity> entityMap = new ConcurrentHashMap<>();
+
+    public ServerEntityManager(final Server server) {
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+    }
 
     /**
      * Creates default empty entity manager.
      * @param server server
      * @return new manager
      */
-    public static EntityManagerImpl createDefault(final Machine server) {
-        return new EntityManagerImpl(server);
+    public static ServerEntityManager createDefault(final Server server) {
+        return new ServerEntityManager(server);
     }
 
     @Override
     public Set<Entity> getEntitiesOfType(final EntityType entityType) {
+        Objects.requireNonNull(entityType, "Entity type can not be null");
         return getEntities().stream()
                 .filter(entity -> entity.getEntityType() == entityType)
                 .collect(Collectors.toUnmodifiableSet());
@@ -56,6 +58,7 @@ public class EntityManagerImpl implements EntityManager {
 
     @Override
     public Set<Entity> getEntitiesOfType(final EntityType entityType, final World world) {
+        Objects.requireNonNull(entityType, "Entity type can not be null");
         return getEntities(world).stream()
                 .filter(entity -> entity.getEntityType() == entityType)
                 .collect(Collectors.toUnmodifiableSet());
@@ -64,6 +67,7 @@ public class EntityManagerImpl implements EntityManager {
     @SuppressWarnings("unchecked")
     @Override
     public <E extends Entity> Set<E> getEntitiesOfClass(final Class<E> entityClass) {
+        Objects.requireNonNull(entityClass, "Entity class can not be null");
         return getEntities().stream()
                 .filter(entity -> entityClass.isAssignableFrom(entity.getClass()))
                 .map(entity -> (E) entity)
@@ -73,6 +77,7 @@ public class EntityManagerImpl implements EntityManager {
     @SuppressWarnings("unchecked")
     @Override
     public <E extends Entity> Set<E> getEntitiesOfClass(final Class<E> entityClass, final World world) {
+        Objects.requireNonNull(entityClass, "Entity class can not be null");
         return getEntities(world).stream()
                 .filter(entity -> entityClass.isAssignableFrom(entity.getClass()))
                 .map(entity -> (E) entity)
@@ -87,26 +92,32 @@ public class EntityManagerImpl implements EntityManager {
 
     @Override
     public Set<Entity> getEntities(final World world) {
+        Objects.requireNonNull(world, "World can not be null");
         return getEntities(entity -> entity.getWorld().equals(world));
     }
 
     @Override
     public Set<Entity> getEntities(final Predicate<Entity> predicate) {
+        Objects.requireNonNull(predicate, "Predicate can not be null");
         return getEntities().stream().filter(predicate).collect(Collectors.toSet());
     }
 
     @Override
-    public @Nullable Entity getEntity(final UUID uuid) {
-        return entityMap.get(uuid);
+    public Optional<Entity> getEntity(final UUID uuid) {
+        Objects.requireNonNull(uuid, "UUID can not be null");
+        return Optional.ofNullable(entityMap.get(uuid));
     }
 
     @Override
     public void addEntity(final Entity entity) {
-        entityMap.put(entity.getUuid(), entity);
+        Objects.requireNonNull(entity, "Entity can not be null");
+        entityMap.put(entity.getUUID(), entity);
     }
 
     @Override
     public void removeEntity(final Entity entity) {
-        entityMap.remove(entity.getUuid());
+        Objects.requireNonNull(entity, "Entity can not be null");
+        entityMap.remove(entity.getUUID());
     }
+
 }

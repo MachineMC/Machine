@@ -19,17 +19,20 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 
 import java.nio.charset.StandardCharsets;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketLoginOutEncryptionRequest extends PacketOut {
 
     private static final int ID = 0x01;
+
+    public static final String SERVER_ID = ""; // always empty
 
     private final String serverID = SERVER_ID; // always same
     private byte[] publicKey;
@@ -47,7 +50,7 @@ public class PacketLoginOutEncryptionRequest extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -69,7 +72,5 @@ public class PacketLoginOutEncryptionRequest extends PacketOut {
     public PacketOut clone() {
         return new PacketLoginOutEncryptionRequest(new FriendlyByteBuf(serialize()));
     }
-
-    public static final String SERVER_ID = ""; // always empty
 
 }

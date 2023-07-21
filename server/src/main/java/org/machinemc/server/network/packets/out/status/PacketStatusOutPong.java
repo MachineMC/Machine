@@ -20,11 +20,11 @@ import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 
-@AllArgsConstructor
 @ToString
+@AllArgsConstructor
 public class PacketStatusOutPong extends PacketOut {
 
     private static final int ID = 0x01;
@@ -43,7 +43,7 @@ public class PacketStatusOutPong extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

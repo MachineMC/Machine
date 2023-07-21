@@ -15,8 +15,10 @@
 package org.machinemc.api.world.blocks;
 
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.Material;
+
+import java.util.Optional;
+import java.util.Objects;
 
 import static org.machinemc.api.world.Material.*;
 
@@ -66,13 +68,14 @@ public enum ToolLevel {
      * @param material material to check for
      * @return tool level of given material
      */
-    public static @Nullable ToolLevel fromMaterial(final Material material) {
+    public static Optional<ToolLevel> fromMaterial(final Material material) {
+        Objects.requireNonNull(material, "Materials of the tool level can not be null");
         for (final ToolLevel level : values()) {
             for (final Material tool : level.materials) {
-                if (material == tool) return level;
+                if (material == tool) return Optional.of(level);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -80,11 +83,11 @@ public enum ToolLevel {
      * @param speed general mining speed of the tool level
      * @return tool level matching the given speed
      */
-    public static @Nullable ToolLevel fromSpeed(final double speed) {
+    public static Optional<ToolLevel> fromSpeed(final double speed) {
         for (final ToolLevel level : values()) {
-            if (level.speed == speed) return level;
+            if (level.speed == speed) return Optional.of(level);
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -93,6 +96,7 @@ public enum ToolLevel {
      * @return mining speed of the material as shears
      */
     public static double shearsSpeed(final Material material) {
+        Objects.requireNonNull(material, "Materials of the tool level can not be null");
         return switch (material) {
             case VINE, GLOW_LICHEN -> 1;
             case WHITE_WOOL, ORANGE_WOOL, MAGENTA_WOOL,
@@ -116,6 +120,7 @@ public enum ToolLevel {
      * @return mining speed of the material as sword
      */
     public static double swordSpeed(final Material material) {
+        Objects.requireNonNull(material, "Materials of the tool level can not be null");
         return material == Material.COBWEB ? 15 : 1.5;
     }
 

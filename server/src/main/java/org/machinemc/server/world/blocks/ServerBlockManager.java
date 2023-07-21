@@ -15,51 +15,55 @@
 package org.machinemc.server.world.blocks;
 
 import lombok.Getter;
-import org.machinemc.api.world.Material;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.world.Material;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
+import org.machinemc.scriptive.style.HexColor;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Default block manager implementation.
  */
-public class BlockManagerImpl implements BlockManager {
+public class ServerBlockManager implements BlockManager {
 
     private final Map<NamespacedKey, BlockType> blocks = new ConcurrentHashMap<>();
     @Getter
-    private final Machine server;
-
-    public BlockManagerImpl(final Machine server) {
-        this.server = server;
-    }
+    private final Server server;
 
     /**
      * Creates manager with default settings.
      * @param server server to create manager for
      * @return newly created manager
      */
-    public static BlockManager createDefault(final Machine server) {
-        final BlockManagerImpl manager = new BlockManagerImpl(server);
+    public static BlockManager createDefault(final Server server) {
+        final ServerBlockManager manager = new ServerBlockManager(server);
         manager.addBlocks(
                 new BlockTypeImpl(NamespacedKey.minecraft("air"), BlockTypeImpl.BlockProperties.builder()
-                        .color(new Color(255, 255, 255, 0)).isAir(true).transparent(true).build(),
+                        .color(new HexColor(255, 255, 255)).isAir(true).transparent(true).build(),
                         Material.AIR.createBlockData()),
                 new BlockTypeImpl(NamespacedKey.minecraft("stone"), BlockTypeImpl.BlockProperties.builder()
-                        .color(Color.GRAY).resistance(6).blockHardness(1.5F).build(),
+                        .color(new HexColor(Color.GRAY)).resistance(6).blockHardness(1.5F).build(),
                         Material.STONE.createBlockData()),
                 new SignBlock()
         );
         return manager;
     }
 
+    public ServerBlockManager(final Server server) {
+        this.server = Objects.requireNonNull(server, "Server of block manager can not be null");
+    }
+
     @Override
     public void addBlock(final BlockType blockType) {
+        Objects.requireNonNull(blockType, "Block type can not be null");
         if (isRegistered(blockType.getName()))
             throw new IllegalStateException("Block '" + blockType.getName() + "' is already registered");
         blocks.put(blockType.getName(), blockType);
@@ -67,27 +71,38 @@ public class BlockManagerImpl implements BlockManager {
 
     @Override
     public void removeBlock(final BlockType blockType) {
+        Objects.requireNonNull(blockType, "Block type can not be null");
         blocks.remove(blockType.getName());
     }
 
     @Override
     public boolean isRegistered(final NamespacedKey name) {
+        Objects.requireNonNull(name, "Name of block type can not be null");
         return blocks.containsKey(name);
     }
 
     @Override
     public boolean isRegistered(final BlockType blockType) {
+        Objects.requireNonNull(blockType, "Block type can not be null");
         return blocks.containsValue(blockType);
     }
 
     @Override
-    public @Nullable BlockType getBlockType(final NamespacedKey name) {
-        return blocks.get(name);
+    public Optional<BlockType> getBlockType(final NamespacedKey name) {
+        Objects.requireNonNull(name, "Name of block type can not be null");
+        return Optional.ofNullable(blocks.get(name));
     }
 
     @Override
     public Set<BlockType> getBlocks() {
         return Set.copyOf(blocks.values());
+    }
+
+    @Override
+    public String toString() {
+        return "ServerBlockManager("
+                + "server=" + server
+                + ')';
     }
 
 }

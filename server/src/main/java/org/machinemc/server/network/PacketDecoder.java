@@ -20,10 +20,10 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import lombok.AllArgsConstructor;
 import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.server.exception.ClientException;
 import org.machinemc.server.network.packets.PacketFactory;
 import org.machinemc.server.translation.TranslatorDispatcher;
-import org.machinemc.server.utils.FriendlyByteBuf;
 
 import java.util.List;
 
@@ -37,14 +37,17 @@ public class PacketDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) {
-        assert connection.getState() != null && connection.getState() != PlayerConnection.ClientState.DISCONNECTED;
-        final Packet.PacketState packetState = connection.getState().getIn();
+        assert connection.getState().map(state -> state != PlayerConnection.ClientState.DISCONNECTED).orElse(false);
+        final Packet.PacketState packetState = connection.getState().get().getIn();
         assert packetState != null;
 
         final FriendlyByteBuf buf = new FriendlyByteBuf(in);
         final Packet packet;
         try {
-            packet = PacketFactory.produce(PacketFactory.getPacketByRawId(buf.readVarInt(), packetState), buf);
+            packet = PacketFactory.produce(PacketFactory.getPacketByRawID(
+                    buf.readVarInt(),
+                    packetState
+            ).orElse(null), buf).orElse(null);
             buf.finish();
             if (packet == null) return;
         } catch (Throwable throwable) {

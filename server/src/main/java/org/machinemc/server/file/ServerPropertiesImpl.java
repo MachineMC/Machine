@@ -14,16 +14,18 @@
  */
 package org.machinemc.server.file;
 
+import lombok.AccessLevel;
 import lombok.Getter;
-import org.machinemc.scriptive.components.Component;
-import org.machinemc.scriptive.components.TextComponent;
-import org.machinemc.server.Machine;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
+import org.machinemc.api.Server;
 import org.machinemc.api.file.ServerProperties;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.WorldType;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.components.TextComponent;
+import org.machinemc.server.Machine;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -31,6 +33,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -42,31 +46,36 @@ public class ServerPropertiesImpl implements ServerProperties {
     public static final String PROPERTIES_FILE_NAME = "server.properties";
     public static final String ICON_FILE_NAME = "icon.png";
 
-    private final Machine server;
+    private final Server server;
 
-    private final String serverIp;
+    private final String serverIP;
     private final @Range(from = 0, to = 65536) int serverPort;
     private final boolean online;
     private final int maxPlayers;
+    @Getter(AccessLevel.NONE)
     private final Component motd;
     private final NamespacedKey defaultWorld;
     private final Difficulty defaultDifficulty;
     private final WorldType defaultWorldType;
     private final boolean reducedDebugScreen;
-    private final int viewDistance, simulationDistance, tps, serverResponsiveness;
+    private final int viewDistance, simulationDistance, serverResponsiveness;
+    @Getter(AccessLevel.NONE)
+    private final int tps;
     private final String serverBrand;
+    @Getter(AccessLevel.NONE)
     private final @Nullable BufferedImage icon;
+    @Getter(AccessLevel.NONE)
     private final @Nullable String encodedIcon;
 
     private static final int ICON_SIZE = 64;
 
-    public ServerPropertiesImpl(final Machine server, final File file) throws IOException {
-        this.server = server;
+    public ServerPropertiesImpl(final Server server, final File file) throws IOException {
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        Objects.requireNonNull(file, "Source file can not be null");
         final Properties original = new Properties();
 
-        final InputStream originalInputStream = getOriginal();
-        if (originalInputStream == null)
-            throw new IllegalStateException("Default server properties file doesn't exist in the server");
+        final InputStream originalInputStream = getOriginal().orElseThrow(() ->
+                new IllegalStateException("Default server properties file doesn't exist in the server"));
 
         InputStreamReader stream = new InputStreamReader(originalInputStream, StandardCharsets.UTF_8);
         original.load(stream);
@@ -80,7 +89,7 @@ public class ServerPropertiesImpl implements ServerProperties {
         for (final Map.Entry<Object, Object> entry : original.entrySet())
             properties.putIfAbsent(entry.getKey(), entry.getValue());
 
-        serverIp = properties.getProperty("server-ip");
+        serverIP = properties.getProperty("server-ip");
 
         serverPort = Integer.parseInt(properties.getProperty("server-port"));
 
@@ -129,7 +138,7 @@ public class ServerPropertiesImpl implements ServerProperties {
 
         serverBrand = properties.getProperty("server-brand");
 
-        final File png = new File(ICON_FILE_NAME);
+        final File png = new File(server.getDirectory(), ICON_FILE_NAME);
         BufferedImage icon = null;
         String encodedIcon = null;
         if (png.exists()) {
@@ -153,8 +162,33 @@ public class ServerPropertiesImpl implements ServerProperties {
     }
 
     @Override
-    public @Nullable InputStream getOriginal() {
-        return Machine.CLASS_LOADER.getResourceAsStream(PROPERTIES_FILE_NAME);
+    public Optional<InputStream> getOriginal() {
+        return Optional.ofNullable(Machine.CLASS_LOADER.getResourceAsStream(PROPERTIES_FILE_NAME));
+    }
+
+    @Override
+    public Component getMOTD() {
+        return motd;
+    }
+
+    @Override
+    public int getTPS() {
+        return tps;
+    }
+
+    @Override
+    public Optional<BufferedImage> getIcon() {
+        return Optional.ofNullable(icon);
+    }
+
+    @Override
+    public Optional<String> getEncodedIcon() {
+        return Optional.ofNullable(encodedIcon);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 
 }

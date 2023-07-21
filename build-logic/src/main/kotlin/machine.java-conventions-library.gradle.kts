@@ -57,6 +57,13 @@ tasks {
     }
     jar {
         dependsOn(updateLicenses)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+    tasks.withType<Tar> {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+    tasks.withType<Zip> {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 }
 
@@ -67,19 +74,8 @@ license {
 }
 
 checkstyle {
-    toolVersion = "10.3.1"
+    toolVersion = libs.versions.checkstyle.get()
     val checkstyleDir = File(mainDir, "checkstyle")
     configDirectory.set(checkstyleDir)
     configFile = File(checkstyleDir, "sun_checks.xml")
-}
-
-tasks.register<Jar>("buildAll") {
-    group = "build"
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from(sourceSets.main.get().output)
-    dependsOn(configurations.runtimeClasspath)
-    dependsOn(tasks.getByName("updateLicenses"))
-    from({
-        configurations.runtimeClasspath.get().filter { it.isFile }.map { zipTree(it) }
-    })
 }

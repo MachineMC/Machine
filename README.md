@@ -39,7 +39,7 @@ users to understand how the server works and to modify it as needed.
 ## Credits
 * The [contributors](https://github.com/MachineMC/Machine/graphs/contributors) of the project.
 * [The Minecraft Coalition](https://wiki.vg/)
-* [The Minecraft Wiki](https://minecraft.gamepedia.com/Minecraft_Wiki)
+* [The Minecraft Wiki](https://minecraft.fandom.com/wiki/Minecraft_Wiki)
 * [Minestom](https://github.com/Minestom) and [Krypton](https://github.com/KryptonMC) projects for inspiration when designing both api and implementation.
 
 ## Contributing

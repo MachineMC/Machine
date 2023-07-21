@@ -15,34 +15,36 @@
 package org.machinemc.api.particles;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.inventory.Item;
-import org.machinemc.api.inventory.ItemStack;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.Material;
 import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Particle options implementation for item particles.
  */
-@Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemParticleOption implements ParticleOption {
 
-    private static final Item DEFAULT_ITEM = new ItemStack(Material.STONE);
+    private static final Item DEFAULT_ITEM = Item.of(Material.STONE);
 
     private @Nullable Item item;
 
     @Override
     public void load(final NBTCompound compound) {
+        Objects.requireNonNull(compound, "Source compound can not be null");
         final NBTCompound value;
         if (!compound.containsKey("value") || compound.get("value").tag() != NBT.Tag.COMPOUND)
             return;
@@ -74,9 +76,9 @@ public class ItemParticleOption implements ParticleOption {
         else
             tag = new NBTCompound();
 
-        item = new ItemStack(material);
+        item = Item.of(material);
         item.setAmount((byte) amount);
-        item.setNbtCompound(tag);
+        item.setNBTCompound(tag);
     }
 
     @Override
@@ -85,13 +87,21 @@ public class ItemParticleOption implements ParticleOption {
         final Item item = this.item != null ? this.item : DEFAULT_ITEM;
         compound.put("id", item.getMaterial().getName().toString());
         compound.put("Count", (int) item.getAmount());
-        compound.put("tag", item.getNbtCompound());
+        compound.put("tag", item.getNBTCompound());
         return new NBTCompound(Map.of("value", compound));
     }
 
     @Override
     public void write(final ServerBuffer buf) {
+        Objects.requireNonNull(buf);
         buf.writeSlot(item);
+    }
+
+    /**
+     * @return item of the item particles
+     */
+    public Optional<Item> getItem() {
+        return Optional.ofNullable(item);
     }
 
 }

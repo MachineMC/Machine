@@ -21,10 +21,11 @@ import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
+@Getter
+@Setter
 @ToString
-@Getter @Setter
 @AllArgsConstructor
 public class PacketPlayOutEntityPosition  extends PacketOut {
 
@@ -35,23 +36,23 @@ public class PacketPlayOutEntityPosition  extends PacketOut {
                 PacketPlayOutEntityPosition::new);
     }
 
-    private int entityId;
+    private int entityID;
     private short deltaX, deltaY, deltaZ;
     private boolean onGround;
 
     public PacketPlayOutEntityPosition(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         deltaX = buf.readShort();
         deltaY = buf.readShort();
         deltaZ = buf.readShort();
         onGround = buf.readBoolean();
     }
 
-    public PacketPlayOutEntityPosition(final int entityId,
+    public PacketPlayOutEntityPosition(final int entityID,
                                        final EntityPosition previousPosition,
                                        final EntityPosition newPosition,
                                        final boolean onGround) {
-        this.entityId = entityId;
+        this.entityID = entityID;
         this.deltaX = (short) ((newPosition.getX() * 32 - previousPosition.getX() * 32) * 128);
         this.deltaY = (short) ((newPosition.getY() * 32 - previousPosition.getY() * 32) * 128);
         this.deltaZ = (short) ((newPosition.getZ() * 32 - previousPosition.getZ() * 32) * 128);
@@ -59,7 +60,7 @@ public class PacketPlayOutEntityPosition  extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -71,7 +72,7 @@ public class PacketPlayOutEntityPosition  extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
+                .writeVarInt(entityID)
                 .writeShort(deltaX)
                 .writeShort(deltaY)
                 .writeShort(deltaZ)

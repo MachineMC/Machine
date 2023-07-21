@@ -21,10 +21,10 @@ import lombok.ToString;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
 @ToString
+@AllArgsConstructor
 public class PacketPlayOutSetTablistHeaderAndFooter extends PacketOut {
 
     private static final int ID = 0x63;
@@ -43,7 +43,7 @@ public class PacketPlayOutSetTablistHeaderAndFooter extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

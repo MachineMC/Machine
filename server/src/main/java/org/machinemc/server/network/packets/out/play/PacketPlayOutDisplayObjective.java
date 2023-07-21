@@ -18,26 +18,22 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.machinemc.api.scoreboard.ObjectivePosition;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutDisplayObjective extends PacketOut {
 
     private static final int ID = 0x4F;
 
-    // The position of the scoreboard.
-    // 0: list,
-    // 1: sidebar,
-    // 2: below name,
-    // 3 - 18: team specific sidebar, indexed as 3 + team color
-    // TODO rework as enum
-    private byte position;
+    private ObjectivePosition position;
     private String objectiveName;
 
     static {
@@ -46,12 +42,12 @@ public class PacketPlayOutDisplayObjective extends PacketOut {
     }
 
     public PacketPlayOutDisplayObjective(final ServerBuffer buf) {
-        position = buf.readByte();
+        position = ObjectivePosition.fromID(buf.readByte());
         objectiveName = buf.readString(StandardCharsets.UTF_8);
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -63,7 +59,7 @@ public class PacketPlayOutDisplayObjective extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeByte(position)
+                .writeByte((byte) position.getID())
                 .writeString(objectiveName, StandardCharsets.UTF_8)
                 .bytes();
     }

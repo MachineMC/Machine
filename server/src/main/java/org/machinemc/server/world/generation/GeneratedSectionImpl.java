@@ -19,6 +19,8 @@ import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.generation.GeneratedSection;
 import org.machinemc.nbt.NBTCompound;
 
+import java.util.Objects;
+
 /**
  * Default implementation of the generated section.
  * @param blockPalette palette of used blocks
@@ -32,6 +34,14 @@ public record GeneratedSectionImpl(BlockType[] blockPalette,
                                    Biome[] biomePalette,
                                    short[] biomeData,
                                    NBTCompound[] tileEntitiesData) implements GeneratedSection {
+
+    public GeneratedSectionImpl {
+        Objects.requireNonNull(blockPalette);
+        Objects.requireNonNull(blockData);
+        Objects.requireNonNull(biomePalette);
+        Objects.requireNonNull(biomeData);
+        Objects.requireNonNull(tileEntitiesData);
+    }
 
     @Override
     public BlockType[] getBlockPalette() {

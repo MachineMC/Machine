@@ -22,11 +22,12 @@ import lombok.ToString;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutGameEvent extends PacketOut {
 
     private static final int ID = 0x1D;
@@ -45,7 +46,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -57,7 +58,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeByte(event.getId())
+                .writeByte(event.getID())
                 .writeFloat(value)
                 .bytes();
     }
@@ -84,7 +85,7 @@ public class PacketPlayOutGameEvent extends PacketOut {
         /**
          * @return id of the event
          */
-        public byte getId() {
+        public byte getID() {
             return (byte) ordinal();
         }
 

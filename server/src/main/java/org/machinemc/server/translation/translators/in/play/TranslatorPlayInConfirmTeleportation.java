@@ -23,10 +23,10 @@ public class TranslatorPlayInConfirmTeleportation extends PacketTranslator<Packe
 
     @Override
     public boolean translate(final ClientConnection connection, final PacketPlayInConfirmTeleportation packet) {
-        final ServerPlayer player = connection.getOwner();
+        final ServerPlayer player = connection.getOwner().orElse(null);
         if (player == null)
             return false;
-        return player.handleTeleportConfirm(packet.getTeleportId());
+        return player.handleTeleportConfirm(packet.getTeleportID());
     }
 
     @Override

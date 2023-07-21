@@ -17,7 +17,9 @@ package org.machinemc.api.world.biomes;
 import org.machinemc.api.particles.Particle;
 import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+import org.machinemc.scriptive.style.Colour;
 
 /**
  * Represents effects in a certain biome.
@@ -27,67 +29,67 @@ public interface BiomeEffects extends NBTSerializable {
     /**
      * @return fog color of the biome
      */
-    int getFogColor();
+    Colour getFogColor();
 
     /**
      * @return sky color of the biome
      */
-    int getSkyColor();
+    Colour getSkyColor();
 
     /**
      * @return water color of the biome
      */
-    int getWaterColor();
+    Colour getWaterColor();
 
     /**
      * @return water fog color of the biome
      */
-    int getWaterFogColor();
+    Colour getWaterFogColor();
 
     /**
      * @return foliage color of the biome
      */
-    @Nullable Integer getFoliageColor();
+    Optional<Colour> getFoliageColor();
 
     /**
      * @return grass color of the biome
      */
-    @Nullable Integer getGrassColor();
+    Optional<Colour> getGrassColor();
 
     /**
      * @return grass color modifier of the biome
      */
-    @Nullable GrassColorModifier getGrassColorModifier();
+    Optional<GrassColorModifier> getGrassColorModifier();
 
     /**
      * @return name of the ambient sound
      */
-    @Nullable NamespacedKey getAmbientSound();
+    Optional<NamespacedKey> getAmbientSound();
 
     /**
      * @return mood sound of the biome
      */
-    @Nullable MoodSound getMoodSound();
+    Optional<MoodSound> getMoodSound();
 
     /**
      * @return additions sound of the biome
      */
-    @Nullable AdditionsSound getAdditionsSound();
+    Optional<AdditionsSound> getAdditionsSound();
 
     /**
      * @return music of the biome
      */
-    @Nullable Music getMusic();
+    Optional<Music> getMusic();
 
     /**
      * @return probability of biome particle playing
      */
-    @Nullable Float getBiomeParticleProbability();
+    Optional<Float> getBiomeParticleProbability();
 
     /**
      * @return particle of the biome
      */
-    @Nullable Particle<?> getBiomeParticle();
+    Optional<Particle<?>> getBiomeParticle();
 
     /**
      * Modifier of the grass color.

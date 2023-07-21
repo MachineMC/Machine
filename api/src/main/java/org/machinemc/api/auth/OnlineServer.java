@@ -14,27 +14,35 @@
  */
 package org.machinemc.api.auth;
 
-import org.machinemc.api.server.ServerProperty;
+import lombok.Getter;
+import org.machinemc.api.Server;
 
 import javax.crypto.SecretKey;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Objects;
 
 /**
  * Class that adds functionality to the server in online mode.
  */
-public interface OnlineServer extends ServerProperty {
+@Getter
+public class OnlineServer {
 
-    /**
-     * @return server's key
-     */
-    KeyPair getKey();
+    private final Server server;
+    protected final KeyPair key;
+
+    public OnlineServer(final Server server) {
+        if (server.getOnlineServer().isPresent())
+            throw new IllegalArgumentException("Online server for provided server already exists");
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        key = Crypt.generateKeyPair();
+    }
 
     /**
      * @return sequence of random 4 bytes used for verification
      */
-    default byte[] nextVerifyToken() {
+    public byte[] nextVerifyToken() {
         return Crypt.nextVerifyToken();
     }
 
@@ -44,19 +52,24 @@ public interface OnlineServer extends ServerProperty {
      * @param keyBytes encrypted secret key
      * @return secret key
      */
-    default SecretKey getSecretKey(PrivateKey privateKey, byte[] keyBytes) {
+    public SecretKey getSecretKey(final PrivateKey privateKey, final byte[] keyBytes) {
         return Crypt.decryptByteToSecretKey(privateKey, keyBytes);
     }
 
     /**
      * Digest authentication process.
-     * @param baseServerId server id - always empty string
+     * @param baseServerID server id - always empty string
      * @param publicKey server's public key
      * @param secretKey secret key shared between server and client
      * @return digested data
      */
-    default byte[] digestData(String baseServerId, PublicKey publicKey, SecretKey secretKey) {
-        return Crypt.digestData(baseServerId, publicKey, secretKey);
+    public byte[] digestData(final String baseServerID, final PublicKey publicKey, final SecretKey secretKey) {
+        return Crypt.digestData(baseServerID, publicKey, secretKey);
+    }
+
+    @Override
+    public String toString() {
+        return "OnlineServer";
     }
 
 }

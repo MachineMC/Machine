@@ -20,15 +20,16 @@ import lombok.Setter;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.entities.player.Gamemode;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutRespawn extends PacketOut {
 
     private static final int ID = 0x3E;
@@ -51,7 +52,7 @@ public class PacketPlayOutRespawn extends PacketOut {
         worldName = buf.readNamespacedKey();
         hashedSeed = buf.readLong();
         gamemode = Gamemode.fromID(buf.readByte());
-        previousGamemode = Gamemode.nullableFromID(buf.readByte());
+        previousGamemode = Gamemode.nullableFromID(buf.readByte()).orElse(null);
         isDebug = buf.readBoolean();
         isFlat = buf.readBoolean();
         copyMetadata = buf.readBoolean();
@@ -63,7 +64,7 @@ public class PacketPlayOutRespawn extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -78,8 +79,8 @@ public class PacketPlayOutRespawn extends PacketOut {
                 .writeNamespacedKey(worldType)
                 .writeNamespacedKey(worldName)
                 .writeLong(hashedSeed)
-                .writeByte((byte) gamemode.getId())
-                .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getId()))
+                .writeByte((byte) gamemode.getID())
+                .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getID()))
                 .writeBoolean(isDebug)
                 .writeBoolean(isFlat)
                 .writeBoolean(copyMetadata)

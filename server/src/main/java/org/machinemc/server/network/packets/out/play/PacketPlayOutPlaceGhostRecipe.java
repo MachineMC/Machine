@@ -21,16 +21,17 @@ import lombok.ToString;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
 
     private static final int ID = 0x30;
 
-    private byte windowId;
+    private byte windowID;
     private NamespacedKey recipe;
 
     static {
@@ -39,12 +40,12 @@ public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
     }
 
     public PacketPlayOutPlaceGhostRecipe(final ServerBuffer buf) {
-        windowId = buf.readByte();
+        windowID = buf.readByte();
         recipe = buf.readNamespacedKey();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -56,7 +57,7 @@ public class PacketPlayOutPlaceGhostRecipe extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeByte(windowId)
+                .writeByte(windowID)
                 .writeNamespacedKey(recipe)
                 .bytes();
     }

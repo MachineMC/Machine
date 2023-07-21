@@ -15,8 +15,11 @@
 package org.machinemc.api.entities.player;
 
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+
+import java.util.Optional;
+
+import java.util.Objects;
 
 /**
  * Representing player's hands.
@@ -29,7 +32,7 @@ public enum Hand {
     /**
      * @return numeric id of the hand used by Minecraft protocol.
      */
-    public @Range(from = 0, to = 1) int getId() {
+    public @Range(from = 0, to = 1) int getID() {
         return ordinal();
     }
 
@@ -49,11 +52,12 @@ public enum Hand {
      * @param name name of the hand
      * @return hand with given name
      */
-    public static @Nullable Hand getByName(final String name) {
+    public static Optional<Hand> getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the hand can not be null");
         for (final Hand value : values()) {
-            if (value.name().equalsIgnoreCase(name)) return value;
+            if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }
-        return null;
+        return Optional.empty();
     }
 
 }

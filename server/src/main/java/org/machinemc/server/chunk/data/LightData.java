@@ -29,11 +29,10 @@ import java.util.List;
 public class LightData implements Writable {
 
     private final boolean trustEdges;
-    private final BitSet
-            skyMask,
-            blockMask,
-            emptySkyMask,
-            emptyBlockMask;
+    private final BitSet skyMask;
+    private final BitSet blockMask;
+    private final BitSet emptySkyMask;
+    private final BitSet emptyBlockMask;
     private final List<byte[]> skyLight, blockLight;
 
     public LightData(final ServerBuffer buf) {

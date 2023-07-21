@@ -66,7 +66,7 @@ public final class MachineApplication implements ServerApplication {
     private final ServerManager serverManager;
 
     @Getter
-    protected final Gson gson = new GsonBuilder()
+    private final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
 
@@ -200,7 +200,7 @@ public final class MachineApplication implements ServerApplication {
     public void startContainer(final ServerContainer container) {
         final RunnableServer server;
         try {
-            if (container.getInstance() != null)
+            if (container.getInstance().isPresent())
                 throw new RuntimeException("Server container '" + container.getName() + "' has been already initiated");
             final DynamicConsole console = terminal.createConsole(container);
             server = container.getPlatform().create(new ServerContext(
@@ -241,8 +241,8 @@ public final class MachineApplication implements ServerApplication {
      * @param codename code name of the platform
      * @return platform
      */
-    public @Nullable ServerPlatform getPlatform(final String codename) {
-        return platforms.get(codename.toLowerCase());
+    public Optional<ServerPlatform> getPlatform(final String codename) {
+        return Optional.ofNullable(platforms.get(codename.toLowerCase()));
     }
 
     /**
@@ -288,7 +288,8 @@ public final class MachineApplication implements ServerApplication {
     public @Unmodifiable List<RunnableServer> getRunningServers() {
         return getContainers().stream()
                 .map(ServerContainer::getInstance)
-                .filter(Objects::nonNull)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .filter(RunnableServer::isRunning)
                 .collect(Collectors.toList());
     }
@@ -362,10 +363,11 @@ public final class MachineApplication implements ServerApplication {
      */
     public void stopServer(final ServerContainer container) {
         if (container.isRunning()) {
-            if (container.getInstance() == null)
-                throw new IllegalArgumentException("Server '" + container.getName() + "' is offline");
             try {
-                container.getInstance().shutdown();
+                container.getInstance()
+                        .orElseThrow(() ->
+                                new IllegalArgumentException("Server '" + container.getName() + "' is offline"))
+                        .shutdown();
             } catch (Exception exception) {
                 handleException(exception);
             }
@@ -392,10 +394,10 @@ public final class MachineApplication implements ServerApplication {
     public void shutdown() {
         info("Shutting down...");
         for (final ServerContainer container : getContainers()) {
-            if (container.getInstance() == null) continue;
+            if (container.getInstance().isEmpty()) continue;
             info("Shutting down '" + container.getName() + "' server");
             try {
-                container.getInstance().shutdown();
+                container.getInstance().get().shutdown();
             } catch (Exception exception) {
                 handleException(exception);
             }

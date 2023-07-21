@@ -72,11 +72,8 @@ public final class TerminalFactory {
                     System.in,
                     System.out
             );
-            final Supplier<RunnableServer> supplier = () -> {
-                final ServerContainer container = smartTerminal.getCurrent();
-                if (container == null) return null;
-                return container.getInstance();
-            };
+            final Supplier<RunnableServer> supplier = () ->
+                    smartTerminal.getCurrent().flatMap(ServerContainer::getInstance).orElse(null);
 
             smartTerminal.setCompleter(new SmartCompleter(smartTerminal, supplier));
             smartTerminal.setHighlighter(new SmartHighlighter(smartTerminal, supplier));

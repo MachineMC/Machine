@@ -14,12 +14,14 @@
  */
 package org.machinemc.api.utils;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
 /**
  * Util for creating namespaced keys fast.
  * @see org.machinemc.api.utils.NamespacedKey
  */
+@ApiStatus.Internal
 public final class LazyNamespacedKey {
 
     private LazyNamespacedKey() {

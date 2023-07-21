@@ -22,11 +22,12 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.chunk.data.ChunkData;
 import org.machinemc.server.chunk.data.LightData;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutChunkData extends PacketOut {
 
     private static final int ID = 0x21;
@@ -49,7 +50,7 @@ public class PacketPlayOutChunkData extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

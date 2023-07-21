@@ -14,7 +14,9 @@
  */
 package org.machinemc.server.world.blocks;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.utils.NamespacedKey;
@@ -22,17 +24,18 @@ import org.machinemc.api.world.BlockData;
 import org.machinemc.api.world.blocks.BlockHandler;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
+import org.machinemc.scriptive.style.ChatColor;
+import org.machinemc.scriptive.style.Colour;
 
-import java.awt.*;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
 /**
  * Default implementation of block type.
  */
-@RequiredArgsConstructor
 public class BlockTypeImpl implements BlockType {
 
     @Getter
@@ -40,7 +43,7 @@ public class BlockTypeImpl implements BlockType {
     @Getter
     private final BlockType.BlockProperties properties;
 
-    private final Function<WorldBlock.State, BlockData> blockDataProvider;
+    private final @Nullable Function<WorldBlock.State, BlockData> blockDataProvider;
     private final boolean dynamicVisual;
 
     private final List<BlockHandler> handlers = new CopyOnWriteArrayList<>();
@@ -48,23 +51,35 @@ public class BlockTypeImpl implements BlockType {
     public BlockTypeImpl(final NamespacedKey name,
                          final BlockType.BlockProperties properties,
                          final BlockData defaultBlockData) {
-        this.name = name;
-        this.properties = properties;
+        this.name = Objects.requireNonNull(name, "Block type name can not be null");
+        this.properties = Objects.requireNonNull(properties, "Block type properties can not be null");
         blockDataProvider = state -> defaultBlockData;
         dynamicVisual = false;
     }
 
     public BlockTypeImpl(final NamespacedKey name,
                          final BlockType.BlockProperties properties,
-                         final Function<WorldBlock.State, BlockData> blockDataProvider,
+                         final @Nullable Function<WorldBlock.State, BlockData> blockDataProvider,
+                         final boolean dynamicVisual) {
+        this.name = Objects.requireNonNull(name, "Block type name can not be null");
+        this.properties = Objects.requireNonNull(properties, "Block type properties can not be null");
+        this.blockDataProvider = blockDataProvider;
+        this.dynamicVisual = dynamicVisual;
+    }
+
+    public BlockTypeImpl(final NamespacedKey name,
+                         final BlockType.BlockProperties properties,
+                         final @Nullable Function<WorldBlock.State, BlockData> blockDataProvider,
                          final boolean dynamicVisual,
                          final BlockHandler defaultHandler) {
         this(name, properties, blockDataProvider, dynamicVisual);
-        addHandler(defaultHandler);
+        addHandler(Objects.requireNonNull(defaultHandler, "Default handler can not be null"));
     }
 
     @Override
     public BlockData getBlockData(final WorldBlock.@Nullable State block) {
+        if (blockDataProvider == null)
+            throw new RuntimeException("Can not provide block data for " + getName() + " block type");
         return blockDataProvider.apply(block);
     }
 
@@ -88,6 +103,13 @@ public class BlockTypeImpl implements BlockType {
         return handlers.remove(handler);
     }
 
+    @Override
+    public String toString() {
+        return "BlockType("
+                + "name=" + name
+                + ')';
+    }
+
     /**
      * Default block properties implementation.
      */
@@ -95,7 +117,7 @@ public class BlockTypeImpl implements BlockType {
     @Builder
     public static class BlockProperties implements BlockType.BlockProperties {
 
-        @Builder.Default private Color color = Color.BLACK;
+        @Builder.Default private Colour color = ChatColor.BLACK;
         @Builder.Default private boolean hasCollision = true;
         private float resistance;
         private boolean isAir;

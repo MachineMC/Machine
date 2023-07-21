@@ -22,17 +22,18 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutCombatDeath extends PacketOut {
 
     private static final int ID = 0x36;
 
-    private int playerId;
-    private int entityId;
+    private int playerID;
+    private int entityID;
     private Component deathMessage;
 
     static {
@@ -41,13 +42,13 @@ public class PacketPlayOutCombatDeath extends PacketOut {
     }
 
     public PacketPlayOutCombatDeath(final ServerBuffer buf) {
-        playerId = buf.readVarInt();
-        entityId = buf.readInt();
+        playerID = buf.readVarInt();
+        entityID = buf.readInt();
         deathMessage = buf.readComponent();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -59,8 +60,8 @@ public class PacketPlayOutCombatDeath extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(playerId)
-                .writeInt(entityId)
+                .writeVarInt(playerID)
+                .writeInt(entityID)
                 .writeComponent(deathMessage)
                 .bytes();
     }

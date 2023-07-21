@@ -30,19 +30,13 @@ public interface Writable {
     void write(ServerBuffer buf);
 
     /**
-     * Serializes the object using a buffer implementation.
-     * @param buf buffer implementation to use for serialization
-     * @param write if the object should be written into the buffer
+     * Serializes the object using a buffer.
      * @return serialized object
      */
-    default byte[] serialize(ServerBuffer buf, boolean write) {
-        final ServerBuffer target = write ? buf : buf.clone();
-        final int reader = target.readerIndex();
-        target.setReaderIndex(target.writerIndex());
-        target.write(this);
-        final byte[] bytes = target.finish();
-        target.setReaderIndex(reader);
-        return bytes;
+    default byte[] asBytes() {
+        final ServerBuffer target = new FriendlyByteBuf();
+        write(target);
+        return target.bytes();
     }
 
 }
