@@ -56,7 +56,7 @@ public enum Difficulty {
      * @return difficulty with given name
      */
     public static Optional<Difficulty> getByName(final String name) {
-        Objects.requireNonNull(name, "Name of the world type can not be null");
+        Objects.requireNonNull(name, "Name of the difficulty can not be null");
         for (final Difficulty value : values()) {
             if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }
