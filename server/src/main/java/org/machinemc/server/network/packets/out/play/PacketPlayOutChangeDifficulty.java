@@ -23,9 +23,9 @@ import org.machinemc.api.world.Difficulty;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
-@ToString
 @Getter
+@ToString
+@AllArgsConstructor
 public class PacketPlayOutChangeDifficulty extends PacketOut {
 
     private static final int ID = 0x0B;

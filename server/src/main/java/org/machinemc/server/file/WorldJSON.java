@@ -38,7 +38,7 @@ import java.util.Optional;
  * Represents a json world file of server world.
  */
 @Getter
-public class WorldJson implements ServerFile, ServerProperty {
+public class WorldJSON implements ServerFile, ServerProperty {
 
     public static final String WORLD_FILE_NAME = "world.json";
 
@@ -52,7 +52,7 @@ public class WorldJson implements ServerFile, ServerProperty {
 
     private final File folder;
 
-    public WorldJson(final Server server, final File file) throws IOException {
+    public WorldJSON(final Server server, final File file) throws IOException {
         this.server = Objects.requireNonNull(server, "Server can not be null");
         Objects.requireNonNull(file, "Source file can not be null");
         folder = file.getParentFile();

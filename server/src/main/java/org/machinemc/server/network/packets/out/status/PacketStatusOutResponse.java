@@ -24,8 +24,8 @@ import org.machinemc.api.utils.ServerBuffer;
 
 import java.nio.charset.StandardCharsets;
 
-@AllArgsConstructor
 @ToString
+@AllArgsConstructor
 public class PacketStatusOutResponse extends PacketOut {
 
     private static final int ID = 0x00;

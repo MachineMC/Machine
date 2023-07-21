@@ -27,9 +27,10 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutUpdateScore extends PacketOut {
 
     private static final int ID = 0x59;

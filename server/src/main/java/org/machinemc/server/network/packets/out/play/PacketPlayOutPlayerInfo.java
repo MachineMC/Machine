@@ -32,8 +32,9 @@ import org.machinemc.server.network.packets.PacketOut;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+@Getter
+@Setter
 @ToString
-@Getter @Setter
 public class PacketPlayOutPlayerInfo extends PacketOut {
 
     private static final int ID = 0x37;

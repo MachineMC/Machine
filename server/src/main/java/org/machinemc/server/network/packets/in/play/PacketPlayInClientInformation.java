@@ -28,8 +28,9 @@ import org.machinemc.api.utils.ServerBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
+@Getter
+@Setter
 @ToString
-@Getter @Setter
 @AllArgsConstructor
 public class PacketPlayInClientInformation extends PacketIn {
 

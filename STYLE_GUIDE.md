@@ -63,3 +63,13 @@ To perform a style check on your code, execute the `other/checkstyleMain` task w
                      final WorldType worldType,
                      final long seed) {
   ```
+- When applying multiple annotations to the same element and spreading them across multiple lines,
+  it is recommended to arrange them in ascending order based on their length:
+  ```java
+  @Something
+  @SomethingLonger
+  @SomethingEvenLonger
+  private int myVariable;
+  ```
+
+- When creating getters and setters, getter method should always be declared before the setter method; when using Lombok `@Getter` and `@Setter` annotations for fields, it is recommended to place both annotations on the same line.

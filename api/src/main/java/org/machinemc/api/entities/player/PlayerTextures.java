@@ -32,14 +32,14 @@ import java.util.Optional;
  * Represents player's skin textures.
  * @param value texture value
  * @param signature signature of the texture
- * @param skinUrl url for the skin
- * @param capeUrl url for the cape
+ * @param skinURL url for the skin
+ * @param capeURL url for the cape
  * @param skinModel model of the skin
  */
 public record PlayerTextures(String value,
                              @Nullable String signature,
-                             URL skinUrl,
-                             @Nullable URL capeUrl,
+                             URL skinURL,
+                             @Nullable URL capeURL,
                              SkinModel skinModel) implements Writable {
 
     /**
@@ -57,8 +57,8 @@ public record PlayerTextures(String value,
                 + "malformed JSON format");
         final JsonObject textures = decoded.getAsJsonObject().getAsJsonObject("textures");
         final JsonObject skinJson = textures.getAsJsonObject("SKIN");
-        final URL skinUrl = new URL(skinJson.get("url").getAsString());
-        final URL capeUrl = textures.has("CAPE")
+        final URL skinURL = new URL(skinJson.get("url").getAsString());
+        final URL capeURL = textures.has("CAPE")
                 ? new URL(textures.getAsJsonObject("CAPE").get("url").getAsString())
                 : null;
         final SkinModel skinModel = skinJson.has("metadata")
@@ -68,7 +68,7 @@ public record PlayerTextures(String value,
                         .getAsString()
                         .toUpperCase())
                 : SkinModel.CLASSIC;
-        return new PlayerTextures(value, signature, skinUrl, capeUrl, skinModel);
+        return new PlayerTextures(value, signature, skinURL, capeURL, skinModel);
     }
 
     /**
@@ -94,7 +94,7 @@ public record PlayerTextures(String value,
 
     public PlayerTextures {
         Objects.requireNonNull(value, "Value of the skin can not be null");
-        Objects.requireNonNull(skinUrl, "Skin url can not be null");
+        Objects.requireNonNull(skinURL, "Skin url can not be null");
         Objects.requireNonNull(skinModel, "Skin model can not be null");
     }
 

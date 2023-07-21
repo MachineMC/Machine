@@ -23,8 +23,8 @@ import org.machinemc.api.world.BlockPosition;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
 @ToString
+@AllArgsConstructor
 public class PacketPlayOutOpenSignEditor extends PacketOut {
 
     private static final int ID = 0x2E;

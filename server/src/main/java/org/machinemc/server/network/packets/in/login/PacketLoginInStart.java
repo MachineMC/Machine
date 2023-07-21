@@ -14,10 +14,7 @@
  */
 package org.machinemc.server.network.packets.in.login;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.api.utils.FriendlyByteBuf;
@@ -27,15 +24,17 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketLoginInStart extends PacketIn {
 
     private static final int ID = 0x00;
 
     private String username;
     private @Nullable PublicKeyData publicKeyData;
+    @Getter(AccessLevel.NONE)
     private @Nullable UUID uuid;
 
     static {
@@ -80,4 +79,10 @@ public class PacketLoginInStart extends PacketIn {
         return new PacketLoginInStart(new FriendlyByteBuf(serialize()));
     }
 
+    /**
+     * @return UUID of the player
+     */
+    public UUID getUUID() {
+        return uuid;
+    }
 }

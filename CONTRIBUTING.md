@@ -24,6 +24,7 @@ side effects that may cause unintentional behaviour.
 All variables that are either not annotated or annotated with `@NotNull` are
 expected to be non-null.
 Null value is allowed only for variables marked with `@Nullable`.
+We encourage the use of the Optional for returning when dealing with nullable values.
 
 ### Specific Information
 

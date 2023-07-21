@@ -25,7 +25,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 /**
- * Manager of server entities in mutiple worlds.
+ * Manager of server entities in multiple worlds.
  */
 public interface EntityManager extends ServerProperty {
 

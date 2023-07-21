@@ -28,7 +28,8 @@ import java.util.UUID;
 /**
  * Default living entity implementation.
  */
-@Getter @Setter
+@Getter
+@Setter
 public abstract class ServerLivingEntity extends ServerEntity implements LivingEntity {
 
     private float health;

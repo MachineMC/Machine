@@ -27,9 +27,10 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.util.UUID;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutChatMessage extends PacketOut {
 
     private static final int ID = 0x33;

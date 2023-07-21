@@ -29,7 +29,7 @@ public interface ServerProperties extends ServerFile, ServerProperty {
     /**
      * @return server ip defined in the server's properties
      */
-    String getServerIp();
+    String getServerIP();
 
     /**
      * @return server port defined in the server's properties
@@ -49,7 +49,7 @@ public interface ServerProperties extends ServerFile, ServerProperty {
     /**
      * @return server's motd defined in the server's properties
      */
-    Component getMotd();
+    Component getMOTD();
 
     /**
      * @return name of the default world defined in server's properties
@@ -84,7 +84,7 @@ public interface ServerProperties extends ServerFile, ServerProperty {
     /**
      * @return tps defined in the server's properties
      */
-    int getTps();
+    int getTPS();
 
     /**
      * @return server responsiveness defined in the server's properties

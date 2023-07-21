@@ -23,8 +23,9 @@ import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
+@Getter
+@Setter
 @ToString
-@Getter @Setter
 @AllArgsConstructor
 public class PacketPlayOutEntityRotation  extends PacketOut {
 

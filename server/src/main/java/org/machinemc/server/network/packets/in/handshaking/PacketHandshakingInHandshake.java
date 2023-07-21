@@ -25,9 +25,10 @@ import org.jetbrains.annotations.Range;
 
 import java.nio.charset.StandardCharsets;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketHandshakingInHandshake extends PacketIn {
 
     private static final int ID = 0x00;

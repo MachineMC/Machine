@@ -22,8 +22,9 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
+@Getter
+@Setter
 @ToString
-@Getter @Setter
 @AllArgsConstructor
 public class PacketPlayInPlayerOnGround extends PacketIn {
 

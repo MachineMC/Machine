@@ -203,8 +203,8 @@ public interface Server {
     /**
      * @return server's ip adress
      */
-    default String getIp() {
-        return getProperties().getServerIp();
+    default String getIP() {
+        return getProperties().getServerIP();
     }
 
     /**
@@ -238,8 +238,8 @@ public interface Server {
     /**
      * @return server's ticks per second
      */
-    default int getTps() {
-        return getProperties().getTps();
+    default int getTPS() {
+        return getProperties().getTPS();
     }
 
     /**

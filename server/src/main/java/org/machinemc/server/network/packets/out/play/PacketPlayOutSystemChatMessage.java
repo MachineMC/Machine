@@ -23,9 +23,10 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutSystemChatMessage extends PacketOut {
 
     private static final int ID = 0x62;

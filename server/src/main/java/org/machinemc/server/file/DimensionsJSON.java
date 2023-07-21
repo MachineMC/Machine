@@ -32,7 +32,7 @@ import java.util.*;
 /**
  * Represents dimensions json server file.
  */
-public class DimensionsJson implements ServerFile, ServerProperty {
+public class DimensionsJSON implements ServerFile, ServerProperty {
 
     public static final String DIMENSIONS_FILE_NAME = "dimensions.json";
 
@@ -40,7 +40,7 @@ public class DimensionsJson implements ServerFile, ServerProperty {
     private final Server server;
     private final Set<DimensionType> dimensions = new LinkedHashSet<>();
 
-    public DimensionsJson(final Server server, final File file) throws IOException {
+    public DimensionsJSON(final Server server, final File file) throws IOException {
         this.server = Objects.requireNonNull(server, "Server can not be null");
         Objects.requireNonNull(file, "Source file can not be null");
         final JsonParser parser = new JsonParser();

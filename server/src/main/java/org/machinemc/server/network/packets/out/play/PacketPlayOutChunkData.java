@@ -24,9 +24,10 @@ import org.machinemc.server.chunk.data.LightData;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutChunkData extends PacketOut {
 
     private static final int ID = 0x21;

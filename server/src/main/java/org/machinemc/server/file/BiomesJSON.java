@@ -41,7 +41,7 @@ import java.util.*;
 /**
  * Represents biomes json server file.
  */
-public class BiomesJson implements ServerFile, ServerProperty {
+public class BiomesJSON implements ServerFile, ServerProperty {
 
     public static final String BIOMES_FILE_NAME = "biomes.json";
 
@@ -49,7 +49,7 @@ public class BiomesJson implements ServerFile, ServerProperty {
     private final Server server;
     private final Set<Biome> biomes = new LinkedHashSet<>();
 
-    public BiomesJson(final Server server, final File file) throws IOException {
+    public BiomesJSON(final Server server, final File file) throws IOException {
         this.server = Objects.requireNonNull(server, "Server can not be null");
         Objects.requireNonNull(file, "Source file can not be null");
         final JsonParser parser = new JsonParser();

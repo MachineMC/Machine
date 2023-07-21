@@ -23,9 +23,10 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 import org.jetbrains.annotations.Nullable;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketLoginInEncryptionResponse extends PacketIn {
 
     private static final int ID = 0x01;

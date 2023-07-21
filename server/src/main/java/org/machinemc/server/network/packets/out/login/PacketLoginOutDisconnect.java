@@ -23,8 +23,8 @@ import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 
-@AllArgsConstructor
 @ToString
+@AllArgsConstructor
 public class PacketLoginOutDisconnect extends PacketOut {
 
     private static final int ID = 0x00;

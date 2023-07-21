@@ -24,9 +24,10 @@ import org.machinemc.api.world.Location;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutWorldSpawnPosition extends PacketOut {
 
     private static final int ID = 0x4D;

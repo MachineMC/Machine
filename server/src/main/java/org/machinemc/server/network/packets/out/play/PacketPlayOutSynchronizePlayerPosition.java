@@ -25,8 +25,9 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+@Getter
+@Setter
 @ToString
-@Getter @Setter
 @AllArgsConstructor
 public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
 

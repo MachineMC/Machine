@@ -26,9 +26,10 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.server.network.packets.PacketOut;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutRespawn extends PacketOut {
 
     private static final int ID = 0x3E;

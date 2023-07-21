@@ -212,12 +212,12 @@ public final class Machine implements Server, RunnableServer {
 
         // Loading dimensions json file
         dimensionTypeManager = new ServerDimensionTypeManager(this);
-        final File dimensionsFile = new File(directory, DimensionsJson.DIMENSIONS_FILE_NAME);
+        final File dimensionsFile = new File(directory, DimensionsJSON.DIMENSIONS_FILE_NAME);
         if (!dimensionsFile.exists())
-            FileUtils.createServerFile(directory, DimensionsJson.DIMENSIONS_FILE_NAME);
+            FileUtils.createServerFile(directory, DimensionsJSON.DIMENSIONS_FILE_NAME);
         Set<DimensionType> dimensions = new LinkedHashSet<>();
         try {
-            dimensions = new DimensionsJson(this, dimensionsFile).dimensions();
+            dimensions = new DimensionsJSON(this, dimensionsFile).dimensions();
         } catch (Exception exception) {
             exceptionHandler.handle(exception, "Failed to load the dimensions file");
         }
@@ -238,12 +238,12 @@ public final class Machine implements Server, RunnableServer {
 
         // Loading biomes json file
         biomeManager = new ServerBiomeManager(this);
-        final File biomesFile = new File(directory, BiomesJson.BIOMES_FILE_NAME);
+        final File biomesFile = new File(directory, BiomesJSON.BIOMES_FILE_NAME);
         if (!biomesFile.exists())
-            FileUtils.createServerFile(directory, BiomesJson.BIOMES_FILE_NAME);
+            FileUtils.createServerFile(directory, BiomesJSON.BIOMES_FILE_NAME);
         Set<Biome> biomes = new LinkedHashSet<>();
         try {
-            biomes = new BiomesJson(this, biomesFile).biomes();
+            biomes = new BiomesJSON(this, biomesFile).biomes();
         } catch (Exception exception) {
             exceptionHandler.handle(exception, "Failed to load the biomes file");
         }
@@ -276,11 +276,11 @@ public final class Machine implements Server, RunnableServer {
         worldManager = new ServerWorldManager(this);
         try (Stream<Path> paths = Files.walk(directory.toPath(), 2)) {
             for (final Path path : paths.collect(Collectors.toSet())) {
-                if (!path.endsWith(WorldJson.WORLD_FILE_NAME)) continue;
+                if (!path.endsWith(WorldJSON.WORLD_FILE_NAME)) continue;
                 if (path.getNameCount() < 3) continue;
                 if (!Files.isSameFile(directory.toPath(), path.getParent().getParent())) continue;
                 try {
-                    final WorldJson worldJson = new WorldJson(this, path.toFile());
+                    final WorldJSON worldJson = new WorldJSON(this, path.toFile());
                     if (worldManager.isRegistered(worldJson.getWorldName())) {
                         console.severe("World with name '" + worldJson.getName() + "' is already registered");
                         continue;
@@ -300,8 +300,8 @@ public final class Machine implements Server, RunnableServer {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             try {
                 FileUtils.createServerFile(
-                        new File(directory, ServerWorld.DEFAULT_WORLD_FOLDER + "/" + WorldJson.WORLD_FILE_NAME),
-                        WorldJson.WORLD_FILE_NAME
+                        new File(directory, ServerWorld.DEFAULT_WORLD_FOLDER + "/" + WorldJSON.WORLD_FILE_NAME),
+                        WorldJSON.WORLD_FILE_NAME
                 );
                 final World world = ServerWorld.createDefault(this);
                 worldManager.addWorld(world);
@@ -430,7 +430,7 @@ public final class Machine implements Server, RunnableServer {
      * Builds the MOTD json of the server in the multiplayer server list.
      * @return MOTD json of the server
      */
-    public String statusJson() {
+    public String statusJSON() {
         final JsonObject json = new JsonObject();
         final JsonObject versionJson = new JsonObject();
         versionJson.addProperty("name", SERVER_IMPLEMENTATION_VERSION);
@@ -445,7 +445,7 @@ public final class Machine implements Server, RunnableServer {
                 json.addProperty("favicon", "data:image/png;base64," + icon));
         return gson
                 .toJson(json)
-                .replace("\"%MOTD%\"", properties.getMotd().toJson());
+                .replace("\"%MOTD%\"", properties.getMOTD().toJson());
     }
 
 }

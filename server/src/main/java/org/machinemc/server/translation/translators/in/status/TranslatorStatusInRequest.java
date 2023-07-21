@@ -28,7 +28,7 @@ public class TranslatorStatusInRequest extends PacketTranslator<PacketStatusInRe
 
     @Override
     public void translateAfter(final ClientConnection connection, final PacketStatusInRequest packet) {
-        connection.send(new PacketStatusOutResponse(connection.getServer().statusJson()));
+        connection.send(new PacketStatusOutResponse(connection.getServer().statusJSON()));
     }
 
     @Override

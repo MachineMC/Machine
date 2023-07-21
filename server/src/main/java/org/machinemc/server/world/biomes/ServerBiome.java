@@ -27,8 +27,8 @@ import java.util.Objects;
 /**
  * Default biome implementation.
  */
-@Builder
 @Getter
+@Builder
 public class ServerBiome implements Biome {
 
     private final NamespacedKey name;

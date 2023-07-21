@@ -48,16 +48,19 @@ public class ServerPropertiesImpl implements ServerProperties {
 
     private final Server server;
 
-    private final String serverIp;
+    private final String serverIP;
     private final @Range(from = 0, to = 65536) int serverPort;
     private final boolean online;
     private final int maxPlayers;
+    @Getter(AccessLevel.NONE)
     private final Component motd;
     private final NamespacedKey defaultWorld;
     private final Difficulty defaultDifficulty;
     private final WorldType defaultWorldType;
     private final boolean reducedDebugScreen;
-    private final int viewDistance, simulationDistance, tps, serverResponsiveness;
+    private final int viewDistance, simulationDistance, serverResponsiveness;
+    @Getter(AccessLevel.NONE)
+    private final int tps;
     private final String serverBrand;
     @Getter(AccessLevel.NONE)
     private final @Nullable BufferedImage icon;
@@ -86,7 +89,7 @@ public class ServerPropertiesImpl implements ServerProperties {
         for (final Map.Entry<Object, Object> entry : original.entrySet())
             properties.putIfAbsent(entry.getKey(), entry.getValue());
 
-        serverIp = properties.getProperty("server-ip");
+        serverIP = properties.getProperty("server-ip");
 
         serverPort = Integer.parseInt(properties.getProperty("server-port"));
 
@@ -161,6 +164,16 @@ public class ServerPropertiesImpl implements ServerProperties {
     @Override
     public Optional<InputStream> getOriginal() {
         return Optional.ofNullable(Machine.CLASS_LOADER.getResourceAsStream(PROPERTIES_FILE_NAME));
+    }
+
+    @Override
+    public Component getMOTD() {
+        return motd;
+    }
+
+    @Override
+    public int getTPS() {
+        return tps;
     }
 
     @Override
