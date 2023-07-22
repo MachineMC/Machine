@@ -21,16 +21,17 @@ import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutTeleportEntity extends PacketOut {
 
     private static final int ID = 0x68;
 
-    private int entityId;
+    private int entityID;
     private EntityPosition position;
     private boolean onGround;
 
@@ -40,7 +41,7 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     }
 
     public PacketPlayOutTeleportEntity(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         position = EntityPosition.of(
                 buf.readDouble(),
                 buf.readDouble(),
@@ -52,7 +53,7 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -64,7 +65,7 @@ public class PacketPlayOutTeleportEntity extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
+                .writeVarInt(entityID)
                 .write(position)
                 .writeBoolean(onGround)
                 .bytes();

@@ -15,6 +15,7 @@ subject to the following changes:
     - The maximum line length is now 120 characters.
     - There is no maximum limit on the length of a method.
     - Only one statement is permitted per line.
+    - There is no maximum parameter limit.
   - Switches:
     - Variable assignments inside switch cases are allowed.
     - Default case is not enforced.
@@ -35,6 +36,9 @@ subject to the following changes:
   - Unnecessary parentheses are not permitted.
   - Boolean expressions have to be as simple as possible.
   - If a class overrides either the equals or hashCode methods, it must override both methods.
+  - Capitalize acronyms in field, method, and class names, unless the name begins with the acronym.
+    - Examples of naming to avoid: `getUuid`, `ID`, `setNbt`.
+    - Examples of good naming: `getUUID`, `id`, `setNBT`.
 
 To perform a style check on your code, execute the `other/checkstyleMain` task within the module containing the code.
 
@@ -59,3 +63,13 @@ To perform a style check on your code, execute the `other/checkstyleMain` task w
                      final WorldType worldType,
                      final long seed) {
   ```
+- When applying multiple annotations to the same element and spreading them across multiple lines,
+  it is recommended to arrange them in ascending order based on their length:
+  ```java
+  @Something
+  @SomethingLonger
+  @SomethingEvenLonger
+  private int myVariable;
+  ```
+
+- When creating getters and setters, getter method should always be declared before the setter method; when using Lombok `@Getter` and `@Setter` annotations for fields, it is recommended to place both annotations on the same line.

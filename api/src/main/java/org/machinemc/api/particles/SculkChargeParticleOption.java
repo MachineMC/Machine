@@ -14,20 +14,20 @@
  */
 package org.machinemc.api.particles;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTFloat;
+
+import java.util.Objects;
 
 /**
  * Particle options implementation for sculk charge particles.
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class SculkChargeParticleOption implements ParticleOption {
@@ -36,6 +36,7 @@ public class SculkChargeParticleOption implements ParticleOption {
 
     @Override
     public void load(final NBTCompound compound) {
+        Objects.requireNonNull(compound, "Source compound can not be null");
         if (compound.containsKey("roll") && compound.get("roll").tag() == NBT.Tag.FLOAT)
             roll = compound.get("roll").value();
     }
@@ -49,6 +50,7 @@ public class SculkChargeParticleOption implements ParticleOption {
 
     @Override
     public void write(final ServerBuffer buf) {
+        Objects.requireNonNull(buf);
         buf.writeFloat(roll);
     }
 

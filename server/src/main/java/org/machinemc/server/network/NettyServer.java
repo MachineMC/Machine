@@ -29,7 +29,10 @@ import org.machinemc.api.network.packets.Packet;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.server.Machine;
 
+import java.net.InetSocketAddress;
 import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -51,7 +54,6 @@ public class NettyServer implements ServerConnection {
 
     protected final Set<ClientConnection> connections = ConcurrentHashMap.newKeySet();
 
-    @Getter
     private final String ip;
     @Getter
     private final int port;
@@ -59,9 +61,20 @@ public class NettyServer implements ServerConnection {
     private boolean running = false;
 
     public NettyServer(final Machine server) {
-        this.server = server;
-        this.ip = server.getIp();
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        this.ip = server.getIP();
         this.port = server.getServerPort();
+    }
+
+    @Override
+    public String getIP() {
+        return ip;
+    }
+
+    @Override
+    public Optional<InetSocketAddress> getAddress() {
+        if (bindFuture == null) return Optional.empty();
+        return Optional.of((InetSocketAddress) bindFuture.channel().localAddress());
     }
 
     @Override
@@ -77,7 +90,7 @@ public class NettyServer implements ServerConnection {
                 .childHandler(new Initializer())
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
-        bindFuture = bootstrap.bind(port).addListener(future -> {
+        bindFuture = bootstrap.bind(getIP(), getPort()).addListener(future -> {
             if (future.isSuccess()) running = true;
         });
         return bindFuture;
@@ -94,11 +107,14 @@ public class NettyServer implements ServerConnection {
 
     @Override
     public void broadcastPacket(final Packet packet) {
+        Objects.requireNonNull(packet, "Packet can not be null");
         getClients().forEach(connection -> connection.send(packet));
     }
 
     @Override
     public void broadcastPacket(final Packet packet, final Predicate<PlayerConnection> predicate) {
+        Objects.requireNonNull(packet, "Packet can not be null");
+        Objects.requireNonNull(predicate);
         getClients().forEach(connection -> {
             if (predicate.test(connection))
                 connection.send(packet);
@@ -107,6 +123,9 @@ public class NettyServer implements ServerConnection {
 
     @Override
     public ChannelFuture disconnect(final PlayerConnection connection) {
+        Objects.requireNonNull(connection, "Connection can not be null");
+        if (connection.getServerConnection() != this)
+            throw new IllegalArgumentException("Provided connection is not connected to this server");
         return connection.disconnect(TranslationComponent.of("disconnect.disconnected"));
     }
 
@@ -133,6 +152,13 @@ public class NettyServer implements ServerConnection {
             );
             connections.add(connection);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ServerConnection("
+                + "server=" + server
+                + ')';
     }
 
 }

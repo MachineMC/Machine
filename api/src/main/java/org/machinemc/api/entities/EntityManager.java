@@ -14,18 +14,18 @@
  */
 package org.machinemc.api.entities;
 
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.world.World;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
 /**
- * Manager of server entities in mutiple worlds.
+ * Manager of server entities in multiple worlds.
  */
 public interface EntityManager extends ServerProperty {
 
@@ -84,11 +84,11 @@ public interface EntityManager extends ServerProperty {
      * @param uuid uuid of the entity
      * @return entity with given uuid
      */
-    @Nullable Entity getEntity(UUID uuid);
+    Optional<Entity> getEntity(UUID uuid);
 
     /**
      * Adds entity into the manager.
-     * @see World#spawn(Entity, org.machinemc.api.world.Location)
+     * @see World#spawn(Entity)
      * @param entity entity to add
      */
     @ApiStatus.Internal

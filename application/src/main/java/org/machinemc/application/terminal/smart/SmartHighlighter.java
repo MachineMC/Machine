@@ -18,7 +18,6 @@ import com.mojang.brigadier.ParseResults;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.jetbrains.annotations.Nullable;
 import org.jline.reader.Highlighter;
 import org.jline.reader.LineReader;
 import org.jline.utils.AttributedString;
@@ -40,7 +39,7 @@ public class SmartHighlighter implements Highlighter {
     private final Supplier<RunnableServer> server;
 
     @Getter @Setter
-    private @Nullable Colour
+    private Colour
             knownColor = ChatColor.DARK_AQUA,
             unknownColor = ChatColor.RED;
 

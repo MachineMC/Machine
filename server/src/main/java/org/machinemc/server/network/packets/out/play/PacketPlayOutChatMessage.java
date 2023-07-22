@@ -23,13 +23,14 @@ import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.util.UUID;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutChatMessage extends PacketOut {
 
     private static final int ID = 0x35;
@@ -60,7 +61,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

@@ -15,6 +15,7 @@
 package org.machinemc.server.world.generation;
 
 import lombok.Getter;
+import org.machinemc.api.Server;
 import org.machinemc.api.chunk.Section;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.World;
@@ -24,15 +25,16 @@ import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.generation.GeneratedSection;
 import org.machinemc.api.world.generation.Generator;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Machine;
-import org.machinemc.server.Server;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Generator that generates stone pyramids.
  */
 public class StonePyramidGenerator implements Generator {
 
-    private final Machine server;
+    private final Server server;
     @Getter
     private final long seed;
 
@@ -42,22 +44,20 @@ public class StonePyramidGenerator implements Generator {
 
     private final Biome biome;
 
-    public StonePyramidGenerator(final Machine server, final long seed) {
-        this.server = server;
+    public StonePyramidGenerator(final Server server, final long seed) {
+        this.server = Objects.requireNonNull(server);
         this.seed = seed;
         final BlockManager manager = server.getBlockManager();
-        final BlockType air = manager.getBlockType(NamespacedKey.minecraft("air"));
-        final BlockType stone = manager.getBlockType(NamespacedKey.minecraft("stone"));
-        final BlockType sign = manager.getBlockType(NamespacedKey.minecraft("oak_sign"));
-        if (air == null || stone == null || sign == null) throw new IllegalStateException();
-        this.air = air;
-        this.stone = stone;
-        this.sign = sign;
-        Biome biome = server.getBiome(NamespacedKey.minecraft("plains"));
-        if (biome == null)
-            biome = server.getBiomeManager().getBiomes().stream().iterator().next();
-        if (biome == null) throw new IllegalStateException();
-        this.biome = biome;
+        this.air = manager.getBlockType(NamespacedKey.minecraft("air")).orElseThrow(() ->
+                new NullPointerException("Air block type is missing in the server block manager"));
+        this.stone = manager.getBlockType(NamespacedKey.minecraft("stone")).orElseThrow(() ->
+                new NullPointerException("Stone block type is missing in the server block manager"));
+        this.sign = manager.getBlockType(NamespacedKey.minecraft("oak_sign")).orElseThrow(() ->
+                new NullPointerException("Sign block type is missing in the server block manager"));
+        this.biome = server.getBiome(NamespacedKey.minecraft("plains"))
+                .or(() -> Optional.ofNullable(server.getBiomeManager().getBiomes().stream().iterator().next()))
+                .orElseThrow(() ->
+                        new NullPointerException("There are no available biomes in the server's biome manager"));
     }
 
     @Override
@@ -70,6 +70,7 @@ public class StonePyramidGenerator implements Generator {
                                           final int chunkZ,
                                           final int sectionIndex,
                                           final World world) {
+        Objects.requireNonNull(world);
         if (sectionIndex < 4) {
             return new GeneratedSectionImpl(
                     new BlockType[]{stone},

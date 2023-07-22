@@ -17,29 +17,32 @@ package org.machinemc.server.file;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Getter;
-import org.machinemc.api.world.World;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.api.file.ServerFile;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.server.world.*;
 import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.Location;
+import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldType;
 import org.machinemc.api.world.dimensions.DimensionType;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.server.Machine;
+import org.machinemc.server.world.AbstractWorld;
+import org.machinemc.server.world.ServerWorld;
 
 import java.io.*;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Represents a json world file of server world.
  */
 @Getter
-public class WorldJson implements ServerFile, ServerProperty {
+public class WorldJSON implements ServerFile, ServerProperty {
 
     public static final String WORLD_FILE_NAME = "world.json";
 
-    private final Machine server;
+    private final Server server;
 
     private final NamespacedKey name;
     private final DimensionType dimensionType;
@@ -49,11 +52,15 @@ public class WorldJson implements ServerFile, ServerProperty {
 
     private final File folder;
 
-    public WorldJson(final Machine server, final File file) throws IOException {
-        this.server = server;
+    public WorldJSON(final Server server, final File file) throws IOException {
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        Objects.requireNonNull(file, "Source file can not be null");
         folder = file.getParentFile();
         final JsonParser parser = new JsonParser();
-        final JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
+        final JsonObject json;
+        try (FileReader fileReader = new FileReader(file)) {
+            json = parser.parse(fileReader).getAsJsonObject();
+        }
 
         final NamespacedKey name;
         try {
@@ -72,10 +79,8 @@ public class WorldJson implements ServerFile, ServerProperty {
                     + "illegal dimension identifier and can't be registered");
         }
 
-        final DimensionType dimensionType = server.getDimensionTypeManager().getDimension(dimensionKey);
-        if (dimensionType == null)
-            throw new IllegalStateException("World '" + this.name + "' uses non existing dimension");
-        this.dimensionType = dimensionType;
+        this.dimensionType = server.getDimensionTypeManager().getDimension(dimensionKey)
+                .orElseThrow(() -> new IllegalStateException("World '" + this.name + "' uses non existing dimension"));
 
         long seedValue = 1;
         try {
@@ -86,17 +91,18 @@ public class WorldJson implements ServerFile, ServerProperty {
         }
         seed = seedValue;
 
-        Difficulty difficulty = Difficulty.getByName(json.get("difficulty").getAsString());
-        if (difficulty == null) {
-            difficulty = getServer().getProperties().getDefaultDifficulty();
-            json.addProperty("difficulty", difficulty.name().toLowerCase());
-        }
+        final Difficulty difficulty = Difficulty.getByName(json.get("difficulty").getAsString()).orElseGet(() -> {
+            final Difficulty def = getServer().getProperties().getDefaultDifficulty();
+            json.addProperty("difficulty", def.name().toLowerCase());
+            return def;
+        });
 
-        WorldType worldType = WorldType.getByName(json.get("worldType").getAsString());
-        if (worldType == null) {
-            worldType = getServer().getProperties().getDefaultWorldType();
-            json.addProperty("worldType", worldType.name().toLowerCase());
-        }
+        final WorldType worldType = WorldType.getByName(json.get("worldType").getAsString()).orElseGet(() -> {
+            final WorldType def = getServer().getProperties().getDefaultWorldType();
+            json.addProperty("worldType", def.name().toLowerCase());
+            return def;
+        });
+
         try (Writer writer = new FileWriter(file)) {
             getServer().getGson().toJson(json, writer);
         }
@@ -110,8 +116,8 @@ public class WorldJson implements ServerFile, ServerProperty {
     }
 
     @Override
-    public @Nullable InputStream getOriginal() {
-        return Machine.CLASS_LOADER.getResourceAsStream(WORLD_FILE_NAME);
+    public Optional<InputStream> getOriginal() {
+        return Optional.ofNullable(Machine.CLASS_LOADER.getResourceAsStream(WORLD_FILE_NAME));
     }
 
     /**
@@ -131,6 +137,11 @@ public class WorldJson implements ServerFile, ServerProperty {
         world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
         world.setDifficulty(server.getProperties().getDefaultDifficulty());
         return world;
+    }
+
+    @Override
+    public String toString() {
+        return getName() + "(" + name + ')';
     }
 
 }

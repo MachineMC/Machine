@@ -32,8 +32,8 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
 
     @Override
     protected void encode(final ChannelHandlerContext ctx, final Packet msg, final ByteBuf out) {
-        assert connection.getState() != null && connection.getState() != PlayerConnection.ClientState.DISCONNECTED;
-        final Packet.PacketState packetState = connection.getState().getOut();
+        assert connection.getState().map(state -> state != PlayerConnection.ClientState.DISCONNECTED).orElse(false);
+        final Packet.PacketState packetState = connection.getState().get().getOut();
         assert packetState != null;
 
         final TranslatorDispatcher dispatcher = connection.getServer().getTranslatorDispatcher();

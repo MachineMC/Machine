@@ -14,10 +14,12 @@
  */
 package org.machinemc.server.network.packets;
 
+import java.util.Objects;
+
 /**
  * Packet sent from server to client.
  */
-public abstract class PacketOut extends PacketImpl {
+public abstract class PacketOut extends ServerPacket {
 
     /**
      * Creates mapping and creator for the packet. Each PacketOut has to call this in static block.
@@ -30,9 +32,13 @@ public abstract class PacketOut extends PacketImpl {
                                    final int id,
                                    final PacketState state,
                                    final PacketCreator<? extends PacketOut> creator) {
-        if (!PacketState.out().contains(state)) throw new IllegalStateException();
-        final int fullId = id | state.getMask();
-        PacketFactory.OUT_MAPPING.put(packetClass, fullId);
+        Objects.requireNonNull(packetClass, "Packet class can not be null");
+        Objects.requireNonNull(state, "Packet state can not be null");
+        Objects.requireNonNull(creator, "Packet creator can not be null");
+        if (!PacketState.out().contains(state))
+            throw new IllegalStateException("Packet of state " + state + " can not be registered as PacketOut");
+        final int fullID = id | state.getMask();
+        PacketFactory.OUT_MAPPING.put(packetClass, fullID);
         PacketFactory.CREATORS.put(packetClass, creator);
     }
 
@@ -40,5 +46,10 @@ public abstract class PacketOut extends PacketImpl {
      * @return clone of the packet
      */
     public abstract PacketOut clone();
+
+    @Override
+    public String toString() {
+        return "PacketOut";
+    }
 
 }

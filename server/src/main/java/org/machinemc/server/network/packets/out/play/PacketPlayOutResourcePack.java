@@ -14,26 +14,25 @@
  */
 package org.machinemc.server.network.packets.out.play;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.machinemc.scriptive.components.Component;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutResourcePack extends PacketOut {
 
     private static final int ID = 0x40;
 
+    @Getter(AccessLevel.NONE)
     private String url;
     private String hash;
     private boolean forced;
@@ -52,7 +51,7 @@ public class PacketPlayOutResourcePack extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -76,4 +75,10 @@ public class PacketPlayOutResourcePack extends PacketOut {
         return new PacketPlayOutResourcePack(new FriendlyByteBuf(serialize()));
     }
 
+    /**
+     * @return URL of the resource pack
+     */
+    public String getURL() {
+        return url;
+    }
 }

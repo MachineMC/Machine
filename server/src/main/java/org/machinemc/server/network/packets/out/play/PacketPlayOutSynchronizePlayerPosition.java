@@ -19,14 +19,15 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+@Getter
+@Setter
 @ToString
-@Getter @Setter
 @AllArgsConstructor
 public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
 
@@ -40,7 +41,7 @@ public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
     private double x, y, z;
     private float yaw, pitch;
     private Set<TeleportFlags> flags;
-    private int teleportId;
+    private int teleportID;
 
     public PacketPlayOutSynchronizePlayerPosition(final ServerBuffer buf) {
         x = buf.readDouble();
@@ -49,18 +50,18 @@ public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
         yaw = buf.readFloat();
         pitch = buf.readFloat();
         flags = TeleportFlags.unpack(buf.readByte());
-        teleportId = buf.readVarInt();
+        teleportID = buf.readVarInt();
     }
 
     public PacketPlayOutSynchronizePlayerPosition(final EntityPosition position,
                                                   final Set<TeleportFlags> flags,
-                                                  final int teleportId) {
+                                                  final int teleportID) {
         this(position.getX(), position.getY(), position.getZ(), position.getYaw(),
-                position.getPitch(), flags, teleportId);
+                position.getPitch(), flags, teleportID);
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -78,7 +79,7 @@ public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
                 .writeFloat(yaw)
                 .writeFloat(pitch)
                 .writeByte((byte) TeleportFlags.pack(flags))
-                .writeVarInt(teleportId)
+                .writeVarInt(teleportID)
                 .bytes();
     }
 

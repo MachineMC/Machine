@@ -24,8 +24,8 @@ import org.machinemc.nbt.NBTCompound;
 /**
  * Data about chunk's blocks and biomes.
  */
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor
 public class ChunkData implements Writable {
 
     private final NBTCompound heightmaps;

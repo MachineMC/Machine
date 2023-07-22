@@ -14,20 +14,20 @@
  */
 package org.machinemc.api.utils;
 
-import org.machinemc.nbt.NBTCompound;
-import org.machinemc.scriptive.components.Component;
-import org.machinemc.scriptive.serialization.ComponentSerializer;
-import org.machinemc.server.Server;
+import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.inventory.Item;
 import org.machinemc.api.world.BlockPosition;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.nbt.NBTCompound;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentSerializer;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.List;
@@ -40,15 +40,6 @@ import java.util.function.Function;
  * Special byte buffer for implementing Minecraft Protocol.
  */
 public interface ServerBuffer extends Cloneable {
-
-    /**
-     * Creates new instance of the classic buffer implementation.
-     * @return new default server buffer
-     * @throws UnsupportedOperationException if the creator hasn't been initialized
-     */
-    static ServerBuffer create() {
-        return Server.createServerBuffer();
-    }
 
     /**
      * Returns content of the full buffer, doesn't move with
@@ -65,20 +56,23 @@ public interface ServerBuffer extends Cloneable {
     byte[] finish();
 
     /**
-     * @return data output stream with all bytes of this buffer
-     * @throws IOException if an I/O error occurs during writing the bytes
+     * Reads an object from the buffer using a function.
+     * @param function function to initiate the instance
+     * @param <T> type of the item
+     * @return the object
      */
-    @Contract(pure = true)
-    DataOutputStream stream() throws IOException;
+    @Contract("_ -> new")
+    <T> T read(Function<ServerBuffer, T> function);
 
     /**
-     * Writes the bytes of this buffer in a data output stream.
-     * @param stream stream to write into
-     * @return given stream
-     * @throws IOException if an I/O error occurs during writing the bytes
+     * Writes an object to the buffer using a consumer.
+     * @param item item to write
+     * @param consumer consumer that writes to the buffer
+     * @param <T> type of the item
+     * @return this
      */
-    @Contract("_ -> param1")
-    DataOutputStream writeToStream(DataOutputStream stream) throws IOException;
+    @Contract("_, _ -> this")
+    <T> FriendlyByteBuf write(@Nullable T item, BiConsumer<ServerBuffer, T> consumer);
 
     /**
      * Writes a writable object into this buffer.
@@ -87,6 +81,57 @@ public interface ServerBuffer extends Cloneable {
      */
     @Contract("_ -> this")
     ServerBuffer write(Writable writable);
+
+    /**
+     * Writes contents of another server buffer into this buffer.
+     * @param buf buf to write
+     * @return this
+     */
+    @Contract("_ -> this")
+    ServerBuffer write(ServerBuffer buf);
+
+    /**
+     * Writes contents of another server buffer into this buffer.
+     * @param buf buf to write
+     * @param length number of bytes to write
+     * @return this
+     */
+    @Contract("_, _ -> this")
+    ServerBuffer write(ServerBuffer buf, int length);
+
+    /**
+     * Writes contents of another server buffer into this buffer.
+     * @param buf buf to write
+     * @return this
+     */
+    @Contract("_ -> this")
+    ServerBuffer write(ByteBuf buf);
+
+    /**
+     * Writes contents of another server buffer into this buffer.
+     * @param buf buf to write
+     * @param length number of bytes to write
+     * @return this
+     */
+    @Contract("_, _ -> this")
+    ServerBuffer write(ByteBuf buf, int length);
+
+    /**
+     * Writes contents of another server buffer into this buffer.
+     * @param buf buf to write
+     * @return this
+     */
+    @Contract("_ -> this")
+    ServerBuffer write(ByteBuffer buf);
+
+    /**
+     * Writes contents of another server buffer into this buffer.
+     * @param buf buf to write
+     * @param length number of bytes to write
+     * @return this
+     */
+    @Contract("_, _ -> this")
+    ServerBuffer write(ByteBuffer buf, int length);
 
     /**
      * Read an array of a specific reader.
@@ -112,11 +157,10 @@ public interface ServerBuffer extends Cloneable {
      * Read an optional of a specific reader.
      *
      * @param <T>    type
-     * @param type   type
      * @param reader reader
      * @return next optional value
      */
-    <T> Optional<T> readOptional(Class<T> type, Function<ServerBuffer, T> reader);
+    <T> Optional<T> readOptional(Function<ServerBuffer, T> reader);
 
     /**
      * Write an optional value to the buffer using a specific writer.
@@ -311,7 +355,7 @@ public interface ServerBuffer extends Cloneable {
      * @return next string list
      */
     @Contract("_ -> new")
-    List<String> readStringList(Charset charset);
+    @Unmodifiable List<String> readStringList(Charset charset);
 
     /**
      *
@@ -319,8 +363,27 @@ public interface ServerBuffer extends Cloneable {
      * @param charset charset used by the strings in the list
      * @return this
      */
-    @Contract("_, _ -> new")
+    @Contract("_, _ -> this")
     ServerBuffer writeStringList(List<String> strings, Charset charset);
+
+    /**
+     * Reads a list using a function.
+     * @param function function to initiate the read items
+     * @param <T> type of the list
+     * @return list
+     */
+    @Contract("_ -> new")
+    <T> @Unmodifiable List<T> readList(Function<ServerBuffer, T> function);
+
+    /**
+     * Writes a list to the buffer.
+     * @param list list to write
+     * @param consumer consumer for writing
+     * @param <T> type of the list
+     * @return this
+     */
+    @Contract("_, _ -> this")
+    <T> FriendlyByteBuf writeList(List<T> list, BiConsumer<ServerBuffer, T> consumer);
 
     /**
      * @return next uuid
@@ -437,7 +500,7 @@ public interface ServerBuffer extends Cloneable {
      * @return next player textures
      */
     @Contract("-> _")
-    @Nullable PlayerTextures readTextures();
+    Optional<PlayerTextures> readTextures();
 
     /**
      * @param playerSkin player textures to write
@@ -487,7 +550,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    ServerBuffer setReaderIndex(int index);
+    ServerBuffer readerIndex(int index);
 
     /**
      * @return index of the writer
@@ -500,7 +563,7 @@ public interface ServerBuffer extends Cloneable {
      * @return this
      */
     @Contract("_ -> this")
-    ServerBuffer setWriterIndex(int index);
+    ServerBuffer writerIndex(int index);
 
     /**
      * Deallocates this buffer.

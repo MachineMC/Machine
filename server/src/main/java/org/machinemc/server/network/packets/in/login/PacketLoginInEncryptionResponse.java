@@ -21,10 +21,14 @@ import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.ServerBuffer;
+import org.jetbrains.annotations.Nullable;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketLoginInEncryptionResponse extends PacketIn {
 
     private static final int ID = 0x01;
@@ -43,7 +47,7 @@ public class PacketLoginInEncryptionResponse extends PacketIn {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

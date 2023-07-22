@@ -22,6 +22,7 @@ import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.landscape.LandscapeHandler;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Setter
@@ -37,12 +38,15 @@ public class DefaultLandscapeHandler implements LandscapeHandler {
                                    final BiomeManager biomeManager,
                                    final boolean autoSave,
                                    final int autoSaveLimit) {
-
+        Objects.requireNonNull(blockManager);
+        Objects.requireNonNull(biomeManager);
         if (blockManager.isRegistered(NamespacedKey.minecraft("air"))) {
             defaultBlock = NamespacedKey.minecraft("air");
         } else {
             final Set<BlockType> blockTypes = blockManager.getBlocks();
-            if (blockTypes.size() == 0) throw new IllegalStateException();
+            if (blockTypes.size() == 0)
+                throw new IllegalStateException("There are no registered blocks in the"
+                        + "server's block manager");
             for (final BlockType blockType : blockTypes) {
                 if (blockType.getProperties().isAir()) {
                     defaultBlock = blockType.getName();
@@ -54,7 +58,9 @@ public class DefaultLandscapeHandler implements LandscapeHandler {
         }
 
         final Set<Biome> biomes = biomeManager.getBiomes();
-        if (biomes.size() == 0) throw new IllegalStateException();
+        if (biomes.size() == 0)
+            throw new IllegalStateException("There are no registered biomes in the"
+                    + "server's biome manager");
         defaultBiome = biomes.iterator().next().getName();
 
         this.autoSave = autoSave;

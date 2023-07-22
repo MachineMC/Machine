@@ -21,16 +21,17 @@ import lombok.ToString;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutEntityVelocity extends PacketOut {
 
     private static final int ID = 0x54;
 
-    private int entityId;
+    private int entityID;
     private short velocityX, velocityY, velocityZ;
 
     static {
@@ -39,14 +40,14 @@ public class PacketPlayOutEntityVelocity extends PacketOut {
     }
 
     public PacketPlayOutEntityVelocity(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         velocityX = buf.readShort();
         velocityY = buf.readShort();
         velocityZ = buf.readShort();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -58,7 +59,7 @@ public class PacketPlayOutEntityVelocity extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
+                .writeVarInt(entityID)
                 .writeShort(velocityX)
                 .writeShort(velocityY)
                 .writeShort(velocityZ)

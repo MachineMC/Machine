@@ -16,7 +16,6 @@ package org.machinemc.api.particles;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.utils.ServerBuffer;
@@ -25,6 +24,8 @@ import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Represents a particle object.
@@ -43,19 +44,20 @@ public class Particle<O extends ParticleOption> implements NBTSerializable, Writ
      * @param compound compound of the particle
      * @return particle created from the compound
      */
-    public static @Nullable Particle<?> fromNBT(final NBTCompound compound) {
+    public static Optional<Particle<?>> fromNBT(final NBTCompound compound) {
+        Objects.requireNonNull(compound, "Source compound can not be null");
         if (!compound.containsKey("type") || compound.get("type").tag() != NBT.Tag.STRING)
-            return null;
+            return Optional.empty();
         final NamespacedKey name = NamespacedKey.minecraft(compound.get("type").value());
-        final ParticleType<?> particleType = ParticleType.get(name);
-        if (particleType == null) return null;
-        final Particle<?> particle = particleType.create();
-        particle.getOptions().load(compound);
-        return particle;
+        return ParticleType.get(name).map(particleType -> {
+            final Particle<?> particle = particleType.create();
+            particle.getOptions().load(compound);
+            return particle;
+        });
     }
 
     public Particle(final ParticleType<O> type) {
-        this.type = type;
+        this.type = Objects.requireNonNull(type, "Type of a particle can not be null");
         options = type.provider.create(type);
     }
 
@@ -68,7 +70,8 @@ public class Particle<O extends ParticleOption> implements NBTSerializable, Writ
 
     @Override
     public void write(final ServerBuffer buf) {
-        buf.writeVarInt(type.getId());
+        Objects.requireNonNull(buf);
+        buf.writeVarInt(type.getID());
         buf.write(options);
     }
 
@@ -76,4 +79,5 @@ public class Particle<O extends ParticleOption> implements NBTSerializable, Writ
     public String toString() {
         return type.getName().toString() + options.toNBT().toString();
     }
+
 }

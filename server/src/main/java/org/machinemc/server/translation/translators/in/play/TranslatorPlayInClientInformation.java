@@ -16,8 +16,8 @@ package org.machinemc.server.translation.translators.in.play;
 
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.ClientConnection;
-import org.machinemc.server.translation.PacketTranslator;
 import org.machinemc.server.network.packets.in.play.PacketPlayInClientInformation;
+import org.machinemc.server.translation.PacketTranslator;
 
 public class TranslatorPlayInClientInformation extends PacketTranslator<PacketPlayInClientInformation> {
 
@@ -28,7 +28,7 @@ public class TranslatorPlayInClientInformation extends PacketTranslator<PacketPl
 
     @Override
     public void translateAfter(final ClientConnection connection, final PacketPlayInClientInformation packet) {
-        final ServerPlayer player = connection.getOwner();
+        final ServerPlayer player = connection.getOwner().orElse(null);
         if (player == null)
             return;
         player.setLocale(packet.getLocale());

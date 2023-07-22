@@ -457,13 +457,10 @@ public class Vector3 implements Cloneable {
         return hash;
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public Vector3 clone() {
-        try {
-            return (Vector3) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+        return new Vector3(x, y, z);
     }
 
 }

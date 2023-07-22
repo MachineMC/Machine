@@ -14,10 +14,10 @@
  */
 package org.machinemc.api.server;
 
-import org.machinemc.api.entities.Player;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.machinemc.api.entities.Player;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -44,9 +44,7 @@ public interface PlayerManager extends ServerProperty {
      * @param uuid uuid of the player
      */
     default void removePlayer(final UUID uuid) {
-        final Player player = getPlayer(uuid);
-        if (player == null) return;
-        removePlayer(player);
+        getPlayer(uuid).ifPresent(this::removePlayer);
     }
 
     /**
@@ -54,9 +52,7 @@ public interface PlayerManager extends ServerProperty {
      * @param name name of the player
      */
     default void removePlayer(final String name) {
-        final Player player = getPlayer(name);
-        if (player == null) return;
-        removePlayer(player);
+        getPlayer(name).ifPresent(this::removePlayer);
     }
 
     /**
@@ -64,14 +60,14 @@ public interface PlayerManager extends ServerProperty {
      * @param uuid uuid of the player
      * @return player with given uuid
      */
-    @Nullable Player getPlayer(UUID uuid);
+    Optional<Player> getPlayer(UUID uuid);
 
     /**
      * Returns player with given name in the manager.
      * @param name name of the player
      * @return player with given name
      */
-    @Nullable Player getPlayer(String name);
+    Optional<Player> getPlayer(String name);
 
     /**
      * @return unmodifiable set of all players in this manager

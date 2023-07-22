@@ -14,10 +14,13 @@
  */
 package org.machinemc.server.logging;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 public class FormattedOutputStream extends FilterOutputStream {
 
@@ -29,10 +32,10 @@ public class FormattedOutputStream extends FilterOutputStream {
 
     public FormattedOutputStream(final Logger logger,
                                  final OutputStream out,
-                                 final String linePrefix) {
-        super(out);
-        this.logger = logger;
-        this.linePrefix = linePrefix;
+                                 final @Nullable String linePrefix) {
+        super(Objects.requireNonNull(out));
+        this.logger = Objects.requireNonNull(logger, "Logger can not be null");
+        this.linePrefix = linePrefix != null ? linePrefix : "";
     }
 
     @Override

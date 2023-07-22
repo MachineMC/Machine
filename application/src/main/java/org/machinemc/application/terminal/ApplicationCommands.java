@@ -109,7 +109,7 @@ public final class ApplicationCommands {
                                 application.info("Server '" + name + "' is currently offline");
                                 return 0;
                             }
-                            if (container.getInstance() == null) return 0;
+                            if (container.getInstance().isEmpty()) return 0;
                             application.stopServer(container);
                             return 0;
                         })
@@ -211,7 +211,7 @@ public final class ApplicationCommands {
                                 application.info("Server '" + name + "' is already running");
                                 return 0;
                             }
-                            if (container.getInstance() != null) {
+                            if (container.getInstance().isPresent()) {
                                 application.info("Server '" + name + "' hasn't been shut down yet");
                                 return 0;
                             }
@@ -251,7 +251,7 @@ public final class ApplicationCommands {
                                 application.info("Server '" + name + "' is currently offline");
                                 return 0;
                             }
-                            if (container.getInstance() == null) return 0;
+                            if (container.getInstance().isEmpty()) return 0;
                             application.info("Restarting server '" + name + "'...");
                             application.stopServer(container);
                             application.getTerminal().openServer(container);
@@ -290,7 +290,7 @@ public final class ApplicationCommands {
                                     }
 
                                     final String platformName = ctx.getArgument("platform", String.class);
-                                    final ServerPlatform platform = application.getPlatform(platformName);
+                                    final ServerPlatform platform = application.getPlatform(platformName).orElse(null);
 
                                     if (platform == null) {
                                         application.info("Platform '" + platformName + "' does not exist");

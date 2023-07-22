@@ -58,6 +58,12 @@ public interface ChatType extends NBTSerializable {
                    @Nullable TextFormat format,
                    @Nullable NamespacedKey font) implements NBTSerializable {
 
+        public Element {
+            Objects.requireNonNull(type, "Element type can not be null");
+            Objects.requireNonNull(parameters, "Parameters can not be null");
+            Objects.requireNonNull(translationKey, "Translation key can not be null");
+        }
+
         /**
          * Creates new element of type chat.
          * @param parameters parameters of the element

@@ -301,13 +301,10 @@ public class Vector2 implements Cloneable {
         return hash;
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public Vector2 clone() {
-        try {
-            return (Vector2) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+        return new Vector2(x, y);
     }
 
 }

@@ -15,13 +15,11 @@
 package org.machinemc.server.world.biomes;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.machinemc.nbt.NBTCompound;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.biomes.BiomeManager;
+import org.machinemc.nbt.NBTCompound;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,29 +29,33 @@ import java.util.stream.Collectors;
 /**
  * Default implementation of biome manager.
  */
-@RequiredArgsConstructor
-public class BiomeManagerImpl implements BiomeManager {
+public class ServerBiomeManager implements BiomeManager {
 
     protected final AtomicInteger idCounter = new AtomicInteger(0);
     private static final String CODEC_TYPE = "minecraft:worldgen/biome";
 
     private final Map<Integer, Biome> biomes = new ConcurrentHashMap<>();
     @Getter
-    private final Machine server;
+    private final Server server;
 
     /**
      * Creates manager with default settings.
      * @param server server to create manager for
      * @return newly created manager
      */
-    public static BiomeManager createDefault(final Machine server) {
-        final BiomeManagerImpl manager = new BiomeManagerImpl(server);
-        manager.addBiome(BiomeImpl.createDefault());
+    public static BiomeManager createDefault(final Server server) {
+        final ServerBiomeManager manager = new ServerBiomeManager(server);
+        manager.addBiome(ServerBiome.createDefault());
         return manager;
+    }
+
+    public ServerBiomeManager(final Server server) {
+        this.server = Objects.requireNonNull(server, "Server of biome manager can not be null");
     }
 
     @Override
     public void addBiome(final Biome biome) {
+        Objects.requireNonNull(biome, "Biome can not be null");
         if (isRegistered(biome.getName()))
             throw new IllegalStateException("Biome '" + biome.getName() + "' is already registered");
         biomes.put(idCounter.getAndIncrement(), biome);
@@ -61,30 +63,34 @@ public class BiomeManagerImpl implements BiomeManager {
 
     @Override
     public boolean removeBiome(final Biome biome) {
-        return biomes.remove(getBiomeId(biome)) == null;
+        Objects.requireNonNull(biome, "Biome can not be null");
+        return biomes.remove(getBiomeID(biome)) == null;
     }
 
     @Override
     public boolean isRegistered(final Biome biome) {
+        Objects.requireNonNull(biome, "Biome can not be null");
         return biomes.containsValue(biome);
     }
 
     @Override
-    public @Nullable Biome getBiome(final NamespacedKey name) {
+    public Optional<Biome> getBiome(final NamespacedKey name) {
+        Objects.requireNonNull(name, "Name of biome can not be null");
         for (final Biome biome : getBiomes()) {
             if (!(biome.getName().equals(name))) continue;
-            return biome;
+            return Optional.of(biome);
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public @Nullable Biome getById(final int id) {
-        return biomes.get(id);
+    public Optional<Biome> getByID(final int id) {
+        return Optional.ofNullable(biomes.get(id));
     }
 
     @Override
-    public int getBiomeId(final Biome biome) {
+    public int getBiomeID(final Biome biome) {
+        Objects.requireNonNull(biome, "Biome can not be null");
         for (final Map.Entry<Integer, Biome> entry : biomes.entrySet()) {
             if (entry.getValue().equals(biome))
                 return entry.getKey();
@@ -99,12 +105,13 @@ public class BiomeManagerImpl implements BiomeManager {
 
     @Override
     public NBTCompound getBiomeNBT(final Biome biome) {
+        Objects.requireNonNull(biome, "Biome can not be null");
         if (!isRegistered(biome))
             throw new IllegalStateException();
         final NBTCompound nbtCompound = biome.toNBT();
         return new NBTCompound(Map.of(
                 "name", biome.getName().toString(),
-                "id", getBiomeId(biome),
+                "id", getBiomeID(biome),
                 "element", nbtCompound
         ));
     }
@@ -116,9 +123,16 @@ public class BiomeManagerImpl implements BiomeManager {
 
     @Override
     public List<NBTCompound> getCodecElements() {
-        return new ArrayList<>(biomes.values().stream()
+        return biomes.values().stream()
                 .map(this::getBiomeNBT)
-                .toList());
+                .toList();
+    }
+
+    @Override
+    public String toString() {
+        return "ServerBiomeManager("
+                + "server=" + server
+                + ')';
     }
 
 }

@@ -26,6 +26,7 @@ import org.machinemc.server.chunk.ChunkUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -46,6 +47,9 @@ public class LandscapeHelper {
     private final Cache<Long, Landscape> landscapes;
 
     public LandscapeHelper(final World source, final File regionFolder, final LandscapeHandler handler) {
+        Objects.requireNonNull(source);
+        Objects.requireNonNull(regionFolder);
+        Objects.requireNonNull(handler);
         this.source = source;
         scheduler = source.getServer().getScheduler();
         this.regionFolder = regionFolder;
@@ -89,6 +93,7 @@ public class LandscapeHelper {
      * @return landscape for given block position
      */
     public Landscape get(final BlockPosition position) throws ExecutionException {
+        Objects.requireNonNull(position);
         return get(position.getX(), position.getZ());
     }
 

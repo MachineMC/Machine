@@ -15,8 +15,10 @@
 package org.machinemc.api.entities.player;
 
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+
+import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Representing player's gamemode.
@@ -31,7 +33,7 @@ public enum Gamemode {
     /**
      * @return numeric id of the gamemode used by Minecraft protocol.
      */
-    public @Range(from = 0, to = 3) int getId() {
+    public @Range(from = 0, to = 3) int getID() {
         return ordinal();
     }
 
@@ -51,11 +53,11 @@ public enum Gamemode {
      * @param id id of the gamemode
      * @return gamemode for given id
      */
-    public static @Nullable Gamemode nullableFromID(final @Range(from = -1, to = 3) int id) {
+    public static Optional<Gamemode> nullableFromID(final @Range(from = -1, to = 3) int id) {
         if (id == -1)
-            return null;
+            return Optional.empty();
         Preconditions.checkArgument(id < values().length, "Unsupported Gamemode type");
-        return values()[id];
+        return Optional.ofNullable(values()[id]);
     }
 
     /**
@@ -63,11 +65,12 @@ public enum Gamemode {
      * @param name name of the gamemode
      * @return gamemode with given name
      */
-    public static @Nullable Gamemode getByName(final String name) {
+    public static Optional<Gamemode> getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the gamemode can not be null");
         for (final Gamemode value : values()) {
-            if (value.name().equalsIgnoreCase(name)) return value;
+            if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }
-        return null;
+        return Optional.empty();
     }
 
 }

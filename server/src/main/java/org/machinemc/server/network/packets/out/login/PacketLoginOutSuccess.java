@@ -14,27 +14,26 @@
  */
 package org.machinemc.server.network.packets.out.login;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.network.packets.Packet;
-import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.server.network.packets.PacketOut;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketLoginOutSuccess extends PacketOut {
 
     private static final int ID = 0x02;
 
+    @Getter(AccessLevel.NONE)
     private UUID uuid;
     private String userName;
     private @Nullable PlayerTextures textures;
@@ -48,11 +47,11 @@ public class PacketLoginOutSuccess extends PacketOut {
     public PacketLoginOutSuccess(final ServerBuffer buf) {
         uuid = buf.readUUID();
         userName = buf.readString(StandardCharsets.UTF_8);
-        textures = buf.readTextures();
+        textures = buf.readTextures().orElse(null);
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -75,4 +74,10 @@ public class PacketLoginOutSuccess extends PacketOut {
         return new PacketLoginOutSuccess(new FriendlyByteBuf(serialize()));
     }
 
+    /**
+     * @return UUID of the player
+     */
+    public UUID getUUID() {
+        return uuid;
+    }
 }

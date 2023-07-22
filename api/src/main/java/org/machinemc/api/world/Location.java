@@ -19,13 +19,15 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
 import org.jetbrains.annotations.Contract;
 
+import java.util.Objects;
+
 /**
  * Represents the location in the world.
  */
 @EqualsAndHashCode(callSuper = true)
 public final class Location extends EntityPosition implements Cloneable, Writable {
 
-    @Getter @Setter
+    @Getter
     private World world;
 
     /**
@@ -111,7 +113,7 @@ public final class Location extends EntityPosition implements Cloneable, Writabl
                     final float pitch,
                     final World world) {
         super(x, y, z, yaw, pitch);
-        this.world = world;
+        this.world = Objects.requireNonNull(world, "World of the location can not be null");
     }
 
     /**
@@ -145,6 +147,14 @@ public final class Location extends EntityPosition implements Cloneable, Writabl
     }
 
     /**
+     * Sets the world to the location.
+     * @param world new world
+     */
+    public void setWorld(final World world) {
+        this.world = Objects.requireNonNull(world, "World of the location can not be null");
+    }
+
+    /**
      * Returns clone of this location but with specified world.
      * @param world world of the new location
      * @return new location
@@ -162,15 +172,13 @@ public final class Location extends EntityPosition implements Cloneable, Writabl
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Location(");
-        sb.append("x=").append(getX()).append(", ");
-        sb.append("y=").append(getY()).append(", ");
-        sb.append("z=").append(getZ()).append(", ");
-        sb.append("yaw=").append(getYaw()).append(", ");
-        sb.append("pitch=").append(getPitch()).append(", ");
-        sb.append("world=").append(world);
-        sb.append(')');
-        return sb.toString();
+        return "Location(" + "x=" + getX() + ", "
+                + "y=" + getY() + ", "
+                + "z=" + getZ() + ", "
+                + "yaw=" + getYaw() + ", "
+                + "pitch=" + getPitch() + ", "
+                + "world=" + world
+                + ')';
     }
 
 }

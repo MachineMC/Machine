@@ -16,10 +16,10 @@ package org.machinemc.api.world;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Visual data of a block, to create a new instance
@@ -27,14 +27,14 @@ import java.util.Map;
  * return unique id depending on its material and properties.
  */
 // This class is used by the code generators, edit with caution.
-public abstract class BlockData implements Cloneable {
+public abstract sealed class BlockData implements Cloneable permits BlockDataImpl {
 
     /**
      * Returns new instance of block data from id (mapped by vanilla server reports).
      * @param id id of the block data
      * @return new instance of the block data with the given id
      */
-    public static BlockData getBlockData(final int id) {
+    public static Optional<BlockData> getBlockData(final int id) {
         return BlockDataImpl.getBlockData(id);
     }
 
@@ -46,7 +46,7 @@ public abstract class BlockData implements Cloneable {
      * @param text text to parse
      * @return parsed block data or null if the text is invalid
      */
-    public static @Nullable BlockData parse(final String text) {
+    public static Optional<BlockData> parse(final String text) {
         return BlockDataImpl.parse(text);
     }
 
@@ -82,7 +82,7 @@ public abstract class BlockData implements Cloneable {
     /**
      * @return id of the block data used by Minecraft protocol
      */
-    public abstract int getId();
+    public abstract int getID();
 
     /**
      * Returns map of keys and values of all properties of this block data.

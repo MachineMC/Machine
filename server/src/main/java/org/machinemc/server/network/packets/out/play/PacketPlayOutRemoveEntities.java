@@ -20,16 +20,16 @@ import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
 @ToString
+@AllArgsConstructor
 public class PacketPlayOutRemoveEntities extends PacketOut {
 
     private static final int ID = 0x3E;
 
     @Getter @Setter
-    private int[] entityIds;
+    private int[] entityIDs;
 
     static {
         register(PacketPlayOutRemoveEntities.class, ID, PacketState.PLAY_OUT,
@@ -37,11 +37,11 @@ public class PacketPlayOutRemoveEntities extends PacketOut {
     }
 
     public PacketPlayOutRemoveEntities(final ServerBuffer buf) {
-        entityIds = buf.readVarIntArray();
+        entityIDs = buf.readVarIntArray();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -53,7 +53,7 @@ public class PacketPlayOutRemoveEntities extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarIntArray(entityIds)
+                .writeVarIntArray(entityIDs)
                 .bytes();
     }
 

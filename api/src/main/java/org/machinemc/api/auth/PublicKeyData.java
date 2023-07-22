@@ -19,32 +19,46 @@ import org.machinemc.api.utils.Writable;
 
 import java.security.PublicKey;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Public key data used by Minecraft's auth system.
+ * @param publicKey public key
+ * @param signature signature
+ * @param timestamp timestamp of the public key
  */
-public interface PublicKeyData extends Writable {
+public record PublicKeyData(PublicKey publicKey, byte[] signature, Instant timestamp) implements Writable {
+
+    public PublicKeyData {
+        Objects.requireNonNull(publicKey, "Public key can not be null");
+        Objects.requireNonNull(signature, "Signature can not be null");
+        Objects.requireNonNull(timestamp, "Timestamp can not be null");
+    }
 
     /**
-     * @return public key the client received from Mojang
+     * @return true if data are expired
      */
-    PublicKey publicKey();
+    public boolean hasExpired() {
+        return timestamp.isBefore(Instant.now());
+    }
 
-    /**
-     * @return bytes of the public key signature the client received from Mojang
-     */
-    byte[] signature();
-
-    /**
-     * @return when the key data will expire
-     */
-    Instant timestamp();
+    @Override
+    public String toString() {
+        return "PublicKeyData("
+                + "publicKey=" + publicKey
+                + ", signature=" + Arrays.toString(signature)
+                + ", timestamp=" + timestamp
+                + ')';
+    }
 
     /**
      * Writes the public key data in to a buffer.
      * @param buf buffer to write into
      */
-    default void write(ServerBuffer buf) {
+    @Override
+    public void write(final ServerBuffer buf) {
+        Objects.requireNonNull(buf);
         buf.writePublicKey(this);
     }
 

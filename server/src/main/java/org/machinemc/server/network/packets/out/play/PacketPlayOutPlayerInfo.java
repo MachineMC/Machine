@@ -17,22 +17,23 @@ package org.machinemc.server.network.packets.out.play;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.scriptive.components.Component;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.entities.player.PlayerTextures;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.UUID;
 
+@Getter
+@Setter
 @ToString
-@Getter @Setter
 public class PacketPlayOutPlayerInfo extends PacketOut {
 
     private static final int ID = 0x3A;
@@ -69,18 +70,18 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
             boolean listed = false;
             int latency = 0;
             Component displayName = null;
-            UUID sessionId = null;
+            UUID sessionID = null;
             PublicKeyData publicKeyData = null;
             for (final Action action : actions) {
                 switch (action) {
                     case ADD_PLAYER -> {
                         name = buf.readString(StandardCharsets.UTF_8);
-                        skin = buf.readTextures();
+                        skin = buf.readTextures().orElse(null);
                     }
                     case INITIALIZE_CHAT -> {
                         if (!buf.readBoolean())
                             continue;
-                        sessionId = buf.readUUID(); // Chat session id
+                        sessionID = buf.readUUID();
                         publicKeyData = buf.readPublicKey();
                     }
                     case UPDATE_GAMEMODE -> gamemode = Gamemode.fromID(buf.readVarInt());
@@ -89,13 +90,13 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     case UPDATE_DISPLAY_NAME -> displayName = buf.readComponent();
                 }
                 playerInfoDataArray[i] = new PlayerInfoData(uuid, name, skin, gamemode, listed,
-                        latency, displayName, sessionId, publicKeyData);
+                        latency, displayName, sessionID, publicKeyData);
             }
         }
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -167,7 +168,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
      * @param listed         whether the player should be listed in the player list
      * @param latency        latency of the player
      * @param listName       name displayed in player list
-     * @param sessionId      session id of the connection
+     * @param sessionID      session id of the connection
      * @param publicKeyData  public key data of the connection
      */
     public record PlayerInfoData(UUID uuid,
@@ -177,19 +178,19 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                                  boolean listed,
                                  int latency,
                                  @Nullable Component listName,
-                                 @Nullable UUID sessionId,
+                                 @Nullable UUID sessionID,
                                  @Nullable PublicKeyData publicKeyData) {
 
         public PlayerInfoData(final Player player) {
-            this(player.getUuid(),
+            this(player.getUUID(),
                     player.getName(),
-                    player.getProfile().getTextures(),
+                    player.getProfile().getTextures().orElse(null),
                     player.getGamemode(),
                     player.isListed(),
                     player.getLatency(),
                     player.getPlayerListName(),
-                    player.getServer().isOnline() ? player.getConnection().getSessionId() : null,
-                    player.getServer().isOnline() ? player.getConnection().getPublicKeyData() : null);
+                    player.getServer().isOnline() ? player.getConnection().getSessionId().orThrow() : null,
+                    player.getServer().isOnline() ? player.getConnection().getPublicKeyData().orThrow() : null);
         }
 
         /**
@@ -209,12 +210,12 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                                 .writeTextures(playerTextures);
                     }
                     case INITIALIZE_CHAT -> {
-                        if (sessionId == null || publicKeyData == null) {
+                        if (sessionID == null || publicKeyData == null) {
                             buf.writeBoolean(false);
                             continue;
                         }
                         buf.writeBoolean(true)
-                                .writeUUID(sessionId)
+                                .writeUUID(sessionID)
                                 .writePublicKey(publicKeyData);
                     }
                     case UPDATE_GAMEMODE -> {
@@ -224,9 +225,8 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     case UPDATE_LISTED -> buf.writeBoolean(listed);
                     case UPDATE_LATENCY -> buf.writeVarInt(latency);
                     case UPDATE_DISPLAY_NAME -> {
-                        buf.writeBoolean(listName != null);
-                        if (listName != null)
-                            buf.writeComponent(listName);
+                        assert listName != null;
+                        buf.writeComponent(listName)
                     }
                 }
             }

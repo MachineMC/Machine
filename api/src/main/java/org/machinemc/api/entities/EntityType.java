@@ -17,7 +17,9 @@ package org.machinemc.api.entities;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import org.machinemc.api.utils.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Represents entity type (model) of the entity.
@@ -56,14 +58,15 @@ public enum EntityType {
      * @param name name of the entity type
      * @return entity type with given name
      */
-    public static @Nullable EntityType getByName(final String name) {
+    public static Optional<EntityType> getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the entity type can not be null");
         for (final EntityType value : values()) {
             if (value.name().equalsIgnoreCase(name)
                     || value.identifier.getKey().equalsIgnoreCase(name)
                     || value.typeName.equalsIgnoreCase(name))
-                return value;
+                return Optional.of(value);
         }
-        return null;
+        return Optional.empty();
     }
 
 }

@@ -14,11 +14,14 @@
  */
 package org.machinemc.api.inventory;
 
-import org.machinemc.nbt.NBTCompound;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
-import org.jetbrains.annotations.Contract;
 import org.machinemc.api.world.Material;
+import org.machinemc.nbt.NBTCompound;
+
+import java.util.Optional;
 
 /**
  * Represents an item in inventory.
@@ -55,6 +58,15 @@ public interface Item extends Writable, Cloneable {
      */
     static Item of(Material material) {
         return new ItemStack(material);
+    }
+
+    /**
+     * Returns a material from id (mapped by vanilla server reports).
+     * @param id id of the material
+     * @return material with the id
+     */
+    static Optional<Material> getMaterial(final int id) {
+        return ItemStack.getMaterial(id);
     }
 
     /**
@@ -97,12 +109,12 @@ public interface Item extends Writable, Cloneable {
     /**
      * @return NBT Compound of the item
      */
-    NBTCompound getNbtCompound();
+    NBTCompound getNBTCompound();
 
     /**
      * @param compound new nbt compound of the item
      */
-    void setNbtCompound(NBTCompound compound);
+    void setNBTCompound(NBTCompound compound);
 
     /**
      * Creates copy of this item with new nbt compound.
@@ -110,7 +122,7 @@ public interface Item extends Writable, Cloneable {
      * @return new item
      */
     @Contract(pure = true)
-    Item withNbtCompound(NBTCompound compound);
+    Item withNBTCompound(NBTCompound compound);
 
     /**
      * @return material of the item
@@ -172,6 +184,7 @@ public interface Item extends Writable, Cloneable {
      * Writes the item in to a buffer.
      * @param buf buffer to write into
      */
+    @ApiStatus.NonExtendable
     default void write(ServerBuffer buf) {
         buf.writeSlot(this);
     }

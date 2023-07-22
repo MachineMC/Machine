@@ -24,31 +24,23 @@ side effects that may cause unintentional behaviour.
 All variables that are either not annotated or annotated with `@NotNull` are
 expected to be non-null.
 Null value is allowed only for variables marked with `@Nullable`.
-
-#### Recommendations
-- Prevent Stream API if not dealing with large collections of data, use classic loop instead.
+We encourage the use of the Optional for returning when dealing with nullable values.
 
 ### Specific Information
 
 #### API
 The API is designed after its forerunners. It prioritizes simplicity to
 ensure ease for beginners, while offering enough advanced features for
-more experienced developers.
-
-We draw inspiration for the design of new APIs primarily from Bukkit,
-Sponge, Minestom, and Krypton.
+more experienced developers. We draw inspiration for the design of new APIs
+primarily from Bukkit, Sponge, Minestom, and Krypton.
 
 The Machine API should be structured to evolve seamlessly
 with new Minecraft versions. You should always weigh the potential use cases
 against the maintenance expenses. If the downsides outweigh the
 benefits, it is most likely not worth implementing the idea.
 
-Make sure that 100% of your API code is documented with the correct use of code
+Make sure that all of your API code is documented with the correct use of code
 contract annotations.
-
-Plugins should rely on dependency injection, and avoid the use of static
-accessors. Exceptions do exist, but make sure you discuss your idea of
-implementation with others first if you are not sure about the design choice.
 
 #### Server
 The server is more complex than the API and does not follow many of the
@@ -83,19 +75,8 @@ to minimize boilerplate code and improve its readability.
 If you intend to use Lombok in your commitments, use only annotations
 that do not modify how the code works, rather reduce boilerplate code.
 
-**Banned Lombok Features** *(Annotations can't be detected by checkstyle so make sure
-you don't use these in your code)*
-
-| Banned Feature       | Reason
-| -------------------- | ---
-| `var` and `val`      | They make the code readability worse.
-| `@NonNull`           | We use contact annotations for that, prevention of NPE should be manual.
-| `@SneakyThrows`      | We handle all exceptions manually due to Machine exception handling.
-| `@ExtensionMethod`   | High impact on code style, hard to track the original source.
-| `@FieldDefaults`     | Modifies the code, makes the readability terrible.
-| `@UtilityClass`      | Modifies the code, doesn't really help much.
-| `@Helper`            | Makes the code readability worse, doesn't really help much.
-| `@StandardException` | Makes the code readability worse, doesn't really help much.
+**Banned Lombok Features**: `var`, `val`, `@NonNull`, `@SneakyThrows`,
+`@ExtensionMethod`, `@FieldDefaults`, `@UtilityClass`, `@Helper`
 
 Please be aware that we may decide to remove Lombok from the project
 at some point in the future. Therefore, avoid overusing it when it is unnecessary.
@@ -105,10 +86,9 @@ We use JetBrains code contract annotations to describe the behaviour of the code
 make sure you use them as well to keep the code consistent. Server implementation
 doesn't need to be annotated precisely, for API it is required.
 
-- Don't use `@NotNull` annotations if it's not to remove the warning, all variables
-that are not marked with `@Nullable` are expected to be non-null. 
+- Don't use `@NotNull` annotations if it's not to remove the warnings, all
+  variables that are not marked with `@Nullable` are expected to be non-null.
 - Don't use `@Nls` and `@NonNls` annotations, localization for Machine is not planned.
 - Use `@Contract` for methods where it's suitable.
-- For unmodifiable collections use `@Unmodifiable`.
-- From `ApiStatus` usage of only `@NonExtendable` and `@Internal` is allowed.
+- Mark unmodifiable collections with `@Unmodifiable`.
 - `@Pattern` annotation is banned.

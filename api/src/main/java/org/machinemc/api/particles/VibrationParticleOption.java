@@ -16,10 +16,7 @@ package org.machinemc.api.particles;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.server.NBTSerializable;
@@ -33,13 +30,15 @@ import org.machinemc.nbt.NBTList;
 import org.machinemc.nbt.exceptions.NBTException;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
  * Particle options implementation for vibration particles.
  */
-@Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class VibrationParticleOption implements ParticleOption {
@@ -47,10 +46,12 @@ public class VibrationParticleOption implements ParticleOption {
     private static final PositionSource DEFAULT_POSITION = new BlockPositionSource(new BlockPosition(0, 0, 0));
 
     private @Nullable PositionSource destination;
+    @Getter
     private int arrivalInTicks = 1;
 
     @Override
     public void load(final NBTCompound compound) {
+        Objects.requireNonNull(compound, "Source compound can not be null");
         if (compound.containsKey("arrival_in_ticks") && compound.get("arrival_in_ticks").tag() == NBT.Tag.INT)
             arrivalInTicks = compound.get("arrival_in_ticks").value();
 
@@ -63,7 +64,8 @@ public class VibrationParticleOption implements ParticleOption {
             return;
         final PositionSourceType positionSourceType;
         try {
-            positionSourceType = PositionSourceType.get(NamespacedKey.parse(destinationCompound.get("type").value()));
+            positionSourceType = PositionSourceType.get(NamespacedKey.parse(destinationCompound.get("type").value()))
+                    .orElse(null);
             if (positionSourceType == PositionSourceType.BLOCK)
                 destination = BlockPositionSource.create(destinationCompound);
             else if (positionSourceType == PositionSourceType.ENTITY)
@@ -86,10 +88,18 @@ public class VibrationParticleOption implements ParticleOption {
 
     @Override
     public void write(final ServerBuffer buf) {
+        Objects.requireNonNull(buf);
         final PositionSource destination = this.destination != null ? this.destination : DEFAULT_POSITION;
         buf.writeNamespacedKey(destination.getType().name);
         destination.write(buf);
         buf.writeVarInt(arrivalInTicks);
+    }
+
+    /**
+     * @return the destination of the vibration particles
+     */
+    public Optional<PositionSource> getDestination() {
+        return Optional.ofNullable(destination);
     }
 
     /**
@@ -120,15 +130,20 @@ public class VibrationParticleOption implements ParticleOption {
          * @throws NBTException if the nbt is invalid
          */
         public static BlockPositionSource create(final NBTCompound source) {
+            Objects.requireNonNull(source, "Source compound can not be null");
             if (!source.containsKey("pos") || source.get("pos").tag() != NBT.Tag.LIST)
-                throw new NBTException();
+                throw new NBTException("NBT source does not contain valid position information");
             final NBTList list = source.getList("pos");
-            if (list.size() < 3) throw new NBTException();
+            if (list.size() < 3) throw new NBTException("NBT source does not contain valid position information");
             return new BlockPositionSource(new BlockPosition(
                     list.get(0).value(),
                     list.get(1).value(),
                     list.get(2).value()
             ));
+        }
+
+        public BlockPositionSource {
+            Objects.requireNonNull(position);
         }
 
         @Override
@@ -147,6 +162,7 @@ public class VibrationParticleOption implements ParticleOption {
 
         @Override
         public void write(final ServerBuffer buf) {
+            Objects.requireNonNull(buf);
             buf.writeBlockPos(position);
         }
 
@@ -169,9 +185,10 @@ public class VibrationParticleOption implements ParticleOption {
          * @throws NBTException if the nbt is invalid
          */
         public static EntityPositionSource create(final NBTCompound source) {
+            Objects.requireNonNull(source, "Source compound can not be null");
             if (!source.containsKey("y_offset") || source.get("y_offset").tag() != NBT.Tag.FLOAT
                     || !source.containsKey("source_entity") || source.get("source_entity").tag() != NBT.Tag.LIST)
-                throw new NBTException();
+                throw new NBTException("NBT source does not contain valid position information");
 
             final float offset = source.get("y_offset").value();
             final NBTList entity = source.getList("source_entity");
@@ -181,7 +198,7 @@ public class VibrationParticleOption implements ParticleOption {
             else
                 entityID = source.get("entity_id").value();
 
-            if (entity.size() < 4) throw new NBTException();
+            if (entity.size() < 4) throw new NBTException("NBT source does not contain valid position information");
             final ByteBuf buf = Unpooled.buffer();
             for (int i = 0; i < 4; i++)
                 buf.writeInt(entity.get(i).value());
@@ -190,8 +207,12 @@ public class VibrationParticleOption implements ParticleOption {
             return new EntityPositionSource(uuid, entityID, offset);
         }
 
+        public EntityPositionSource {
+            Objects.requireNonNull(uuid, "UUID of the entity position source can not be null");
+        }
+
         public EntityPositionSource(final Entity entity) {
-            this(entity.getUuid(), entity.getEntityId(), (float) entity.getEntityType().getHeight());
+            this(entity.getUUID(), entity.getEntityID(), (float) entity.getEntityType().getHeight());
         }
 
         @Override
@@ -215,6 +236,7 @@ public class VibrationParticleOption implements ParticleOption {
 
         @Override
         public void write(final ServerBuffer buf) {
+            Objects.requireNonNull(buf);
             buf.writeVarInt(entityID);
             buf.writeFloat(offset);
         }
@@ -238,10 +260,11 @@ public class VibrationParticleOption implements ParticleOption {
          * @param name name of the position source type
          * @return position source type with given name
          */
-        public static @Nullable PositionSourceType get(final NamespacedKey name) {
+        public static Optional<PositionSourceType> get(final NamespacedKey name) {
+            Objects.requireNonNull(name, "Name of the position source type can not be null");
             for (final PositionSourceType type : PositionSourceType.values())
-                if (type.name.equals(name)) return type;
-            return null;
+                if (type.name.equals(name)) return Optional.of(type);
+            return Optional.empty();
         }
 
     }

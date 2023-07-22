@@ -25,15 +25,16 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutLogin extends PacketOut {
 
     private static final int ID = 0x28;
@@ -69,8 +70,8 @@ public class PacketPlayOutLogin extends PacketOut {
         entityID = buf.readInt();
         isHardcore = buf.readBoolean();
         gamemode = Gamemode.fromID(buf.readByte());
-        final byte gamemodeId = buf.readByte();
-        previousGamemode = gamemodeId == -1 ? null : Gamemode.fromID(gamemodeId);
+        final byte gamemodeID = buf.readByte();
+        previousGamemode = gamemodeID == -1 ? null : Gamemode.fromID(gamemodeID);
         dimensions = buf.readStringList(StandardCharsets.UTF_8);
         this.dimensionCodec = buf.readNBT();
         spawnWorldType = buf.readNamespacedKey();
@@ -92,7 +93,7 @@ public class PacketPlayOutLogin extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -106,8 +107,8 @@ public class PacketPlayOutLogin extends PacketOut {
         final FriendlyByteBuf buf = new FriendlyByteBuf()
                 .writeInt(entityID)
                 .writeBoolean(isHardcore)
-                .writeByte((byte) gamemode.getId())
-                .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getId()))
+                .writeByte((byte) gamemode.getID())
+                .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getID()))
                 .writeStringList(new ArrayList<>(dimensions), StandardCharsets.UTF_8)
                 .writeNBT(dimensionCodec)
                 .writeNamespacedKey(spawnWorldType)

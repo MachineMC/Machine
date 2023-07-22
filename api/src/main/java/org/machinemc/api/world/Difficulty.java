@@ -15,8 +15,11 @@
 package org.machinemc.api.world;
 
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+
+import java.util.Objects;
+
+import java.util.Optional;
 
 /**
  * Difficulty of the world.
@@ -33,7 +36,7 @@ public enum Difficulty {
     /**
      * @return numeric id of the difficulty used by Minecraft protocol.
      */
-    public @Range(from = 0, to = 3) int getId() {
+    public @Range(from = 0, to = 3) int getID() {
         return ordinal();
     }
 
@@ -52,11 +55,12 @@ public enum Difficulty {
      * @param name name of the difficulty
      * @return difficulty with given name
      */
-    public static @Nullable Difficulty getByName(final String name) {
+    public static Optional<Difficulty> getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the difficulty can not be null");
         for (final Difficulty value : values()) {
-            if (value.name().equalsIgnoreCase(name)) return value;
+            if (value.name().equalsIgnoreCase(name)) return Optional.of(value);
         }
-        return null;
+        return Optional.empty();
     }
 
 }

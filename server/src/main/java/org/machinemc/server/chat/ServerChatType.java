@@ -24,31 +24,37 @@ import org.machinemc.scriptive.style.ChatStyle;
 import org.machinemc.scriptive.style.TextFormat;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Getter
 @Builder
-@SuppressWarnings("ClassCanBeRecord")
-public class ChatTypeImpl implements ChatType {
+public class ServerChatType implements ChatType {
 
     private final NamespacedKey name;
     private final Element chatElement, narrationElement;
 
-    private static final ChatTypeImpl.Element DEFAULT_NARRATION_ELEMENT = ChatTypeImpl.Element.narration(
-            Set.of(ChatTypeImpl.Parameter.SENDER, ChatTypeImpl.Parameter.CONTENT),
+    private static final ServerChatType.Element DEFAULT_NARRATION_ELEMENT = ServerChatType.Element.narration(
+            Set.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
             "chat.type.text.narrate",
             null,
             null);
+
+    ServerChatType(final NamespacedKey name, final Element chatElement, final Element narrationElement) {
+        this.name = Objects.requireNonNull(name, "Name can not be null");
+        this.chatElement = Objects.requireNonNull(chatElement, "Chat element can not be null");
+        this.narrationElement = Objects.requireNonNull(narrationElement, "Narration element can not be null");
+    }
 
     /**
      * Creates the default 'chat' chat type.
      * @return default 'chat' chat type
      */
-    public static ChatTypeImpl chat() {
-        return ChatTypeImpl.builder()
+    public static ServerChatType chat() {
+        return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("chat"))
                 .chatElement(Element.chat(
-                        Set.of(ChatTypeImpl.Parameter.SENDER, ChatTypeImpl.Parameter.CONTENT),
+                        Set.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
                         "chat.type.text",
                         null,
                         null
@@ -61,11 +67,11 @@ public class ChatTypeImpl implements ChatType {
      * Creates the default 'say command' chat type.
      * @return default 'say command' chat type
      */
-    public static ChatTypeImpl sayCommand() {
-        return ChatTypeImpl.builder()
+    public static ServerChatType sayCommand() {
+        return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("say_command"))
                 .chatElement(Element.chat(
-                        Set.of(ChatTypeImpl.Parameter.SENDER, ChatTypeImpl.Parameter.CONTENT),
+                        Set.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
                         "chat.type.announcement",
                         null,
                         null
@@ -78,11 +84,11 @@ public class ChatTypeImpl implements ChatType {
      * Creates the default 'message command incoming' chat type.
      * @return default 'message command incoming' chat type
      */
-    public static ChatTypeImpl msgCommandIncoming() {
-        return ChatTypeImpl.builder()
+    public static ServerChatType msgCommandIncoming() {
+        return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("msg_command_incoming"))
                 .chatElement(Element.chat(
-                        Set.of(ChatTypeImpl.Parameter.SENDER, ChatTypeImpl.Parameter.CONTENT),
+                        Set.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
                         "commands.message.display.incoming",
                         new TextFormat(ChatColor.GRAY, ChatStyle.ITALIC),
                         null
@@ -95,11 +101,11 @@ public class ChatTypeImpl implements ChatType {
      * Creates the default 'message command outgoing' chat type.
      * @return default 'message command outgoing' chat type
      */
-    public static ChatTypeImpl msgCommandOutgoing() {
-        return ChatTypeImpl.builder()
+    public static ServerChatType msgCommandOutgoing() {
+        return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("msg_command_outgoing"))
                 .chatElement(Element.chat(
-                        Set.of(ChatTypeImpl.Parameter.TARGET, ChatTypeImpl.Parameter.CONTENT),
+                        Set.of(ServerChatType.Parameter.TARGET, ServerChatType.Parameter.CONTENT),
                         "commands.message.display.outgoing",
                         new TextFormat(ChatColor.GRAY, ChatStyle.ITALIC),
                         null
@@ -112,14 +118,14 @@ public class ChatTypeImpl implements ChatType {
      * Creates the default 'team message command incoming' chat type.
      * @return default 'team message command incoming' chat type
      */
-    public static ChatTypeImpl teamMsgCommandIncoming() {
-        return ChatTypeImpl.builder()
+    public static ServerChatType teamMsgCommandIncoming() {
+        return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("team_msg_command_incoming"))
                 .chatElement(Element.chat(
                         Set.of(
-                                ChatTypeImpl.Parameter.TARGET,
-                                ChatTypeImpl.Parameter.SENDER,
-                                ChatTypeImpl.Parameter.CONTENT
+                                ServerChatType.Parameter.TARGET,
+                                ServerChatType.Parameter.SENDER,
+                                ServerChatType.Parameter.CONTENT
                         ),
                         "chat.type.team.text",
                         null,
@@ -133,13 +139,13 @@ public class ChatTypeImpl implements ChatType {
      * Creates the default 'team message command outgoing' chat type.
      * @return default 'team message command outgoing' chat type
      */
-    public static ChatTypeImpl teamMsgCommandOutgoing() {
-        return ChatTypeImpl.builder()
+    public static ServerChatType teamMsgCommandOutgoing() {
+        return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("team_msg_command_outgoing"))
                 .chatElement(Element.chat(
-                        Set.of(ChatTypeImpl.Parameter.TARGET,
-                                ChatTypeImpl.Parameter.SENDER,
-                                ChatTypeImpl.Parameter.CONTENT
+                        Set.of(ServerChatType.Parameter.TARGET,
+                                ServerChatType.Parameter.SENDER,
+                                ServerChatType.Parameter.CONTENT
                         ),
                         "chat.type.team.sent",
                         null,
@@ -153,17 +159,17 @@ public class ChatTypeImpl implements ChatType {
      * Creates the default 'emote command' chat type.
      * @return default 'emote command' chat type
      */
-    public static ChatTypeImpl emoteCommand() {
-        return ChatTypeImpl.builder()
+    public static ServerChatType emoteCommand() {
+        return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("emote_command"))
                 .chatElement(Element.chat(
-                        Set.of(ChatTypeImpl.Parameter.SENDER, ChatTypeImpl.Parameter.TARGET),
+                        Set.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.TARGET),
                         "chat.type.emote",
                         null,
                         null
                 ))
                 .narrationElement(Element.narration(
-                        Set.of(ChatTypeImpl.Parameter.SENDER, ChatTypeImpl.Parameter.CONTENT),
+                        Set.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
                         "chat.type.emote",
                         null,
                         null
@@ -175,17 +181,17 @@ public class ChatTypeImpl implements ChatType {
      * Creates the default 'tellraw' chat type.
      * @return default 'tellraw' chat type
      */
-    public static ChatTypeImpl tellraw() {
-        return ChatTypeImpl.builder()
+    public static ServerChatType tellraw() {
+        return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("raw"))
                 .chatElement(Element.chat(
-                        Set.of(ChatTypeImpl.Parameter.CONTENT),
+                        Set.of(ServerChatType.Parameter.CONTENT),
                         "%s",
                         null,
                         null
                 ))
                 .narrationElement(Element.narration(
-                        Set.of(ChatTypeImpl.Parameter.CONTENT),
+                        Set.of(ServerChatType.Parameter.CONTENT),
                         "%s",
                         null,
                         null
@@ -199,6 +205,13 @@ public class ChatTypeImpl implements ChatType {
                 "chat", chatElement.toNBT(),
                 "narration", narrationElement.toNBT()
         ));
+    }
+
+    @Override
+    public String toString() {
+        return "ChatType("
+                + "name=" + name
+                + ')';
     }
 
 }

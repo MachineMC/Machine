@@ -23,6 +23,12 @@ import java.util.Set;
 
 public class AdaptivePalette implements Palette {
 
+    protected final byte dimension;
+    protected final byte defaultBitsPerEntry;
+    protected final byte maxBitsPerEntry;
+
+    protected Palette palette;
+
     /**
      * @return default palette for blocks
      */
@@ -47,12 +53,6 @@ public class AdaptivePalette implements Palette {
     public static Palette newPalette(final int dimension, final int maxBitsPerEntry, final int bitsPerEntry) {
         return new AdaptivePalette((byte) dimension, (byte) maxBitsPerEntry, (byte) bitsPerEntry);
     }
-
-    protected final byte
-            dimension,
-            defaultBitsPerEntry,
-            maxBitsPerEntry;
-    protected Palette palette;
 
     AdaptivePalette(final byte dimension, final byte maxBitsPerEntry, final byte bitsPerEntry) {
         validateDimension(dimension);

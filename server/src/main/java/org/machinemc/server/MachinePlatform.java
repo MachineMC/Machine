@@ -14,17 +14,18 @@
  */
 package org.machinemc.server;
 
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.BlockData;
 import org.machinemc.api.world.Material;
+import org.machinemc.application.RunnableServer;
 import org.machinemc.application.ServerApplication;
 import org.machinemc.application.ServerContext;
-import org.machinemc.application.RunnableServer;
 import org.machinemc.application.ServerPlatform;
 import org.machinemc.server.network.packets.PacketFactory;
 import org.machinemc.server.utils.ClassUtils;
 
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Default Machine server platform.
@@ -47,8 +48,8 @@ public class MachinePlatform implements ServerPlatform {
     }
 
     @Override
-    public @Nullable String getDescription() {
-        return "Default Machine " + getVersion() + " Minecraft server implementation";
+    public Optional<String> getDescription() {
+        return Optional.of("Default Machine " + getVersion() + " Minecraft server implementation");
     }
 
     @Override
@@ -58,6 +59,7 @@ public class MachinePlatform implements ServerPlatform {
 
     @Override
     public void load(final ServerApplication application) {
+        Objects.requireNonNull(application, "Provided application for Machine platform is null");
         Arrays.stream(Material.values()).forEach(Material::createBlockData);
         BlockData.finishRegistration();
         application.info("Loaded materials and block data");

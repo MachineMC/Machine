@@ -14,20 +14,20 @@
  */
 package org.machinemc.api.particles;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.nbt.NBT;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTInt;
+
+import java.util.Objects;
 
 /**
  * Particle options implementation for shriek particles.
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShriekParticleOption implements ParticleOption {
@@ -36,6 +36,7 @@ public class ShriekParticleOption implements ParticleOption {
 
     @Override
     public void load(final NBTCompound compound) {
+        Objects.requireNonNull(compound, "Source compound can not be null");
         if (compound.containsKey("delay") && compound.get("delay").tag() == NBT.Tag.INT)
             delay = compound.get("delay").value();
     }
@@ -49,6 +50,7 @@ public class ShriekParticleOption implements ParticleOption {
 
     @Override
     public void write(final ServerBuffer buf) {
+        Objects.requireNonNull(buf);
         buf.writeVarInt(delay);
     }
 

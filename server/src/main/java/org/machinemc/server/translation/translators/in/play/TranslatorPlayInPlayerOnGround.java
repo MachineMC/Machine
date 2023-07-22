@@ -25,7 +25,7 @@ public class TranslatorPlayInPlayerOnGround extends PacketTranslator<PacketPlayI
 
     @Override
     public boolean translate(final ClientConnection connection, final PacketPlayInPlayerOnGround packet) {
-        player = connection.getOwner();
+        player = connection.getOwner().orElse(null);
         return player != null;
     }
 

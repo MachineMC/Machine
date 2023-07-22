@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class ServerContainer {
 
@@ -29,20 +30,15 @@ public final class ServerContainer {
     @Getter
     private final ServerPlatform platform;
 
-    @Getter @Setter
+    @Setter
     private @Nullable RunnableServer instance;
 
     public ServerContainer(final File directory, final ServerPlatform platform) {
-        if (platform == null)
-            throw new NullPointerException();
-        this.platform = platform;
+        this.platform = Objects.requireNonNull(platform, "Server platform can not be null");
 
-        if (directory == null)
-            throw new NullPointerException();
-
-        this.directory = directory;
+        this.directory = Objects.requireNonNull(directory, "Server platform can not be null");
         if (!directory.exists() && !directory.mkdirs())
-            throw new RuntimeException();
+            throw new RuntimeException("Directory " + directory.getPath() + " can not be created");
     }
 
     /**
@@ -59,6 +55,13 @@ public final class ServerContainer {
         return directory.getName();
     }
 
+    /**
+     * @return instance of the container
+     */
+    public Optional<RunnableServer> getInstance() {
+        return Optional.ofNullable(instance);
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
@@ -73,7 +76,7 @@ public final class ServerContainer {
 
     @Override
     public String toString() {
-        return "ServerContainer[" + getName() + "]";
+        return "ServerContainer(" + getName() + ')';
     }
 
 }

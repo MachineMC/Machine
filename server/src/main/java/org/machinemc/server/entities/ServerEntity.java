@@ -17,20 +17,19 @@ package org.machinemc.server.entities;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.Server;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.ServerConnection;
 import org.machinemc.api.network.packets.Packet;
-import org.machinemc.api.utils.NBTUtils;
 import org.machinemc.api.world.EntityPosition;
 import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTList;
 import org.machinemc.scriptive.components.Component;
-import org.machinemc.server.Machine;
 import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.server.utils.EntityUtils;
 
@@ -44,14 +43,13 @@ import static java.util.Map.entry;
 public abstract class ServerEntity implements Entity {
 
     @Getter
-    private final Machine server;
+    private final Server server;
 
     @Getter
     private final EntityType entityType;
-    @Getter
     private UUID uuid;
     @Getter
-    private final int entityId;
+    private final int entityID;
 
     @Getter
     private boolean active;
@@ -81,13 +79,18 @@ public abstract class ServerEntity implements Entity {
     @Getter @Setter
     private int portalCooldown;
 
-    public ServerEntity(final Machine server, final EntityType entityType, final UUID uuid) {
-        this.server = server;
-        this.entityType = entityType;
-        this.uuid = uuid;
-        entityId = EntityUtils.getEmptyID();
+    public ServerEntity(final Server server, final EntityType entityType, final UUID uuid) {
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        this.entityType = Objects.requireNonNull(entityType, "Entity type can not be null");
+        this.uuid = Objects.requireNonNull(uuid, "UUID can not be null");
+        entityID = EntityUtils.getEmptyID();
         location = new Location(0, 0, 0, getServer().getDefaultWorld());
         active = false;
+    }
+
+    @Override
+    public UUID getUUID() {
+        return uuid;
     }
 
     @Override
@@ -101,9 +104,9 @@ public abstract class ServerEntity implements Entity {
     }
 
     @Override
-    public @Nullable Component getCustomName() {
+    public Optional<Component> getCustomName() {
         // TODO return custom name metadata
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -134,12 +137,12 @@ public abstract class ServerEntity implements Entity {
 
     @Override
     public boolean addTag(final String tag) {
-        return tags.size() < 1024 && tags.add(tag);
+        return tags.size() < 1024 && tags.add(Objects.requireNonNull(tag, "Tag can not be null"));
     }
 
     @Override
     public boolean removeTag(final String tag) {
-        return tags.remove(tag);
+        return tags.remove(Objects.requireNonNull(tag, "Tag can not be null"));
     }
 
     /**
@@ -147,6 +150,7 @@ public abstract class ServerEntity implements Entity {
      * @param setPreviousLocation whether the previous location should be updated
      */
     protected void setLocation(final Location location, final boolean setPreviousLocation) {
+        Objects.requireNonNull(location, "Location can not be null");
         if (setPreviousLocation)
             previousLocation = this.location;
         this.location = location;
@@ -174,7 +178,7 @@ public abstract class ServerEntity implements Entity {
         if (!active)
             throw new IllegalStateException(this + " is not active");
         active = false;
-        getServer().getConnection().broadcastPacket(new PacketPlayOutRemoveEntities(new int[]{getEntityId()}));
+        getServer().getConnection().broadcastPacket(new PacketPlayOutRemoveEntities(new int[]{getEntityID()}));
         getServer().getEntityManager().removeEntity(this);
         getWorld().remove(this);
     }
@@ -185,6 +189,7 @@ public abstract class ServerEntity implements Entity {
      * @param onGround if the entity is on ground
      */
     public void handleMovement(final EntityPosition position, final boolean onGround) {
+        Objects.requireNonNull(position, "Position can not be null");
 
         final Location currentLocation = getLocation();
 
@@ -206,20 +211,20 @@ public abstract class ServerEntity implements Entity {
         final ServerConnection serverConnection = getServer().getConnection();
 
         if (deltaX > 8 || deltaY > 8 || deltaZ > 8) {
-            final Packet teleportPacket = new PacketPlayOutTeleportEntity(getEntityId(), position, onGround);
+            final Packet teleportPacket = new PacketPlayOutTeleportEntity(getEntityID(), position, onGround);
             serverConnection.broadcastPacket(teleportPacket, connected -> connected != connection);
         } else {
             final Packet positionPacket;
             if (rotationChange) {
                 positionPacket = new PacketPlayOutEntityPositionAndRotation(
-                        getEntityId(),
+                        getEntityID(),
                         previousLocation,
                         currentLocation,
                         onGround);
 
             } else {
                 positionPacket = new PacketPlayOutEntityPosition(
-                        getEntityId(),
+                        getEntityID(),
                         previousLocation,
                         currentLocation,
                         onGround);
@@ -228,7 +233,7 @@ public abstract class ServerEntity implements Entity {
         }
 
         if (rotationChange) {
-            final Packet headRotationPacket = new PacketPlayOutHeadRotation(getEntityId(), position.getYaw());
+            final Packet headRotationPacket = new PacketPlayOutHeadRotation(getEntityID(), position.getYaw());
             serverConnection.broadcastPacket(headRotationPacket, connected -> connected != connection);
         }
 
@@ -247,21 +252,20 @@ public abstract class ServerEntity implements Entity {
     @Override
     public NBTCompound toNBT() {
         final NBTCompound compound = new NBTCompound(Map.ofEntries(
-                entry("Pos", NBTUtils.list(location.getX(), location.getY(), location.getZ())),
-                entry("Motion", NBTUtils.list(0, 0, 0)), // TODO implement motion
-                entry("Rotation", NBTUtils.list(location.getYaw(), location.getPitch())),
+                entry("Pos", new NBTList(location.getX(), location.getY(), location.getZ())),
+                entry("Motion", new NBTList(0, 0, 0)), // TODO implement motion
+                entry("Rotation", new NBTList(location.getYaw(), location.getPitch())),
                 entry("FallDistance", fallDistance),
                 entry("Fire", remainingFireTicks),
                 entry("Air", (short) 0),
                 entry("OnGround", (byte) (onGround ? 1 : 0)),
                 entry("Invulnerable", (byte) (invulnerable ? 1 : 0)),
                 entry("PortalCooldown", portalCooldown),
-                entry("WorldUUIDLeast", getWorld().getUuid().getLeastSignificantBits()),
-                entry("WorldUUIDMost", getWorld().getUuid().getMostSignificantBits())
+                entry("WorldUUIDLeast", getWorld().getUUID().getLeastSignificantBits()),
+                entry("WorldUUIDMost", getWorld().getUUID().getMostSignificantBits())
         ));
         compound.setUUID("UUID", uuid);
-        if (getCustomName() != null)
-            compound.set("CustomName", getCustomName().toJson());
+        getCustomName().ifPresent(customName -> compound.set("CustomName", customName.toJson()));
         if (isCustomNameVisible())
             compound.set("CustomNameVisible", (byte) (isCustomNameVisible() ? 1 : 0));
         if (silent)
@@ -282,6 +286,7 @@ public abstract class ServerEntity implements Entity {
     @SuppressWarnings("unchecked")
     @Override
     public void load(final NBTCompound nbtCompound) {
+        Objects.requireNonNull(nbtCompound, "NBTCompound to load can not be null");
         List<Double> pos = (List<Double>) ((NBTList) nbtCompound.get("Pos")).revert();
         List<Double> motion = (List<Double>) ((NBTList) nbtCompound.get("Motion")).revert();
         List<Float> rotation = (List<Float>) ((NBTList) nbtCompound.get("Rotation")).revert();
@@ -326,6 +331,13 @@ public abstract class ServerEntity implements Entity {
             for (int j = 0; j < i; j++)
                 tags.add(nbtStrings.get(j));
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Entity("
+                + "uuid=" + uuid
+                + ')';
     }
 
 }

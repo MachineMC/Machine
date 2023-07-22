@@ -25,6 +25,7 @@ import org.objectweb.asm.*;
 
 import java.io.*;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 public class MaterialsLibGenerator extends CodeGenerator {
@@ -52,8 +53,7 @@ public class MaterialsLibGenerator extends CodeGenerator {
         final String iBlockDataPath = BlockData.I_BLOCKDATA_CLASS;
         final JsonParser parser = new JsonParser();
         final InputStream stream = getClass().getClassLoader().getResourceAsStream("blocks.json");
-        if (stream == null)
-            throw new FileNotFoundException();
+        Objects.requireNonNull(stream, "The blocks json file could not be load");
         final JsonObject blocksJson = parser.parse(new InputStreamReader(stream)).getAsJsonObject();
 
         for (final Map.Entry<String, JsonElement> entry : blocksJson.entrySet())
@@ -190,9 +190,9 @@ public class MaterialsLibGenerator extends CodeGenerator {
         mv.visitEnd();
         cw.visitEnd();
 
-        // Id getter
+        // ID getter
         mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
-                "getId",
+                "getID",
                 "()I",
                 null,
                 new String[0]);
@@ -398,9 +398,9 @@ public class MaterialsLibGenerator extends CodeGenerator {
         super.generate();
     }
 
-    private void handleEntry(final Map.Entry<String, JsonElement> entry, final boolean hasId) {
+    private void handleEntry(final Map.Entry<String, JsonElement> entry, final boolean hasID) {
         itemsMap.putIfAbsent(entry.getKey().replaceFirst("minecraft:", ""),
-                hasId ? entry.getValue().getAsJsonObject().get("protocol_id").getAsInt() : -1);
+                hasID ? entry.getValue().getAsJsonObject().get("protocol_id").getAsInt() : -1);
     }
 
 }

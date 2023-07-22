@@ -14,10 +14,11 @@
  */
 package org.machinemc.api.world.blocks;
 
-import org.jetbrains.annotations.Nullable;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTInt;
 import org.machinemc.nbt.NBTString;
+
+import java.util.Optional;
 
 /**
  * Represents a block type with custom internal nbt compound.
@@ -50,7 +51,7 @@ public interface BlockEntityType extends BlockType {
      * @return base of the block entity
      * @see BlockEntityType#sendsToClient()
      */
-    @Nullable BlockEntityBase getBlockEntityBase(WorldBlock.State state);
+    Optional<BlockEntityBase> getBlockEntityBase(WorldBlock.State state);
 
     /**
      * Creates NBT that should be sent to the client from the block's state.
@@ -60,7 +61,7 @@ public interface BlockEntityType extends BlockType {
      * @return nbt of given block that will be sent to client
      * @see BlockEntityType#sendsToClient()
      */
-    @Nullable NBTCompound getClientVisibleNBT(WorldBlock.State state);
+    Optional<NBTCompound> getClientVisibleNBT(WorldBlock.State state);
 
     /**
      * Creates base for the client visible nbt to render the block correctly, containing
@@ -73,15 +74,15 @@ public interface BlockEntityType extends BlockType {
      * @param state state of the block
      * @return base compound for the client
      */
-    default @Nullable NBTCompound getBaseClientVisibleNBT(final WorldBlock.State state) {
-        final BlockEntityBase base = getBlockEntityBase(state);
-        if (base == null) return null;
-        final NBTCompound compound = new NBTCompound();
-        compound.set("id", new NBTString(base.getName().toString()));
-        compound.set("x", new NBTInt(state.position().getX()));
-        compound.set("y", new NBTInt(state.position().getY()));
-        compound.set("z", new NBTInt(state.position().getZ()));
-        return compound;
+    default Optional<NBTCompound> getBaseClientVisibleNBT(final WorldBlock.State state) {
+        return getBlockEntityBase(state).map(base -> {
+            final NBTCompound compound = new NBTCompound();
+            compound.set("id", new NBTString(base.getName().toString()));
+            compound.set("x", new NBTInt(state.position().getX()));
+            compound.set("y", new NBTInt(state.position().getY()));
+            compound.set("z", new NBTInt(state.position().getZ()));
+            return compound;
+        });
     }
 
 }

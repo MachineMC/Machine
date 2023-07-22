@@ -15,9 +15,11 @@
 package org.machinemc.server.entities;
 
 import com.google.common.hash.Hashing;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.Server;
 import org.machinemc.api.chat.ChatMode;
 import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.entities.EntityType;
@@ -29,17 +31,16 @@ import org.machinemc.api.entities.player.SkinPart;
 import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.PlayerManager;
+import org.machinemc.api.server.codec.Codec;
 import org.machinemc.api.world.*;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.style.ChatColor;
-import org.machinemc.server.Machine;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutSynchronizePlayerPosition.TeleportFlags;
-import org.machinemc.server.server.codec.Codec;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -56,7 +57,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Getter
     private Gamemode gamemode = Gamemode.CREATIVE; // for now
-    @Getter
+    @Getter(AccessLevel.NONE)
     private @Nullable Gamemode previousGamemode = null;
 
     @Getter @Setter
@@ -78,16 +79,17 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     @Getter
     private Component playerListName;
 
-    private int teleportId = 0;
+    private int teleportID = 0;
     private boolean teleporting = false;
     private Location teleportLocation;
 
-    private ServerPlayer(final Machine server, final PlayerProfile profile, final ClientConnection connection) {
-        super(server, EntityType.PLAYER, profile.getUuid());
-        this.profile = profile;
-        if (connection.getOwner() != null)
+    private ServerPlayer(final Server server, final PlayerProfile profile, final ClientConnection connection) {
+        super(server, EntityType.PLAYER, profile.getUUID());
+        this.profile = Objects.requireNonNull(profile, "Player profile can not be null");
+        Objects.requireNonNull(connection, "Player's connection can not be null");
+        if (connection.getOwner().isPresent())
             throw new IllegalStateException("There can't be multiple players with the same ClientConnection");
-        if (connection.getState() != PlayerConnection.ClientState.PLAY)
+        if (connection.getState().orElse(null) != PlayerConnection.ClientState.PLAY)
             throw new IllegalStateException("Player's connection has to be in play state");
         connection.setOwner(this);
         connection.startKeepingAlive();
@@ -105,31 +107,34 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
      * @param connection connection of the player
      * @return created player instance
      */
-    public static ServerPlayer spawn(final Machine server,
+    public static ServerPlayer spawn(final Server server,
                                      final PlayerProfile profile,
                                      final ClientConnection connection) {
+        Objects.requireNonNull(server, "Server can not be null");
+        Objects.requireNonNull(profile, "Player profile can not be null");
+        Objects.requireNonNull(connection, "Player's connection can not be null");
 
         final PlayerManager manager = server.getPlayerManager();
 
-        if (connection.getState() != PlayerConnection.ClientState.PLAY) {
+        if (connection.getState().orElse(null) != PlayerConnection.ClientState.PLAY) {
             throw new IllegalStateException("Player can't be initialized if their connection isn't in play state");
         }
 
-        if (manager.getPlayer(profile.getUsername()) != null || manager.getPlayer(profile.getUuid()) != null) {
+        if (manager.getPlayer(profile.getUsername()).isPresent() || manager.getPlayer(profile.getUUID()).isPresent()) {
             connection.disconnect(TranslationComponent.of("disconnect.loginFailed"));
             throw new IllegalStateException("Session is already active");
         }
 
         // Loading NBT Data
         final ServerPlayer player = new ServerPlayer(server, profile, connection);
-        if (server.getPlayerDataContainer().exist(player.getUuid())) {
+        if (server.getPlayerDataContainer().exist(player.getUUID())) {
             try {
-                final NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player.getUuid());
+                final NBTCompound nbtCompound = server.getPlayerDataContainer().getPlayerData(player.getUUID());
                 if (nbtCompound != null)
                     player.load(nbtCompound);
             } catch (Exception exception) {
                 server.getConsole().warning("Failed to load player data for " + player.getName()
-                        + " (" + player.getUuid() + ")");
+                        + " (" + player.getUUID() + ")");
                 server.getExceptionHandler().handle(exception);
             }
         }
@@ -164,7 +169,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
         //noinspection UnstableApiUsage
         sendPacket(new PacketPlayOutLogin(
-                getEntityId(),
+                getEntityID(),
                 false,
                 gamemode,
                 previousGamemode,
@@ -190,8 +195,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
         // Other players
         final Set<PlayerConnection> others = getServer().getConnection().getClients().stream()
-                .filter(connection -> connection.getState() == PlayerConnection.ClientState.PLAY)
-                .filter(connection -> connection.getOwner() != null)
+                .filter(connection -> connection.getState().orElse(null) == PlayerConnection.ClientState.PLAY)
+                .filter(connection -> connection.getOwner().isPresent())
                 .filter(connection -> connection != getConnection())
                 .collect(Collectors.toSet());
 
@@ -238,12 +243,12 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         for (final Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
             if (player == this)
                 continue;
-            sendPacket(new PacketPlayOutSpawnPlayer(player.getEntityId(), player.getUuid(), player.getLocation()));
-            sendPacket(new PacketPlayOutHeadRotation(player.getEntityId(), player.getLocation().getYaw()));
+            sendPacket(new PacketPlayOutSpawnPlayer(player.getEntityID(), player.getUUID(), player.getLocation()));
+            sendPacket(new PacketPlayOutHeadRotation(player.getEntityID(), player.getLocation().getYaw()));
         }
         for (final PlayerConnection other : others) {
-            other.send(new PacketPlayOutSpawnPlayer(getEntityId(), getUuid(), getLocation()));
-            other.send(new PacketPlayOutHeadRotation(getEntityId(), getLocation().getYaw()));
+            other.send(new PacketPlayOutSpawnPlayer(getEntityID(), getUUID(), getLocation()));
+            other.send(new PacketPlayOutHeadRotation(getEntityID(), getLocation().getYaw()));
         }
 
         // Inventory, entities, etc
@@ -254,7 +259,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public void remove() {
-        if (connection.getState() != PlayerConnection.ClientState.DISCONNECTED)
+        if (connection.getState().orElse(null) != PlayerConnection.ClientState.DISCONNECTED)
             throw new IllegalStateException("You can't remove player from server until the connection is closed");
         super.remove();
         getWorld().remove(this);
@@ -288,7 +293,13 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     }
 
     @Override
+    public Optional<Gamemode> getPreviousGamemode() {
+        return Optional.ofNullable(previousGamemode);
+    }
+
+    @Override
     public void setGamemode(final Gamemode gamemode) {
+        Objects.requireNonNull(gamemode, "Gamemode can not be null");
         previousGamemode = this.gamemode;
         this.gamemode = gamemode;
         sendGamemodeChange(gamemode);
@@ -322,6 +333,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
      * @param difficulty new difficulty
      */
     private void sendDifficultyChange(final Difficulty difficulty) {
+        Objects.requireNonNull(difficulty, "Difficulty can not be null");
         sendPacket(new PacketPlayOutChangeDifficulty(difficulty));
     }
 
@@ -330,6 +342,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
      * @param location new world spawn
      */
     private void sendWorldSpawnChange(final Location location) {
+        Objects.requireNonNull(location, "Location can not be null");
         sendPacket(new PacketPlayOutWorldSpawnPosition(location));
     }
 
@@ -338,7 +351,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
      * @param gamemode new gamemode
      */
     private void sendGamemodeChange(final Gamemode gamemode) {
-        sendPacket(new PacketPlayOutGameEvent(PacketPlayOutGameEvent.Event.CHANGE_GAMEMODE, gamemode.getId()));
+        Objects.requireNonNull(gamemode, "Gamemode can not be null");
+        sendPacket(new PacketPlayOutGameEvent(PacketPlayOutGameEvent.Event.CHANGE_GAMEMODE, gamemode.getID()));
     }
 
     /**
@@ -356,19 +370,19 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         final float pitch = position.getPitch() + (flags.contains(TeleportFlags.PITCH) ? getLocation().getPitch() : 0f);
 
         teleportLocation = new Location(x, y, z, yaw, pitch, getWorld());
-        if (++teleportId == Integer.MAX_VALUE)
-            teleportId = 0;
+        if (++teleportID == Integer.MAX_VALUE)
+            teleportID = 0;
 
-        sendPacket(new PacketPlayOutSynchronizePlayerPosition(position, flags, teleportId));
+        sendPacket(new PacketPlayOutSynchronizePlayerPosition(position, flags, teleportID));
     }
 
     /**
      * Handles the teleport confirmation of the player.
-     * @param teleportId id of teleport
+     * @param teleportID id of teleport
      * @return whether the teleport was successful
      */
-    public boolean handleTeleportConfirm(final int teleportId) {
-        if (!teleporting || this.teleportId != teleportId) {
+    public boolean handleTeleportConfirm(final int teleportID) {
+        if (!teleporting || this.teleportID != teleportID) {
             teleporting = false;
             connection.disconnect(TranslationComponent.of("multiplayer.disconnect.invalid_player_movement"));
             return false;
@@ -390,9 +404,9 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     @Override
     public NBTCompound toNBT() {
         final NBTCompound nbtCompound = super.toNBT();
-        nbtCompound.set("playerGameType", gamemode.getId());
+        nbtCompound.set("playerGameType", gamemode.getID());
         if (previousGamemode != null)
-            nbtCompound.set("previousPlayerGameType", previousGamemode.getId());
+            nbtCompound.set("previousPlayerGameType", previousGamemode.getID());
         return nbtCompound;
     }
 
@@ -400,7 +414,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     public void load(final NBTCompound nbtCompound) {
         super.load(nbtCompound);
         // TODO replace with default gamemode from server.properties
-        gamemode = Gamemode.fromID(nbtCompound.getValue("playerGameType", Gamemode.SURVIVAL.getId()));
+        gamemode = Gamemode.fromID(nbtCompound.getValue("playerGameType", Gamemode.SURVIVAL.getID()));
         previousGamemode = nbtCompound.containsKey("previousPlayerGameType")
                 ? Gamemode.fromID(nbtCompound.getValue("previousPlayerGameType"))
                 : null;
@@ -414,6 +428,11 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     @Override
     public void save() {
         getServer().getPlayerDataContainer().savePlayerData(this);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 
 }

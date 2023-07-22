@@ -15,6 +15,7 @@
 package org.machinemc.application;
 
 import java.io.File;
+import java.util.Objects;
 
 /**
  * Represents context from which new server instance is created.
@@ -29,4 +30,13 @@ public record ServerContext(ServerApplication application,
                             String name,
                             PlatformConsole console,
                             ServerPlatform platform) {
+
+    public ServerContext {
+        Objects.requireNonNull(application, "Application of the server can not be null");
+        Objects.requireNonNull(directory, "Directory of the server can not be null");
+        Objects.requireNonNull(name, "Name of the server can not be null");
+        Objects.requireNonNull(console, "Console of the server can not be null");
+        Objects.requireNonNull(platform, "Platform of the server can not be null");
+    }
+
 }

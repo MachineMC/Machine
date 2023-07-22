@@ -19,7 +19,7 @@ import org.machinemc.api.chunk.Section;
 import org.machinemc.api.entities.Player;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTLongArray;
-import org.machinemc.server.Server;
+import org.machinemc.api.Server;
 import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.world.World;
 import org.machinemc.server.chunk.data.ChunkData;
@@ -27,7 +27,7 @@ import org.machinemc.server.chunk.data.LightData;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutChunkData;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutUnloadChunk;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutUpdateLight;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.server.utils.math.MathUtils;
 
 import java.util.*;
@@ -52,6 +52,7 @@ public abstract class WorldChunk implements Chunk {
     private final int height;
 
     public WorldChunk(final World world, final int chunkX, final int chunkZ) {
+        Objects.requireNonNull(world, "World can not be null");
         server = world.getServer();
         this.world = world;
         this.chunkX = chunkX;
@@ -65,11 +66,13 @@ public abstract class WorldChunk implements Chunk {
 
     @Override
     public void sendChunk(final Player player) {
+        Objects.requireNonNull(player, "Player can not be null");
         player.sendPacket(createChunkPacket());
     }
 
     @Override
     public void unloadChunk(final Player player) {
+        Objects.requireNonNull(player, "Player can not be null");
         player.sendPacket(new PacketPlayOutUnloadChunk(chunkX, chunkZ));
     }
 
@@ -82,6 +85,9 @@ public abstract class WorldChunk implements Chunk {
     public static ChunkData createChunkData(final List<Section> sections,
                                             final Section.BlockEntity[] blockEntities,
                                             final int height) {
+        Objects.requireNonNull(sections, "Sections can not be null");
+        Objects.requireNonNull(blockEntities, "Block entities can not be null");
+
         final int[] motionBlocking = new int[16 * 16];
         final int[] worldSurface = new int[16 * 16];
         for (int x = 0; x < 16; x++) {
@@ -110,6 +116,8 @@ public abstract class WorldChunk implements Chunk {
      * @return light data of this chunk
      */
     public static LightData createLightData(final List<Section> sections) {
+        Objects.requireNonNull(sections, "Sections can not be null");
+
         final BitSet skyMask = new BitSet();
         final BitSet blockMask = new BitSet();
         final BitSet emptySkyMask = new BitSet();
@@ -161,6 +169,15 @@ public abstract class WorldChunk implements Chunk {
      */
     public PacketPlayOutUpdateLight createLightPacket() {
         return new PacketPlayOutUpdateLight(chunkX, chunkZ, createLightData(getSections()));
+    }
+
+    @Override
+    public String toString() {
+        return "Chunk("
+                + "world=" + world
+                + ", chunkX=" + chunkX
+                + ", chunkZ=" + chunkZ
+                + ')';
     }
 
 }

@@ -28,7 +28,7 @@ public class TranslatorPlayInPlayerRotation extends PacketTranslator<PacketPlayI
 
     @Override
     public boolean translate(final ClientConnection connection, final PacketPlayInPlayerRotation packet) {
-        player = connection.getOwner();
+        player = connection.getOwner().orElse(null);
         if (player == null)
             return false;
         position = player.getLocation();

@@ -18,38 +18,38 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Getter;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.api.file.ServerFile;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.dimensions.DimensionType;
-import org.machinemc.server.world.dimensions.DimensionTypeImpl;
-import org.jetbrains.annotations.Nullable;
+import org.machinemc.server.Machine;
+import org.machinemc.server.world.dimensions.ServerDimensionType;
 
 import java.io.*;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents dimensions json server file.
  */
-public class DimensionsJson implements ServerFile, ServerProperty {
+public class DimensionsJSON implements ServerFile, ServerProperty {
 
     public static final String DIMENSIONS_FILE_NAME = "dimensions.json";
 
     @Getter
-    private final Machine server;
+    private final Server server;
     private final Set<DimensionType> dimensions = new LinkedHashSet<>();
 
-    public DimensionsJson(final Machine server, final File file) throws IOException {
-        this.server = server;
+    public DimensionsJSON(final Server server, final File file) throws IOException {
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        Objects.requireNonNull(file, "Source file can not be null");
         final JsonParser parser = new JsonParser();
-        final JsonObject json = parser.parse(new FileReader(file)).getAsJsonObject();
-        final JsonObject dimensions = json.get("dimensions").getAsJsonObject();
+        final JsonObject dimensions;
+        try (FileReader fileReader = new FileReader(file)) {
+            dimensions = parser.parse(fileReader).getAsJsonObject();
+        }
 
-        final DimensionType original = DimensionTypeImpl.createDefault();
+        final DimensionType original = ServerDimensionType.createDefault();
 
         for (final Map.Entry<String, JsonElement> dimensionKey : dimensions.entrySet()) {
             final NamespacedKey key;
@@ -63,10 +63,9 @@ public class DimensionsJson implements ServerFile, ServerProperty {
 
             final JsonObject dimension = dimensionKey.getValue().getAsJsonObject();
 
-            Number fixedTime = dimension.has("fixed_time")
+            final Number fixedTime = dimension.has("fixed_time")
                     ? dimension.get("fixed_time").getAsNumber()
-                    : original.getFixedTime();
-            if (fixedTime != null && fixedTime.intValue() == -1) fixedTime = null; // nullable option
+                    : original.getFixedTime().filter(time -> time.intValue() != -1).orElse(null);
 
             NamespacedKey effects;
             try {
@@ -82,7 +81,7 @@ public class DimensionsJson implements ServerFile, ServerProperty {
                 infiniburn = original.getInfiniburn();
             }
 
-            this.dimensions.add(DimensionTypeImpl.builder()
+            this.dimensions.add(ServerDimensionType.builder()
                     .name(key)
                     .natural(dimension.has("natural")
                             ? dimension.get("natural").getAsBoolean()
@@ -149,8 +148,13 @@ public class DimensionsJson implements ServerFile, ServerProperty {
     }
 
     @Override
-    public @Nullable InputStream getOriginal() {
-        return Machine.CLASS_LOADER.getResourceAsStream(DIMENSIONS_FILE_NAME);
+    public Optional<InputStream> getOriginal() {
+        return Optional.ofNullable(Machine.CLASS_LOADER.getResourceAsStream(DIMENSIONS_FILE_NAME));
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 
 }

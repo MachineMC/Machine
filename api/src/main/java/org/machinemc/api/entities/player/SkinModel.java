@@ -14,10 +14,28 @@
  */
 package org.machinemc.api.entities.player;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
+
 /**
  * Represents the model of player's skin.
  */
 public enum SkinModel {
     CLASSIC,
-    SLIM
+    SLIM;
+
+    /**
+     * Returns skin model of given name.
+     * @param name name of the skin model
+     * @return skin model with given name
+     */
+    public static @Nullable SkinModel getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the skin model can not be null");
+        for (final SkinModel value : values()) {
+            if (value.name().equalsIgnoreCase(name)) return value;
+        }
+        return null;
+    }
+
 }

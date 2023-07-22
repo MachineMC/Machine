@@ -14,8 +14,7 @@
  */
 package org.machinemc.api.entities.player;
 
-import org.jetbrains.annotations.Nullable;
-
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -32,12 +31,12 @@ public interface PlayerProfile {
     /**
      * @return player's uuid
      */
-    UUID getUuid();
+    UUID getUUID();
 
     /**
      * @return player's skin textures
      */
-    @Nullable PlayerTextures getTextures();
+    Optional<PlayerTextures> getTextures();
 
     /**
      * @return if the profile was created with information from

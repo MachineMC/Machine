@@ -14,47 +14,96 @@
  */
 package org.machinemc.api.entities.player;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
-import org.jetbrains.annotations.Nullable;
 
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Base64;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Represents player's skin textures.
+ * @param value texture value
+ * @param signature signature of the texture
+ * @param skinURL url for the skin
+ * @param capeURL url for the cape
+ * @param skinModel model of the skin
  */
-public interface PlayerTextures extends Writable {
+public record PlayerTextures(String value,
+                             @Nullable String signature,
+                             URL skinURL,
+                             @Nullable URL capeURL,
+                             SkinModel skinModel) implements Writable {
 
     /**
-     * @return base64 texture value of the skin
+     * Creates the player textures from given skin's texture value and signature.
+     * @param value textures value of the skin
+     * @param signature signature of the skin
+     * @throws MalformedURLException if texture value contains malformed URL format
+     * @throws JsonSyntaxException if texture value contains malformed JSON format
+     * @return player textures
      */
-    String value();
+    public static PlayerTextures buildSkin(final String value,
+                                           final @Nullable String signature) throws MalformedURLException {
+        final JsonElement decoded = new JsonParser().parse(new String(Base64.getDecoder().decode(value)));
+        if (!decoded.isJsonObject()) throw new JsonSyntaxException("Texture value of the skin contains "
+                + "malformed JSON format");
+        final JsonObject textures = decoded.getAsJsonObject().getAsJsonObject("textures");
+        final JsonObject skinJson = textures.getAsJsonObject("SKIN");
+        final URL skinURL = new URL(skinJson.get("url").getAsString());
+        final URL capeURL = textures.has("CAPE")
+                ? new URL(textures.getAsJsonObject("CAPE").get("url").getAsString())
+                : null;
+        final SkinModel skinModel = skinJson.has("metadata")
+                ? SkinModel.valueOf(skinJson.get("metadata")
+                        .getAsJsonObject()
+                        .get("model")
+                        .getAsString()
+                        .toUpperCase())
+                : SkinModel.CLASSIC;
+        return new PlayerTextures(value, signature, skinURL, capeURL, skinModel);
+    }
 
     /**
-     * @return signature of the skin
+     * Creates new player textures from a json object.
+     * @param jsonElement json of the player textures
+     * @return player textures from the json
      */
-    @Nullable String signature();
+    public static Optional<PlayerTextures> buildSkin(final JsonElement jsonElement) {
+        if (!jsonElement.isJsonObject())
+            return Optional.empty();
+        final JsonObject texturesJson = jsonElement.getAsJsonObject();
+        if (!(texturesJson.has("value") && texturesJson.has("signature")))
+            return Optional.empty();
+        try {
+            return Optional.of(buildSkin(
+                    texturesJson.get("value").getAsString(),
+                    texturesJson.get("signature").getAsString()
+            ));
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+    }
 
-    /**
-     * @return URL of the skin texture
-     */
-    URL skinUrl();
-
-    /**
-     * @return URL of the texture of skin's cape
-     */
-    @Nullable URL capeUrl();
-
-    /**
-     * @return type of the skin model
-     */
-    SkinModel skinModel();
+    public PlayerTextures {
+        Objects.requireNonNull(value, "Value of the skin can not be null");
+        Objects.requireNonNull(skinURL, "Skin url can not be null");
+        Objects.requireNonNull(skinModel, "Skin model can not be null");
+    }
 
     /**
      * Writes the player textures into a buffer.
      * @param buf buffer to write into
      */
-    default void write(ServerBuffer buf) {
+    @Override
+    public void write(final ServerBuffer buf) {
         buf.writeTextures(this);
     }
 

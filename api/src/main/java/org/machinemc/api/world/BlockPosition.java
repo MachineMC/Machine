@@ -80,12 +80,9 @@ public final class BlockPosition implements Writable, Cloneable {
     }
 
     @Override
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     public BlockPosition clone() {
-        try {
-            return (BlockPosition) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+        return new BlockPosition(x, y, z);
     }
 
 }

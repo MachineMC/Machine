@@ -22,12 +22,14 @@ import org.machinemc.api.logging.Console;
 import org.machinemc.server.Machine;
 import org.machinemc.api.commands.CommandExecutor;
 
+import java.util.Objects;
+
 /**
  * Class representing default server commands.
  */
-public final class ServerCommands {
+public final class MachineCommands {
 
-    private ServerCommands() {
+    private MachineCommands() {
         throw new UnsupportedOperationException();
     }
 
@@ -37,6 +39,7 @@ public final class ServerCommands {
      * @param dispatcher dispatcher to register commands in
      */
     public static void register(final Machine server, final CommandDispatcher<CommandExecutor> dispatcher) {
+        Objects.requireNonNull(server, "Server can not be null");
         final RootCommandNode<CommandExecutor> root = dispatcher.getRoot();
         root.addChild(stopCommand(server));
         root.addChild(exitCommand(server));

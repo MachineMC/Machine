@@ -19,15 +19,16 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.server.network.packets.PacketIn;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 import org.jetbrains.annotations.Range;
 
 import java.nio.charset.StandardCharsets;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketHandshakingInHandshake extends PacketIn {
 
     private static final int ID = 0x00;
@@ -51,7 +52,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -80,8 +81,14 @@ public class PacketHandshakingInHandshake extends PacketIn {
         STATUS(1),
         LOGIN(2);
 
-        @Getter
         private final int id;
+
+        /**
+         * @return id of the handshake type
+         */
+        public int getID() {
+            return id;
+        }
 
         /**
          * Returns handshake with given id.
@@ -90,7 +97,7 @@ public class PacketHandshakingInHandshake extends PacketIn {
          */
         public static HandshakeType fromID(final @Range(from = 1, to = 2) int id) {
             for (final HandshakeType type : HandshakeType.values()) {
-                if (type.getId() == id) return type;
+                if (type.getID() == id) return type;
             }
             throw new RuntimeException("Unsupported Handshake type");
         }

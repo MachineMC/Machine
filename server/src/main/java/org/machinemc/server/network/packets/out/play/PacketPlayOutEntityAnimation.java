@@ -22,16 +22,17 @@ import lombok.ToString;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutEntityAnimation extends PacketOut {
 
     private static final int ID = 0x04;
 
-    private int entityId;
+    private int entityID;
     private Animation animation;
 
     static {
@@ -40,12 +41,12 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
     }
 
     public PacketPlayOutEntityAnimation(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         animation = Animation.fromID(buf.readByte());
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -57,8 +58,8 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
-                .writeByte((byte) animation.getId())
+                .writeVarInt(entityID)
+                .writeByte((byte) animation.getID())
                 .bytes();
     }
 
@@ -78,7 +79,7 @@ public class PacketPlayOutEntityAnimation extends PacketOut {
         /**
          * @return id of the animation
          */
-        public int getId() {
+        public int getID() {
             return ordinal();
         }
 

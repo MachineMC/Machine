@@ -20,20 +20,27 @@ import lombok.Setter;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.utils.ServerBuffer;
+import lombok.*;
+import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.ServerBuffer;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketLoginInStart extends PacketIn {
 
     private static final int ID = 0x00;
 
     private String username;
+    @Getter(AccessLevel.NONE)
     private @Nullable UUID uuid;
 
     static {
@@ -44,11 +51,11 @@ public class PacketLoginInStart extends PacketIn {
 
     public PacketLoginInStart(final ServerBuffer buf) {
         username = buf.readString(StandardCharsets.UTF_8);
-        uuid = buf.readOptional(UUID.class, ServerBuffer::readUUID).orElse(null);
+        uuid = buf.readOptional(ServerBuffer::readUUID).orElse(null);
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -68,6 +75,13 @@ public class PacketLoginInStart extends PacketIn {
     @Override
     public PacketIn clone() {
         return new PacketLoginInStart(new FriendlyByteBuf(serialize()));
+    }
+
+    /**
+     * @return UUID of the player
+     */
+    public UUID getUUID() {
+        return uuid;
     }
 
 }

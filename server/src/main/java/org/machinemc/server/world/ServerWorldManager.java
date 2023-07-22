@@ -15,60 +15,71 @@
 package org.machinemc.server.world;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.machinemc.server.Machine;
+import org.machinemc.api.Server;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldManager;
 
 import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Default implementation of the world manager.
  */
-@RequiredArgsConstructor
-public class WorldManagerImpl implements WorldManager {
+public class ServerWorldManager implements WorldManager {
 
     private final Set<World> worlds = new CopyOnWriteArraySet<>();
     @Getter
-    private final Machine server;
+    private final Server server;
+
+    public ServerWorldManager(final Server server) {
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+    }
 
     @Override
     public void addWorld(final World world) {
-        worlds.add(world);
+        worlds.add(Objects.requireNonNull(world, "World can not be null"));
     }
 
     @Override
     public boolean removeWorld(final World world) {
-        return worlds.remove(world);
+        return worlds.remove(Objects.requireNonNull(world, "World can not be null"));
     }
 
     @Override
     public boolean isRegistered(final NamespacedKey name) {
-        final World world = getWorld(name);
-        if (world == null) return false;
-        return isRegistered(world);
+        Objects.requireNonNull(name, "Name of the world can not be null");
+        return getWorld(name).map(this::isRegistered).orElse(false);
     }
 
     @Override
     public boolean isRegistered(final World world) {
-        return worlds.contains(world);
+        return worlds.contains(Objects.requireNonNull(world, "World can not be null"));
     }
 
     @Override
-    public World getWorld(final NamespacedKey name) {
+    public Optional<World> getWorld(final NamespacedKey name) {
+        Objects.requireNonNull(name, "Name of the world can not be null");
         for (final World world : getWorlds()) {
             if (!(world.getName().equals(name))) continue;
-            return world;
+            return Optional.of(world);
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
     public Set<World> getWorlds() {
         return Collections.unmodifiableSet(worlds);
+    }
+
+    @Override
+    public String toString() {
+        return "ServerWorldManager("
+                + "server=" + server
+                + ')';
     }
 
 }

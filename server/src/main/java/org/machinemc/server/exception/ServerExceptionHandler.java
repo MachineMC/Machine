@@ -15,27 +15,32 @@
 package org.machinemc.server.exception;
 
 import lombok.Getter;
-import org.machinemc.server.Machine;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.Server;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.logging.Console;
-import org.machinemc.server.network.ClientConnection;
+import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.server.ServerProperty;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Default exception handler implementation.
  */
-public class ExceptionHandlerImpl implements ExceptionHandler, ServerProperty {
+public class ServerExceptionHandler implements ExceptionHandler, ServerProperty {
 
     @Getter
-    private final Machine server;
+    private final Server server;
     private final Console console;
 
-    public ExceptionHandlerImpl(final Machine server) {
-        this.server = server;
-        this.console = server.getConsole();
+    public ServerExceptionHandler(final Server server) {
+        this(server, server.getConsole());
+    }
+
+    public ServerExceptionHandler(final Server server, final Console console) {
+        this.server = Objects.requireNonNull(server, "Server can not be null");
+        this.console = Objects.requireNonNull(console, "Console can not be null");
     }
 
     @Override
@@ -45,6 +50,7 @@ public class ExceptionHandlerImpl implements ExceptionHandler, ServerProperty {
 
     @Override
     public void handle(final Throwable throwable, final @Nullable String reason) {
+        if (throwable == null) return;
         if (throwable instanceof ClientException clientException) {
             handle(clientException);
             return;
@@ -63,17 +69,25 @@ public class ExceptionHandlerImpl implements ExceptionHandler, ServerProperty {
      * @param exception client exception to handle
      */
     protected void handle(final ClientException exception) {
-        final ClientConnection connection = exception.getConnection();
+        if (exception == null) return;
+        final PlayerConnection connection = exception.getConnection();
         Throwable throwable = exception;
         while (throwable.getCause() != null)
             throwable = throwable.getCause();
-        server.getConsole().severe("Client generated " + throwable.getClass().getName(),
-                "Login username: " + connection.getLoginUsername(),
+        console.severe("Client generated " + throwable.getClass().getName(),
+                "Login username: " + connection.getLoginUsername().orElse(null),
                 "Address: " + connection.getAddress(),
                 "Reason: " + exception.getMessage(),
                 "Stack trace:"
         );
         console.severe(Arrays.stream(throwable.getStackTrace()).map(Object::toString).toArray(String[]::new));
+    }
+
+    @Override
+    public String toString() {
+        return "ExceptionHandler("
+                + "server=" + server
+                + ')';
     }
 
 }

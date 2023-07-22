@@ -16,10 +16,6 @@ package org.machinemc.server.utils;
 
 import java.util.*;
 
-/**
- *
- * @author Sam Harwell
- */
 public class IntegerList {
 
     private static final int[] EMPTY_DATA = new int[0];

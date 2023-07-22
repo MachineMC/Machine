@@ -19,17 +19,17 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.server.network.packets.PacketIn;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 
-@AllArgsConstructor
 @ToString
+@AllArgsConstructor
 public class PacketPlayInKeepAlive extends PacketIn {
 
     private static final int ID = 0x12;
 
     @Getter @Setter
-    private long keepAliveId;
+    private long keepAliveID;
 
     static {
         register(PacketPlayInKeepAlive.class, ID, PacketState.PLAY_IN,
@@ -37,11 +37,11 @@ public class PacketPlayInKeepAlive extends PacketIn {
     }
 
     public PacketPlayInKeepAlive(final ServerBuffer buf) {
-        keepAliveId = buf.readLong();
+        keepAliveID = buf.readLong();
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -53,7 +53,7 @@ public class PacketPlayInKeepAlive extends PacketIn {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeLong(keepAliveId)
+                .writeLong(keepAliveID)
                 .bytes();
     }
 

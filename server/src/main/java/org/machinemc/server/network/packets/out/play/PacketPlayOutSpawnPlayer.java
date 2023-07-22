@@ -14,25 +14,24 @@
  */
 package org.machinemc.server.network.packets.out.play;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
+import org.machinemc.api.utils.FriendlyByteBuf;
 
 import java.util.UUID;
 
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
-@Getter @Setter
+@AllArgsConstructor
 public class PacketPlayOutSpawnPlayer extends PacketOut {
 
     private static final int ID = 0x03;
 
-    private int entityId;
+    private int entityID;
+    @Getter(AccessLevel.NONE)
     private UUID uuid;
     private EntityPosition position;
 
@@ -43,13 +42,13 @@ public class PacketPlayOutSpawnPlayer extends PacketOut {
     }
 
     public PacketPlayOutSpawnPlayer(final ServerBuffer buf) {
-        entityId = buf.readVarInt();
+        entityID = buf.readVarInt();
         uuid = buf.readUUID();
         position = EntityPosition.read(buf);
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -61,7 +60,7 @@ public class PacketPlayOutSpawnPlayer extends PacketOut {
     @Override
     public byte[] serialize() {
         return new FriendlyByteBuf()
-                .writeVarInt(entityId)
+                .writeVarInt(entityID)
                 .writeUUID(uuid)
                 .write(position)
                 .bytes();
@@ -70,6 +69,13 @@ public class PacketPlayOutSpawnPlayer extends PacketOut {
     @Override
     public PacketOut clone() {
         return new PacketPlayOutSpawnPlayer(new FriendlyByteBuf(serialize()));
+    }
+
+    /**
+     * @return uuid of the player
+     */
+    public UUID getUUID() {
+        return uuid;
     }
 
 }

@@ -12,35 +12,33 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.utils;
+package org.machinemc.api.utils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.machinemc.api.auth.Crypt;
 import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.inventory.Item;
-import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.api.utils.Writable;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.Material;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
-import org.machinemc.server.auth.MessageSignatureImpl;
-import org.machinemc.server.auth.PublicKeyDataImpl;
-import org.machinemc.server.entities.player.PlayerTexturesImpl;
-import org.machinemc.api.inventory.ItemStack;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,20 +57,16 @@ public class FriendlyByteBuf implements ServerBuffer {
     public static final int CONTINUE_BIT = 0x80;
 
     public FriendlyByteBuf() {
-        this(new byte[0]);
+        this(Unpooled.buffer());
     }
 
     public FriendlyByteBuf(final byte[] bytes) {
-        buf = Unpooled.buffer(0);
+        this();
         buf.writeBytes(bytes);
     }
 
     public FriendlyByteBuf(final ByteBuf byteBuf) {
-        buf = byteBuf;
-    }
-
-    public FriendlyByteBuf(final DataInputStream dataInputStream) throws IOException {
-        this(dataInputStream.readAllBytes());
+        buf = Objects.requireNonNull(byteBuf);
     }
 
     @Override
@@ -96,28 +90,74 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public DataOutputStream stream() throws IOException {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final DataOutputStream stream = new DataOutputStream(buffer);
-        stream.write(bytes());
-        return stream;
+    public <T> T read(final Function<ServerBuffer, T> function) {
+        return Objects.requireNonNull(function).apply(this);
     }
 
     @Override
-    public DataOutputStream writeToStream(final DataOutputStream stream) throws IOException {
-        stream.write(bytes());
-        return stream;
+    public <T> FriendlyByteBuf write(final @Nullable T item, final BiConsumer<ServerBuffer, T> consumer) {
+        Objects.requireNonNull(consumer).accept(this, item);
+        return this;
     }
 
     @Override
     public FriendlyByteBuf write(final Writable writable) {
+        Objects.requireNonNull(writable);
         writable.write(this);
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf write(final ServerBuffer buf) {
+        Objects.requireNonNull(buf);
+        writeBytes(buf.finish());
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf write(final ServerBuffer buf, final int length) {
+        Objects.requireNonNull(buf);
+        writeBytes(buf.readBytes(length));
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf write(final ByteBuf buf) {
+        Objects.requireNonNull(buf);
+        this.buf.writeBytes(buf);
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf write(final ByteBuf buf, final int length) {
+        Objects.requireNonNull(buf);
+        final byte[] read = new byte[length];
+        buf.readBytes(read);
+        writeBytes(read);
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf write(final ByteBuffer buf) {
+        Objects.requireNonNull(buf);
+        this.buf.writeBytes(buf);
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf write(final ByteBuffer buf, final int length) {
+        Objects.requireNonNull(buf);
+        final byte[] read = new byte[length];
+        buf.get(read);
+        writeBytes(read);
         return this;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T[] readArray(final Class<T> type, final Function<ServerBuffer, T> reader) {
+        Objects.requireNonNull(type)
+        Objects.requireNonNull(reader)
         final T[] array = (T[]) Array.newInstance(type, readVarInt());
         for (int i = 0; i < array.length; i++)
             array[i] = reader.apply(this);
@@ -126,6 +166,8 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public <T> FriendlyByteBuf writeArray(final T[] array, final BiConsumer<ServerBuffer, T> consumer) {
+        Objects.requireNonNull(array)
+        Objects.requireNonNull(consumer)
         writeVarInt(array.length);
         for (final T value : array)
             consumer.accept(this, value);
@@ -133,7 +175,8 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public <T> Optional<T> readOptional(final Class<T> type, final Function<ServerBuffer, T> reader) {
+    public <T> Optional<T> readOptional(final Function<ServerBuffer, T> reader) {
+        Objects.requireNonNull(reader)
         if (!readBoolean())
             return Optional.empty();
         return Optional.ofNullable(reader.apply(this));
@@ -141,6 +184,8 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public <T> FriendlyByteBuf writeOptional(final @Nullable T value, final BiConsumer<ServerBuffer, T> writer) {
+        Objects.requireNonNull(value)
+        Objects.requireNonNull(writer)
         writeBoolean(value != null);
         if (value != null)
             writer.accept(this, value);
@@ -178,6 +223,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeBytes(final byte... bytes) {
+        Objects.requireNonNull(bytes);
         buf.writeBytes(bytes);
         return this;
     }
@@ -192,9 +238,9 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeByteArray(final byte[] bytes) {
+        Objects.requireNonNull(bytes);
         writeVarInt(bytes.length);
-        for (final byte b : bytes)
-            writeByte(b);
+        writeBytes(bytes);
         return this;
     }
 
@@ -242,6 +288,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeLongArray(final long[] longs) {
+        Objects.requireNonNull(longs);
         writeVarInt(longs.length);
         for (final long l : longs)
             writeLong(l);
@@ -309,6 +356,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeVarIntArray(final int[] ints) {
+        Objects.requireNonNull(ints);
         writeVarInt(ints.length);
         for (final int i : ints)
             writeVarInt(i);
@@ -345,8 +393,9 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public String readString(final Charset charset) {
+        Objects.requireNonNull(charset);
         final int length = readVarInt();
-        if (length < 0) throw new IllegalStateException();
+        if (length < 0) throw new IllegalStateException("String has illegal length of: " + length);
         final byte[] bytes = new byte[length];
         for (int i = 0; i < length; i++)
             bytes[i] = buf.readByte();
@@ -355,6 +404,8 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeString(final String value, final Charset charset) {
+        Objects.requireNonNull(value);
+        Objects.requireNonNull(charset);
         final byte[] bytes = value.getBytes(charset);
         writeVarInt(bytes.length);
         buf.writeBytes(bytes);
@@ -363,18 +414,40 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public List<String> readStringList(final Charset charset) {
+        Objects.requireNonNull(charset);
         final List<String> strings = new ArrayList<>();
         final int length = readVarInt();
         for (int i = 0; i < length; i++)
             strings.add(readString(charset));
-        return strings;
+        return Collections.unmodifiableList(strings);
     }
 
     @Override
     public FriendlyByteBuf writeStringList(final List<String> strings, final Charset charset) {
+        Objects.requireNonNull(strings);
+        Objects.requireNonNull(charset);
         writeVarInt(strings.size());
         for (final String string : strings)
             writeString(string, charset);
+        return this;
+    }
+
+    @Override
+    public <T> @UnmodifiableView List<T> readList(final Function<ServerBuffer, T> function) {
+        Objects.requireNonNull(function);
+        final List<T> list = new ArrayList<>();
+        final int length = readVarInt();
+        for (int i = 0; i < length; i++)
+            list.add(function.apply(this));
+        return Collections.unmodifiableList(list);
+    }
+
+    @Override
+    public <T> FriendlyByteBuf writeList(final List<T> list, final BiConsumer<ServerBuffer, T> consumer) {
+        Objects.requireNonNull(list);
+        writeVarInt(list.size());
+        for (final T item : list)
+            consumer.accept(this, item);
         return this;
     }
 
@@ -385,6 +458,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeUUID(final UUID uuid) {
+        Objects.requireNonNull(uuid);
         writeLong(uuid.getMostSignificantBits());
         writeLong(uuid.getLeastSignificantBits());
         return this;
@@ -401,6 +475,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeBlockPos(final BlockPosition position) {
+        Objects.requireNonNull(position);
         writeLong((((long) position.getX() & BlockPosition.PACKED_X_MASK) << 38)
                 | (((long) position.getY() & BlockPosition.PACKED_Y_MASK))
                 | (((long) position.getZ() & BlockPosition.PACKED_Z_MASK) << 12));
@@ -419,35 +494,34 @@ public class FriendlyByteBuf implements ServerBuffer {
             throw new RuntimeException(exception);
         }
         buf.readerIndex(bytes.length - is.available());
-        try {
-            is.close();
-        } catch (IOException ignored) { }
         return compound;
     }
 
     @Override
     public FriendlyByteBuf writeNBT(final NBTCompound compound) {
+        Objects.requireNonNull(compound);
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         compound.writeAll(os);
         buf.writeBytes(os.toByteArray());
-        try {
-            os.close();
-        } catch (IOException ignored) { }
         return this;
     }
 
+    private final ComponentSerializer serializer = new ComponentSerializerImpl();
+
     @Override
     public Component readComponent() {
-        return readComponent(new ComponentSerializerImpl());
+        return readComponent(serializer);
     }
 
     @Override
     public Component readComponent(final ComponentSerializer serializer) {
+        Objects.requireNonNull(serializer);
         return serializer.deserializeJson(readString(StandardCharsets.UTF_8));
     }
 
     @Override
     public FriendlyByteBuf writeComponent(final Component component) {
+        Objects.requireNonNull(component);
         writeString(component.toJson(), StandardCharsets.UTF_8);
         return this;
     }
@@ -459,6 +533,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeNamespacedKey(final NamespacedKey namespacedKey) {
+        Objects.requireNonNull(namespacedKey);
         writeString(namespacedKey.toString(), StandardCharsets.UTF_8);
         return this;
     }
@@ -470,6 +545,7 @@ public class FriendlyByteBuf implements ServerBuffer {
 
     @Override
     public FriendlyByteBuf writeInstant(final Instant instant) {
+        Objects.requireNonNull(instant);
         buf.writeLong(instant.toEpochMilli());
         return this;
     }
@@ -477,16 +553,17 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public Item readSlot() {
         if (!readBoolean())
-            return new ItemStack(Material.AIR);
-        final Material material = ItemStack.getMaterial(readVarInt());
-        final ItemStack itemStack = new ItemStack(material != null ? material : Material.AIR, readByte());
+            return Item.of(Material.AIR);
+        final Material material = Item.getMaterial(readVarInt()).orElse(Material.AIR);
+        final Item itemStack = Item.of(material, readByte());
         final NBTCompound compound = readNBT();
-        itemStack.setNbtCompound(compound);
+        itemStack.setNBTCompound(compound);
         return itemStack;
     }
 
     @Override
     public FriendlyByteBuf writeSlot(final Item itemStack) {
+        Objects.requireNonNull(itemStack);
         if (itemStack.getMaterial() == Material.AIR) {
             writeBoolean(false);
             return this;
@@ -494,8 +571,8 @@ public class FriendlyByteBuf implements ServerBuffer {
         writeBoolean(true);
         writeVarInt(itemStack.getMaterial().getId());
         writeByte(itemStack.getAmount());
-        if (itemStack.getNbtCompound().size() != 0)
-            writeNBT(itemStack.getNbtCompound());
+        if (itemStack.getNBTCompound().size() != 0)
+            writeNBT(itemStack.getNBTCompound());
         else
             writeBoolean(false);
         return this;
@@ -504,11 +581,12 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public PublicKeyData readPublicKey() {
         final Instant instant = Instant.ofEpochMilli(readLong());
-        return new PublicKeyDataImpl(Crypt.pubicKeyFrom(readByteArray()), readByteArray(), instant);
+        return new PublicKeyData(Crypt.pubicKeyFrom(readByteArray()), readByteArray(), instant);
     }
 
     @Override
     public FriendlyByteBuf writePublicKey(final PublicKeyData publicKeyData) {
+        Objects.requireNonNull(publicKeyData);
         writeLong(publicKeyData.timestamp().toEpochMilli())
                 .writeByteArray(publicKeyData.publicKey().getEncoded())
                 .writeByteArray(publicKeyData.signature());
@@ -516,14 +594,14 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public @Nullable PlayerTextures readTextures() {
+    public Optional<PlayerTextures> readTextures() {
         if (readVarInt() == 0)
-            return null;
+            return Optional.empty();
         readString(StandardCharsets.UTF_8);
         final String value = readString(StandardCharsets.UTF_8);
-        final String signature = readOptional(String.class, buf -> buf.readString(StandardCharsets.UTF_8)).orElse(null);
+        final String signature = readOptional(buf -> buf.readString(StandardCharsets.UTF_8)).orElse(null);
         try {
-            return PlayerTexturesImpl.buildSkin(value, signature);
+            return Optional.of(PlayerTextures.buildSkin(value, signature));
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
@@ -547,11 +625,12 @@ public class FriendlyByteBuf implements ServerBuffer {
         final Instant timestamp = readInstant();
         final long salt = readLong();
         final byte[] signature = readByteArray();
-        return new MessageSignatureImpl(timestamp, salt, signature);
+        return new MessageSignature(timestamp, salt, signature);
     }
 
     @Override
     public FriendlyByteBuf writeSignature(final MessageSignature messageSignature) {
+        Objects.requireNonNull(messageSignature);
         writeInstant(messageSignature.timestamp());
         writeLong(messageSignature.salt());
         writeByteArray(messageSignature.signature());
@@ -580,7 +659,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public ServerBuffer setReaderIndex(final int index) {
+    public ServerBuffer readerIndex(final int index) {
         buf.readerIndex(index);
         return this;
     }
@@ -591,7 +670,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public ServerBuffer setWriterIndex(final int index) {
+    public ServerBuffer writerIndex(final int index) {
         buf.writerIndex(index);
         return this;
     }
@@ -605,6 +684,11 @@ public class FriendlyByteBuf implements ServerBuffer {
     @Override
     public FriendlyByteBuf clone() {
         return new FriendlyByteBuf(bytes());
+    }
+
+    @Override
+    public String toString() {
+        return "FriendlyByteBuf";
     }
 
 }

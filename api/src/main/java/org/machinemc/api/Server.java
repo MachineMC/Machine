@@ -12,10 +12,12 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server;
+package org.machinemc.api;
 
 import com.google.gson.Gson;
 import com.mojang.brigadier.CommandDispatcher;
+import org.jetbrains.annotations.Range;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.auth.OnlineServer;
 import org.machinemc.api.chat.Messenger;
 import org.machinemc.api.commands.CommandExecutor;
@@ -30,7 +32,6 @@ import org.machinemc.api.network.ServerConnection;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldManager;
 import org.machinemc.api.world.biomes.Biome;
@@ -38,10 +39,10 @@ import org.machinemc.api.world.biomes.BiomeManager;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
-import org.jetbrains.annotations.*;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -49,19 +50,7 @@ import java.util.logging.Level;
 /**
  * Represents a Machine server.
  */
-@ApiStatus.NonExtendable
 public interface Server {
-
-    /**
-     * Creates new instance of the classic buffer implementation.
-     * @return new default server buffer
-     * @throws UnsupportedOperationException if the creator hasn't been initialized
-     */
-    static ServerBuffer createServerBuffer() {
-        if (Factories.bufferFactory == null)
-            throw new UnsupportedOperationException();
-        return Factories.bufferFactory.create();
-    }
 
     /**
      * @return server's brand
@@ -111,7 +100,7 @@ public interface Server {
     /**
      * @return server's online module if it's in online mode
      */
-    OnlineServer getOnlineServer();
+    Optional<OnlineServer> getOnlineServer();
 
     /**
      * @return gson formatter used by the server.
@@ -214,8 +203,8 @@ public interface Server {
     /**
      * @return server's ip adress
      */
-    default String getIp() {
-        return getProperties().getServerIp();
+    default String getIP() {
+        return getProperties().getServerIP();
     }
 
     /**
@@ -249,8 +238,8 @@ public interface Server {
     /**
      * @return server's ticks per second
      */
-    default int getTps() {
-        return getProperties().getTps();
+    default int getTPS() {
+        return getProperties().getTPS();
     }
 
     /**
@@ -271,7 +260,7 @@ public interface Server {
      * @param name name of the world
      * @return world with given name
      */
-    default @Nullable World getWorld(NamespacedKey name) {
+    default Optional<World> getWorld(NamespacedKey name) {
         return getWorldManager().getWorld(name);
     }
 
@@ -286,7 +275,7 @@ public interface Server {
      * @param name name of the player
      * @return player with given name
      */
-    default @Nullable Player getPlayer(String name) {
+    default Optional<Player> getPlayer(String name) {
         return getPlayerManager().getPlayer(name);
     }
 
@@ -294,7 +283,7 @@ public interface Server {
      * @param uuid uuid of the player
      * @return player with given uuid
      */
-    default @Nullable Player getPlayer(UUID uuid) {
+    default Optional<Player> getPlayer(UUID uuid) {
         return getPlayerManager().getPlayer(uuid);
     }
 
@@ -309,7 +298,7 @@ public interface Server {
      * @param uuid uuid of the entity
      * @return entity with given uuid in server's entity manager
      */
-    default @Nullable Entity getEntity(UUID uuid) {
+    default Optional<Entity> getEntity(UUID uuid) {
         return getEntityManager().getEntity(uuid);
     }
 
@@ -317,7 +306,7 @@ public interface Server {
      * @param name name of the block type
      * @return block type with given name registered in server's block type manager
      */
-    default @Nullable BlockType getBlockType(NamespacedKey name) {
+    default Optional<BlockType> getBlockType(NamespacedKey name) {
         return getBlockManager().getBlockType(name);
     }
 
@@ -325,7 +314,7 @@ public interface Server {
      * @param name name of the biome
      * @return biome with given name registered in server's biome manager
      */
-    default @Nullable Biome getBiome(NamespacedKey name) {
+    default Optional<Biome> getBiome(NamespacedKey name) {
         return getBiomeManager().getBiome(name);
     }
 

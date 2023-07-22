@@ -12,15 +12,14 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.server.server.codec;
+package org.machinemc.api.server.codec;
 
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.server.NBTSerializable;
-import org.machinemc.api.server.codec.CodecPart;
 import org.machinemc.nbt.NBTCompound;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Codec containing NBTCompound representing certain registries
@@ -32,6 +31,7 @@ public class Codec implements NBTSerializable {
     private final List<CodecPart> codecParts = new ArrayList<>();
 
     public Codec(final CodecPart... codecParts) {
+        if (codecParts == null) return;
         this.codecParts.addAll(List.of(codecParts));
     }
 
@@ -41,6 +41,18 @@ public class Codec implements NBTSerializable {
         for (final CodecPart part : codecParts)
             compound.set(part.getCodecType(), part.getCodecNBT());
         return compound;
+    }
+
+    /**
+     * @return all parts of this codec
+     */
+    public @Unmodifiable List<CodecPart> getParts() {
+        return Collections.unmodifiableList(codecParts);
+    }
+
+    @Override
+    public String toString() {
+        return "Codec(" + Arrays.toString(codecParts.toArray(new CodecPart[0])) + ")";
     }
 
 }
