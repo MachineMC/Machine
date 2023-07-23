@@ -263,7 +263,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
             throw new IllegalStateException("You can't remove player from server until the connection is closed");
         super.remove();
         getWorld().remove(this);
-        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfoRemove(getUuid()));
+        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfoRemove(getUUID()));
         getServer().getPlayerManager().removePlayer(this);
         final TranslationComponent leaveMessage = TranslationComponent.of(
                 "multiplayer.player.left", TranslationComponent.of(getName())

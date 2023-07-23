@@ -35,7 +35,7 @@ public class ChunkData implements Writable {
     public ChunkData(final ServerBuffer buf) {
         heightmaps = buf.readNBT();
         data = buf.readByteArray();
-        blockEntities = buf.readArray(Section.BlockEntity.class, Section.BlockEntity::new);
+        blockEntities = buf.readArray(Section.BlockEntity[]::new, Section.BlockEntity::new);
     }
 
     /**

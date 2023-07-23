@@ -17,7 +17,6 @@ package org.machinemc.api.utils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 import org.machinemc.api.auth.Crypt;
 import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.auth.PublicKeyData;
@@ -30,21 +29,16 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
-import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.IntFunction;
 
 /**
  * Special byte buffer for implementing Minecraft Protocol.
@@ -154,20 +148,19 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T[] readArray(final Class<T> type, final Function<ServerBuffer, T> reader) {
-        Objects.requireNonNull(type)
-        Objects.requireNonNull(reader)
-        final T[] array = (T[]) Array.newInstance(type, readVarInt());
+    public <T> T[] readArray(final IntFunction<T[]> generator, final Function<ServerBuffer, T> function) {
+        Objects.requireNonNull(generator);
+        Objects.requireNonNull(function);
+        final T[] array = generator.apply(readVarInt());
         for (int i = 0; i < array.length; i++)
-            array[i] = reader.apply(this);
+            array[i] = function.apply(this);
         return array;
     }
 
     @Override
     public <T> FriendlyByteBuf writeArray(final T[] array, final BiConsumer<ServerBuffer, T> consumer) {
-        Objects.requireNonNull(array)
-        Objects.requireNonNull(consumer)
+        Objects.requireNonNull(array);
+        Objects.requireNonNull(consumer);
         writeVarInt(array.length);
         for (final T value : array)
             consumer.accept(this, value);
@@ -175,20 +168,38 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public <T> Optional<T> readOptional(final Function<ServerBuffer, T> reader) {
-        Objects.requireNonNull(reader)
-        if (!readBoolean())
-            return Optional.empty();
-        return Optional.ofNullable(reader.apply(this));
+    public <T> List<T> readList(final Function<ServerBuffer, T> function) {
+        Objects.requireNonNull(function);
+        final List<T> list = new ArrayList<>();
+        final int length = readVarInt();
+        for (int i = 0; i < length; i++)
+            list.add(function.apply(this));
+        return Collections.unmodifiableList(list);
     }
 
     @Override
-    public <T> FriendlyByteBuf writeOptional(final @Nullable T value, final BiConsumer<ServerBuffer, T> writer) {
-        Objects.requireNonNull(value)
-        Objects.requireNonNull(writer)
+    public <T> FriendlyByteBuf writeList(final List<T> list, final BiConsumer<ServerBuffer, T> consumer) {
+        Objects.requireNonNull(list);
+        writeVarInt(list.size());
+        for (final T item : list)
+            consumer.accept(this, item);
+        return this;
+    }
+
+    @Override
+    public <T> Optional<T> readOptional(final Function<ServerBuffer, T> function) {
+        Objects.requireNonNull(function);
+        if (!readBoolean())
+            return Optional.empty();
+        return Optional.ofNullable(function.apply(this));
+    }
+
+    @Override
+    public <T> FriendlyByteBuf writeOptional(final @Nullable T value, final BiConsumer<ServerBuffer, T> consumer) {
+        Objects.requireNonNull(consumer);
         writeBoolean(value != null);
         if (value != null)
-            writer.accept(this, value);
+            consumer.accept(this, value);
         return this;
     }
 
@@ -429,25 +440,6 @@ public class FriendlyByteBuf implements ServerBuffer {
         writeVarInt(strings.size());
         for (final String string : strings)
             writeString(string, charset);
-        return this;
-    }
-
-    @Override
-    public <T> @UnmodifiableView List<T> readList(final Function<ServerBuffer, T> function) {
-        Objects.requireNonNull(function);
-        final List<T> list = new ArrayList<>();
-        final int length = readVarInt();
-        for (int i = 0; i < length; i++)
-            list.add(function.apply(this));
-        return Collections.unmodifiableList(list);
-    }
-
-    @Override
-    public <T> FriendlyByteBuf writeList(final List<T> list, final BiConsumer<ServerBuffer, T> consumer) {
-        Objects.requireNonNull(list);
-        writeVarInt(list.size());
-        for (final T item : list)
-            consumer.accept(this, item);
         return this;
     }
 

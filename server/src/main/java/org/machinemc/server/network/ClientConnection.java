@@ -58,7 +58,7 @@ public class ClientConnection implements PlayerConnection {
     private final InetSocketAddress address;
 
     @Setter
-    private @Nullable UUID sessionId;
+    private @Nullable UUID sessionID;
     @Setter
     private @Nullable PublicKeyData publicKeyData;
     @Setter
@@ -222,6 +222,11 @@ public class ClientConnection implements PlayerConnection {
     @Override
     public ServerConnection getServerConnection() {
         return nettyServer;
+    }
+
+    @Override
+    public Optional<UUID> getSessionID() {
+        return Optional.ofNullable(sessionID);
     }
 
     @Override

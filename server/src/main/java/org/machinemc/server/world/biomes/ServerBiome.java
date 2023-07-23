@@ -39,7 +39,7 @@ public class ServerBiome implements Biome {
     @Getter(AccessLevel.NONE)
     @Builder.Default private boolean precipitation = true;
     @Builder.Default private Category category = Category.NONE;
-    @Builder.Default private BiomeEffects effects = BiomeEffectsImpl.createDefault();
+    @Builder.Default private BiomeEffects effects = ServerBiomeEffects.createDefault();
     @Builder.Default private TemperatureModifier temperatureModifier = TemperatureModifier.NONE;
 
     ServerBiome(final NamespacedKey name,
@@ -47,18 +47,18 @@ public class ServerBiome implements Biome {
                 final float temperature,
                 final float scale,
                 final float downfall,
+                final boolean precipitation,
                 final Category category,
                 final BiomeEffects effects,
-                final Precipitation precipitation,
                 final TemperatureModifier temperatureModifier) {
         this.name = Objects.requireNonNull(name, "Name of biome can not be null");
         this.depth = depth;
         this.temperature = temperature;
         this.scale = scale;
         this.downfall = downfall;
+        this.precipitation = precipitation;
         this.category = category;
         this.effects = effects;
-        this.precipitation = precipitation;
         this.temperatureModifier = temperatureModifier;
     }
 

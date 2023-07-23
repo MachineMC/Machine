@@ -23,13 +23,13 @@ public class TranslatorPlayInPlayerSession extends PacketTranslator<PacketPlayIn
     @Override
     public boolean translate(final ClientConnection connection, final PacketPlayInPlayerSession packet) {
         return connection.getServer().isOnline()
-                && connection.getSessionId() == null
-                && connection.getPublicKeyData() == null;
+                && connection.getSessionID().isEmpty()
+                && connection.getPublicKeyData().isEmpty();
     }
 
     @Override
     public void translateAfter(final ClientConnection connection, final PacketPlayInPlayerSession packet) {
-        connection.setSessionId(packet.getSessionId());
+        connection.setSessionID(packet.getSessionId());
         connection.setPublicKeyData(packet.getPublicKey());
     }
 

@@ -38,7 +38,7 @@ public class PacketPlayOutBundleDelimiter extends PacketOut {
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 
@@ -51,4 +51,5 @@ public class PacketPlayOutBundleDelimiter extends PacketOut {
     public PacketOut clone() {
         return new PacketPlayOutBundleDelimiter();
     }
+
 }

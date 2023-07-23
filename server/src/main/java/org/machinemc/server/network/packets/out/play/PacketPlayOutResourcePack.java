@@ -47,7 +47,7 @@ public class PacketPlayOutResourcePack extends PacketOut {
         url = buf.readString(StandardCharsets.UTF_8);
         hash = buf.readString(StandardCharsets.UTF_8);
         forced = buf.readBoolean();
-        promptMessage = buf.readOptional(Component.class, ServerBuffer::readComponent).orElse(null);
+        promptMessage = buf.readOptional(ServerBuffer::readComponent).orElse(null);
     }
 
     @Override

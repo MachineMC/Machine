@@ -17,9 +17,9 @@ package org.machinemc.server.network.packets.out.play;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.server.utils.FriendlyByteBuf;
 
 import java.util.UUID;
 
@@ -41,11 +41,11 @@ public class PacketPlayOutPlayerInfoRemove extends PacketOut {
     }
 
     public PacketPlayOutPlayerInfoRemove(final ServerBuffer buf) {
-        uuids = buf.readArray(UUID.class, ServerBuffer::readUUID);
+        uuids = buf.readArray(UUID[]::new, ServerBuffer::readUUID);
     }
 
     @Override
-    public int getId() {
+    public int getID() {
         return ID;
     }
 

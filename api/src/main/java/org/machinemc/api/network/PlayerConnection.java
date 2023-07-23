@@ -53,7 +53,7 @@ public interface PlayerConnection extends ServerProperty {
     /**
      * @return session id of the connection
      */
-    @Nullable UUID getSessionId();
+    Optional<UUID> getSessionID();
 
     /**
      * @return public key data of the connection

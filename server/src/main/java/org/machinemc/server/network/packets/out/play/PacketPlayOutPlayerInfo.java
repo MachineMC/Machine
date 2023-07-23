@@ -189,8 +189,8 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     player.isListed(),
                     player.getLatency(),
                     player.getPlayerListName(),
-                    player.getServer().isOnline() ? player.getConnection().getSessionId().orThrow() : null,
-                    player.getServer().isOnline() ? player.getConnection().getPublicKeyData().orThrow() : null);
+                    player.getConnection().getSessionID().orElse(null),
+                    player.getConnection().getPublicKeyData().orElse(null));
         }
 
         /**
@@ -204,11 +204,8 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
             buf.writeUUID(uuid);
             for (final Action action : actions) {
                 switch (action) {
-                    case ADD_PLAYER -> {
-                        assert name != null;
-                        buf.writeString(name, StandardCharsets.UTF_8)
-                                .writeTextures(playerTextures);
-                    }
+                    case ADD_PLAYER -> buf.writeString(name, StandardCharsets.UTF_8)
+                            .writeTextures(playerTextures);
                     case INITIALIZE_CHAT -> {
                         if (sessionID == null || publicKeyData == null) {
                             buf.writeBoolean(false);
@@ -220,16 +217,15 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     }
                     case UPDATE_GAMEMODE -> {
                         assert gamemode != null;
-                        buf.writeVarInt(gamemode.getId());
+                        buf.writeVarInt(gamemode.getID());
                     }
                     case UPDATE_LISTED -> buf.writeBoolean(listed);
                     case UPDATE_LATENCY -> buf.writeVarInt(latency);
-                    case UPDATE_DISPLAY_NAME -> {
-                        assert listName != null;
-                        buf.writeComponent(listName)
-                    }
+                    case UPDATE_DISPLAY_NAME -> buf.writeComponent(listName);
                 }
             }
         }
+
     }
+
 }

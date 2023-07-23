@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 
 /**
  * Special byte buffer for implementing Minecraft Protocol.
@@ -134,43 +135,60 @@ public interface ServerBuffer extends Cloneable {
     ServerBuffer write(ByteBuffer buf, int length);
 
     /**
-     * Read an array of a specific reader.
-     *
-     * @param <T>        array type
-     * @param arrayClass array class
-     * @param reader     reader
-     * @return next array
+     * Reads an array using a function.
+     * @param generator a function which produces a new array of the desired type and the provided length
+     * @param function function to initiate the read items
+     * @param <T> type of the array
+     * @return array
      */
-    <T> T[] readArray(Class<T> arrayClass, Function<ServerBuffer, T> reader);
+    <T> T[] readArray(IntFunction<T[]> generator, Function<ServerBuffer, T> function);
 
     /**
-     * Write an array to the buffer using a specific writer.
+     * Writes an array to the buffer.
      * @param array array to write
-     * @param writer writer
+     * @param consumer consumer for writing
+     * @param <T> type of the array
      * @return this
-     * @param <T> array type
      */
     @Contract("_, _ -> this")
-    <T> ServerBuffer writeArray(T[] array, BiConsumer<ServerBuffer, T> writer);
+    <T> ServerBuffer writeArray(T[] array, BiConsumer<ServerBuffer, T> consumer);
 
     /**
-     * Read an optional of a specific reader.
-     *
-     * @param <T>    type
-     * @param reader reader
-     * @return next optional value
+     * Reads a list using a function.
+     * @param function function to initiate the read items
+     * @param <T> type of the list
+     * @return list
      */
-    <T> Optional<T> readOptional(Function<ServerBuffer, T> reader);
+    @Contract("_ -> new")
+    <T> @Unmodifiable List<T> readList(Function<ServerBuffer, T> function);
 
     /**
-     * Write an optional value to the buffer using a specific writer.
+     * Writes a list to the buffer.
+     * @param list list to write
+     * @param consumer consumer for writing
+     * @param <T> type of the list
+     * @return this
+     */
+    @Contract("_, _ -> this")
+    <T> FriendlyByteBuf writeList(List<T> list, BiConsumer<ServerBuffer, T> consumer);
+
+    /**
+     * Reads an optional value using a function.
+     * @param function function to initiate the read items
+     * @param <T> type of the optional value
+     * @return optional value
+     */
+    <T> Optional<T> readOptional(Function<ServerBuffer, T> function);
+
+    /**
+     * Writes an optional value to the buffer.
      * @param value optional value to write
-     * @param writer writer
+     * @param consumer consumer for writing
+     * @param <T> type of the optional value
      * @return this
-     * @param <T> type
      */
     @Contract("_, _ -> this")
-    <T> ServerBuffer writeOptional(@Nullable T value, BiConsumer<ServerBuffer, T> writer);
+    <T> ServerBuffer writeOptional(@Nullable T value, BiConsumer<ServerBuffer, T> consumer);
 
     /**
      * @return next boolean
@@ -365,25 +383,6 @@ public interface ServerBuffer extends Cloneable {
      */
     @Contract("_, _ -> this")
     ServerBuffer writeStringList(List<String> strings, Charset charset);
-
-    /**
-     * Reads a list using a function.
-     * @param function function to initiate the read items
-     * @param <T> type of the list
-     * @return list
-     */
-    @Contract("_ -> new")
-    <T> @Unmodifiable List<T> readList(Function<ServerBuffer, T> function);
-
-    /**
-     * Writes a list to the buffer.
-     * @param list list to write
-     * @param consumer consumer for writing
-     * @param <T> type of the list
-     * @return this
-     */
-    @Contract("_, _ -> this")
-    <T> FriendlyByteBuf writeList(List<T> list, BiConsumer<ServerBuffer, T> consumer);
 
     /**
      * @return next uuid

@@ -44,8 +44,7 @@ public class PacketPlayOutServerData extends PacketOut {
 
     public PacketPlayOutServerData(final ServerBuffer buf) {
         motd = buf.readComponent();
-        icon = buf.readOptional(String.class, serverBuffer -> serverBuffer.readString(StandardCharsets.UTF_8))
-                .orElse(null);
+        icon = buf.readOptional(serverBuffer -> serverBuffer.readString(StandardCharsets.UTF_8)).orElse(null);
         enforcedSecureChat = buf.readBoolean();
     }
 
