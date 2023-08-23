@@ -17,6 +17,8 @@ package org.machinemc.api.utils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
+import java.util.Optional;
+
 /**
  * Util for creating namespaced keys fast.
  * @see org.machinemc.api.utils.NamespacedKey
@@ -38,11 +40,10 @@ public final class LazyNamespacedKey {
      */
     @Contract("_ -> new")
     public static NamespacedKey lazy(final String namespacedKey) {
-        final String[] parts = namespacedKey.split(":");
-        final StringBuilder key = new StringBuilder();
-        for (int i = 1; i < parts.length; i++)
-            key.append(parts[i]);
-        return new NamespacedKey(parts[0], key.toString());
+        final Optional<String[]> parsed = NamespacedKey.parseNamespacedKey(namespacedKey);
+        return parsed
+                .map(strings -> new NamespacedKey(strings[0], strings[1]))
+                .orElse(new NamespacedKey(namespacedKey, ""));
     }
 
     /**

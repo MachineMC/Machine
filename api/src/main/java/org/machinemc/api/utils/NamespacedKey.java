@@ -62,13 +62,24 @@ public final class NamespacedKey implements Writable {
      * be separated by ':'.
      * @param namespacedKey String to parse as NamespacedKey
      * @return parsed NamespacedKey
+     * @throws IllegalArgumentException if the input isn't a valid namespaced key
      */
     @Contract("_ -> new")
     public static NamespacedKey parse(final String namespacedKey) {
-        final String[] key = parseNamespacedKey(namespacedKey).orElseThrow(() ->
+        return parseSafe(namespacedKey).orElseThrow(() ->
                 new IllegalArgumentException("The namespaced key '" + namespacedKey + "' "
                         + "does not have a separator character ':'"));
-        return NamespacedKey.of(key[0], key[1]);
+    }
+
+    /**
+     * Parses the NamespacedKey from a String, namespace and key should
+     * be separated by ':'.
+     * @param namespacedKey String to parse as NamespacedKey
+     * @return parsed NamespacedKey, or null if the input isn't a valid namespaced key
+     */
+    @Contract("_ -> new")
+    public static Optional<NamespacedKey> parseSafe(final String namespacedKey) {
+        return parseNamespacedKey(namespacedKey).map(key -> NamespacedKey.of(key[0], key[1]));
     }
 
     /**
@@ -134,26 +145,12 @@ public final class NamespacedKey implements Writable {
      * @return a string array where the first value is the namespace and the second value is the namespace,
      * or null if that input doesn't have a separator character ':'
      */
-    private static Optional<String[]> parseNamespacedKey(final String input) {
+    static Optional<String[]> parseNamespacedKey(final String input) {
         Objects.requireNonNull(input, "Text to parse can not be null");
-        final String[] namespacedKey = new String[2];
-        final char[] chars = input.toCharArray();
-        StringBuilder builder = new StringBuilder();
-        boolean separator = false;
-        for (final char c : chars) {
-            if (c == ':') {
-                separator = true;
-                namespacedKey[0] = builder.toString();
-                builder = new StringBuilder();
-                continue;
-            }
-
-            builder.append(c);
-        }
-        if (!separator)
+        int separator = input.indexOf(':');
+        if (separator == -1)
             return Optional.empty();
-        namespacedKey[1] = builder.toString();
-        return Optional.of(namespacedKey);
+        return Optional.of(new String[]{input.substring(0, separator), input.substring(separator + 1)});
     }
 
     /**
@@ -165,14 +162,12 @@ public final class NamespacedKey implements Writable {
      * @return whether the namespace and key follow their formats
      */
     private static boolean isValidNamespacedKey(final String namespace, final String key) {
-        if (namespace.isEmpty())
+        if (namespace.isEmpty() || key.isEmpty())
             return false;
         for (final char c : namespace.toCharArray()) {
             if (!isValidNamespace(c))
                 return false;
         }
-        if (key.isEmpty())
-            return false;
         for (final char c : key.toCharArray()) {
             if (!isValidKey(c))
                 return false;
