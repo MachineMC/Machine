@@ -66,8 +66,9 @@ public final class NamespacedKey implements Writable {
      */
     @Contract("_ -> new")
     public static NamespacedKey parse(final String namespacedKey) {
-        return parseSafe(namespacedKey).orElseThrow(() ->
-                new IllegalArgumentException("The namespaced key '" + namespacedKey + "' "
+        return parseNamespacedKey(namespacedKey)
+                .map(key -> NamespacedKey.of(key[0], key[1]))
+                .orElseThrow(() -> new IllegalArgumentException("The namespaced key '" + namespacedKey + "' "
                         + "does not have a separator character ':'"));
     }
 
@@ -79,7 +80,11 @@ public final class NamespacedKey implements Writable {
      */
     @Contract("_ -> new")
     public static Optional<NamespacedKey> parseSafe(final String namespacedKey) {
-        return parseNamespacedKey(namespacedKey).map(key -> NamespacedKey.of(key[0], key[1]));
+        try {
+            return Optional.of(parse(namespacedKey));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     /**
