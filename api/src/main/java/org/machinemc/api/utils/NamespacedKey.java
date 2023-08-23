@@ -147,7 +147,7 @@ public final class NamespacedKey implements Writable {
      */
     static Optional<String[]> parseNamespacedKey(final String input) {
         Objects.requireNonNull(input, "Text to parse can not be null");
-        int separator = input.indexOf(':');
+        final int separator = input.indexOf(':');
         if (separator == -1)
             return Optional.empty();
         return Optional.of(new String[]{input.substring(0, separator), input.substring(separator + 1)});
