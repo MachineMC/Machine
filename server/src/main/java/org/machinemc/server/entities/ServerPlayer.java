@@ -32,7 +32,6 @@ import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.server.codec.Codec;
-import org.machinemc.api.utils.PrettyNBTStringVisitor;
 import org.machinemc.api.world.*;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTList;
