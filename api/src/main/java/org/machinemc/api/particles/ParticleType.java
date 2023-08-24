@@ -72,9 +72,11 @@ public final class ParticleType<O extends ParticleOption> {
      * Returns particle type with given namespaced key.
      * @param name name of the particle type
      * @return particle type with given name
+     * @param <O> particle options
      */
-    public static Optional<ParticleType<?>> get(final NamespacedKey name) {
-        return Optional.ofNullable(REGISTRY.get(name));
+    @SuppressWarnings("unchecked")
+    public static <O extends ParticleOption> Optional<ParticleType<O>> get(final NamespacedKey name) {
+        return Optional.ofNullable((ParticleType<O>) REGISTRY.get(name));
     }
 
     private ParticleType(final NamespacedKey name,

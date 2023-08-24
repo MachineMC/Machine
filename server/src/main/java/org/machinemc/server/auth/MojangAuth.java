@@ -67,7 +67,7 @@ public final class MojangAuth {
                 final HttpResponse<String> response = HttpClient.newHttpClient()
                         .send(request, HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() == HttpURLConnection.HTTP_OK)
-                    return (JsonObject) new JsonParser().parse(response.body());
+                    return (JsonObject) JsonParser.parseString(response.body());
             } catch (Exception ignored) { }
             return null;
         });
@@ -100,7 +100,7 @@ public final class MojangAuth {
                         .send(request, HttpResponse.BodyHandlers.ofString());
                 if (!(response.statusCode() == HttpURLConnection.HTTP_OK))
                     return Optional.empty();
-                final JsonObject json = (JsonObject) new JsonParser().parse(response.body());
+                final JsonObject json = (JsonObject) JsonParser.parseString(response.body());
                 return UUIDUtils.parseUUID(json.get("id").getAsString());
             } catch (Exception ignored) { }
             return Optional.empty();
@@ -124,7 +124,7 @@ public final class MojangAuth {
                         .send(request, HttpResponse.BodyHandlers.ofString());
                 if (!(response.statusCode() == HttpURLConnection.HTTP_OK))
                     return Optional.empty();
-                final JsonObject json = (JsonObject) new JsonParser().parse(response.body());
+                final JsonObject json = (JsonObject) JsonParser.parseString(response.body());
                 final JsonObject properties = json.getAsJsonArray("properties").get(0).getAsJsonObject();
                 return PlayerTextures.buildSkin(properties);
             } catch (Exception ignored) { }

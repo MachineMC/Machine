@@ -17,15 +17,20 @@ package org.machinemc.application;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.chat.MessageType;
+import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.application.terminal.ApplicationCommands;
 import org.machinemc.application.terminal.ApplicationTerminal;
 import org.machinemc.application.terminal.TerminalFactory;
 import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.components.TextComponent;
+import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.server.MachinePlatform;
 import org.machinemc.server.logging.DynamicConsole;
 
@@ -381,6 +386,38 @@ public final class MachineApplication implements ServerApplication {
     @Override
     public void log(final Level level, final String... messages) {
         terminal.log(null, level, messages);
+    }
+
+    @Override
+    public int execute(final String input) {
+        if (!running) return -1;
+
+        final String formatted = CommandExecutor.formatCommandInput(input);
+        if (formatted.length() == 0) return 0;
+        final ParseResults<MachineApplication> parse = getCommandDispatcher().parse(formatted, this);
+        final String[] parts = formatted.split(" ");
+        try {
+            return getCommandDispatcher().execute(parse);
+        } catch (CommandSyntaxException exception) {
+            if (exception.getCursor() == 0) {
+                sendMessage(TextComponent.of("Unknown command '" + parts[0] + "'").modify()
+                        .color(ChatColor.RED)
+                        .finish());
+                return -1;
+            }
+            sendMessage(TextComponent.of(exception.getRawMessage().getString()).modify()
+                    .color(ChatColor.RED)
+                    .finish());
+            sendMessage(TextComponent.of(formatted.substring(0, exception.getCursor()))
+                    .append(TextComponent.of(formatted.substring(exception.getCursor())).modify()
+                            .color(ChatColor.RED)
+                            .underlined(true)
+                            .finish())
+                    .append(TextComponent.of("<--[HERE]").modify()
+                            .color(ChatColor.RED)
+                            .finish()));
+            return -1;
+        }
     }
 
     @Override

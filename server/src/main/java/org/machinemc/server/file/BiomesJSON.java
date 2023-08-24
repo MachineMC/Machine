@@ -52,10 +52,9 @@ public class BiomesJSON implements ServerFile, ServerProperty {
     public BiomesJSON(final Server server, final File file) throws IOException {
         this.server = Objects.requireNonNull(server, "Server can not be null");
         Objects.requireNonNull(file, "Source file can not be null");
-        final JsonParser parser = new JsonParser();
         final JsonObject biomes;
         try (FileReader fileReader = new FileReader(file)) {
-            biomes = parser.parse(fileReader).getAsJsonObject();
+            biomes = JsonParser.parseReader(fileReader).getAsJsonObject();
         }
 
         for (final Map.Entry<String, JsonElement> biomeKey : biomes.entrySet()) {

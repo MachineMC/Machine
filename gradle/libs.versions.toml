@@ -1,11 +1,11 @@
 [versions]
 # API and Implementation
-jetbrains-kotlin-gradle = "1.7.21"
+jetbrains-kotlin-gradle = "1.6.21"
 jetbrains-annotations = "23.0.0"
 lombok = "1.18.24"
-google-gson = "2.7"
-google-guava = "11.0.2"
-asm = "9.2"
+google-gson = "2.10.1"
+google-guava = "32.1.2-jre"
+asm = "9.5"
 netty = "4.1.80.Final"
 jna = "5.12.1"
 jline = "3.21.0"
@@ -13,7 +13,7 @@ mojang-brigadier = "1.0.18"
 junit = "5.9.1"
 
 # Machine libraries
-machine-nbt = "1.1.0"
+machine-nbt = "1.1.1"
 machine-landscape = "1.0.3"
 machine-scriptive = "1.1"
 

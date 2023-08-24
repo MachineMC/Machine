@@ -30,7 +30,6 @@ import java.util.function.Function;
  * Manager of world blocks, prevents multiple WorldBlock instances of a single block to exists,
  * provides suppliers of block types and nbt to the world blocks.
  */
-@SuppressWarnings("UnstableApiUsage")
 public class WorldBlockManager {
 
     @Getter

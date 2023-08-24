@@ -14,6 +14,7 @@
  */
 package org.machinemc.application.terminal.smart;
 
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,6 @@ import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.machinemc.api.commands.CommandExecutor;
-import org.machinemc.application.MachineApplication;
 import org.machinemc.application.RunnableServer;
 import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.Colour;
@@ -43,6 +43,7 @@ public class SmartHighlighter implements Highlighter {
             knownColor = ChatColor.DARK_AQUA,
             unknownColor = ChatColor.RED;
 
+    @SuppressWarnings("unchecked")
     @Override
     public AttributedString highlight(final LineReader reader, final String buffer) {
         final AttributedStringBuilder sb = new AttributedStringBuilder();
@@ -50,27 +51,21 @@ public class SmartHighlighter implements Highlighter {
 
         if (!terminal.isColored()) return sb.append(buffer).toAttributedString();
 
+        final CommandDispatcher<CommandExecutor> dispatcher;
+        final CommandExecutor executor;
         if (server != null && server.getConsole().isRunning()) {
-
-            if (server.getCommandDispatcher() == null)
-                return sb.append(buffer).toAttributedString();
-
-            final ParseResults<CommandExecutor> result = server.getCommandDispatcher()
-                    .parse(CommandExecutor.formatCommandInput(buffer), server.getConsole());
-            final Colour color = result.getReader().canRead() ? unknownColor : knownColor;
-            if (color != null)
-                sb.style(new AttributedStyle().foreground(color.getRed(), color.getGreen(), color.getBlue()));
+            dispatcher = server.getCommandDispatcher();
+            executor = server.getConsole();
         } else {
-
-            if (terminal.getApplication().getCommandDispatcher() == null)
-                return sb.append(buffer).toAttributedString();
-
-            final ParseResults<MachineApplication> result = terminal.getApplication().getCommandDispatcher()
-                    .parse(CommandExecutor.formatCommandInput(buffer), terminal.getApplication());
-            final Colour color = result.getReader().canRead() ? unknownColor : knownColor;
-            if (color != null)
-                sb.style(new AttributedStyle().foreground(color.getRed(), color.getGreen(), color.getBlue()));
+            dispatcher = (CommandDispatcher<CommandExecutor>) (CommandDispatcher<?>) terminal.getApplication().getCommandDispatcher();
+            executor = terminal.getApplication();
         }
+        if (dispatcher == null) return sb.append(buffer).toAttributedString();
+
+        final ParseResults<CommandExecutor> result = dispatcher.parse(CommandExecutor.formatCommandInput(buffer), executor);
+        final Colour color = result.getReader().canRead() ? unknownColor : knownColor;
+        if (color != null)
+            sb.style(new AttributedStyle().foreground(color.getRed(), color.getGreen(), color.getBlue()));
 
         sb.append(buffer);
         return sb.toAttributedString();

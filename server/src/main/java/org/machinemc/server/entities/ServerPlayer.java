@@ -176,7 +176,6 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         for (final World world : getServer().getWorldManager().getWorlds())
             worlds.add(world.getName().toString());
 
-        //noinspection UnstableApiUsage
         sendPacket(new PacketPlayOutLogin(
                 getEntityID(),
                 false,

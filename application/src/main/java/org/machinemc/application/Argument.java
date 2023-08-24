@@ -39,7 +39,7 @@ public enum Argument {
      */
     NO_COLORS;
 
-    protected static @Unmodifiable Set<Argument> parse(final String[] args) {
+    static @Unmodifiable Set<Argument> parse(final String[] args) {
         final Set<Argument> parsed = new LinkedHashSet<>();
         for (final String argument : args) {
             try {

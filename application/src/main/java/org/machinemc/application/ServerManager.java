@@ -56,11 +56,10 @@ public class ServerManager {
      */
     public void readFile() throws IOException {
 
-        final JsonParser parser = new JsonParser();
         final FileReader reader = new FileReader(file);
         final JsonObject json;
         try (reader) {
-            json = parser.parse(reader).getAsJsonObject();
+            json = JsonParser.parseReader(reader).getAsJsonObject();
         }
 
         for (final Map.Entry<String, JsonElement> serverKey : json.entrySet()) {
