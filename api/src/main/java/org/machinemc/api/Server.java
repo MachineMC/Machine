@@ -24,6 +24,7 @@ import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.entities.EntityManager;
 import org.machinemc.api.entities.Player;
+import org.machinemc.api.entities.damagetypes.DamageTypeManager;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.file.PlayerDataContainer;
 import org.machinemc.api.file.ServerProperties;
@@ -126,6 +127,11 @@ public interface Server {
      * @return server's dimension type manager
      */
     DimensionTypeManager getDimensionTypeManager();
+
+    /**
+     * @return server's damage type manager
+     */
+    DamageTypeManager getDamageTypeManager();
 
     /**
      * @return server's messenger

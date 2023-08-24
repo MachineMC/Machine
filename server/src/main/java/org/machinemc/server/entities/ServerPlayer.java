@@ -32,8 +32,10 @@ import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.server.codec.Codec;
+import org.machinemc.api.utils.PrettyNBTStringVisitor;
 import org.machinemc.api.world.*;
 import org.machinemc.nbt.NBTCompound;
+import org.machinemc.nbt.NBTList;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.components.TranslationComponent;
@@ -159,9 +161,17 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
         final NBTCompound codec = new Codec(
                 getServer().getDimensionTypeManager(),
+                getServer().getDamageTypeManager(),
                 getServer().getBiomeManager(),
                 getServer().getMessenger()
         ).toNBT();
+        // TODO placeholders for now
+        codec.put("minecraft:trim_pattern", Map.of(
+                "type", "minecraft:trim_pattern",
+                "value", new NBTList()));
+        codec.put("minecraft:trim_material", Map.of(
+                "type", "minecraft:trim_material",
+                "value", new NBTList()));
 
         final List<String> worlds = new ArrayList<>();
         for (final World world : getServer().getWorldManager().getWorlds())
