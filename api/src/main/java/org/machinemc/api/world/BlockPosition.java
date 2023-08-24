@@ -51,10 +51,10 @@ public final class BlockPosition implements Writable, Cloneable {
 
     /**
      * Position of a block in the world.
-     * @param location location of the block
+     * @param position position of the block
      */
-    public BlockPosition(final Location location) {
-        this(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    public BlockPosition(final EntityPosition position) {
+        this(position.getBlockX(), position.getBlockY(), position.getBlockZ());
     }
 
     @Override

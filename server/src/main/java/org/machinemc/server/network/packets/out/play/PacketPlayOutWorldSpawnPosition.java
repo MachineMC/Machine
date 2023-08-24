@@ -20,7 +20,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockPosition;
-import org.machinemc.api.world.Location;
+import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
@@ -40,8 +40,8 @@ public class PacketPlayOutWorldSpawnPosition extends PacketOut {
                 PacketPlayOutWorldSpawnPosition::new);
     }
 
-    public PacketPlayOutWorldSpawnPosition(final Location location) {
-        this(new BlockPosition(location), location.getYaw());
+    public PacketPlayOutWorldSpawnPosition(final EntityPosition postition) {
+        this(new BlockPosition(postition), postition.getYaw());
     }
 
     public PacketPlayOutWorldSpawnPosition(final ServerBuffer buf) {

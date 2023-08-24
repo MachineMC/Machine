@@ -281,7 +281,7 @@ public final class Machine implements Server, RunnableServer {
                 if (!Files.isSameFile(directory.toPath(), path.getParent().getParent())) continue;
                 try {
                     final WorldJSON worldJson = new WorldJSON(this, path.toFile());
-                    if (worldManager.isRegistered(worldJson.getWorldName())) {
+                    if (worldManager.isRegistered(worldJson.getName())) {
                         console.severe("World with name '" + worldJson.getName() + "' is already registered");
                         continue;
                     }
@@ -299,10 +299,6 @@ public final class Machine implements Server, RunnableServer {
         if (worldManager.getWorlds().size() == 0) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             try {
-                FileUtils.createServerFile(
-                        new File(directory, ServerWorld.DEFAULT_WORLD_FOLDER + "/" + WorldJSON.WORLD_FILE_NAME),
-                        WorldJSON.WORLD_FILE_NAME
-                );
                 final World world = ServerWorld.createDefault(this);
                 worldManager.addWorld(world);
             } catch (Exception exception) {

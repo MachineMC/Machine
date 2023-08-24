@@ -41,6 +41,7 @@ import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.Machine;
 import org.machinemc.server.chunk.ChunkSection;
 import org.machinemc.server.chunk.ChunkUtils;
+import org.machinemc.server.file.WorldJSON;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.server.utils.WeaklyTimedCache;
 import org.machinemc.server.world.blocks.WorldBlockManager;
@@ -49,8 +50,7 @@ import org.machinemc.server.world.region.DefaultLandscapeHandler;
 import org.machinemc.server.world.region.LandscapeChunk;
 import org.machinemc.server.world.region.LandscapeHelper;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
@@ -68,6 +68,7 @@ public class ServerWorld extends AbstractWorld {
     @Getter
     private final File folder;
     private final File regionFolder;
+    private final File worldJSONFile;
 
     protected final Set<Entity> entityList = new CopyOnWriteArraySet<>();
 
@@ -96,9 +97,9 @@ public class ServerWorld extends AbstractWorld {
                 NamespacedKey.machine("main"),
                 server.getDimensionTypeManager().getDimensions().iterator().next(),
                 server.getProperties().getDefaultWorldType(),
-                1);
+                1,
+                null);
         world.setWorldSpawn(new Location(0, world.getDimensionType().getMinY(), 0, world));
-        world.setDifficulty(server.getProperties().getDefaultDifficulty());
         return world;
     }
 
@@ -107,10 +108,20 @@ public class ServerWorld extends AbstractWorld {
                        final NamespacedKey name,
                        final DimensionType dimensionType,
                        final WorldType worldType,
-                       final long seed) {
-        super(server, name, FileUtils.getOrCreateUUID(folder), dimensionType, worldType, seed);
-        this.folder = Objects.requireNonNull(folder, "World directory can not be null");
+                       final long seed,
+                       final @Nullable Difficulty difficulty) {
+        super(
+                server,
+                name,
+                FileUtils.getOrCreateUUID(Objects.requireNonNull(folder, "World directory can not be null")),
+                dimensionType,
+                worldType,
+                seed,
+                difficulty
+        );
+        this.folder = folder;
         regionFolder = new File(folder.getPath() + "/region/");
+        worldJSONFile = new File(folder, WorldJSON.WORLD_FILE_NAME);
         landscapeHelper = new LandscapeHelper(this,
                 regionFolder,
                 new DefaultLandscapeHandler(
@@ -168,6 +179,8 @@ public class ServerWorld extends AbstractWorld {
         if (loaded) throw new UnsupportedOperationException("The world has already been loaded");
         if (!regionFolder.mkdirs() && !regionFolder.exists())
             throw new IllegalStateException("Could not create the region folder for the world");
+        if (!worldJSONFile.exists() && !createWorldJSONFile())
+            throw new IllegalStateException("Could not create the 'world.json' file for the world");
         loaded = true;
         getServer().getConsole().info("Loaded world '" + getName() + "'");
     }
@@ -187,6 +200,11 @@ public class ServerWorld extends AbstractWorld {
     public void save() {
         getServer().getConsole().info("Saving world '" + getName() + "'...");
         landscapeHelper.flush();
+        try (FileWriter writer = new FileWriter(worldJSONFile)) {
+            getServer().getGson().toJson(getWorldJSON(), writer);
+        } catch (Exception e) {
+            getServer().getConsole().severe("Couldn't save '" + WorldJSON.WORLD_FILE_NAME + "'");
+        }
         getServer().getConsole().info("Saved world '" + getName() + "'");
     }
 
@@ -212,6 +230,22 @@ public class ServerWorld extends AbstractWorld {
                 }
                 return null;
             }).async().run(scheduler);
+        }
+    }
+
+    private boolean createWorldJSONFile() {
+        final File worldJsonFile = new File(folder, WorldJSON.WORLD_FILE_NAME);
+        try {
+            if (worldJsonFile.exists() || !worldJsonFile.createNewFile())
+                return false;
+        } catch (IOException e) {
+            return false;
+        }
+        try (FileWriter writer = new FileWriter(worldJsonFile)) {
+            getServer().getGson().toJson(getWorldJSON(), writer);
+            return true;
+        } catch (IOException e) {
+            return false;
         }
     }
 

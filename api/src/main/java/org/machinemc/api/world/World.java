@@ -14,6 +14,7 @@
  */
 package org.machinemc.api.world;
 
+import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.chunk.Chunk;
 import org.machinemc.api.entities.Entity;
@@ -67,9 +68,14 @@ public interface World extends ServerProperty {
     Difficulty getDifficulty();
 
     /**
-     * @return location of the world spawn of the world
+     * @return position of the world spawn of the world
      */
-    Location getWorldSpawn();
+    EntityPosition getWorldSpawn();
+
+    /**
+     * @return The JSON constructed from the world's properties
+     */
+    JsonObject getWorldJSON();
 
     /**
      * @return if the world is loaded
@@ -227,9 +233,9 @@ public interface World extends ServerProperty {
     void setDifficulty(Difficulty difficulty);
 
     /**
-     * Changes the world spawn location of the world.
-     * @param location new location
+     * Changes the world spawn position of the world.
+     * @param position new position
      */
-    void setWorldSpawn(Location location);
+    void setWorldSpawn(EntityPosition position);
 
 }

@@ -14,23 +14,18 @@
  */
 package org.machinemc.server.file;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import lombok.Getter;
 import org.machinemc.api.Server;
-import org.machinemc.api.file.ServerFile;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.api.world.Difficulty;
-import org.machinemc.api.world.Location;
-import org.machinemc.api.world.World;
-import org.machinemc.api.world.WorldType;
+import org.machinemc.api.world.*;
 import org.machinemc.api.world.dimensions.DimensionType;
-import org.machinemc.server.Machine;
 import org.machinemc.server.world.AbstractWorld;
 import org.machinemc.server.world.ServerWorld;
 
 import java.io.*;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -38,7 +33,7 @@ import java.util.Optional;
  * Represents a json world file of server world.
  */
 @Getter
-public class WorldJSON implements ServerFile, ServerProperty {
+public class WorldJSON implements ServerProperty {
 
     public static final String WORLD_FILE_NAME = "world.json";
 
@@ -49,82 +44,132 @@ public class WorldJSON implements ServerFile, ServerProperty {
     private final long seed;
     private final Difficulty difficulty;
     private final WorldType worldType;
+    private final EntityPosition worldSpawn;
 
     private final File folder;
 
     public WorldJSON(final Server server, final File file) throws IOException {
         this.server = Objects.requireNonNull(server, "Server can not be null");
-        Objects.requireNonNull(file, "Source file can not be null");
-        folder = file.getParentFile();
+        folder = Objects.requireNonNull(file, "Source file can not be null").getParentFile();
         final JsonParser parser = new JsonParser();
         final JsonObject json;
         try (FileReader fileReader = new FileReader(file)) {
             json = parser.parse(fileReader).getAsJsonObject();
         }
 
-        final NamespacedKey name;
-        try {
-            name = NamespacedKey.parse(json.get("name").getAsString());
-        } catch (Exception ignored) {
-            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal "
-                    + "name identifier and can't be registered");
-        }
-        this.name = name;
+        name = Optional.ofNullable(json.get("name"))
+                .or(() -> {
+                    throw new IllegalStateException("World '" + folder.getName() + "' doesn't have a 'name' key.");
+                })
+                .filter(JsonElement::isJsonPrimitive)
+                .map(JsonElement::getAsString)
+                .flatMap(NamespacedKey::parseSafe)
+                .orElseThrow(() -> new IllegalStateException("World '" + folder.getName() + "' uses "
+                        + "illegal name identifier and can't be registered"));
 
-        final NamespacedKey dimensionKey;
-        try {
-            dimensionKey = NamespacedKey.parse(json.get("dimension").getAsString());
-        } catch (Exception ignored) {
-            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses "
-                    + "illegal dimension identifier and can't be registered");
-        }
+        dimensionType = Optional.ofNullable(json.get("dimension"))
+                .or(() -> {
+                    throw new IllegalStateException("World '" + name + "' doesn't have a 'dimension' key.");
+                })
+                .filter(JsonElement::isJsonPrimitive)
+                .map(JsonElement::getAsString)
+                .flatMap(NamespacedKey::parseSafe)
+                .or(() -> {
+                    throw new IllegalStateException("World '" + name + "' uses "
+                            + "illegal dimension identifier and can't be registered");
+                })
+                .flatMap(server.getDimensionTypeManager()::getDimension)
+                .orElseThrow(() -> new IllegalStateException("World '" + name + "' uses non existing dimension"));
 
-        this.dimensionType = server.getDimensionTypeManager().getDimension(dimensionKey)
-                .orElseThrow(() -> new IllegalStateException("World '" + this.name + "' uses non existing dimension"));
+        seed = Optional.ofNullable(json.get("seed"))
+                .or(() -> {
+                    throw new IllegalStateException("World '" + name + "' doesn't have a 'seed' key.");
+                })
+                .filter(JsonElement::isJsonPrimitive)
+                .map(JsonElement::getAsJsonPrimitive)
+                .filter(jsonPrimitive -> jsonPrimitive.isString() || jsonPrimitive.isNumber())
+                .map(JsonElement::getAsNumber)
+                .map(number -> {
+                    try {
+                        return number.longValue();
+                    } catch (Exception e) {
+                        return null;
+                    }
+                })
+                .orElseGet(() -> {
+                    getServer().getConsole().severe("World '" + name + "' has an invalid "
+                            + "defined seed, defaulting to '1' instead");
+                    return 1L;
+                });
 
-        long seedValue = 1;
-        try {
-            seedValue = json.get("seed").getAsNumber().longValue();
-        } catch (Exception exception) {
-            getServer().getConsole().severe("World '" + this.name + "' has not valid "
-                    + "defined seed, defaulting to '1' instead");
-        }
-        seed = seedValue;
+        final Difficulty defaultDifficulty = getServer().getProperties().getDefaultDifficulty();
+        difficulty = Optional.ofNullable(json.get("difficulty"))
+                .or(() -> {
+                    getServer().getConsole().warning("World '" + name + "' doesn't have a 'difficulty' key, "
+                            + "defaulting to '" + defaultDifficulty.name().toLowerCase(Locale.ENGLISH) + "' instead");
+                    return Optional.of(new JsonPrimitive(defaultDifficulty.name()));
+                })
+                .filter(JsonElement::isJsonPrimitive)
+                .map(JsonElement::getAsString)
+                .flatMap(Difficulty::getByName)
+                .orElseGet(() -> {
+                    getServer().getConsole().warning("World '" + name + "' has an invalid difficulty, "
+                            + "defaulting to '" + defaultDifficulty.name().toLowerCase(Locale.ENGLISH) + "' instead");
+                    return defaultDifficulty;
+                });
 
-        final Difficulty difficulty = Difficulty.getByName(json.get("difficulty").getAsString()).orElseGet(() -> {
-            final Difficulty def = getServer().getProperties().getDefaultDifficulty();
-            json.addProperty("difficulty", def.name().toLowerCase());
-            return def;
-        });
+        final WorldType defaultWorldType = getServer().getProperties().getDefaultWorldType();
+        worldType = Optional.ofNullable(json.get("worldType"))
+                .or(() -> {
+                    getServer().getConsole().warning("World '" + name + "' doesn't have a 'worldType' key, "
+                            + "defaulting to '" + defaultWorldType.name().toLowerCase(Locale.ENGLISH) + "' instead");
+                    return Optional.of(new JsonPrimitive(defaultWorldType.name()));
+                })
+                .filter(JsonElement::isJsonPrimitive)
+                .map(JsonElement::getAsString)
+                .flatMap(WorldType::getByName)
+                .orElseGet(() -> {
+                    getServer().getConsole().warning("World '" + name + "' has an invalid world type, "
+                            + "defaulting to '" + defaultWorldType.name().toLowerCase(Locale.ENGLISH) + "' instead");
+                    return defaultWorldType;
+                });
 
-        final WorldType worldType = WorldType.getByName(json.get("worldType").getAsString()).orElseGet(() -> {
-            final WorldType def = getServer().getProperties().getDefaultWorldType();
-            json.addProperty("worldType", def.name().toLowerCase());
-            return def;
-        });
-
-        try (Writer writer = new FileWriter(file)) {
-            getServer().getGson().toJson(json, writer);
-        }
-        this.difficulty = difficulty;
-        this.worldType = worldType;
+        worldSpawn = Optional.ofNullable(json.get("worldSpawn"))
+                .or(() -> {
+                    throw new IllegalStateException("World '" + name + "' doesn't have a 'worldSpawn' key.");
+                })
+                .filter(JsonElement::isJsonObject)
+                .map(JsonElement::getAsJsonObject)
+                .filter(spawnJson -> spawnJson.size() == 5)
+                .map(spawnJson -> {
+                    final Double x = getAsNumber(spawnJson.get("x"))
+                            .map(Number::doubleValue)
+                            .orElse(null);
+                    final Double y = getAsNumber(spawnJson.get("y"))
+                            .map(Number::doubleValue)
+                            .orElse(null);
+                    final Double z = getAsNumber(spawnJson.get("z"))
+                            .map(Number::doubleValue)
+                            .orElse(null);
+                    final Float yaw = getAsNumber(spawnJson.get("yaw"))
+                            .map(Number::floatValue)
+                            .orElse(null);
+                    final Float pitch = getAsNumber(spawnJson.get("pitch"))
+                            .map(Number::floatValue)
+                            .orElse(null);
+                    if (x == null || y == null || z == null || yaw == null || pitch == null)
+                        return null;
+                    return new EntityPosition(x, y, z, yaw, pitch);
+                })
+                .orElseThrow(() -> new IllegalStateException("World '" + name + "' has an invalid world spawn"));
     }
 
-    @Override
-    public String getName() {
-        return WORLD_FILE_NAME;
-    }
-
-    @Override
-    public Optional<InputStream> getOriginal() {
-        return Optional.ofNullable(Machine.CLASS_LOADER.getResourceAsStream(WORLD_FILE_NAME));
-    }
-
-    /**
-     * @return name of the world
-     */
-    public NamespacedKey getWorldName() {
-        return name;
+    private Optional<Number> getAsNumber(final JsonElement jsonElement) {
+        return Optional.of(jsonElement)
+                .filter(JsonElement::isJsonPrimitive)
+                .map(JsonElement::getAsJsonPrimitive)
+                .filter(JsonPrimitive::isNumber)
+                .map(JsonPrimitive::getAsNumber);
     }
 
     /**
@@ -132,16 +177,20 @@ public class WorldJSON implements ServerFile, ServerProperty {
      * @return newly created and registered world
      */
     public World buildWorld() {
-        final AbstractWorld world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
-        // TODO should get calculated/from json
-        world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
-        world.setDifficulty(server.getProperties().getDefaultDifficulty());
+        final AbstractWorld world = new ServerWorld(folder, server, name, dimensionType, worldType, seed, difficulty);
+        world.setWorldSpawn(new EntityPosition(
+                worldSpawn.getX(),
+                worldSpawn.getY(),
+                worldSpawn.getZ(),
+                worldSpawn.getYaw(),
+                worldSpawn.getPitch()
+        ));
         return world;
     }
 
     @Override
     public String toString() {
-        return getName() + "(" + name + ')';
+        return WORLD_FILE_NAME + "(" + name + ')';
     }
 
 }
