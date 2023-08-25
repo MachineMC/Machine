@@ -227,11 +227,9 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
         // Player info
         final EnumSet<PacketPlayOutPlayerInfo.Action> actions = EnumSet.allOf(PacketPlayOutPlayerInfo.Action.class);
-        sendPacket(new PacketPlayOutPlayerInfo(actions.clone(), this));
-        actions.remove(PacketPlayOutPlayerInfo.Action.INITIALIZE_CHAT);
+        sendPacket(new PacketPlayOutPlayerInfo(actions, this));
         for (final Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
-            if (player == this)
-                continue;
+            if (player == this) continue;
             sendPacket(new PacketPlayOutPlayerInfo(actions, player));
             player.sendPacket(new PacketPlayOutPlayerInfo(actions, this));
         }

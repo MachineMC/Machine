@@ -457,6 +457,32 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
+    public BitSet readBitSet() {
+        return BitSet.valueOf(readLongArray());
+    }
+
+    @Override
+    public BitSet readBitSet(final int size) {
+        final byte[] bytes = readBytes(-Math.floorDiv(-size, 8));
+        return BitSet.valueOf(bytes);
+    }
+
+    @Override
+    public FriendlyByteBuf writeBitSet(final BitSet bitSet) {
+        writeLongArray(bitSet.toLongArray());
+        return this;
+    }
+
+    @Override
+    public FriendlyByteBuf writeBitSet(final BitSet bitSet, final int size) {
+        if (bitSet.length() > size)
+            throw new RuntimeException("BitSet is larger than expected size");
+        final byte[] bytes = bitSet.toByteArray();
+        writeBytes(Arrays.copyOf(bytes, -Math.floorDiv(-size, 8)));
+        return this;
+    }
+
+    @Override
     public BlockPosition readBlockPos() {
         final long packedPos = readLong();
         return new BlockPosition(
@@ -651,7 +677,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public ServerBuffer readerIndex(final int index) {
+    public FriendlyByteBuf readerIndex(final int index) {
         buf.readerIndex(index);
         return this;
     }
@@ -662,7 +688,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public ServerBuffer writerIndex(final int index) {
+    public FriendlyByteBuf writerIndex(final int index) {
         buf.writerIndex(index);
         return this;
     }

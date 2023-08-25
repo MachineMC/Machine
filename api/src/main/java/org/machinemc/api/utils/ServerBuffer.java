@@ -30,6 +30,7 @@ import org.machinemc.scriptive.serialization.ComponentSerializer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.time.Instant;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -376,7 +377,6 @@ public interface ServerBuffer extends Cloneable {
     @Unmodifiable List<String> readStringList(Charset charset);
 
     /**
-     *
      * @param strings string list to write
      * @param charset charset used by the strings in the list
      * @return this
@@ -396,6 +396,34 @@ public interface ServerBuffer extends Cloneable {
      */
     @Contract("_ -> this")
     ServerBuffer writeUUID(UUID uuid);
+
+    /**
+     * @return next bitset
+     */
+    @Contract("-> new")
+    BitSet readBitSet();
+
+    /**
+     * @param size size of the bitset
+     * @return next bitset
+     */
+    @Contract("_ -> new")
+    BitSet readBitSet(int size);
+
+    /**
+     * @param bitSet bitset to write
+     * @return this
+     */
+    @Contract("_ -> this")
+    ServerBuffer writeBitSet(BitSet bitSet);
+
+    /**
+     * @param bitSet bitset to write
+     * @param size size of the bitset
+     * @return this
+     */
+    @Contract("_, _ -> this")
+    ServerBuffer writeBitSet(BitSet bitSet, int size);
 
     /**
      * @return next block position

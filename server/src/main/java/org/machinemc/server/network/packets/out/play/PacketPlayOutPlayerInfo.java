@@ -26,7 +26,9 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.network.packets.PacketOut;
 
 import java.nio.charset.StandardCharsets;
+import java.util.BitSet;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
@@ -58,7 +60,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     }
 
     public PacketPlayOutPlayerInfo(final ServerBuffer buf) {
-        actions = Action.unpack(buf.readByte());
+        actions = Action.unpack(buf.readBitSet(Action.BITSET_SIZE));
         final int playerAmount = buf.readVarInt();
         playerInfoDataArray = new PlayerInfoData[playerAmount];
         for (int i = 0; i < playerAmount; i++) {
@@ -83,7 +85,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     @Override
     public byte[] serialize() {
         final FriendlyByteBuf buf = new FriendlyByteBuf();
-        buf.writeByte(Action.pack(actions))
+        buf.writeBitSet(Action.pack(actions), Action.BITSET_SIZE)
                 .writeArray(playerInfoDataArray, (buffer, data) -> data.write(actions, buf));
         return buf.bytes();
     }
@@ -117,7 +119,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
             data.setPublicKeyData(buf.readPublicKey());
         }),
 
-        UPDATE_GAMEMODE((buf, data) -> buf.writeVarInt(data.getGamemode().getID()),
+        UPDATE_GAMEMODE((buf, data) -> buf.writeVarInt(Objects.requireNonNull(data.getGamemode(), "Gamemode can not be null").getID()),
                 (buf, data) -> data.setGamemode(Gamemode.fromID(buf.readVarInt()))),
 
         UPDATE_LISTED((buf, data) -> buf.writeBoolean(data.isListed()),
@@ -128,6 +130,8 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
 
         UPDATE_DISPLAY_NAME((buf, data) -> buf.writeOptional(data.getDisplayName(), ServerBuffer::writeComponent),
                 (buf, data) -> data.setDisplayName(buf.readOptional(ServerBuffer::readComponent).orElse(null)));
+
+        static final int BITSET_SIZE = values().length;
 
         private final BiConsumer<ServerBuffer, PlayerInfoData> writer, reader;
 
@@ -150,31 +154,31 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
         }
 
         /**
-         * Returns the actions of the bit mask.
+         * Returns the actions of the bitset.
          *
-         * @param mask bit mask
+         * @param bitSet bitset
          * @return actions
          */
-        public static EnumSet<Action> unpack(final byte mask) {
+        public static EnumSet<Action> unpack(final BitSet bitSet) {
             final EnumSet<Action> set = EnumSet.noneOf(Action.class);
             for (final Action action : values()) {
-                if (((mask >> action.ordinal()) & 1) == 1)
+                if (bitSet.get(action.ordinal()))
                     set.add(action);
             }
             return set;
         }
 
         /**
-         * Returns the bit mask of a set of actions.
+         * Returns the bitset of a set of actions.
          *
          * @param actions actions
-         * @return bit mask
+         * @return bitset
          */
-        public static byte pack(final EnumSet<Action> actions) {
-            byte mask = 0;
+        public static BitSet pack(final EnumSet<Action> actions) {
+            final BitSet bitSet = new BitSet(BITSET_SIZE);
             for (final Action action : actions)
-                mask |= 1 << action.ordinal();
-            return mask;
+                bitSet.set(action.ordinal());
+            return bitSet;
         }
 
     }

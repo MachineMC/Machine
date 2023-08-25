@@ -57,11 +57,11 @@ public class LightData implements Writable {
      */
     @Override
     public void write(final ServerBuffer buf) {
-        buf.writeLongArray(skyMask.toLongArray());
-        buf.writeLongArray(blockMask.toLongArray());
+        buf.writeBitSet(skyMask);
+        buf.writeBitSet(blockMask);
 
-        buf.writeLongArray(emptySkyMask.toLongArray());
-        buf.writeLongArray(emptyBlockMask.toLongArray());
+        buf.writeBitSet(emptySkyMask);
+        buf.writeBitSet(emptyBlockMask);
 
         buf.writeVarInt(skyLight.size());
         for (final byte[] bytes : skyLight)
