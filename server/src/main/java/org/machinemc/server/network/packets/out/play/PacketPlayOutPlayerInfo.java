@@ -14,9 +14,7 @@
  */
 package org.machinemc.server.network.packets.out.play;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.Player;
@@ -30,6 +28,7 @@ import org.machinemc.server.network.packets.PacketOut;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 @Getter
 @Setter
@@ -64,34 +63,10 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
         playerInfoDataArray = new PlayerInfoData[playerAmount];
         for (int i = 0; i < playerAmount; i++) {
             final UUID uuid = buf.readUUID();
-            String name = null;
-            PlayerTextures skin = null;
-            Gamemode gamemode = null;
-            boolean listed = false;
-            int latency = 0;
-            Component displayName = null;
-            UUID sessionID = null;
-            PublicKeyData publicKeyData = null;
-            for (final Action action : actions) {
-                switch (action) {
-                    case ADD_PLAYER -> {
-                        name = buf.readString(StandardCharsets.UTF_8);
-                        skin = buf.readTextures().orElse(null);
-                    }
-                    case INITIALIZE_CHAT -> {
-                        if (!buf.readBoolean())
-                            continue;
-                        sessionID = buf.readUUID();
-                        publicKeyData = buf.readPublicKey();
-                    }
-                    case UPDATE_GAMEMODE -> gamemode = Gamemode.fromID(buf.readVarInt());
-                    case UPDATE_LISTED -> listed = buf.readBoolean();
-                    case UPDATE_LATENCY -> latency = buf.readVarInt();
-                    case UPDATE_DISPLAY_NAME -> displayName = buf.readComponent();
-                }
-                playerInfoDataArray[i] = new PlayerInfoData(uuid, name, skin, gamemode, listed,
-                        latency, displayName, sessionID, publicKeyData);
-            }
+            final PlayerInfoData data = new PlayerInfoData(uuid);
+            for (final Action action : actions)
+                action.read(buf, data);
+            playerInfoDataArray[i] = data;
         }
     }
 
@@ -109,9 +84,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     public byte[] serialize() {
         final FriendlyByteBuf buf = new FriendlyByteBuf();
         buf.writeByte(Action.pack(actions))
-                .writeVarInt(playerInfoDataArray.length);
-        for (final PlayerInfoData playerInfoData : playerInfoDataArray)
-            playerInfoData.write(actions, buf);
+                .writeArray(playerInfoDataArray, (buffer, data) -> data.write(actions, buf));
         return buf.bytes();
     }
 
@@ -120,13 +93,61 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
         return new PacketPlayOutPlayerInfo(new FriendlyByteBuf(serialize()));
     }
 
+    @RequiredArgsConstructor
     public enum Action {
-        ADD_PLAYER,
-        INITIALIZE_CHAT,
-        UPDATE_GAMEMODE,
-        UPDATE_LISTED,
-        UPDATE_LATENCY,
-        UPDATE_DISPLAY_NAME;
+
+        ADD_PLAYER((buf, data) -> buf.writeString(data.getName(), StandardCharsets.UTF_8)
+                .writeTextures(data.getPlayerTextures()), (buf, data) -> {
+            data.setName(buf.readString(StandardCharsets.UTF_8));
+            data.setPlayerTextures(buf.readTextures().orElse(null));
+        }),
+
+        INITIALIZE_CHAT((buf, data) -> {
+            if (data.getSessionID() == null || data.getPublicKeyData() == null) {
+                buf.writeBoolean(false);
+                return;
+            }
+            buf.writeBoolean(true)
+                    .writeUUID(data.getSessionID())
+                    .writePublicKey(data.getPublicKeyData());
+        }, (buf, data) -> {
+            if (!buf.readBoolean())
+                return;
+            data.setSessionID(buf.readUUID());
+            data.setPublicKeyData(buf.readPublicKey());
+        }),
+
+        UPDATE_GAMEMODE((buf, data) -> buf.writeVarInt(data.getGamemode().getID()),
+                (buf, data) -> data.setGamemode(Gamemode.fromID(buf.readVarInt()))),
+
+        UPDATE_LISTED((buf, data) -> buf.writeBoolean(data.isListed()),
+                (buf, data) -> data.setListed(buf.readBoolean())),
+
+        UPDATE_LATENCY((buf, data) -> buf.writeVarInt(data.getLatency()),
+                (buf, data) -> data.setLatency(buf.readVarInt())),
+
+        UPDATE_DISPLAY_NAME((buf, data) -> buf.writeOptional(data.getDisplayName(), ServerBuffer::writeComponent),
+                (buf, data) -> data.setDisplayName(buf.readOptional(ServerBuffer::readComponent).orElse(null)));
+
+        private final BiConsumer<ServerBuffer, PlayerInfoData> writer, reader;
+
+        /**
+         * Reads the data from the buffer and modifies the given {@link PlayerInfoData} accordingly.
+         * @param buf the server buffer to read from
+         * @param data the PlayerInfoData to modify
+         */
+        public void read(final ServerBuffer buf, final PlayerInfoData data) {
+            reader.accept(buf, data);
+        }
+
+        /**
+         * Reads the data from the {@link PlayerInfoData} and writes it to the given buffer.
+         * @param buf the server buffer to write to
+         * @param data the PlayerInfoData to read from
+         */
+        public void write(final ServerBuffer buf, final PlayerInfoData data) {
+            writer.accept(buf, data);
+        }
 
         /**
          * Returns the actions of the bit mask.
@@ -160,26 +181,24 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
 
     /**
      * Player info packet data.
-     *
-     * @param uuid           uuid of the player
-     * @param name           name of the player
-     * @param playerTextures textures of the player
-     * @param gamemode       gamemode of the player
-     * @param listed         whether the player should be listed in the player list
-     * @param latency        latency of the player
-     * @param listName       name displayed in player list
-     * @param sessionID      session id of the connection
-     * @param publicKeyData  public key data of the connection
      */
-    public record PlayerInfoData(UUID uuid,
-                                 @Nullable String name,
-                                 @Nullable PlayerTextures playerTextures,
-                                 @Nullable Gamemode gamemode,
-                                 boolean listed,
-                                 int latency,
-                                 @Nullable Component listName,
-                                 @Nullable UUID sessionID,
-                                 @Nullable PublicKeyData publicKeyData) {
+    @Data
+    @AllArgsConstructor
+    public static final class PlayerInfoData {
+
+        private UUID uuid;
+        private @Nullable String name;
+        private @Nullable PlayerTextures playerTextures;
+        private @Nullable Gamemode gamemode;
+        private boolean listed;
+        private int latency;
+        private @Nullable Component displayName;
+        private @Nullable UUID sessionID;
+        private @Nullable PublicKeyData publicKeyData;
+
+        private PlayerInfoData(final UUID uuid) {
+            this.uuid = uuid;
+        }
 
         public PlayerInfoData(final Player player) {
             this(player.getUUID(),
@@ -202,28 +221,8 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
          */
         public void write(final EnumSet<Action> actions, final FriendlyByteBuf buf) {
             buf.writeUUID(uuid);
-            for (final Action action : actions) {
-                switch (action) {
-                    case ADD_PLAYER -> buf.writeString(name, StandardCharsets.UTF_8)
-                            .writeTextures(playerTextures);
-                    case INITIALIZE_CHAT -> {
-                        if (sessionID == null || publicKeyData == null) {
-                            buf.writeBoolean(false);
-                            continue;
-                        }
-                        buf.writeBoolean(true)
-                                .writeUUID(sessionID)
-                                .writePublicKey(publicKeyData);
-                    }
-                    case UPDATE_GAMEMODE -> {
-                        assert gamemode != null;
-                        buf.writeVarInt(gamemode.getID());
-                    }
-                    case UPDATE_LISTED -> buf.writeBoolean(listed);
-                    case UPDATE_LATENCY -> buf.writeVarInt(latency);
-                    case UPDATE_DISPLAY_NAME -> buf.writeComponent(listName);
-                }
-            }
+            for (final Action action : actions)
+                action.write(buf, this);
         }
 
     }
