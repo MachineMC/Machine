@@ -17,6 +17,7 @@ package org.machinemc.server.network.packets.out.play;
 import lombok.*;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.auth.PublicKeyData;
+import org.machinemc.api.chat.ChatSession;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.entities.player.PlayerTextures;
@@ -212,8 +213,8 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     player.isListed(),
                     player.getLatency(),
                     player.getPlayerListName(),
-                    player.getConnection().getSessionID().orElse(null),
-                    player.getConnection().getPublicKeyData().orElse(null));
+                    player.getChatSession().map(ChatSession::getUUID).orElse(null),
+                    player.getChatSession().map(ChatSession::getData).orElse(null));
         }
 
         /**

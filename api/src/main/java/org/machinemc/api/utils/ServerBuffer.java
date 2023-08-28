@@ -18,7 +18,6 @@ import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.inventory.Item;
@@ -535,19 +534,6 @@ public interface ServerBuffer extends Cloneable {
      */
     @Contract("_ -> this")
     ServerBuffer writeTextures(@Nullable PlayerTextures playerSkin);
-
-    /**
-     * @return next message signature
-     */
-    @Contract("-> new")
-    MessageSignature readSignature();
-
-    /**
-     * @param messageSignature message signature to write
-     * @return this
-     */
-    @Contract("_ -> this")
-    ServerBuffer writeSignature(MessageSignature messageSignature);
 
     /**
      * @return next angle

@@ -30,6 +30,7 @@ import java.util.Objects;
 /**
  * Translator dispatcher, calls registered translators from received packets.
  */
+@SuppressWarnings("unchecked")
 public class TranslatorDispatcher {
 
     @Getter
@@ -143,7 +144,7 @@ public class TranslatorDispatcher {
      * @param packet packet
      * @return true if the packet wasn't cancelled
      */
-    public boolean play(final ClientConnection connection, final Packet packet) {
+    public boolean play(final ClientConnection connection, final Packet packet) throws Exception {
         if (Packet.PacketState.in().contains(packet.getPacketState()))
             return playIn(connection, packet);
         else if (Packet.PacketState.out().contains(packet.getPacketState()))
@@ -157,11 +158,11 @@ public class TranslatorDispatcher {
      * @param packet packet
      * @return true if the packet wasn't cancelled
      */
-    public boolean playIn(final ClientConnection connection, final Packet packet) {
+    public boolean playIn(final ClientConnection connection, final Packet packet) throws Exception {
         Objects.requireNonNull(connection, "Connection can not be null");
         boolean result = true;
         for (final PacketTranslator<? extends Packet> translator : inTranslators.get(packet.getClass()))
-            result = translator.rawTranslate(connection, packet);
+            result = ((PacketTranslator<Packet>) translator).translate(connection, packet);
         return result;
     }
 
@@ -171,11 +172,11 @@ public class TranslatorDispatcher {
      * @param packet packet
      * @return true if the packet wasn't cancelled
      */
-    public boolean playOut(final ClientConnection connection, final Packet packet) {
+    public boolean playOut(final ClientConnection connection, final Packet packet) throws Exception {
         Objects.requireNonNull(connection, "Connection can not be null");
         boolean result = true;
         for (final PacketTranslator<? extends Packet> translator : outTranslators.get(packet.getClass()))
-            result = translator.rawTranslate(connection, packet);
+            result = ((PacketTranslator<Packet>) translator).translate(connection, packet);
         return result;
     }
 
@@ -184,7 +185,7 @@ public class TranslatorDispatcher {
      * @param connection connection that sent the packet
      * @param packet packet
      */
-    public void playAfter(final ClientConnection connection, final Packet packet) {
+    public void playAfter(final ClientConnection connection, final Packet packet) throws Exception {
         if (Packet.PacketState.in().contains(packet.getPacketState()))
             playInAfter(connection, packet);
         else if (Packet.PacketState.out().contains(packet.getPacketState()))
@@ -196,10 +197,10 @@ public class TranslatorDispatcher {
      * @param connection connection that sent the packet
      * @param packet packet
      */
-    public void playInAfter(final ClientConnection connection, final Packet packet) {
+    public void playInAfter(final ClientConnection connection, final Packet packet) throws Exception {
         Objects.requireNonNull(connection, "Connection can not be null");
         for (final PacketTranslator<? extends Packet> translator : inTranslators.get(packet.getClass()))
-            translator.rawTranslateAfter(connection, packet);
+            ((PacketTranslator<Packet>) translator).translateAfter(connection, packet);
     }
 
     /**
@@ -207,10 +208,10 @@ public class TranslatorDispatcher {
      * @param connection connection that received the packet
      * @param packet packet
      */
-    public void playOutAfter(final ClientConnection connection, final Packet packet) {
+    public void playOutAfter(final ClientConnection connection, final Packet packet) throws Exception {
         Objects.requireNonNull(connection, "Connection can not be null");
         for (final PacketTranslator<? extends Packet> translator : outTranslators.get(packet.getClass()))
-            translator.rawTranslateAfter(connection, packet);
+            ((PacketTranslator<Packet>) translator).translateAfter(connection, packet);
     }
 
 }

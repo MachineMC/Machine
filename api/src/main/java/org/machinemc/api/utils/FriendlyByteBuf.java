@@ -18,7 +18,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.auth.Crypt;
-import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.inventory.Item;
@@ -635,23 +634,6 @@ public class FriendlyByteBuf implements ServerBuffer {
         writeString("textures", StandardCharsets.UTF_8);
         writeString(playerSkin.value(), StandardCharsets.UTF_8);
         writeOptional(playerSkin.signature(), (buf, s) -> buf.writeString(s, StandardCharsets.UTF_8));
-        return this;
-    }
-
-    @Override
-    public MessageSignature readSignature() {
-        final Instant timestamp = readInstant();
-        final long salt = readLong();
-        final byte[] signature = readByteArray();
-        return new MessageSignature(timestamp, salt, signature);
-    }
-
-    @Override
-    public FriendlyByteBuf writeSignature(final MessageSignature messageSignature) {
-        Objects.requireNonNull(messageSignature);
-        writeInstant(messageSignature.timestamp());
-        writeLong(messageSignature.salt());
-        writeByteArray(messageSignature.signature());
         return this;
     }
 

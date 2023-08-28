@@ -31,14 +31,14 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
     private final ClientConnection connection;
 
     @Override
-    protected void encode(final ChannelHandlerContext ctx, final Packet msg, final ByteBuf out) {
+    protected void encode(final ChannelHandlerContext ctx, final Packet msg, final ByteBuf out) throws Exception {
         assert connection.getState().map(state -> state != PlayerConnection.ClientState.DISCONNECTED).orElse(false);
         final Packet.PacketState packetState = connection.getState().get().getOut();
         assert packetState != null;
 
         final TranslatorDispatcher dispatcher = connection.getServer().getTranslatorDispatcher();
-        if (!dispatcher.playIn(connection, msg)) return;
-        dispatcher.playInAfter(connection, msg);
+        if (!dispatcher.playOut(connection, msg)) return;
+        dispatcher.playOutAfter(connection, msg);
 
         out.writeBytes(msg.rawSerialize());
     }

@@ -20,8 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.Server;
-import org.machinemc.api.chat.ChatMode;
-import org.machinemc.api.chat.MessageType;
+import org.machinemc.api.chat.*;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.entities.player.Gamemode;
@@ -39,6 +38,9 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.style.ChatColor;
+import org.machinemc.server.chat.MessageSignature;
+import org.machinemc.server.chat.ServerChatSession;
+import org.machinemc.server.chat.SignedMessageChain;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutSynchronizePlayerPosition.TeleportFlags;
@@ -83,6 +85,11 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     private int teleportID = 0;
     private boolean teleporting = false;
     private Location teleportLocation;
+
+    @Getter
+    private ServerChatSession session;
+    @Getter
+    private final SignedMessageChain messageChain = new SignedMessageChain(20);
 
     private ServerPlayer(final Server server, final PlayerProfile profile, final ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUUID());
@@ -329,7 +336,69 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public void sendMessage(final @Nullable UUID source, final Component message, final MessageType type) {
-        getServer().getMessenger().sendMessage(this, message, type);
+        Objects.requireNonNull(message, "Message can not be null");
+        Objects.requireNonNull(type, "Message type can not be null");
+
+        if (type != MessageType.SYSTEM) {
+            final Player sender = getServer().getPlayerManager().getPlayer(source).orElseThrow(() ->
+                    new RuntimeException("Only players can be source of chat messages")
+            );
+            sendMessage(message, type, sender.getDisplayName(), getDisplayName());
+            return;
+        }
+
+        if (!Messenger.canReceiveCommand(this)) return;
+        sendPacket(new PacketPlayOutSystemChatMessage(message, false));
+    }
+
+    @Override
+    public void sendMessage(final Component message, final MessageType type, final Component source, final @Nullable Component target) {
+        Objects.requireNonNull(message, "Message can not be null");
+        Objects.requireNonNull(type, "Message type can not be null");
+        Objects.requireNonNull(source, "Source can not be null");
+        if (!Messenger.accepts(this, type)) return;
+        sendPacket(new PacketPlayOutDisguisedChatMessage(message, type, source, target));
+    }
+
+    @Override
+    public void sendMessage(final PlayerMessage message) {
+        sendPacket(new PacketPlayOutChatMessage(message));
+        if (message.getSignature().isPresent())
+            messageChain.addPending(new MessageSignature(message.getSignature().get()));
+    }
+
+    @Override
+    public void deletePlayerMessage(final PlayerMessage message) {
+        Objects.requireNonNull(message);
+        if (message.getSignature().isEmpty())
+            throw new RuntimeException("Messages with no signature can not be deleted");
+        sendPacket(new PacketPlayOutDeleteMessage(message.getSignature().get()));
+    }
+
+    @Override
+    public Optional<ChatSession> getChatSession() {
+        if (session != null && session.isExpired()) {
+            session = null;
+            return Optional.empty();
+        }
+        return Optional.ofNullable(session);
+    }
+
+    /**
+     * Initializes new session for the player.
+     * @param session new session
+     */
+    public void newSession(final ServerChatSession session) {
+        this.session = session;
+        for (final Player player : getServer().getPlayers())
+            player.sendPacket(new PacketPlayOutPlayerInfo(EnumSet.of(PacketPlayOutPlayerInfo.Action.INITIALIZE_CHAT), this));
+    }
+
+    /**
+     * @return next ID for the chat message
+     */
+    public int getNextMessageID() {
+        return session.nextIndex();
     }
 
     /**

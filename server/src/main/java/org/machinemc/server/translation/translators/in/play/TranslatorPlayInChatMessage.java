@@ -14,15 +14,17 @@
  */
 package org.machinemc.server.translation.translators.in.play;
 
-import org.machinemc.api.chat.MessageType;
-import org.machinemc.api.chat.Messenger;
+import org.machinemc.api.chat.*;
 import org.machinemc.api.entities.Player;
-import org.machinemc.scriptive.components.TextComponent;
+import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.scriptive.components.TranslationComponent;
+import org.machinemc.server.chat.*;
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.play.PacketPlayInChatMessage;
 import org.machinemc.server.translation.PacketTranslator;
+
+import java.util.Optional;
 
 public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInChatMessage> {
 
@@ -43,14 +45,37 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
         if (connection.getOwner().isEmpty())
             return;
         final ServerPlayer player = connection.getOwner().get();
-        final TranslationComponent message = TranslationComponent.of(
-                "chat.type.text",
-                player.getDisplayName(),
-                TextComponent.of(packet.getMessage())
-        );
-        for (final Player serverPlayer : connection.getServer().getPlayerManager().getPlayers())
-            serverPlayer.sendMessage(player.getUUID(), message, MessageType.SYSTEM);
-        connection.getServer().getConsole().info(message);
+
+        final ChatType chatType = player.getServer().getMessenger()
+                .getChatType(NamespacedKey.minecraft("chat"))
+                .orElseThrow(() -> new NullPointerException("Missing chat type 'minecraft:chat'"));
+
+        final PlayerMessage message;
+        final ChatBound chatBound = new ServerChatBound(connection.getServer().getMessenger(), chatType, player.getDisplayName(), null);
+        final LastSeenMessages.Update update = new LastSeenMessages.Update(packet.getMessageCount(), packet.getAcknowledged());
+        final Optional<LastSeenMessages> lastMessages = player.getMessageChain().applyUpdate(update);
+        if (lastMessages.isEmpty()) {
+            connection.getServerConsole().warning("Failed to validate message acknowledgements from '" + player.getName() + "'");
+            connection.disconnect(TranslationComponent.of("multiplayer.disconnect.chat_validation_failed"));
+            return;
+        }
+
+        if (player.getChatSession().isPresent()) {
+            message = new PlayerChatMessage(
+                    new SignedMessageHeader(player.getUUID(), player.getNextMessageID(), packet.getMessageSignature()),
+                    new SignedMessageBody(packet.getMessage(), packet.getTimestamp(), packet.getSalt()),
+                    lastMessages.get().pack().entries(),
+                    null,
+                    FilterType.PASS_THROUGH,
+                    null,
+                    chatBound
+            );
+        } else {
+            message = PlayerChatMessage.unsigned(player.getUUID(), packet.getMessage(), chatBound);
+        }
+
+        for (final Player serverPlayer : connection.getServer().getPlayers())
+            serverPlayer.sendMessage(message);
     }
 
     @Override

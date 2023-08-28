@@ -14,6 +14,8 @@
  */
 package org.machinemc.server.translation.translators.in.play;
 
+import org.machinemc.server.chat.ServerChatSession;
+import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.play.PacketPlayInPlayerSession;
 import org.machinemc.server.translation.PacketTranslator;
@@ -22,15 +24,14 @@ public class TranslatorPlayInPlayerSession extends PacketTranslator<PacketPlayIn
 
     @Override
     public boolean translate(final ClientConnection connection, final PacketPlayInPlayerSession packet) {
-        return connection.getServer().isOnline()
-                && connection.getSessionID().isEmpty()
-                && connection.getPublicKeyData().isEmpty();
+        return connection.getServer().isOnline();
     }
 
     @Override
     public void translateAfter(final ClientConnection connection, final PacketPlayInPlayerSession packet) {
-        connection.setSessionID(packet.getSessionId());
-        connection.setPublicKeyData(packet.getPublicKey());
+        if (connection.getOwner().isEmpty()) return;
+        final ServerPlayer player = connection.getOwner().get();
+        player.newSession(new ServerChatSession(packet.getSessionID(), packet.getPublicKey()));
     }
 
     @Override

@@ -16,12 +16,14 @@ package org.machinemc.api.entities;
 
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.machinemc.api.chat.ChatSession;
 import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.entities.player.Hand;
 import org.machinemc.api.entities.player.PlayerProfile;
 import org.machinemc.api.entities.player.SkinPart;
 import org.machinemc.scriptive.components.Component;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -83,5 +85,10 @@ public interface HumanEntity extends LivingEntity {
      * @param playerListName new player list name
      */
     void setPlayerListName(@Nullable Component playerListName);
+
+    /**
+     * @return chat session of player
+     */
+    Optional<ChatSession> getChatSession();
 
 }

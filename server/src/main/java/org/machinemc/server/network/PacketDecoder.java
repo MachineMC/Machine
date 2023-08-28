@@ -36,7 +36,7 @@ public class PacketDecoder extends ByteToMessageDecoder {
     private final ClientConnection connection;
 
     @Override
-    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) {
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception {
         assert connection.getState().map(state -> state != PlayerConnection.ClientState.DISCONNECTED).orElse(false);
         final Packet.PacketState packetState = connection.getState().get().getIn();
         assert packetState != null;

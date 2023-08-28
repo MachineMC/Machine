@@ -20,36 +20,38 @@ import org.jetbrains.annotations.Range;
 
 import java.util.Objects;
 
-public enum MessageType {
+public enum FilterType {
 
-    CHAT,
-    SYSTEM;
+    PASS_THROUGH,
+    FULLY_FILTERED,
+    PARTIALLY_FILTERED;
 
     /**
-     * @return numeric id of the message type used by Minecraft protocol.
+     * @return numeric id of the filter type used by Minecraft protocol.
      */
-    public @Range(from = 0, to = 1) int getID() {
+    public @Range(from = 0, to = 2) int getID() {
         return ordinal();
     }
 
     /**
-     * Returns message type from its numeric id.
-     * @param id id of the message type
-     * @return message type for given id
+     * Returns filter type from its numeric id.
+     * @param id id of the filter type
+     * @return filter type for given id
      */
-    public static MessageType fromID(final @Range(from = 0, to = 1) int id) {
-        Preconditions.checkArgument(id < values().length, "Unsupported message type");
+    public static FilterType fromID(final @Range(from = 0, to = 2) int id) {
+        Preconditions.checkArgument(id < values().length, "Unsupported filter type");
         return values()[id];
     }
 
+
     /**
-     * Returns message type of given name.
-     * @param name name of the message type
-     * @return message type with given name
+     * Returns filter type of given name.
+     * @param name name of the filter type
+     * @return filter type with given name
      */
-    public static @Nullable MessageType getByName(final String name) {
-        Objects.requireNonNull(name, "Name of the message type can not be null");
-        for (final MessageType value : values()) {
+    public static @Nullable FilterType getByName(final String name) {
+        Objects.requireNonNull(name, "Name of the filter type can not be null");
+        for (final FilterType value : values()) {
             if (value.name().equalsIgnoreCase(name))
                 return value;
         }

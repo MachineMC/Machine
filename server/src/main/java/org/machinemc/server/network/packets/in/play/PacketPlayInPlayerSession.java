@@ -14,10 +14,7 @@
  */
 package org.machinemc.server.network.packets.in.play;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
@@ -37,6 +34,7 @@ public class PacketPlayInPlayerSession extends PacketIn {
                 PacketPlayInPlayerSession::new);
     }
 
+    @Getter(AccessLevel.NONE)
     private UUID sessionId;
     private PublicKeyData publicKey;
 
@@ -66,6 +64,13 @@ public class PacketPlayInPlayerSession extends PacketIn {
     @Override
     public PacketIn clone() {
         return new PacketPlayInPlayerSession(new FriendlyByteBuf(serialize()));
+    }
+
+    /**
+     * @return ID of the session
+     */
+    public UUID getSessionID() {
+        return sessionId;
     }
 
 }

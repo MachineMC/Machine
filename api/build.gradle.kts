@@ -24,10 +24,6 @@ dependencies {
     implementation(libs.google.gson)
     implementation(libs.netty.all)
     implementation(libs.mojang.brigadier)
-}
+    implementation(libs.fastutil)
 
-tasks {
-    jar {
-        dependsOn(checkstyleMain)
-    }
 }

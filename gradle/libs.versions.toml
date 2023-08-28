@@ -8,6 +8,7 @@ google-guava = "32.1.2-jre"
 asm = "9.5"
 netty = "4.1.80.Final"
 jna = "5.12.1"
+fastutil = "8.5.12"
 jline = "3.21.0"
 mojang-brigadier = "1.0.18"
 junit = "5.9.1"
@@ -38,6 +39,8 @@ asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
 
 jna = { module = "net.java.dev.jna:jna-platform", version.ref = "jna" }
+
+fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 
 jline = { module = "org.jline:jline", version.ref = "jline" }
 

@@ -19,7 +19,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
-import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.ServerProperty;
@@ -31,7 +30,6 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.machinemc.api.network.packets.Packet.PacketState.*;
 
@@ -49,16 +47,6 @@ public interface PlayerConnection extends ServerProperty {
      * @return server connection this player connection is connected to
      */
     ServerConnection getServerConnection();
-
-    /**
-     * @return session id of the connection
-     */
-    Optional<UUID> getSessionID();
-
-    /**
-     * @return public key data of the connection
-     */
-    Optional<PublicKeyData> getPublicKeyData();
 
     /**
      * @return login username of the connection

@@ -22,7 +22,6 @@ import lombok.Setter;
 import lombok.Synchronized;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.auth.Crypt;
-import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.ServerConnection;
 import org.machinemc.api.network.packets.Packet;
@@ -40,7 +39,6 @@ import javax.crypto.SecretKey;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 
 /**
  * Player connection implementation using netty.
@@ -57,10 +55,6 @@ public class ClientConnection implements PlayerConnection {
     @Getter
     private final InetSocketAddress address;
 
-    @Setter
-    private @Nullable UUID sessionID;
-    @Setter
-    private @Nullable PublicKeyData publicKeyData;
     @Setter
     private @Nullable String loginUsername;
 
@@ -225,11 +219,6 @@ public class ClientConnection implements PlayerConnection {
     }
 
     @Override
-    public Optional<UUID> getSessionID() {
-        return Optional.ofNullable(sessionID);
-    }
-
-    @Override
     public ChannelFuture disconnect(final Component reason) {
         try {
             if (state == ClientState.LOGIN)
@@ -262,11 +251,6 @@ public class ClientConnection implements PlayerConnection {
     @Override
     public Optional<ClientState> getState() {
         return Optional.ofNullable(state);
-    }
-
-    @Override
-    public Optional<PublicKeyData> getPublicKeyData() {
-        return Optional.ofNullable(publicKeyData);
     }
 
     @Override
