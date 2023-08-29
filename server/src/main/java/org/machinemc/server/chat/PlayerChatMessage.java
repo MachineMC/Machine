@@ -32,6 +32,8 @@ public class PlayerChatMessage implements PlayerMessage {
 
     private final SignedMessageHeader header;
     private final SignedMessageBody body;
+
+    @With(AccessLevel.PRIVATE)
     private final List<MessageSignature.Packed> chain;
 
     private @Nullable Component unsignedPart;
@@ -93,7 +95,7 @@ public class PlayerChatMessage implements PlayerMessage {
     @Override
     public Optional<byte[]> getSignature() {
         if (header.signature() == null) return Optional.empty();
-        return header.signature().getSignature();
+        return Optional.of(header.signature().signature());
     }
 
     @Override
@@ -125,4 +127,21 @@ public class PlayerChatMessage implements PlayerMessage {
     public ChatBound getChatBound() {
         return bound;
     }
+
+    /**
+     * Creates copy of given chat message with signatures of lastly seen messages reduced
+     * in size using given cache.
+     * @param cache cache
+     * @return reduced copy of this message
+     */
+    public PlayerChatMessage pack(final SignedMessageChain.Cache cache) {
+        final List<MessageSignature> signatures = new ArrayList<>();
+        for (final MessageSignature.Packed packed : chain) {
+            if (packed.id() != -1 || packed.signature() == null)
+                throw new UnsupportedOperationException("This player message has been already reduced");
+            signatures.add(packed.signature());
+        }
+        return withChain(new LastSeenMessages(signatures).pack(cache).entries());
+    }
+
 }

@@ -105,4 +105,11 @@ public interface PlayerMessage extends Writable {
         return getChatType(server.getMessenger());
     }
 
+    /**
+     * @return type of the message
+     */
+    default MessageType getMessageType() {
+        return MessageType.CHAT;
+    }
+
 }

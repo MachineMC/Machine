@@ -31,6 +31,7 @@ import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.server.codec.Codec;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.world.*;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTList;
@@ -39,6 +40,7 @@ import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.server.chat.MessageSignature;
+import org.machinemc.server.chat.PlayerChatMessage;
 import org.machinemc.server.chat.ServerChatSession;
 import org.machinemc.server.chat.SignedMessageChain;
 import org.machinemc.server.network.ClientConnection;
@@ -339,7 +341,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         Objects.requireNonNull(message, "Message can not be null");
         Objects.requireNonNull(type, "Message type can not be null");
 
-        if (type != MessageType.SYSTEM) {
+        if (type == MessageType.CHAT) {
             final Player sender = getServer().getPlayerManager().getPlayer(source).orElseThrow(() ->
                     new RuntimeException("Only players can be source of chat messages")
             );
@@ -362,9 +364,12 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public void sendMessage(final PlayerMessage message) {
-        sendPacket(new PacketPlayOutChatMessage(message));
-        if (message.getSignature().isPresent())
-            messageChain.addPending(new MessageSignature(message.getSignature().get()));
+        if (!Messenger.canReceiveMessage(this)) return;
+        final PlayerChatMessage playerChatMessage = new PlayerChatMessage(new FriendlyByteBuf().write(message));
+        playerChatMessage.pack(messageChain.getCache());
+        sendPacket(new PacketPlayOutChatMessage(playerChatMessage));
+        if (playerChatMessage.getSignature().isPresent())
+            messageChain.addPending(new MessageSignature(playerChatMessage.getSignature().get()));
     }
 
     @Override

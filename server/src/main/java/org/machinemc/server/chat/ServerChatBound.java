@@ -28,12 +28,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Getter
-@Setter
 public class ServerChatBound implements ChatBound {
 
     private int chatTypeID;
     private Component source;
     @Getter(AccessLevel.NONE)
+    @Setter
     private @Nullable Component target;
 
     public ServerChatBound(final int chatTypeID, final Component source, final @Nullable Component target) {
@@ -60,6 +60,11 @@ public class ServerChatBound implements ChatBound {
         final int id = messenger.getChatTypeID(chatType);
         if (id == -1) throw new RuntimeException("ChatType '" + chatType.getName() + "' is not registered in provided Messenger");
         chatTypeID = id;
+    }
+
+    @Override
+    public void setSource(final Component component) {
+        source = Objects.requireNonNull(component, "Source can not be null");
     }
 
     @Override

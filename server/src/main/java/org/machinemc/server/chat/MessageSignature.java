@@ -19,7 +19,6 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * Represents a signature of a player message.
@@ -38,13 +37,6 @@ public record MessageSignature(byte[] signature) implements Writable {
     @Override
     public void write(final ServerBuffer buf) {
         buf.writeBytes(signature);
-    }
-
-    /**
-     * @return signature
-     */
-    public Optional<byte[]> getSignature() {
-        return Optional.ofNullable(signature);
     }
 
     /**
@@ -68,6 +60,15 @@ public record MessageSignature(byte[] signature) implements Writable {
     @Override
     public String toString() {
         return "MessageSignature(" + Arrays.toString(signature) + ")";
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof MessageSignature s && Arrays.equals(s.signature, signature);
+    }
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(signature);
     }
 
     /**

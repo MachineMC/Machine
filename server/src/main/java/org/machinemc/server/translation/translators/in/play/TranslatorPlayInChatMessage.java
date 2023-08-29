@@ -18,6 +18,7 @@ import org.machinemc.api.chat.*;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.scriptive.components.TranslationComponent;
+import org.machinemc.scriptive.util.ChatUtils;
 import org.machinemc.server.chat.*;
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.ClientConnection;
@@ -64,7 +65,7 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
             message = new PlayerChatMessage(
                     new SignedMessageHeader(player.getUUID(), player.getNextMessageID(), packet.getMessageSignature()),
                     new SignedMessageBody(packet.getMessage(), packet.getTimestamp(), packet.getSalt()),
-                    lastMessages.get().pack(player.getMessageChain().getCache()).entries(),
+                    lastMessages.get().pack().entries(),
                     null,
                     FilterType.PASS_THROUGH,
                     null,
@@ -76,6 +77,11 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
 
         for (final Player serverPlayer : connection.getServer().getPlayers())
             serverPlayer.sendMessage(message);
+
+        final String consoleMessage = ChatUtils.DEFAULT_CHAT_FORMAT
+                .replace("%name%", player.getName())
+                .replace("%message%", packet.getMessage());
+        connection.getServer().getConsole().info(consoleMessage);
     }
 
     @Override
