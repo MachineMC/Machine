@@ -54,6 +54,17 @@ public record MessageSignature(byte[] signature) implements Writable {
         return new Packed(this);
     }
 
+    /**
+     * Packs the signature using signed message cache.
+     * @param cache cache
+     * @return packed message signature
+     */
+    public Packed pack(final SignedMessageChain.Cache cache) {
+        final int index = cache.index(this);
+        if (index == Packed.NOT_CACHED) return new Packed(this);
+        return new Packed(index);
+    }
+
     @Override
     public String toString() {
         return "MessageSignature(" + Arrays.toString(signature) + ")";
@@ -66,12 +77,14 @@ public record MessageSignature(byte[] signature) implements Writable {
      */
     public record Packed(int id, @Nullable MessageSignature signature) implements Writable {
 
+        public static final int NOT_CACHED = -1;
+
         public Packed {
-            if (id == -1 && signature == null) throw new IllegalArgumentException();
+            if (id == NOT_CACHED && signature == null) throw new IllegalArgumentException();
         }
 
         public Packed(final MessageSignature signature) {
-            this(-1, signature);
+            this(NOT_CACHED, signature);
         }
 
         public Packed(final int id) {
@@ -89,12 +102,12 @@ public record MessageSignature(byte[] signature) implements Writable {
         @Override
         public void write(final ServerBuffer buf) {
             buf.writeVarInt(id + 1);
-            if (id == -1) buf.write(signature);
+            if (id == NOT_CACHED) buf.write(signature);
         }
 
         private static Packed read(final ServerBuffer buf) {
             final int id = buf.readVarInt() - 1;
-            return id == -1 ? new MessageSignature.Packed(new MessageSignature(buf)) : new MessageSignature.Packed(id);
+            return id == NOT_CACHED ? new MessageSignature.Packed(new MessageSignature(buf)) : new MessageSignature.Packed(id);
         }
 
     }

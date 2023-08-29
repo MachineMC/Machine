@@ -64,7 +64,7 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
             message = new PlayerChatMessage(
                     new SignedMessageHeader(player.getUUID(), player.getNextMessageID(), packet.getMessageSignature()),
                     new SignedMessageBody(packet.getMessage(), packet.getTimestamp(), packet.getSalt()),
-                    lastMessages.get().pack().entries(),
+                    lastMessages.get().pack(player.getMessageChain().getCache()).entries(),
                     null,
                     FilterType.PASS_THROUGH,
                     null,

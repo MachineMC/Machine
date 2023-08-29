@@ -47,14 +47,14 @@ public interface PlayerMessage extends Writable {
     String getMessage();
 
     /**
-     * @return extra message content
-     */
-    Optional<Component> getUnsignedContent();
-
-    /**
      * @return timestamp of the message
      */
     Instant getTimestamp();
+
+    /**
+     * @return extra message content
+     */
+    Optional<Component> getUnsignedContent();
 
     /**
      * Updates unsigned content of the message.

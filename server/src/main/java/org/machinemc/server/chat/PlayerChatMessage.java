@@ -102,13 +102,13 @@ public class PlayerChatMessage implements PlayerMessage {
     }
 
     @Override
-    public Optional<Component> getUnsignedContent() {
-        return Optional.ofNullable(unsignedPart);
+    public Instant getTimestamp() {
+        return body.timestamp();
     }
 
     @Override
-    public Instant getTimestamp() {
-        return body.timestamp();
+    public Optional<Component> getUnsignedContent() {
+        return Optional.ofNullable(unsignedPart);
     }
 
     @Override

@@ -89,7 +89,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     @Getter
     private ServerChatSession session;
     @Getter
-    private final SignedMessageChain messageChain = new SignedMessageChain(20);
+    private final SignedMessageChain messageChain = new SignedMessageChain(SignedMessageChain.DEFAULT_CAPACITY);
 
     private ServerPlayer(final Server server, final PlayerProfile profile, final ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUUID());

@@ -17,6 +17,7 @@ package org.machinemc.server.chat;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -41,7 +42,16 @@ public record LastSeenMessages(List<MessageSignature> entries) {
      * @return packed last seen messages
      */
     public Packed pack() {
-        return new Packed(this.entries.stream().map(MessageSignature::pack).toList());
+        return new Packed(entries.stream().map(MessageSignature::pack).toList());
+    }
+
+    /**
+     * @param cache cache used for packing
+     * @return packed last seen messages
+     */
+    public Packed pack(final @Nullable SignedMessageChain.Cache cache) {
+        if (cache == null) return pack();
+        return new Packed(entries.stream().map(signature -> signature.pack(cache)).toList());
     }
 
     /**
