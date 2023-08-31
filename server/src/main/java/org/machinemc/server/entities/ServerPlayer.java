@@ -504,6 +504,11 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     }
 
     @Override
+    public void sendPackets(final Packet... packets) {
+        getConnection().send(packets);
+    }
+
+    @Override
     public void save() {
         getServer().getPlayerDataContainer().savePlayerData(this);
     }

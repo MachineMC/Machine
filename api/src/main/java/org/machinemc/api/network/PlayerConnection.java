@@ -26,10 +26,7 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TranslationComponent;
 
 import java.net.InetSocketAddress;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static org.machinemc.api.network.packets.Packet.PacketState.*;
 
@@ -89,6 +86,24 @@ public interface PlayerConnection extends ServerProperty {
      * @return send message future
      */
     ChannelFuture send(Packet packet);
+
+    /**
+     * Sends multiple packets to the connection in form
+     * of packet bundle.
+     * @param packets packets to send
+     * @return future of closing bundle delimiter if client is in play state
+     */
+    Optional<ChannelFuture> send(Packet... packets);
+
+    /**
+     * Sends multiple packets to the connection in form
+     * of packet bundle.
+     * @param packets packets to send
+     * @return future of closing bundle delimiter if client is in play state
+     */
+    default Optional<ChannelFuture> send(List<Packet> packets) {
+        return send(packets.toArray(new Packet[0]));
+    }
 
     /**
      * Whether the connection is open and can receive packets.

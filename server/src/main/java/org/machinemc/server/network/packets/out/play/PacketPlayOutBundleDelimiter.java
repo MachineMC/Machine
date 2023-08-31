@@ -23,14 +23,15 @@ import org.machinemc.server.network.packets.PacketOut;
 @ToString
 public class PacketPlayOutBundleDelimiter extends PacketOut {
 
-    private static final int ID = 0x00;
+    public static final int ID = 0x00;
 
     static {
         register(PacketPlayOutBundleDelimiter.class, ID, PacketState.PLAY_OUT,
                 PacketPlayOutBundleDelimiter::new);
     }
 
-    public PacketPlayOutBundleDelimiter(final ServerBuffer buf) { }
+    public PacketPlayOutBundleDelimiter(final ServerBuffer buf) {
+    }
 
     @Override
     public PacketState getPacketState() {

@@ -31,6 +31,7 @@ import org.machinemc.server.Machine;
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.packets.out.login.PacketLoginOutDisconnect;
 import org.machinemc.server.network.packets.out.login.PacketLoginOutSetCompression;
+import org.machinemc.server.network.packets.out.play.PacketPlayOutBundleDelimiter;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutDisconnect;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutKeepAlive;
 
@@ -71,6 +72,8 @@ public class ClientConnection implements PlayerConnection {
     private long keepAliveRequest;
     private long keepAliveResponse;
 
+    private boolean waitingForBundle = false;
+
     public ClientConnection(final NettyServer nettyServer, final Channel channel) {
         this.nettyServer = nettyServer;
         this.channel = channel;
@@ -91,10 +94,17 @@ public class ClientConnection implements PlayerConnection {
     public ChannelFuture send(final Packet packet) {
         if (!channel.isOpen())
             throw new IllegalStateException("The channel is closed");
+
         if (!Packet.PacketState.out().contains(packet.getPacketState()))
             throw new UnsupportedOperationException("Packets of type "
                     + packet.getPacketState()
                     + " can not be sent to the client");
+
+        if (!waitingForBundle
+                && getState().orElse(null) == ClientState.PLAY
+                && packet.getID() == PacketPlayOutBundleDelimiter.ID)
+            throw new UnsupportedOperationException("Bundle Delimiter packets can not be sent individually");
+
         final ChannelFuture channelfuture = channel.writeAndFlush(packet);
         channelfuture.addListener((ChannelFutureListener) future -> {
             if (future.cause() == null) return;
@@ -102,6 +112,28 @@ public class ClientConnection implements PlayerConnection {
             server.getExceptionHandler().handle(future.cause());
         });
         return channelfuture;
+    }
+
+    @Override
+    public Optional<ChannelFuture> send(final Packet... packets) {
+        if (!channel.isOpen())
+            throw new IllegalStateException("The channel is closed");
+
+        if (getState().orElse(null) != ClientState.PLAY) {
+            for (final Packet packet : packets) send(packet);
+            return Optional.empty();
+        }
+
+        sendDelimiter();
+        for (final Packet packet : packets) send(packet);
+        return Optional.of(sendDelimiter());
+    }
+
+    private ChannelFuture sendDelimiter() {
+        waitingForBundle = true;
+        final ChannelFuture future = send(new PacketPlayOutBundleDelimiter());
+        waitingForBundle = false;
+        return future;
     }
 
     @Override

@@ -25,6 +25,7 @@ import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.NBTSerializable;
 import org.machinemc.scriptive.components.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -42,6 +43,22 @@ public interface Player extends HumanEntity, CommandExecutor, NBTSerializable {
      * @param packet packet to send
      */
     void sendPacket(Packet packet);
+
+    /**
+     * Sends multiple packets to the player in form
+     * of packet bundle.
+     * @param packets packets to send
+     */
+    void sendPackets(Packet... packets);
+
+    /**
+     * Sends multiple packets to the player in form
+     * of packet bundle.
+     * @param packets packets to send
+     */
+    default void sendPackets(List<Packet> packets) {
+        sendPackets(packets.toArray(new Packet[0]));
+    }
 
     /**
      * @return previous gamemode used by the player
