@@ -55,7 +55,6 @@ public class TranslatorLoginInStart extends PacketTranslator<PacketLoginInStart>
         final byte[] publicKey = onlineServer.getKey().getPublic().getEncoded();
         final byte[] verifyToken = onlineServer.nextVerifyToken();
 
-        connection.setPublicKeyData(packet.getPublicKeyData());
         connection.send(new PacketLoginOutEncryptionRequest(publicKey, verifyToken));
     }
 

@@ -14,18 +14,14 @@
  */
 package org.machinemc.application.terminal;
 
-import com.mojang.brigadier.ParseResults;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.chat.MessageType;
-import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.logging.Console;
 import org.machinemc.application.MachineApplication;
 import org.machinemc.application.PlatformConsole;
 import org.machinemc.scriptive.components.Component;
-import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.style.ChatCode;
 import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.Colour;
@@ -226,43 +222,13 @@ public abstract class BaseTerminal implements ApplicationTerminal {
 
 
     /**
-     * Called when command inside of the application is executed when
+     * Called when command inside the application is executed when
      * no server instance is active within the terminal.
      * @param input command to execute
      * @return result
      */
     public int executeApplication(final String input) {
-        final String formatted = CommandExecutor.formatCommandInput(input);
-        if (formatted.length() == 0) return 0;
-
-        final ParseResults<MachineApplication> parse = getApplication()
-                .getCommandDispatcher()
-                .parse(formatted, getApplication());
-
-        final String[] parts = formatted.split(" ");
-
-        try {
-            return getApplication().getCommandDispatcher().execute(parse);
-        } catch (CommandSyntaxException exception) {
-            if (exception.getCursor() == 0) {
-                sendMessage(TextComponent.of("Unknown command '" + parts[0] + "'").modify()
-                        .color(ChatColor.RED)
-                        .finish());
-                return -1;
-            }
-            sendMessage(TextComponent.of(exception.getRawMessage().getString()).modify()
-                    .color(ChatColor.RED)
-                    .finish());
-            sendMessage(TextComponent.of(formatted.substring(0, exception.getCursor()))
-                    .append(TextComponent.of(formatted.substring(exception.getCursor())).modify()
-                            .color(ChatColor.RED)
-                            .underlined(true)
-                            .finish())
-                    .append(TextComponent.of("<--[HERE]").modify()
-                            .color(ChatColor.RED)
-                            .finish()));
-            return -1;
-        }
+        return getApplication().execute(input);
     }
 
     @FunctionalInterface

@@ -17,7 +17,7 @@ package org.machinemc.server.network.packets.out.play;
 import lombok.*;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.api.world.Location;
+import org.machinemc.api.world.EntityPosition;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
@@ -31,7 +31,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
 
-    private static final int ID = 0x39;
+    private static final int ID = 0x3C;
 
     static {
         register(PacketPlayOutSynchronizePlayerPosition.class, ID, PacketState.PLAY_OUT,
@@ -42,7 +42,6 @@ public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
     private float yaw, pitch;
     private Set<TeleportFlags> flags;
     private int teleportID;
-    private boolean dismountVehicle;
 
     public PacketPlayOutSynchronizePlayerPosition(final ServerBuffer buf) {
         x = buf.readDouble();
@@ -52,15 +51,13 @@ public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
         pitch = buf.readFloat();
         flags = TeleportFlags.unpack(buf.readByte());
         teleportID = buf.readVarInt();
-        dismountVehicle = buf.readBoolean();
     }
 
-    public PacketPlayOutSynchronizePlayerPosition(final Location location,
+    public PacketPlayOutSynchronizePlayerPosition(final EntityPosition position,
                                                   final Set<TeleportFlags> flags,
-                                                  final int teleportID,
-                                                  final boolean dismountVehicle) {
-        this(location.getX(), location.getY(), location.getZ(), location.getYaw(),
-                location.getPitch(), flags, teleportID, dismountVehicle);
+                                                  final int teleportID) {
+        this(position.getX(), position.getY(), position.getZ(), position.getYaw(),
+                position.getPitch(), flags, teleportID);
     }
 
     @Override
@@ -83,7 +80,6 @@ public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
                 .writeFloat(pitch)
                 .writeByte((byte) TeleportFlags.pack(flags))
                 .writeVarInt(teleportID)
-                .writeBoolean(dismountVehicle)
                 .bytes();
     }
 
@@ -92,18 +88,15 @@ public class PacketPlayOutSynchronizePlayerPosition  extends PacketOut {
         return new PacketPlayOutSynchronizePlayerPosition(new FriendlyByteBuf(serialize()));
     }
 
-    @RequiredArgsConstructor
     public enum TeleportFlags {
-        X(0),
-        Y(1),
-        Z(2),
-        PITCH(3),
-        YAW(4);
-
-        private final int bit;
+        X,
+        Y,
+        Z,
+        PITCH,
+        YAW;
 
         private int getMask() {
-            return 1 << bit;
+            return 1 << ordinal();
         }
 
         private boolean isSet(final int flag) {

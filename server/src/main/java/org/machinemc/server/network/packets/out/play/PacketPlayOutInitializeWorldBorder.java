@@ -29,7 +29,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutInitializeWorldBorder extends PacketOut {
 
-    private static final int ID = 0x1F;
+    private static final int ID = 0x22;
 
     private double x, z, oldDiameter, newDiameter;
     private long speed;

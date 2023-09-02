@@ -56,10 +56,9 @@ public class WorldJSON implements ServerFile, ServerProperty {
         this.server = Objects.requireNonNull(server, "Server can not be null");
         Objects.requireNonNull(file, "Source file can not be null");
         folder = file.getParentFile();
-        final JsonParser parser = new JsonParser();
         final JsonObject json;
         try (FileReader fileReader = new FileReader(file)) {
-            json = parser.parse(fileReader).getAsJsonObject();
+            json = JsonParser.parseReader(fileReader).getAsJsonObject();
         }
 
         final NamespacedKey name;

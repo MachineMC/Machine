@@ -178,9 +178,7 @@ public abstract class ServerEntity implements Entity {
         if (!active)
             throw new IllegalStateException(this + " is not active");
         active = false;
-        getServer().getConnection().broadcastPacket(
-                new PacketPlayOutRemoveEntities(new int[]{getEntityID()})
-        );
+        getServer().getConnection().broadcastPacket(new PacketPlayOutRemoveEntities(new int[]{getEntityID()}));
         getServer().getEntityManager().removeEntity(this);
         getWorld().remove(this);
     }
@@ -341,4 +339,5 @@ public abstract class ServerEntity implements Entity {
                 + "uuid=" + uuid
                 + ')';
     }
+
 }

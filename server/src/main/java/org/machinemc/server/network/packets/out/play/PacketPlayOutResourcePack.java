@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets;
 @AllArgsConstructor
 public class PacketPlayOutResourcePack extends PacketOut {
 
-    private static final int ID = 0x3D;
+    private static final int ID = 0x40;
 
     @Getter(AccessLevel.NONE)
     private String url;
@@ -47,8 +47,7 @@ public class PacketPlayOutResourcePack extends PacketOut {
         url = buf.readString(StandardCharsets.UTF_8);
         hash = buf.readString(StandardCharsets.UTF_8);
         forced = buf.readBoolean();
-        if (buf.readBoolean())
-            promptMessage = buf.readComponent();
+        promptMessage = buf.readOptional(ServerBuffer::readComponent).orElse(null);
     }
 
     @Override
@@ -63,14 +62,12 @@ public class PacketPlayOutResourcePack extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        final FriendlyByteBuf buf = new FriendlyByteBuf()
+        return new FriendlyByteBuf()
                 .writeString(url, StandardCharsets.UTF_8)
                 .writeString(hash, StandardCharsets.UTF_8)
                 .writeBoolean(forced)
-                .writeBoolean(promptMessage != null);
-        if (promptMessage != null)
-            buf.writeComponent(promptMessage);
-        return buf.bytes();
+                .writeOptional(promptMessage, ServerBuffer::writeComponent)
+                .bytes();
     }
 
     @Override

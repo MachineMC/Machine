@@ -26,7 +26,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutUnloadChunk extends PacketOut {
 
-    private static final int ID = 0x1C;
+    private static final int ID = 0x1E;
 
     @Getter @Setter
     private int chunkX, chunkZ;

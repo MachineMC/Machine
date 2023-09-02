@@ -30,7 +30,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutGameEvent extends PacketOut {
 
-    private static final int ID = 0x1D;
+    private static final int ID = 0x1F;
 
     private Event event;
     private float value;
@@ -70,8 +70,8 @@ public class PacketPlayOutGameEvent extends PacketOut {
 
     public enum Event {
         NO_RESPAWN_BLOCK_AVAILABLE,
-        END_RAINING,
         BEGIN_RAINING,
+        END_RAINING,
         CHANGE_GAMEMODE,
         WIN_GAME,
         DEMO_EVENT,

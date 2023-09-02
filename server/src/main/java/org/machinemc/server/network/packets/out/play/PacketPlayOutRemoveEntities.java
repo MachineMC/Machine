@@ -26,7 +26,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutRemoveEntities extends PacketOut {
 
-    private static final int ID = 0x3B;
+    private static final int ID = 0x3E;
 
     @Getter @Setter
     private int[] entityIDs;

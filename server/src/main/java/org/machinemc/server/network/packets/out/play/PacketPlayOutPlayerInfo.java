@@ -14,13 +14,10 @@
  */
 package org.machinemc.server.network.packets.out.play;
 
-import com.google.common.base.Preconditions;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 import org.machinemc.api.auth.PublicKeyData;
+import org.machinemc.api.chat.ChatSession;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.entities.player.Gamemode;
 import org.machinemc.api.entities.player.PlayerTextures;
@@ -30,16 +27,20 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.network.packets.PacketOut;
 
 import java.nio.charset.StandardCharsets;
+import java.util.BitSet;
+import java.util.EnumSet;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 @Getter
 @Setter
 @ToString
 public class PacketPlayOutPlayerInfo extends PacketOut {
 
-    private static final int ID = 0x37;
+    private static final int ID = 0x3A;
 
-    private Action action;
+    private EnumSet<Action> actions;
     private PlayerInfoData[] playerInfoDataArray;
 
     static {
@@ -47,53 +48,28 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                 PacketPlayOutPlayerInfo::new);
     }
 
-    public PacketPlayOutPlayerInfo(final Action action, final PlayerInfoData... playerInfoDataArray) {
-        this.action = action;
+    public PacketPlayOutPlayerInfo(final EnumSet<Action> actions, final PlayerInfoData... playerInfoDataArray) {
+        this.actions = actions;
         this.playerInfoDataArray = playerInfoDataArray;
     }
 
-    public PacketPlayOutPlayerInfo(final Action action, final Player... players) {
-        this.action = action;
+    public PacketPlayOutPlayerInfo(final EnumSet<Action> actions, final Player... players) {
+        this.actions = actions;
         playerInfoDataArray = new PlayerInfoData[players.length];
         for (int i = 0; i < players.length; i++)
             playerInfoDataArray[i] = new PlayerInfoData(players[i]);
     }
 
     public PacketPlayOutPlayerInfo(final ServerBuffer buf) {
-        action = Action.fromID(buf.readVarInt());
+        actions = Action.unpack(buf.readBitSet(Action.BITSET_SIZE));
         final int playerAmount = buf.readVarInt();
         playerInfoDataArray = new PlayerInfoData[playerAmount];
         for (int i = 0; i < playerAmount; i++) {
             final UUID uuid = buf.readUUID();
-            String name = null;
-            PlayerTextures skin = null;
-            Gamemode gamemode = null;
-            int latency = 0;
-            Component displayName = null;
-            PublicKeyData publicKeyData = null;
-            switch (action) {
-                case ADD_PLAYER -> {
-                    name = buf.readString(StandardCharsets.UTF_8);
-                    skin = buf.readTextures().orElse(null);
-                    gamemode = Gamemode.fromID(buf.readVarInt());
-                    latency = buf.readVarInt();
-                    if (buf.readBoolean())
-                        displayName = buf.readComponent();
-                    if (buf.readBoolean()) {
-                        publicKeyData = buf.readPublicKey();
-                    }
-                }
-                case UPDATE_GAMEMODE -> gamemode = Gamemode.fromID(buf.readVarInt());
-                case UPDATE_LATENCY -> latency = buf.readVarInt();
-                case UPDATE_DISPLAY_NAME -> {
-                    if (buf.readBoolean())
-                        displayName = buf.readComponent();
-                }
-                case REMOVE_PLAYER -> {
-                }
-            }
-            playerInfoDataArray[i] = new PlayerInfoData(uuid, name, skin, gamemode,
-                    latency, displayName, publicKeyData);
+            final PlayerInfoData data = new PlayerInfoData(uuid);
+            for (final Action action : actions)
+                action.read(buf, data);
+            playerInfoDataArray[i] = data;
         }
     }
 
@@ -110,10 +86,8 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
     @Override
     public byte[] serialize() {
         final FriendlyByteBuf buf = new FriendlyByteBuf();
-        buf.writeVarInt(action.getID())
-                .writeVarInt(playerInfoDataArray.length);
-        for (final PlayerInfoData playerInfoData : playerInfoDataArray)
-            playerInfoData.write(action, buf);
+        buf.writeBitSet(Action.pack(actions), Action.BITSET_SIZE)
+                .writeArray(playerInfoDataArray, (buffer, data) -> data.write(actions, buf));
         return buf.bytes();
     }
 
@@ -122,99 +96,140 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
         return new PacketPlayOutPlayerInfo(new FriendlyByteBuf(serialize()));
     }
 
+    @RequiredArgsConstructor
     public enum Action {
-        ADD_PLAYER,
-        UPDATE_GAMEMODE,
-        UPDATE_LATENCY,
-        UPDATE_DISPLAY_NAME,
-        REMOVE_PLAYER;
+
+        ADD_PLAYER((buf, data) -> buf.writeString(data.getName(), StandardCharsets.UTF_8)
+                .writeTextures(data.getPlayerTextures()), (buf, data) -> {
+            data.setName(buf.readString(StandardCharsets.UTF_8));
+            data.setPlayerTextures(buf.readTextures().orElse(null));
+        }),
+
+        INITIALIZE_CHAT((buf, data) -> {
+            if (data.getSessionID() == null || data.getPublicKeyData() == null) {
+                buf.writeBoolean(false);
+                return;
+            }
+            buf.writeBoolean(true)
+                    .writeUUID(data.getSessionID())
+                    .writePublicKey(data.getPublicKeyData());
+        }, (buf, data) -> {
+            if (!buf.readBoolean())
+                return;
+            data.setSessionID(buf.readUUID());
+            data.setPublicKeyData(buf.readPublicKey());
+        }),
+
+        UPDATE_GAMEMODE((buf, data) -> buf.writeVarInt(Objects.requireNonNull(data.getGamemode(), "Gamemode can not be null").getID()),
+                (buf, data) -> data.setGamemode(Gamemode.fromID(buf.readVarInt()))),
+
+        UPDATE_LISTED((buf, data) -> buf.writeBoolean(data.isListed()),
+                (buf, data) -> data.setListed(buf.readBoolean())),
+
+        UPDATE_LATENCY((buf, data) -> buf.writeVarInt(data.getLatency()),
+                (buf, data) -> data.setLatency(buf.readVarInt())),
+
+        UPDATE_DISPLAY_NAME((buf, data) -> buf.writeOptional(data.getDisplayName(), ServerBuffer::writeComponent),
+                (buf, data) -> data.setDisplayName(buf.readOptional(ServerBuffer::readComponent).orElse(null)));
+
+        static final int BITSET_SIZE = values().length;
+
+        private final BiConsumer<ServerBuffer, PlayerInfoData> writer, reader;
 
         /**
-         * @return id of the action
+         * Reads the data from the buffer and modifies the given {@link PlayerInfoData} accordingly.
+         * @param buf the server buffer to read from
+         * @param data the PlayerInfoData to modify
          */
-        public int getID() {
-            return ordinal();
+        public void read(final ServerBuffer buf, final PlayerInfoData data) {
+            reader.accept(buf, data);
         }
 
         /**
-         * Returns action with a given id.
-         *
-         * @param id id
-         * @return action
+         * Reads the data from the {@link PlayerInfoData} and writes it to the given buffer.
+         * @param buf the server buffer to write to
+         * @param data the PlayerInfoData to read from
          */
-        public static Action fromID(final @Range(from = 0, to = 4) int id) {
-            Preconditions.checkArgument(id < values().length, "Unsupported Action type");
-            return values()[id];
+        public void write(final ServerBuffer buf, final PlayerInfoData data) {
+            writer.accept(buf, data);
+        }
+
+        /**
+         * Returns the actions of the bitset.
+         *
+         * @param bitSet bitset
+         * @return actions
+         */
+        public static EnumSet<Action> unpack(final BitSet bitSet) {
+            final EnumSet<Action> set = EnumSet.noneOf(Action.class);
+            for (final Action action : values()) {
+                if (bitSet.get(action.ordinal()))
+                    set.add(action);
+            }
+            return set;
+        }
+
+        /**
+         * Returns the bitset of a set of actions.
+         *
+         * @param actions actions
+         * @return bitset
+         */
+        public static BitSet pack(final EnumSet<Action> actions) {
+            final BitSet bitSet = new BitSet(BITSET_SIZE);
+            for (final Action action : actions)
+                bitSet.set(action.ordinal());
+            return bitSet;
         }
 
     }
 
     /**
      * Player info packet data.
-     *
-     * @param uuid           uuid of the player
-     * @param name           name of the player
-     * @param playerTextures textures of the player
-     * @param gamemode       gamemode of the player
-     * @param latency        latency of the player
-     * @param listName       name displayed in player list
-     * @param publicKeyData  public key data
      */
-    public record PlayerInfoData(UUID uuid,
-                                 @Nullable String name,
-                                 @Nullable PlayerTextures playerTextures,
-                                 @Nullable Gamemode gamemode,
-                                 int latency,
-                                 @Nullable Component listName,
-                                 @Nullable PublicKeyData publicKeyData) {
+    @Data
+    @AllArgsConstructor
+    public static final class PlayerInfoData {
+
+        private UUID uuid;
+        private @Nullable String name;
+        private @Nullable PlayerTextures playerTextures;
+        private @Nullable Gamemode gamemode;
+        private boolean listed;
+        private int latency;
+        private @Nullable Component displayName;
+        private @Nullable UUID sessionID;
+        private @Nullable PublicKeyData publicKeyData;
+
+        private PlayerInfoData(final UUID uuid) {
+            this.uuid = uuid;
+        }
 
         public PlayerInfoData(final Player player) {
             this(player.getUUID(),
                     player.getName(),
                     player.getProfile().getTextures().orElse(null),
                     player.getGamemode(),
+                    player.isListed(),
                     player.getLatency(),
                     player.getPlayerListName(),
-                    player.getServer().isOnline() ? player.getConnection().getPublicKeyData().orElse(null) : null);
+                    player.getChatSession().map(ChatSession::getUUID).orElse(null),
+                    player.getChatSession().map(ChatSession::getData).orElse(null));
         }
 
         /**
          * Writes the data to the buf for the packet depending on
-         * the provided action.
+         * the provided actions.
          *
-         * @param action action
+         * @param actions actions
          * @param buf    buffer to write into
          */
-        public void write(final Action action, final FriendlyByteBuf buf) {
+        public void write(final EnumSet<Action> actions, final FriendlyByteBuf buf) {
             buf.writeUUID(uuid);
-            switch (action) {
-                case ADD_PLAYER -> {
-                    assert name != null;
-                    assert gamemode != null;
-                    buf.writeString(name, StandardCharsets.UTF_8)
-                            .writeTextures(playerTextures)
-                            .writeVarInt(gamemode.getID())
-                            .writeVarInt(latency)
-                            .writeBoolean(listName != null);
-                    if (listName != null)
-                        buf.writeComponent(listName);
-                    buf.writeBoolean(publicKeyData != null);
-                    if (publicKeyData != null)
-                        buf.writePublicKey(publicKeyData);
-                }
-                case UPDATE_GAMEMODE -> {
-                    assert gamemode != null;
-                    buf.writeVarInt(gamemode.getID());
-                }
-                case UPDATE_LATENCY -> buf.writeVarInt(latency);
-                case UPDATE_DISPLAY_NAME -> {
-                    buf.writeBoolean(listName != null);
-                    if (listName != null)
-                        buf.writeComponent(listName);
-                }
-                case REMOVE_PLAYER -> {
-                }
-            }
+            for (final Action action : actions)
+                action.write(buf, this);
         }
+
     }
+
 }

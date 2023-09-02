@@ -27,7 +27,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutAcknowledgeBlockChange extends PacketOut {
 
-    private static final int ID = 0x05;
+    private static final int ID = 0x06;
 
     @Getter @Setter
     private int sequenceID;

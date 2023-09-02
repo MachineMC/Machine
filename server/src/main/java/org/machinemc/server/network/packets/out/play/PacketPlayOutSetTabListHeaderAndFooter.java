@@ -25,19 +25,19 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 
 @ToString
 @AllArgsConstructor
-public class PacketPlayOutSetTablistHeaderAndFooter extends PacketOut {
+public class PacketPlayOutSetTabListHeaderAndFooter extends PacketOut {
 
-    private static final int ID = 0x63;
+    private static final int ID = 0x65;
 
     @Getter @Setter
     private Component header, footer;
 
     static {
-        register(PacketPlayOutSetTablistHeaderAndFooter.class, ID, PacketState.PLAY_OUT,
-                PacketPlayOutSetTablistHeaderAndFooter::new);
+        register(PacketPlayOutSetTabListHeaderAndFooter.class, ID, PacketState.PLAY_OUT,
+                PacketPlayOutSetTabListHeaderAndFooter::new);
     }
 
-    public PacketPlayOutSetTablistHeaderAndFooter(final ServerBuffer buf) {
+    public PacketPlayOutSetTabListHeaderAndFooter(final ServerBuffer buf) {
         header = buf.readComponent();
         footer = buf.readComponent();
     }
@@ -62,7 +62,7 @@ public class PacketPlayOutSetTablistHeaderAndFooter extends PacketOut {
 
     @Override
     public PacketOut clone() {
-        return new PacketPlayOutSetTablistHeaderAndFooter(new FriendlyByteBuf(serialize()));
+        return new PacketPlayOutSetTabListHeaderAndFooter(new FriendlyByteBuf(serialize()));
     }
 
 }

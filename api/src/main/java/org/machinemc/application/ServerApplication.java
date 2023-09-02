@@ -17,6 +17,7 @@ package org.machinemc.application;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.chat.MessageType;
+import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.scriptive.components.Component;
 
 import java.util.Arrays;
@@ -27,7 +28,7 @@ import java.util.logging.Level;
  * Represents application that started up the Machine server.
  */
 @ApiStatus.NonExtendable
-public interface ServerApplication {
+public interface ServerApplication extends CommandExecutor {
 
     /**
      * Called when the server is exited.

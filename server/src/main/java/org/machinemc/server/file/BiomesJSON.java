@@ -52,10 +52,9 @@ public class BiomesJSON implements ServerFile, ServerProperty {
     public BiomesJSON(final Server server, final File file) throws IOException {
         this.server = Objects.requireNonNull(server, "Server can not be null");
         Objects.requireNonNull(file, "Source file can not be null");
-        final JsonParser parser = new JsonParser();
         final JsonObject biomes;
         try (FileReader fileReader = new FileReader(file)) {
-            biomes = parser.parse(fileReader).getAsJsonObject();
+            biomes = JsonParser.parseReader(fileReader).getAsJsonObject();
         }
 
         for (final Map.Entry<String, JsonElement> biomeKey : biomes.entrySet()) {
@@ -76,13 +75,6 @@ public class BiomesJSON implements ServerFile, ServerProperty {
                 category = Biome.Category.valueOf(biome.get("category").getAsString().toUpperCase());
             } catch (Exception ignored) {
                 category = original.getCategory();
-            }
-
-            Biome.Precipitation precipitation;
-            try {
-                precipitation = Biome.Precipitation.valueOf(biome.get("precipitation").getAsString().toUpperCase());
-            } catch (Exception ignored) {
-                precipitation = original.getPrecipitation();
             }
 
             Biome.TemperatureModifier temperatureModifier;
@@ -216,9 +208,11 @@ public class BiomesJSON implements ServerFile, ServerProperty {
                     .downfall(biome.has("downfall")
                             ? biome.get("downfall").getAsFloat()
                             : original.getDownfall())
+                    .precipitation(biome.has("has_precipitation")
+                            ? biome.get("has_precipitation").getAsBoolean()
+                            : original.hasPrecipitation())
                     .category(category)
                     .effects(effects)
-                    .precipitation(precipitation)
                     .temperatureModifier(temperatureModifier)
                     .build());
         }

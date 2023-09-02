@@ -26,7 +26,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutUpdateTime extends PacketOut {
 
-    private static final int ID = 0x5C;
+    private static final int ID = 0x5E;
 
     @Getter @Setter
     private long worldAge, timeOfDay;

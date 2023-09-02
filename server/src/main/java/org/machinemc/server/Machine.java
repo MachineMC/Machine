@@ -26,6 +26,7 @@ import org.machinemc.api.chat.Messenger;
 import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.api.entities.EntityManager;
 import org.machinemc.api.entities.Player;
+import org.machinemc.api.entities.damagetypes.DamageTypeManager;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.file.PlayerDataContainer;
 import org.machinemc.api.file.ServerProperties;
@@ -45,6 +46,7 @@ import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
 import org.machinemc.server.chat.ServerMessenger;
 import org.machinemc.server.commands.MachineCommands;
 import org.machinemc.server.entities.ServerEntityManager;
+import org.machinemc.server.entities.damagetypes.ServerDamageTypeManager;
 import org.machinemc.server.exception.ServerExceptionHandler;
 import org.machinemc.server.file.*;
 import org.machinemc.server.network.NettyServer;
@@ -74,8 +76,8 @@ import java.util.stream.Stream;
 public final class Machine implements Server, RunnableServer {
 
     public static final String SERVER_BRAND = "Machine";
-    public static final String SERVER_IMPLEMENTATION_VERSION = "1.19.2";
-    public static final int SERVER_IMPLEMENTATION_PROTOCOL = 760;
+    public static final String SERVER_IMPLEMENTATION_VERSION = "1.20.1";
+    public static final int SERVER_IMPLEMENTATION_PROTOCOL = 763;
     public static final int DEFAULT_TPS = 20;
 
     public static final ClassLoader CLASS_LOADER = Machine.class.getClassLoader();
@@ -123,6 +125,8 @@ public final class Machine implements Server, RunnableServer {
 
     @Getter
     private DimensionTypeManager dimensionTypeManager;
+    @Getter
+    DamageTypeManager damageTypeManager;
     @Getter
     private Messenger messenger;
     @Getter
@@ -232,6 +236,9 @@ public final class Machine implements Server, RunnableServer {
                 dimensionTypeManager.addDimension(dimension);
         }
         console.info("Registered " + dimensionTypeManager.getDimensions().size() + " dimension types");
+
+        damageTypeManager = ServerDamageTypeManager.createDefault(this);
+        console.info("Registered " + damageTypeManager.getDamageTypes().size() + " damage types");
 
         messenger = ServerMessenger.createDefault(this);
         console.info("Registered " + messenger.getChatTypes().size() + " chat types");

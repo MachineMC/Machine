@@ -24,6 +24,8 @@ import org.machinemc.api.world.blocks.BlockEntityType;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.nbt.NBTInt;
+import org.machinemc.nbt.NBTList;
+import org.machinemc.nbt.NBTString;
 import org.machinemc.scriptive.style.HexColor;
 
 import java.awt.*;
@@ -77,13 +79,14 @@ public class SignBlock extends BlockTypeImpl implements BlockEntityType {
     @Override
     public Optional<NBTCompound> getClientVisibleNBT(final WorldBlock.State state) {
         return getBaseClientVisibleNBT(state).map(compound -> {
-            compound.set("Text1", "{\"text\":\"" + "Hello World!" + "\"}");
-            compound.set("Text2", "{\"text\":\"" + state.position().getX() + "\"}");
-            compound.set("Text3", "{\"text\":\"" + state.position().getY() + "\"}");
-            compound.set("Text4", "{\"text\":\"" + state.position().getZ() + "\"}");
-
-            compound.set("Color", "black");
-            compound.set("GlowingText", false);
+            final NBTCompound front = new NBTCompound();
+            final NBTList text = new NBTList();
+            text.add(new NBTString("{\"text\":\"" + "Hello World!" + "\"}"));
+            text.add(new NBTString("{\"text\":\"" + state.position().getX() + "\"}"));
+            text.add(new NBTString("{\"text\":\"" + state.position().getY() + "\"}"));
+            text.add(new NBTString("{\"text\":\"" + state.position().getZ() + "\"}"));
+            front.put("messages", text);
+            compound.put("front_text", front);
             return compound;
         });
     }

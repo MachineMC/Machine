@@ -26,7 +26,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutHeldItem extends PacketOut {
 
-    private static final int ID = 0x4A;
+    private static final int ID = 0x4D;
 
     @Getter @Setter
     private byte slot;

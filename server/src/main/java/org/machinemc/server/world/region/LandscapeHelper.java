@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Handles landscape region folder of a world.
  */
-@SuppressWarnings("UnstableApiUsage")
 public class LandscapeHelper {
 
     @Getter

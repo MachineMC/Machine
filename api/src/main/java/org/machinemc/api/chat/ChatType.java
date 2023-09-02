@@ -53,7 +53,7 @@ public interface ChatType extends NBTSerializable {
      * @param font font of the element
      */
     record Element(ElementType type,
-                   Collection<Parameter> parameters,
+                   List<Parameter> parameters,
                    String translationKey,
                    @Nullable TextFormat format,
                    @Nullable NamespacedKey font) implements NBTSerializable {
@@ -72,7 +72,7 @@ public interface ChatType extends NBTSerializable {
          * @param font font of the element
          * @return created chat type element
          */
-        public static Element chat(final Collection<Parameter> parameters,
+        public static Element chat(final List<Parameter> parameters,
                                                 final String translationKey,
                                                 final @Nullable TextFormat format,
                                                 final @Nullable NamespacedKey font) {
@@ -86,7 +86,7 @@ public interface ChatType extends NBTSerializable {
          * @param font font of the element
          * @return created chat type element
          */
-        public static Element narration(final Collection<Parameter> parameters,
+        public static Element narration(final List<Parameter> parameters,
                                                      final String translationKey,
                                                      final @Nullable TextFormat format,
                                                      final @Nullable NamespacedKey font) {

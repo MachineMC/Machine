@@ -19,12 +19,10 @@ import lombok.Setter;
 import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.api.Server;
 import org.machinemc.api.chat.ChatType;
-import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.chat.Messenger;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutSystemChatMessage;
@@ -121,19 +119,6 @@ public class ServerMessenger implements Messenger {
     @Override
     public @Unmodifiable Set<ChatType> getChatTypes() {
         return chatTypes.values().stream().collect(Collectors.toUnmodifiableSet());
-    }
-
-    // TODO Player Message impl once it's done
-    @Override
-    public boolean sendMessage(final Player player, final Component message, final MessageType messageType) {
-        Objects.requireNonNull(player, "Player can not be null");
-        Objects.requireNonNull(message, "Message can not be null");
-        Objects.requireNonNull(messageType, "Message type can not be null");
-        if (Messenger.accepts(player, messageType)) {
-            player.sendPacket(new PacketPlayOutSystemChatMessage(message, false));
-            return true;
-        }
-        return false;
     }
 
     @Override

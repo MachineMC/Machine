@@ -18,12 +18,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.api.auth.MessageSignature;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.server.chat.MessageSignature;
 import org.machinemc.server.network.packets.PacketIn;
 import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.BitSet;
 
 @Getter
 @Setter
@@ -33,8 +36,14 @@ public class PacketPlayInChatMessage extends PacketIn {
 
     private static final int ID = 0x05;
 
+    private static final int BITSET_SIZE = 20;
+
     private String message;
-    private MessageSignature messageSignature;
+    private Instant timestamp;
+    private long salt;
+    private @Nullable MessageSignature messageSignature;
+    private int messageCount;
+    private BitSet acknowledged;
 
     static {
         register(PacketPlayInChatMessage.class, ID, PacketState.PLAY_IN,
@@ -43,7 +52,11 @@ public class PacketPlayInChatMessage extends PacketIn {
 
     public PacketPlayInChatMessage(final ServerBuffer buf) {
         message = buf.readString(StandardCharsets.UTF_8);
-        messageSignature = buf.readSignature();
+        timestamp = buf.readInstant();
+        salt = buf.readLong();
+        messageSignature = buf.readOptional(MessageSignature::new).orElse(null);
+        messageCount = buf.readVarInt();
+        acknowledged = buf.readBitSet(20);
     }
 
     @Override
@@ -60,7 +73,11 @@ public class PacketPlayInChatMessage extends PacketIn {
     public byte[] serialize() {
         return new FriendlyByteBuf()
                 .writeString(message, StandardCharsets.UTF_8)
-                .writeSignature(messageSignature)
+                .writeInstant(timestamp)
+                .writeLong(salt)
+                .writeOptional(messageSignature, ServerBuffer::write)
+                .writeVarInt(messageCount)
+                .writeBitSet(acknowledged, 20)
                 .bytes();
     }
 
@@ -68,4 +85,5 @@ public class PacketPlayInChatMessage extends PacketIn {
     public PacketIn clone() {
         return new PacketPlayInChatMessage(new FriendlyByteBuf(serialize()));
     }
+
 }

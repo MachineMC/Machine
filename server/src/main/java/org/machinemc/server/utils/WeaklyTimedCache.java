@@ -20,19 +20,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.server.schedule.Scheduler;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
  * Cache implementation that saves the cached values for certain amount of time
- * and removes when they are both expired and not longer referenced in the code.
+ * and removes when they are both expired and no longer referenced in the code.
  * <p>
  * Should be used for weak value cache where computing the values costs too many
  * resources.
  * @param <K> key
  * @param <V> value
  */
-@SuppressWarnings("UnstableApiUsage")
 public class WeaklyTimedCache<K, V> implements Cache<K, V> {
 
     private final Cache<K, V> delegating;
@@ -54,7 +54,7 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     }
 
     /**
-     * Creates nre weakly timed cache from an exisiting builder.
+     * Creates nre weakly timed cache from an existing builder.
      * @param builder builder
      * @param delay delay of removing the entry after it's
      *              referenced only in the cache itself
@@ -70,7 +70,7 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     }
 
     @Override
-    public @Nullable V getIfPresent(final @NotNull K key) {
+    public @Nullable V getIfPresent(final @NotNull Object key) {
         final V value = delegating.getIfPresent(key);
         if (value == null) return null;
         executor.schedule(() -> eat(value), delay, referenceTime);
@@ -78,30 +78,29 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     }
 
     @Override
-    public V get(final @NotNull K key, final @NotNull Callable<? extends V> valueLoader) throws ExecutionException {
+    public @NotNull V get(final @NotNull K key, final @NotNull Callable<? extends V> valueLoader) throws ExecutionException {
         final V value = delegating.get(key, valueLoader);
         executor.schedule(() -> eat(value), delay, referenceTime);
         return value;
     }
 
     @Override
-    @Deprecated
-    public V get(final @NotNull K key) throws ExecutionException {
-        final V value = delegating.get(key);
-        if (value == null) return null;
-        executor.schedule(() -> eat(value), delay, referenceTime);
-        return value;
-    }
-
-    @Override
-    public ImmutableMap<K, V> getAllPresent(final @NotNull Iterable<? extends K> keys) {
-        return delegating.getAllPresent(keys);
+    public @NotNull ImmutableMap<K, V> getAllPresent(final @NotNull Iterable<?> keys) {
+        final ImmutableMap<K, V> map = delegating.getAllPresent(keys);
+        map.values().forEach(this::eat);
+        return map;
     }
 
     @Override
     public void put(final @NotNull K key, final @NotNull V value) {
         delegating.put(key, value);
         executor.schedule(() -> eat(value), delay, referenceTime);
+    }
+
+    @Override
+    public void putAll(final @NotNull Map<? extends K, ? extends V> m) {
+        delegating.putAll(m);
+        m.values().forEach(this::eat);
     }
 
     @Override
@@ -125,36 +124,18 @@ public class WeaklyTimedCache<K, V> implements Cache<K, V> {
     }
 
     @Override
-    public CacheStats stats() {
+    public @NotNull CacheStats stats() {
         return delegating.stats();
     }
 
     @Override
-    public ConcurrentMap<K, V> asMap() {
+    public @NotNull ConcurrentMap<K, V> asMap() {
         return delegating.asMap();
     }
 
     @Override
     public void cleanUp() {
         delegating.cleanUp();
-    }
-
-    @Override
-    @Deprecated
-    public V getUnchecked(final @NotNull K key) {
-        final V value = delegating.getUnchecked(key);
-        if (value == null) return null;
-        executor.schedule(() -> eat(value), delay, referenceTime);
-        return value;
-    }
-
-    @Override
-    @Deprecated
-    public V apply(final @NotNull K key) {
-        final V value = delegating.apply(key);
-        if (value == null) return null;
-        executor.schedule(() -> eat(value), delay, referenceTime);
-        return value;
     }
 
     private void eat(final @SuppressWarnings("unused") V value) {

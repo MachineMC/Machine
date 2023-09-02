@@ -20,7 +20,6 @@ import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.server.codec.CodecPart;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.scriptive.components.Component;
 
 import java.util.Optional;
 import java.util.Set;
@@ -122,15 +121,6 @@ public interface Messenger extends CodecPart, ServerProperty {
             return true;
         return messageType == MessageType.SYSTEM && canReceiveCommand(player);
     }
-
-    /**
-     * Sends a message to a player, respecting their chat settings.
-     * @param player the player
-     * @param message message to receive
-     * @param messageType type of the message
-     * @return if the message has been successfully received
-     */
-    boolean sendMessage(Player player, Component message, MessageType messageType);
 
     /**
      * Sends default message send rejection message to player.

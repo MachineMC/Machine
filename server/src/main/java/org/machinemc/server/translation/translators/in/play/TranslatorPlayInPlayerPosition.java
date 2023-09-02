@@ -22,7 +22,7 @@ import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.in.play.PacketPlayInPlayerPosition;
 import org.machinemc.server.translation.PacketTranslator;
 
-public class TranslatorPlayInPlayerPosition  extends PacketTranslator<PacketPlayInPlayerPosition> {
+public class TranslatorPlayInPlayerPosition extends PacketTranslator<PacketPlayInPlayerPosition> {
 
     private ServerPlayer player;
     private EntityPosition position;

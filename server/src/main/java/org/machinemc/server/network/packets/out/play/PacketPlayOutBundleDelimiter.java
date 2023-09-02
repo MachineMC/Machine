@@ -14,35 +14,23 @@
  */
 package org.machinemc.server.network.packets.out.play;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
-import org.machinemc.api.utils.FriendlyByteBuf;
 
+@RequiredArgsConstructor
 @ToString
-@AllArgsConstructor
-public class PacketPlayOutDisplayChatPreview extends PacketOut {
+public class PacketPlayOutBundleDelimiter extends PacketOut {
 
-    private static final int ID = 0x4E;
-
-    @Getter @Setter
-    private boolean chatPreviewSetting;
+    public static final int ID = 0x00;
 
     static {
-        register(PacketPlayOutDisplayChatPreview.class, ID, PacketState.PLAY_OUT,
-                PacketPlayOutDisplayChatPreview::new);
+        register(PacketPlayOutBundleDelimiter.class, ID, PacketState.PLAY_OUT,
+                PacketPlayOutBundleDelimiter::new);
     }
 
-    public PacketPlayOutDisplayChatPreview(final ServerBuffer buf) {
-        chatPreviewSetting = buf.readBoolean();
-    }
-
-    @Override
-    public int getID() {
-        return ID;
+    public PacketPlayOutBundleDelimiter(final ServerBuffer buf) {
     }
 
     @Override
@@ -51,15 +39,18 @@ public class PacketPlayOutDisplayChatPreview extends PacketOut {
     }
 
     @Override
+    public int getID() {
+        return ID;
+    }
+
+    @Override
     public byte[] serialize() {
-        return new FriendlyByteBuf()
-                .writeBoolean(chatPreviewSetting)
-                .bytes();
+        return new byte[0];
     }
 
     @Override
     public PacketOut clone() {
-        return new PacketPlayOutDisplayChatPreview(new FriendlyByteBuf(serialize()));
+        return new PacketPlayOutBundleDelimiter();
     }
 
 }

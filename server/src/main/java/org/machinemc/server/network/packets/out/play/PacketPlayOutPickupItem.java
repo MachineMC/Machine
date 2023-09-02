@@ -27,7 +27,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutPickupItem extends PacketOut {
 
-    private static final int ID = 0x65;
+    private static final int ID = 0x67;
 
     @Getter @Setter
     private int collectedEntityID, collectorEntityID, pickupItemCount;

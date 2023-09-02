@@ -37,7 +37,7 @@ public interface BiomeManager extends CodecPart, ServerProperty {
      * @param name name of the biome
      * @return if the biome with given name was successfully removed
      */
-    default boolean removeDimension(NamespacedKey name) {
+    default boolean removeBiome(NamespacedKey name) {
         return getBiome(name).map(this::removeBiome).orElse(false);
     }
 

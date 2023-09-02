@@ -43,10 +43,9 @@ public class DimensionsJSON implements ServerFile, ServerProperty {
     public DimensionsJSON(final Server server, final File file) throws IOException {
         this.server = Objects.requireNonNull(server, "Server can not be null");
         Objects.requireNonNull(file, "Source file can not be null");
-        final JsonParser parser = new JsonParser();
         final JsonObject dimensions;
         try (FileReader fileReader = new FileReader(file)) {
-            dimensions = parser.parse(fileReader).getAsJsonObject();
+            dimensions = JsonParser.parseReader(fileReader).getAsJsonObject();
         }
 
         final DimensionType original = ServerDimensionType.createDefault();

@@ -27,7 +27,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutRenderDistance extends PacketOut {
 
-    private static final int ID = 0x4C;
+    private static final int ID = 0x4F;
 
     @Getter @Setter
     private int viewDistance; // (2-32)

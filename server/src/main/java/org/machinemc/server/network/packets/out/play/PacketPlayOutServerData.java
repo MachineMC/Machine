@@ -30,13 +30,12 @@ import java.nio.charset.StandardCharsets;
 @AllArgsConstructor
 public class PacketPlayOutServerData extends PacketOut {
 
-    private static final int ID = 0x42;
+    private static final int ID = 0x45;
 
     @Getter(AccessLevel.NONE)
-    private @Nullable Component motd;
+    private Component motd;
     private @Nullable String icon;
-    private boolean previewsChat, enforcedSecureChat;
-
+    private boolean enforcedSecureChat;
 
     static {
         register(PacketPlayOutServerData.class, ID, Packet.PacketState.PLAY_OUT,
@@ -44,11 +43,8 @@ public class PacketPlayOutServerData extends PacketOut {
     }
 
     public PacketPlayOutServerData(final ServerBuffer buf) {
-        if (buf.readBoolean())
-            motd = buf.readComponent();
-        if (buf.readBoolean())
-            icon = buf.readString(StandardCharsets.UTF_8);
-        previewsChat = buf.readBoolean();
+        motd = buf.readComponent();
+        icon = buf.readOptional(serverBuffer -> serverBuffer.readString(StandardCharsets.UTF_8)).orElse(null);
         enforcedSecureChat = buf.readBoolean();
     }
 
@@ -64,14 +60,9 @@ public class PacketPlayOutServerData extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        final FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeBoolean(motd != null);
-        if (motd != null)
-            buf.writeComponent(motd);
-        buf.writeBoolean(icon != null);
-        if (icon != null)
-            buf.writeString(icon, StandardCharsets.UTF_8);
-        return buf.writeBoolean(previewsChat)
+        return new FriendlyByteBuf()
+                .writeComponent(motd)
+                .writeOptional(icon, (serverBuffer, s) -> serverBuffer.writeString(s, StandardCharsets.UTF_8))
                 .writeBoolean(enforcedSecureChat)
                 .bytes();
     }
@@ -87,4 +78,5 @@ public class PacketPlayOutServerData extends PacketOut {
     public Component getMOTD() {
         return motd;
     }
+
 }

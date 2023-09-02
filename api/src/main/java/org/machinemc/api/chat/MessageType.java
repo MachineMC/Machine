@@ -14,7 +14,9 @@
  */
 package org.machinemc.api.chat;
 
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 
 import java.util.Objects;
 
@@ -22,6 +24,23 @@ public enum MessageType {
 
     CHAT,
     SYSTEM;
+
+    /**
+     * @return numeric id of the message type used by Minecraft protocol.
+     */
+    public @Range(from = 0, to = 1) int getID() {
+        return ordinal();
+    }
+
+    /**
+     * Returns message type from its numeric id.
+     * @param id id of the message type
+     * @return message type for given id
+     */
+    public static MessageType fromID(final @Range(from = 0, to = 1) int id) {
+        Preconditions.checkArgument(id < values().length, "Unsupported message type");
+        return values()[id];
+    }
 
     /**
      * Returns message type of given name.

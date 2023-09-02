@@ -32,13 +32,32 @@ import org.machinemc.server.network.packets.PacketOut;
 @AllArgsConstructor
 public class PacketPlayOutRespawn extends PacketOut {
 
-    private static final int ID = 0x3E;
+    private static final int ID = 0x41;
+
+    /**
+     * Used in normal respawns (after death), keeps no data.
+     */
+    public static final byte KEEP_NOTHING = 0x00;
+
+    /**
+     * Used when exiting the end poem/credits, keeps the attributes.
+     */
+    public static final byte KEEP_ATTRIBUTES = 0x01;
+
+    public static final byte KEEP_METADATA = 0x02;
+
+    /**
+     * Used in other dimension changes (portals or teleports), keep all data.
+     */
+    public static final byte KEEP_ALL_DATA = KEEP_ATTRIBUTES | KEEP_METADATA;
 
     private NamespacedKey worldType, worldName;
     private long hashedSeed;
     private Gamemode gamemode;
     private @Nullable Gamemode previousGamemode;
-    private boolean isDebug, isFlat, copyMetadata, hasDeathLocation;
+    private boolean isDebug, isFlat;
+    private byte dataKept;
+    private boolean hasDeathLocation;
     private @Nullable NamespacedKey deathWorldName;
     private @Nullable BlockPosition deathLocation;
 
@@ -55,7 +74,7 @@ public class PacketPlayOutRespawn extends PacketOut {
         previousGamemode = Gamemode.nullableFromID(buf.readByte()).orElse(null);
         isDebug = buf.readBoolean();
         isFlat = buf.readBoolean();
-        copyMetadata = buf.readBoolean();
+        dataKept = buf.readByte();
         hasDeathLocation = buf.readBoolean();
         if (hasDeathLocation) {
             deathWorldName = buf.readNamespacedKey();
@@ -83,7 +102,7 @@ public class PacketPlayOutRespawn extends PacketOut {
                 .writeByte((byte) (previousGamemode == null ? -1 : previousGamemode.getID()))
                 .writeBoolean(isDebug)
                 .writeBoolean(isFlat)
-                .writeBoolean(copyMetadata)
+                .writeByte(dataKept)
                 .writeBoolean(hasDeathLocation);
         if (hasDeathLocation) {
             assert deathWorldName != null;

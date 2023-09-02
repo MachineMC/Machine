@@ -28,7 +28,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutPlayerAbilities extends PacketOut {
 
-    private static final int ID = 0x31;
+    private static final int ID = 0x34;
 
     private byte flags;
     private float flyingSpeed, fovModifier;

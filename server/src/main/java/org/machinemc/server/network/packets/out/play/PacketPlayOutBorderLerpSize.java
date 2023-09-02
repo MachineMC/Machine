@@ -28,7 +28,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutBorderLerpSize extends PacketOut {
 
-    private static final int ID = 0x45;
+    private static final int ID = 0x48;
 
     private double oldDiameter, newDiameter;
     private long speed;

@@ -29,7 +29,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutWorldEvent extends PacketOut {
 
-    private static final int ID = 0x22;
+    private static final int ID = 0x25;
 
     private int event, data;
     private BlockPosition position;

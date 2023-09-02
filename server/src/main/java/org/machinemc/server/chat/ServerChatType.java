@@ -23,24 +23,25 @@ import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.ChatStyle;
 import org.machinemc.scriptive.style.TextFormat;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 @Getter
 @Builder
+@SuppressWarnings("ClassCanBeRecord")
 public class ServerChatType implements ChatType {
 
     private final NamespacedKey name;
     private final Element chatElement, narrationElement;
 
     private static final ServerChatType.Element DEFAULT_NARRATION_ELEMENT = ServerChatType.Element.narration(
-            Set.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
+            List.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
             "chat.type.text.narrate",
             null,
             null);
 
-    ServerChatType(final NamespacedKey name, final Element chatElement, final Element narrationElement) {
+    public ServerChatType(final NamespacedKey name, final Element chatElement, final Element narrationElement) {
         this.name = Objects.requireNonNull(name, "Name can not be null");
         this.chatElement = Objects.requireNonNull(chatElement, "Chat element can not be null");
         this.narrationElement = Objects.requireNonNull(narrationElement, "Narration element can not be null");
@@ -54,7 +55,7 @@ public class ServerChatType implements ChatType {
         return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("chat"))
                 .chatElement(Element.chat(
-                        Set.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
+                        List.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
                         "chat.type.text",
                         null,
                         null
@@ -71,7 +72,7 @@ public class ServerChatType implements ChatType {
         return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("say_command"))
                 .chatElement(Element.chat(
-                        Set.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
+                        List.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
                         "chat.type.announcement",
                         null,
                         null
@@ -88,7 +89,7 @@ public class ServerChatType implements ChatType {
         return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("msg_command_incoming"))
                 .chatElement(Element.chat(
-                        Set.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
+                        List.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
                         "commands.message.display.incoming",
                         new TextFormat(ChatColor.GRAY, ChatStyle.ITALIC),
                         null
@@ -105,7 +106,7 @@ public class ServerChatType implements ChatType {
         return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("msg_command_outgoing"))
                 .chatElement(Element.chat(
-                        Set.of(ServerChatType.Parameter.TARGET, ServerChatType.Parameter.CONTENT),
+                        List.of(ServerChatType.Parameter.TARGET, ServerChatType.Parameter.CONTENT),
                         "commands.message.display.outgoing",
                         new TextFormat(ChatColor.GRAY, ChatStyle.ITALIC),
                         null
@@ -122,7 +123,7 @@ public class ServerChatType implements ChatType {
         return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("team_msg_command_incoming"))
                 .chatElement(Element.chat(
-                        Set.of(
+                        List.of(
                                 ServerChatType.Parameter.TARGET,
                                 ServerChatType.Parameter.SENDER,
                                 ServerChatType.Parameter.CONTENT
@@ -143,7 +144,8 @@ public class ServerChatType implements ChatType {
         return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("team_msg_command_outgoing"))
                 .chatElement(Element.chat(
-                        Set.of(ServerChatType.Parameter.TARGET,
+                        List.of(
+                                ServerChatType.Parameter.TARGET,
                                 ServerChatType.Parameter.SENDER,
                                 ServerChatType.Parameter.CONTENT
                         ),
@@ -163,13 +165,13 @@ public class ServerChatType implements ChatType {
         return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("emote_command"))
                 .chatElement(Element.chat(
-                        Set.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.TARGET),
+                        List.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.TARGET),
                         "chat.type.emote",
                         null,
                         null
                 ))
                 .narrationElement(Element.narration(
-                        Set.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
+                        List.of(ServerChatType.Parameter.SENDER, ServerChatType.Parameter.CONTENT),
                         "chat.type.emote",
                         null,
                         null
@@ -185,13 +187,13 @@ public class ServerChatType implements ChatType {
         return ServerChatType.builder()
                 .name(NamespacedKey.minecraft("raw"))
                 .chatElement(Element.chat(
-                        Set.of(ServerChatType.Parameter.CONTENT),
+                        List.of(ServerChatType.Parameter.CONTENT),
                         "%s",
                         null,
                         null
                 ))
                 .narrationElement(Element.narration(
-                        Set.of(ServerChatType.Parameter.CONTENT),
+                        List.of(ServerChatType.Parameter.CONTENT),
                         "%s",
                         null,
                         null

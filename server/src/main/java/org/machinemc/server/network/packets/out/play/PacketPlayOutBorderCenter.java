@@ -27,7 +27,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutBorderCenter extends PacketOut {
 
-    private static final int ID = 0x44;
+    private static final int ID = 0x47;
 
     @Getter @Setter
     private double x, z;

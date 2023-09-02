@@ -26,7 +26,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutSetSimulationDistance extends PacketOut {
 
-    private static final int ID = 0x5A;
+    private static final int ID = 0x5C;
 
     @Getter @Setter
     private int distance;

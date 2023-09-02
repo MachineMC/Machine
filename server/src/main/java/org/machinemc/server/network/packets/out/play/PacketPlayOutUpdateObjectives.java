@@ -34,7 +34,7 @@ import java.nio.charset.StandardCharsets;
 @AllArgsConstructor
 public class PacketPlayOutUpdateObjectives extends PacketOut {
 
-    private static final int ID = 0x56;
+    private static final int ID = 0x58;
 
     private String objectiveName;
     private Action action;

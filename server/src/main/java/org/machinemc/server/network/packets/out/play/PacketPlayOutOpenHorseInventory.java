@@ -29,7 +29,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutOpenHorseInventory extends PacketOut {
 
-    private static final int ID = 0x1E;
+    private static final int ID = 0x20;
 
     private byte windowID;
     private int slotCount;

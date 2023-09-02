@@ -28,7 +28,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutSetPassengers extends PacketOut {
 
-    private static final int ID = 0x57;
+    private static final int ID = 0x59;
 
     private int entityID;
     private int[] passengers;

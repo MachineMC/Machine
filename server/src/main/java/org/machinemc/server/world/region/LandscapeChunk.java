@@ -50,7 +50,6 @@ import static org.machinemc.server.chunk.ChunkUtils.getSectionRelativeCoordinate
 /**
  * Chunk implementation using the Landscape world format.
  */
-@SuppressWarnings("UnstableApiUsage")
 public class LandscapeChunk extends WorldChunk {
 
     private final int worldX = chunkX * 16, worldZ = chunkZ * 16;

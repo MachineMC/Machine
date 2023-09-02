@@ -28,7 +28,6 @@ import java.util.List;
 @AllArgsConstructor
 public class LightData implements Writable {
 
-    private final boolean trustEdges;
     private final BitSet skyMask;
     private final BitSet blockMask;
     private final BitSet emptySkyMask;
@@ -36,7 +35,6 @@ public class LightData implements Writable {
     private final List<byte[]> skyLight, blockLight;
 
     public LightData(final ServerBuffer buf) {
-        trustEdges = buf.readBoolean();
         skyMask = BitSet.valueOf(buf.readLongArray());
         blockMask = BitSet.valueOf(buf.readLongArray());
         emptySkyMask = BitSet.valueOf(buf.readLongArray());
@@ -59,13 +57,11 @@ public class LightData implements Writable {
      */
     @Override
     public void write(final ServerBuffer buf) {
-        buf.writeBoolean(trustEdges);
+        buf.writeBitSet(skyMask);
+        buf.writeBitSet(blockMask);
 
-        buf.writeLongArray(skyMask.toLongArray());
-        buf.writeLongArray(blockMask.toLongArray());
-
-        buf.writeLongArray(emptySkyMask.toLongArray());
-        buf.writeLongArray(emptyBlockMask.toLongArray());
+        buf.writeBitSet(emptySkyMask);
+        buf.writeBitSet(emptyBlockMask);
 
         buf.writeVarInt(skyLight.size());
         for (final byte[] bytes : skyLight)

@@ -37,7 +37,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PacketPlayOutLogin extends PacketOut {
 
-    private static final int ID = 0x25;
+    private static final int ID = 0x28;
 
     private int entityID;
     private boolean isHardcore;
@@ -58,6 +58,7 @@ public class PacketPlayOutLogin extends PacketOut {
             hasDeathLocation;
     private @Nullable NamespacedKey deathWorldName;
     private @Nullable BlockPosition deathLocation;
+    private int portalCooldown;
 
     static {
         register(PacketPlayOutLogin.class, ID, PacketState.PLAY_OUT,
@@ -88,6 +89,7 @@ public class PacketPlayOutLogin extends PacketOut {
             deathWorldName = buf.readNamespacedKey();
             deathLocation = buf.readBlockPos();
         }
+        portalCooldown = buf.readVarInt();
     }
 
     @Override
@@ -126,7 +128,8 @@ public class PacketPlayOutLogin extends PacketOut {
             buf.writeNamespacedKey(deathWorldName)
                     .writeBlockPos(deathLocation);
         }
-        return buf.bytes();
+        return buf.writeVarInt(portalCooldown)
+                .bytes();
     }
 
     @Override

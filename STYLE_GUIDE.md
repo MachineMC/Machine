@@ -12,7 +12,7 @@ subject to the following changes:
   - Comments and documentation must be indented to the same level as the surrounding code.
 - Code Changes:
   - Length:
-    - The maximum line length is now 120 characters.
+    - The maximum line length is 150 characters.
     - There is no maximum limit on the length of a method.
     - Only one statement is permitted per line.
     - There is no maximum parameter limit.

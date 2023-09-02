@@ -29,39 +29,18 @@ public abstract class PacketTranslator<T extends Packet> {
      * @param packet Packet that is sent or received
      * @return false if packet should be cancelled
      */
-    public abstract boolean translate(ClientConnection connection, T packet);
+    public abstract boolean translate(ClientConnection connection, T packet) throws Exception;
 
     /**
      * Called after the packet is sent or received from the client.
      * @param connection ClientConnection the packet has been sent or received from
      * @param packet Packet that has been sent or received
      */
-    public abstract void translateAfter(ClientConnection connection, T packet);
+    public abstract void translateAfter(ClientConnection connection, T packet) throws Exception;
 
     /**
      * @return Class of the packet the translator should listen to.
      */
     public abstract Class<T> packetClass();
-
-    /**
-     * Called before the packet is sent or received from the client.
-     * @param connection ClientConnection the packet is sent or received from
-     * @param packet Packet that is sent or received
-     * @return false if packet should be cancelled
-     */
-    @SuppressWarnings("unchecked")
-    final boolean rawTranslate(final ClientConnection connection, final Packet packet) {
-        return translate(connection, (T) packet);
-    }
-
-    /**
-     * Called after the packet is sent or received from the client.
-     * @param connection ClientConnection the packet has been sent or received from
-     * @param packet Packet that has been sent or received
-     */
-    @SuppressWarnings("unchecked")
-    final void rawTranslateAfter(final ClientConnection connection, final Packet packet) {
-        translateAfter(connection, (T) packet);
-    }
 
 }

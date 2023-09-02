@@ -52,7 +52,7 @@ public record PlayerTextures(String value,
      */
     public static PlayerTextures buildSkin(final String value,
                                            final @Nullable String signature) throws MalformedURLException {
-        final JsonElement decoded = new JsonParser().parse(new String(Base64.getDecoder().decode(value)));
+        final JsonElement decoded = JsonParser.parseString(new String(Base64.getDecoder().decode(value)));
         if (!decoded.isJsonObject()) throw new JsonSyntaxException("Texture value of the skin contains "
                 + "malformed JSON format");
         final JsonObject textures = decoded.getAsJsonObject().getAsJsonObject("textures");

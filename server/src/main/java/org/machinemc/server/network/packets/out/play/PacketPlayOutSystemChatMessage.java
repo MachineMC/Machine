@@ -29,7 +29,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutSystemChatMessage extends PacketOut {
 
-    private static final int ID = 0x62;
+    private static final int ID = 0x64;
 
     private Component message;
     private boolean overlay;

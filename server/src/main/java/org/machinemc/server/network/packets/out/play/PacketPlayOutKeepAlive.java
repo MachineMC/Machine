@@ -26,7 +26,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutKeepAlive extends PacketOut {
 
-    private static final int ID = 0x20;
+    private static final int ID = 0x23;
 
     @Getter @Setter
     private long keepAliveID;

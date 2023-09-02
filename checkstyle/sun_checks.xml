@@ -75,7 +75,7 @@
 
     <!-- EDITED FOR MACHINE --> <module name="LineLength">
         <property name="fileExtensions" value="java"/>
-        <property name="max" value="120"/>
+        <property name="max" value="150"/>
     </module>
 
     <!-- Checks for whitespace                               -->

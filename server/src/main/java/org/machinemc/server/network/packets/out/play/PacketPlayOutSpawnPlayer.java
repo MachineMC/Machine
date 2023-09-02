@@ -28,7 +28,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PacketPlayOutSpawnPlayer extends PacketOut {
 
-    private static final int ID = 0x02;
+    private static final int ID = 0x03;
 
     private int entityID;
     @Getter(AccessLevel.NONE)

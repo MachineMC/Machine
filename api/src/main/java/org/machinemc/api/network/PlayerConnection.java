@@ -19,7 +19,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
-import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.ServerProperty;
@@ -27,10 +26,7 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TranslationComponent;
 
 import java.net.InetSocketAddress;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static org.machinemc.api.network.packets.Packet.PacketState.*;
 
@@ -48,11 +44,6 @@ public interface PlayerConnection extends ServerProperty {
      * @return server connection this player connection is connected to
      */
     ServerConnection getServerConnection();
-
-    /**
-     * @return public key data of the connection
-     */
-    Optional<PublicKeyData> getPublicKeyData();
 
     /**
      * @return login username of the connection
@@ -95,6 +86,24 @@ public interface PlayerConnection extends ServerProperty {
      * @return send message future
      */
     ChannelFuture send(Packet packet);
+
+    /**
+     * Sends multiple packets to the connection in form
+     * of packet bundle.
+     * @param packets packets to send
+     * @return future of closing bundle delimiter if client is in play state
+     */
+    Optional<ChannelFuture> send(Packet... packets);
+
+    /**
+     * Sends multiple packets to the connection in form
+     * of packet bundle.
+     * @param packets packets to send
+     * @return future of closing bundle delimiter if client is in play state
+     */
+    default Optional<ChannelFuture> send(List<Packet> packets) {
+        return send(packets.toArray(new Packet[0]));
+    }
 
     /**
      * Whether the connection is open and can receive packets.

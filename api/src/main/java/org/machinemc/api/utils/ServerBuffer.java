@@ -18,7 +18,6 @@ import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.machinemc.api.auth.MessageSignature;
 import org.machinemc.api.auth.PublicKeyData;
 import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.inventory.Item;
@@ -30,11 +29,13 @@ import org.machinemc.scriptive.serialization.ComponentSerializer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.time.Instant;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 
 /**
  * Special byte buffer for implementing Minecraft Protocol.
@@ -132,6 +133,62 @@ public interface ServerBuffer extends Cloneable {
      */
     @Contract("_, _ -> this")
     ServerBuffer write(ByteBuffer buf, int length);
+
+    /**
+     * Reads an array using a function.
+     * @param generator a function which produces a new array of the desired type and the provided length
+     * @param function function to initiate the read items
+     * @param <T> type of the array
+     * @return array
+     */
+    <T> T[] readArray(IntFunction<T[]> generator, Function<ServerBuffer, T> function);
+
+    /**
+     * Writes an array to the buffer.
+     * @param array array to write
+     * @param consumer consumer for writing
+     * @param <T> type of the array
+     * @return this
+     */
+    @Contract("_, _ -> this")
+    <T> ServerBuffer writeArray(T[] array, BiConsumer<ServerBuffer, T> consumer);
+
+    /**
+     * Reads a list using a function.
+     * @param function function to initiate the read items
+     * @param <T> type of the list
+     * @return list
+     */
+    @Contract("_ -> new")
+    <T> @Unmodifiable List<T> readList(Function<ServerBuffer, T> function);
+
+    /**
+     * Writes a list to the buffer.
+     * @param list list to write
+     * @param consumer consumer for writing
+     * @param <T> type of the list
+     * @return this
+     */
+    @Contract("_, _ -> this")
+    <T> FriendlyByteBuf writeList(List<T> list, BiConsumer<ServerBuffer, T> consumer);
+
+    /**
+     * Reads an optional value using a function.
+     * @param function function to initiate the read items
+     * @param <T> type of the optional value
+     * @return optional value
+     */
+    <T> Optional<T> readOptional(Function<ServerBuffer, T> function);
+
+    /**
+     * Writes an optional value to the buffer.
+     * @param value optional value to write
+     * @param consumer consumer for writing
+     * @param <T> type of the optional value
+     * @return this
+     */
+    @Contract("_, _ -> this")
+    <T> ServerBuffer writeOptional(@Nullable T value, BiConsumer<ServerBuffer, T> consumer);
 
     /**
      * @return next boolean
@@ -319,32 +376,12 @@ public interface ServerBuffer extends Cloneable {
     @Unmodifiable List<String> readStringList(Charset charset);
 
     /**
-     *
      * @param strings string list to write
      * @param charset charset used by the strings in the list
      * @return this
      */
     @Contract("_, _ -> this")
     ServerBuffer writeStringList(List<String> strings, Charset charset);
-
-    /**
-     * Reads a list using a function.
-     * @param function function to initiate the read items
-     * @param <T> type of the list
-     * @return list
-     */
-    @Contract("_ -> new")
-    <T> @Unmodifiable List<T> readList(Function<ServerBuffer, T> function);
-
-    /**
-     * Writes a list to the buffer.
-     * @param list list to write
-     * @param consumer consumer for writing
-     * @param <T> type of the list
-     * @return this
-     */
-    @Contract("_, _ -> this")
-    <T> FriendlyByteBuf writeList(List<T> list, BiConsumer<ServerBuffer, T> consumer);
 
     /**
      * @return next uuid
@@ -358,6 +395,34 @@ public interface ServerBuffer extends Cloneable {
      */
     @Contract("_ -> this")
     ServerBuffer writeUUID(UUID uuid);
+
+    /**
+     * @return next bitset
+     */
+    @Contract("-> new")
+    BitSet readBitSet();
+
+    /**
+     * @param size size of the bitset
+     * @return next bitset
+     */
+    @Contract("_ -> new")
+    BitSet readBitSet(int size);
+
+    /**
+     * @param bitSet bitset to write
+     * @return this
+     */
+    @Contract("_ -> this")
+    ServerBuffer writeBitSet(BitSet bitSet);
+
+    /**
+     * @param bitSet bitset to write
+     * @param size size of the bitset
+     * @return this
+     */
+    @Contract("_, _ -> this")
+    ServerBuffer writeBitSet(BitSet bitSet, int size);
 
     /**
      * @return next block position
@@ -469,19 +534,6 @@ public interface ServerBuffer extends Cloneable {
      */
     @Contract("_ -> this")
     ServerBuffer writeTextures(@Nullable PlayerTextures playerSkin);
-
-    /**
-     * @return next message signature
-     */
-    @Contract("-> new")
-    MessageSignature readSignature();
-
-    /**
-     * @param messageSignature message signature to write
-     * @return this
-     */
-    @Contract("_ -> this")
-    ServerBuffer writeSignature(MessageSignature messageSignature);
 
     /**
      * @return next angle

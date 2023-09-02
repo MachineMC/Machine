@@ -27,7 +27,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutSetTitleAnimationTimes extends PacketOut {
 
-    private static final int ID = 0x5E;
+    private static final int ID = 0x60;
 
     @Getter @Setter
     private int fadeIn, stay, fadeOut;

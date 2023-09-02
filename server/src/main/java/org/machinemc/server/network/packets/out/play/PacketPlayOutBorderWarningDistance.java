@@ -26,7 +26,7 @@ import org.machinemc.api.utils.FriendlyByteBuf;
 @AllArgsConstructor
 public class PacketPlayOutBorderWarningDistance extends PacketOut {
 
-    private static final int ID = 0x48;
+    private static final int ID = 0x4B;
 
     @Getter @Setter
     private int warningBlocks;

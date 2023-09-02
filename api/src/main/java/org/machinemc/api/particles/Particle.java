@@ -43,14 +43,15 @@ public class Particle<O extends ParticleOption> implements NBTSerializable, Writ
      * @see Particle#toNBT()
      * @param compound compound of the particle
      * @return particle created from the compound
+     * @param <O> particle options
      */
-    public static Optional<Particle<?>> fromNBT(final NBTCompound compound) {
+    public static <O extends ParticleOption> Optional<Particle<O>> fromNBT(final NBTCompound compound) {
         Objects.requireNonNull(compound, "Source compound can not be null");
         if (!compound.containsKey("type") || compound.get("type").tag() != NBT.Tag.STRING)
             return Optional.empty();
         final NamespacedKey name = NamespacedKey.minecraft(compound.get("type").value());
-        return ParticleType.get(name).map(particleType -> {
-            final Particle<?> particle = particleType.create();
+        return ParticleType.<O>get(name).map(particleType -> {
+            final Particle<O> particle = particleType.create();
             particle.getOptions().load(compound);
             return particle;
         });

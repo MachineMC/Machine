@@ -27,9 +27,3 @@ dependencies {
     implementation(libs.machine.scriptive)
 
 }
-
-tasks {
-    jar {
-        dependsOn(checkstyleMain)
-    }
-}

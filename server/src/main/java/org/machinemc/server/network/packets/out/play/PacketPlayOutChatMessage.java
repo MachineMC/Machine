@@ -18,14 +18,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.jetbrains.annotations.Nullable;
-import org.machinemc.api.auth.MessageSignature;
+import org.machinemc.api.chat.PlayerMessage;
 import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.scriptive.components.Component;
+import org.machinemc.server.chat.PlayerChatMessage;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
-
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -33,15 +30,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PacketPlayOutChatMessage extends PacketOut {
 
-    private static final int ID = 0x33;
+    private static final int ID = 0x35;
 
-    private Component signedMessage;
-    private @Nullable Component unsignedMessage;
-    private int chatType;
-    private UUID uuid;
-    private Component displayName;
-    private @Nullable Component teamName;
-    private MessageSignature messageSignature;
+    private PlayerMessage message;
 
     static {
         register(PacketPlayOutChatMessage.class, ID, PacketState.PLAY_OUT,
@@ -49,15 +40,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
     }
 
     public PacketPlayOutChatMessage(final ServerBuffer buf) {
-        signedMessage = buf.readComponent();
-        if (buf.readBoolean()) // has unsigned content
-            unsignedMessage = buf.readComponent();
-        chatType = buf.readVarInt();
-        uuid = buf.readUUID();
-        displayName = buf.readComponent();
-        if (buf.readBoolean()) // has team
-            teamName = buf.readComponent();
-        messageSignature = buf.readSignature();
+        message = new PlayerChatMessage(buf);
     }
 
     @Override
@@ -72,19 +55,7 @@ public class PacketPlayOutChatMessage extends PacketOut {
 
     @Override
     public byte[] serialize() {
-        final FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeComponent(signedMessage)
-                .writeBoolean(unsignedMessage != null);
-        if (unsignedMessage != null)
-            buf.writeComponent(unsignedMessage);
-        buf.writeVarInt(chatType)
-                .writeUUID(uuid)
-                .writeComponent(displayName)
-                .writeBoolean(teamName != null);
-        if (teamName != null)
-            buf.writeComponent(teamName);
-        return buf.writeSignature(messageSignature)
-                .bytes();
+        return new FriendlyByteBuf().write(message).bytes();
     }
 
     @Override

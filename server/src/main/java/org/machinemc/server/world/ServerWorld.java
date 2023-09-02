@@ -60,7 +60,6 @@ import static org.machinemc.server.chunk.ChunkUtils.getSectionRelativeCoordinate
 /**
  * Server with a folder in the main server directory.
  */
-@SuppressWarnings("UnstableApiUsage")
 public class ServerWorld extends AbstractWorld {
 
     public static final String DEFAULT_WORLD_FOLDER = "level";

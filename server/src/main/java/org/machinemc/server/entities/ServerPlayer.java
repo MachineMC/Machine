@@ -20,8 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.Server;
-import org.machinemc.api.chat.ChatMode;
-import org.machinemc.api.chat.MessageType;
+import org.machinemc.api.chat.*;
 import org.machinemc.api.entities.EntityType;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.entities.player.Gamemode;
@@ -32,12 +31,18 @@ import org.machinemc.api.network.PlayerConnection;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.server.codec.Codec;
+import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.world.*;
 import org.machinemc.nbt.NBTCompound;
+import org.machinemc.nbt.NBTList;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.style.ChatColor;
+import org.machinemc.server.chat.MessageSignature;
+import org.machinemc.server.chat.PlayerChatMessage;
+import org.machinemc.server.chat.ServerChatSession;
+import org.machinemc.server.chat.SignedMessageChain;
 import org.machinemc.server.network.ClientConnection;
 import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.server.network.packets.out.play.PacketPlayOutSynchronizePlayerPosition.TeleportFlags;
@@ -70,6 +75,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     private Set<SkinPart> displayedSkinParts;
     @Getter @Setter
     private Hand mainHand;
+    @Getter
+    private boolean listed = true;
     @Getter @Setter
     private int latency = 0;
     @Getter
@@ -80,6 +87,11 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     private int teleportID = 0;
     private boolean teleporting = false;
     private Location teleportLocation;
+
+    @Getter
+    private ServerChatSession session;
+    @Getter
+    private final SignedMessageChain messageChain = new SignedMessageChain(SignedMessageChain.DEFAULT_CAPACITY);
 
     private ServerPlayer(final Server server, final PlayerProfile profile, final ClientConnection connection) {
         super(server, EntityType.PLAYER, profile.getUUID());
@@ -157,15 +169,22 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
         final NBTCompound codec = new Codec(
                 getServer().getDimensionTypeManager(),
+                getServer().getDamageTypeManager(),
                 getServer().getBiomeManager(),
                 getServer().getMessenger()
         ).toNBT();
+        // TODO placeholders for now
+        codec.put("minecraft:trim_pattern", Map.of(
+                "type", "minecraft:trim_pattern",
+                "value", new NBTList()));
+        codec.put("minecraft:trim_material", Map.of(
+                "type", "minecraft:trim_material",
+                "value", new NBTList()));
 
         final List<String> worlds = new ArrayList<>();
         for (final World world : getServer().getWorldManager().getWorlds())
             worlds.add(world.getName().toString());
 
-        //noinspection UnstableApiUsage
         sendPacket(new PacketPlayOutLogin(
                 getEntityID(),
                 false,
@@ -185,7 +204,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
                 getWorld().getWorldType() == WorldType.FLAT,
                 false,
                 null,
-                null
+                null,
+                getPortalCooldown()
         ));
 
         super.init();
@@ -215,12 +235,12 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         // Player Position
 
         // Player info
-        sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, this));
+        final EnumSet<PacketPlayOutPlayerInfo.Action> actions = EnumSet.allOf(PacketPlayOutPlayerInfo.Action.class);
+        sendPacket(new PacketPlayOutPlayerInfo(actions, this));
         for (final Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
-            if (player == this)
-                continue;
-            sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, player));
-            player.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.ADD_PLAYER, this));
+            if (player == this) continue;
+            sendPacket(new PacketPlayOutPlayerInfo(actions, player));
+            player.sendPacket(new PacketPlayOutPlayerInfo(actions, this));
         }
 
         // Set Chunk Cache Center
@@ -231,9 +251,8 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         // Set Default Spawn Position
         sendWorldSpawnChange(getWorld().getWorldSpawn());
 
-
         // Synchronize Player Position
-        synchronizePosition(getLocation(), Collections.emptySet(), false);
+        synchronizePosition(new EntityPosition(0, 0, 0), EnumSet.allOf(TeleportFlags.class));
         for (final Player player : getServer().getEntityManager().getEntitiesOfClass(Player.class)) {
             if (player == this)
                 continue;
@@ -257,9 +276,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
             throw new IllegalStateException("You can't remove player from server until the connection is closed");
         super.remove();
         getWorld().remove(this);
-        getServer().getConnection().broadcastPacket(
-                new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, this)
-        );
+        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfoRemove(getUUID()));
         getServer().getPlayerManager().removePlayer(this);
         final TranslationComponent leaveMessage = TranslationComponent.of(
                 "multiplayer.player.left", TranslationComponent.of(getName())
@@ -282,11 +299,10 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     @Override
     public void setPlayerListName(final @Nullable Component playerListName) {
         this.playerListName = playerListName != null ? playerListName : TextComponent.of(getName());
-        getServer().getConnection().broadcastPacket(
-                new PacketPlayOutPlayerInfo(
-                        PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME,
-                        this)
-        );
+        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(
+                EnumSet.of(PacketPlayOutPlayerInfo.Action.UPDATE_DISPLAY_NAME),
+                this
+        ));
     }
 
     @Override
@@ -300,6 +316,19 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         previousGamemode = this.gamemode;
         this.gamemode = gamemode;
         sendGamemodeChange(gamemode);
+        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(
+                EnumSet.of(PacketPlayOutPlayerInfo.Action.UPDATE_GAMEMODE),
+                this
+        ));
+    }
+
+    @Override
+    public void setListed(final boolean listed) {
+        this.listed = listed;
+        getServer().getConnection().broadcastPacket(new PacketPlayOutPlayerInfo(
+                EnumSet.of(PacketPlayOutPlayerInfo.Action.UPDATE_LISTED),
+                this
+        ));
     }
 
     @Override
@@ -309,7 +338,72 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     @Override
     public void sendMessage(final @Nullable UUID source, final Component message, final MessageType type) {
-        getServer().getMessenger().sendMessage(this, message, type);
+        Objects.requireNonNull(message, "Message can not be null");
+        Objects.requireNonNull(type, "Message type can not be null");
+
+        if (type == MessageType.CHAT) {
+            final Player sender = getServer().getPlayerManager().getPlayer(source).orElseThrow(() ->
+                    new RuntimeException("Only players can be source of chat messages")
+            );
+            sendMessage(message, type, sender.getDisplayName(), getDisplayName());
+            return;
+        }
+
+        if (!Messenger.canReceiveCommand(this)) return;
+        sendPacket(new PacketPlayOutSystemChatMessage(message, false));
+    }
+
+    @Override
+    public void sendMessage(final Component message, final MessageType type, final Component source, final @Nullable Component target) {
+        Objects.requireNonNull(message, "Message can not be null");
+        Objects.requireNonNull(type, "Message type can not be null");
+        Objects.requireNonNull(source, "Source can not be null");
+        if (!Messenger.accepts(this, type)) return;
+        sendPacket(new PacketPlayOutDisguisedChatMessage(message, type, source, target));
+    }
+
+    @Override
+    public void sendMessage(final PlayerMessage message) {
+        if (!Messenger.canReceiveMessage(this)) return;
+        final PlayerChatMessage playerChatMessage = new PlayerChatMessage(new FriendlyByteBuf().write(message));
+        playerChatMessage.pack(messageChain.getCache());
+        sendPacket(new PacketPlayOutChatMessage(playerChatMessage));
+        if (playerChatMessage.getSignature().isPresent())
+            messageChain.addPending(new MessageSignature(playerChatMessage.getSignature().get()));
+    }
+
+    @Override
+    public void deletePlayerMessage(final PlayerMessage message) {
+        Objects.requireNonNull(message);
+        if (message.getSignature().isEmpty())
+            throw new RuntimeException("Messages with no signature can not be deleted");
+        sendPacket(new PacketPlayOutDeleteMessage(message.getSignature().get()));
+    }
+
+    @Override
+    public Optional<ChatSession> getChatSession() {
+        if (session != null && session.isExpired()) {
+            session = null;
+            return Optional.empty();
+        }
+        return Optional.ofNullable(session);
+    }
+
+    /**
+     * Initializes new session for the player.
+     * @param session new session
+     */
+    public void newSession(final ServerChatSession session) {
+        this.session = session;
+        for (final Player player : getServer().getPlayers())
+            player.sendPacket(new PacketPlayOutPlayerInfo(EnumSet.of(PacketPlayOutPlayerInfo.Action.INITIALIZE_CHAT), this));
+    }
+
+    /**
+     * @return next ID for the chat message
+     */
+    public int getNextMessageID() {
+        return session.nextIndex();
     }
 
     /**
@@ -341,29 +435,24 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     /**
      * Synchronizes player's position.
-     * @param location new location
+     * @param position new position
      * @param flags teleport flags
-     * @param dismountVehicle if player dismounted a vehicle
      */
-    public void synchronizePosition(final Location location,
-                                    final Set<TeleportFlags> flags,
-                                    final boolean dismountVehicle) {
-
-        final double x = location.getX() - (flags.contains(TeleportFlags.X) ? getLocation().getX() : 0d);
-        final double y = location.getY() - (flags.contains(TeleportFlags.Y) ? getLocation().getY() : 0d);
-        final double z = location.getZ() - (flags.contains(TeleportFlags.Z) ? getLocation().getZ() : 0d);
-        final float yaw = location.getYaw() - (flags.contains(TeleportFlags.YAW) ? getLocation().getYaw() : 0f);
-        final float pitch = location.getPitch() - (flags.contains(TeleportFlags.PITCH) ? getLocation().getPitch() : 0f);
-
+    public void synchronizePosition(final EntityPosition position, final Set<TeleportFlags> flags) {
         teleporting = true;
+
+        final double x = position.getX() + (flags.contains(TeleportFlags.X) ? getLocation().getX() : 0d);
+        final double y = position.getY() + (flags.contains(TeleportFlags.Y) ? getLocation().getY() : 0d);
+        final double z = position.getZ() + (flags.contains(TeleportFlags.Z) ? getLocation().getZ() : 0d);
+        final float yaw = position.getYaw() + (flags.contains(TeleportFlags.YAW) ? getLocation().getYaw() : 0f);
+        final float pitch = position.getPitch() + (flags.contains(TeleportFlags.PITCH) ? getLocation().getPitch() : 0f);
 
         teleportLocation = new Location(x, y, z, yaw, pitch, getWorld());
         if (++teleportID == Integer.MAX_VALUE)
             teleportID = 0;
 
-        sendPacket(new PacketPlayOutSynchronizePlayerPosition(location, flags, teleportID, dismountVehicle));
+        sendPacket(new PacketPlayOutSynchronizePlayerPosition(position, flags, teleportID));
     }
-
 
     /**
      * Handles the teleport confirmation of the player.
@@ -373,7 +462,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     public boolean handleTeleportConfirm(final int teleportID) {
         if (!teleporting || this.teleportID != teleportID) {
             teleporting = false;
-            connection.disconnect(TranslationComponent.of("multidisconnect.invalid_player_movement"));
+            connection.disconnect(TranslationComponent.of("multiplayer.disconnect.invalid_player_movement"));
             return false;
         }
         teleporting = false;
@@ -412,6 +501,11 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
     @Override
     public void sendPacket(final Packet packet) {
         getConnection().send(packet);
+    }
+
+    @Override
+    public void sendPackets(final Packet... packets) {
+        getConnection().send(packets);
     }
 
     @Override

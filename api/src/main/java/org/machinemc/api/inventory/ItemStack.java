@@ -40,7 +40,7 @@ class ItemStack implements Item {
         final Material[] materials = Material.values();
         REGISTRY = new Material[materials.length];
         for (final Material value : materials) {
-            if (value.getId() >= 0) REGISTRY[value.getId()] = value;
+            if (value.getID() >= 0) REGISTRY[value.getID()] = value;
         }
     }
 
@@ -62,12 +62,12 @@ class ItemStack implements Item {
      * @return id of the material
      */
     public static int getID(final Material material) {
-        return Objects.requireNonNull(material, "Material can not be null").getId();
+        return Objects.requireNonNull(material, "Material can not be null").getID();
     }
 
     ItemStack(final Material material) {
         Objects.requireNonNull(material, "Material can not be null");
-        if (material.getId() == -1)
+        if (material.getID() == -1)
             throw new IllegalStateException("Material " + material + " can't have item form");
         this.material = material;
     }

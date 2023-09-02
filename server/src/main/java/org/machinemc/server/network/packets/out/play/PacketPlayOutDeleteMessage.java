@@ -18,33 +18,26 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.scriptive.components.Component;
-import org.jetbrains.annotations.Nullable;
-import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
-@Getter
-@Setter
 @ToString
 @AllArgsConstructor
-public class PacketPlayOutChatPreview extends PacketOut {
+public class PacketPlayOutDeleteMessage extends PacketOut {
 
-    private static final int ID = 0x0C;
+    private static final int ID = 0x19;
 
-    private int queryID;
-    private @Nullable Component preview;
+    @Getter @Setter
+    private byte[] signature;
 
     static {
-        register(PacketPlayOutChatPreview.class, ID, Packet.PacketState.PLAY_OUT,
-                PacketPlayOutChatPreview::new);
+        register(PacketPlayOutDeleteMessage.class, ID, PacketState.PLAY_OUT,
+                PacketPlayOutDeleteMessage::new);
     }
 
-    public PacketPlayOutChatPreview(final ServerBuffer buf) {
-        queryID = buf.readVarInt();
-        if (buf.readBoolean())
-            preview = buf.readComponent();
+    public PacketPlayOutDeleteMessage(final ServerBuffer buf) {
+        signature = buf.readByteArray();
     }
 
     @Override
@@ -53,24 +46,20 @@ public class PacketPlayOutChatPreview extends PacketOut {
     }
 
     @Override
-    public Packet.PacketState getPacketState() {
-        return Packet.PacketState.PLAY_OUT;
+    public PacketState getPacketState() {
+        return PacketState.PLAY_OUT;
     }
 
     @Override
     public byte[] serialize() {
-        final FriendlyByteBuf buf = new FriendlyByteBuf()
-                .writeInt(queryID)
-                .writeBoolean(preview != null);
-        if (preview != null) {
-            buf.writeComponent(preview);
-        }
-        return buf.bytes();
+        return new FriendlyByteBuf()
+                .writeByteArray(signature)
+                .bytes();
     }
 
     @Override
     public PacketOut clone() {
-        return new PacketPlayOutChatPreview(new FriendlyByteBuf(serialize()));
+        return new PacketPlayOutDeleteMessage(new FriendlyByteBuf(serialize()));
     }
 
 }
