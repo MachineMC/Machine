@@ -2,7 +2,7 @@
 # API and Implementation
 jetbrains-kotlin-gradle = "1.6.21"
 jetbrains-annotations = "23.0.0"
-lombok = "1.18.24"
+lombok = "1.18.30"
 google-gson = "2.10.1"
 google-guava = "32.1.2-jre"
 asm = "9.5"

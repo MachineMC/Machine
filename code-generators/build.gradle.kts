@@ -12,10 +12,19 @@ dependencies {
     implementation(libs.asm)
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
 tasks {
     compileKotlin {
         kotlinOptions {
             jvmTarget = "17"
         }
+    }
+    compileJava {
+        options.release.set(17)
     }
 }
