@@ -84,7 +84,7 @@ public class BlockParticleOption implements ParticleOption {
         final BlockData state = blockData != null ? blockData : DEFAULT_STATE;
         final Map<String, String> properties = state.getDataMap();
         compound.put("Name", state.getMaterial().getName().toString());
-        if (properties.size() == 0) return new NBTCompound(Map.of("value", compound));
+        if (properties.isEmpty()) return new NBTCompound(Map.of("value", compound));
         final NBTCompound propertiesCompound = new NBTCompound();
         for (final Map.Entry<String, String> property : properties.entrySet())
             propertiesCompound.put(property.getKey(), property.getValue());

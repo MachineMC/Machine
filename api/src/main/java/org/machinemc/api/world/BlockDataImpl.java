@@ -122,7 +122,7 @@ non-sealed class BlockDataImpl extends BlockData {
 
         final Map<String, String> properties = new LinkedHashMap<>(blockData.getDataMap());
         for (final String property : propertiesText.toString().replace(" ", "").split(",")) {
-            if (property.length() == 0) continue;
+            if (property.isEmpty()) continue;
             final String[] keyAndValue = property.split("=");
             if (!properties.containsKey(keyAndValue[0])) continue;
             properties.replace(keyAndValue[0], keyAndValue[1]);

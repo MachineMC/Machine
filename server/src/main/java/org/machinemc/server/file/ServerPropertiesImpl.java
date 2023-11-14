@@ -98,7 +98,7 @@ public class ServerPropertiesImpl implements ServerProperties {
         maxPlayers = Integer.parseInt(properties.getProperty("max-players"));
 
         final String motdJson = properties.getProperty("motd");
-        motd = motdJson.equals("")
+        motd = motdJson.isEmpty()
                 ? TextComponent.empty()
                 : getServer().getComponentSerializer().deserializeJson(motdJson);
 

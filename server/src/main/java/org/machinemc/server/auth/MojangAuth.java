@@ -61,13 +61,14 @@ public final class MojangAuth {
         final String url = String.format(MojangAuth.AUTH_URL, username, serverID);
         return CompletableFuture.supplyAsync(() -> {
             try {
-                final HttpRequest request = HttpRequest.newBuilder(new URI(url))
-                        .timeout(Duration.ofSeconds(5))
-                        .GET().build();
-                final HttpResponse<String> response = HttpClient.newHttpClient()
-                        .send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() == HttpURLConnection.HTTP_OK)
-                    return (JsonObject) JsonParser.parseString(response.body());
+                try (HttpClient client = HttpClient.newHttpClient()) {
+                    final HttpRequest request = HttpRequest.newBuilder(new URI(url))
+                            .timeout(Duration.ofSeconds(5))
+                            .GET().build();
+                    final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    if (response.statusCode() == HttpURLConnection.HTTP_OK)
+                        return (JsonObject) JsonParser.parseString(response.body());
+                }
             } catch (Exception ignored) { }
             return null;
         });
@@ -96,12 +97,13 @@ public final class MojangAuth {
                 final HttpRequest request = HttpRequest.newBuilder(new URI(url))
                         .timeout(Duration.ofSeconds(5))
                         .GET().build();
-                final HttpResponse<String> response = HttpClient.newHttpClient()
-                        .send(request, HttpResponse.BodyHandlers.ofString());
-                if (!(response.statusCode() == HttpURLConnection.HTTP_OK))
-                    return Optional.empty();
-                final JsonObject json = (JsonObject) JsonParser.parseString(response.body());
-                return UUIDUtils.parseUUID(json.get("id").getAsString());
+                try (HttpClient client = HttpClient.newHttpClient()) {
+                    final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    if (!(response.statusCode() == HttpURLConnection.HTTP_OK))
+                        return Optional.empty();
+                    final JsonObject json = (JsonObject) JsonParser.parseString(response.body());
+                    return UUIDUtils.parseUUID(json.get("id").getAsString());
+                }
             } catch (Exception ignored) { }
             return Optional.empty();
         });
@@ -120,13 +122,14 @@ public final class MojangAuth {
                 final HttpRequest request = HttpRequest.newBuilder(new URI(url))
                         .timeout(Duration.ofSeconds(5))
                         .GET().build();
-                final HttpResponse<String> response = HttpClient.newHttpClient()
-                        .send(request, HttpResponse.BodyHandlers.ofString());
-                if (!(response.statusCode() == HttpURLConnection.HTTP_OK))
-                    return Optional.empty();
-                final JsonObject json = (JsonObject) JsonParser.parseString(response.body());
-                final JsonObject properties = json.getAsJsonArray("properties").get(0).getAsJsonObject();
-                return PlayerTextures.buildSkin(properties);
+                try (HttpClient client = HttpClient.newHttpClient()) {
+                    final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    if (!(response.statusCode() == HttpURLConnection.HTTP_OK))
+                        return Optional.empty();
+                    final JsonObject json = (JsonObject) JsonParser.parseString(response.body());
+                    final JsonObject properties = json.getAsJsonArray("properties").get(0).getAsJsonObject();
+                    return PlayerTextures.buildSkin(properties);
+                }
             } catch (Exception ignored) { }
             return Optional.empty();
         });

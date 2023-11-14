@@ -324,7 +324,7 @@ public class ClientConnection implements PlayerConnection {
      * @param encrypt cipher for encryption
      * @param decrypt cipher for decryption
      */
-    record EncryptionContext(Cipher encrypt, Cipher decrypt) {
+    protected record EncryptionContext(Cipher encrypt, Cipher decrypt) {
     }
 
     @Override

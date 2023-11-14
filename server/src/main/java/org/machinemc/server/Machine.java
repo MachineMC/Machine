@@ -227,7 +227,7 @@ public final class Machine implements Server, RunnableServer {
         }
 
         // Registering all dimensions from the file into the manager
-        if (dimensions.size() == 0) {
+        if (dimensions.isEmpty()) {
             console.warning("There are no defined dimensions in the dimensions file, "
                     + "loading default dimension instead");
             dimensionTypeManager.addDimension(ServerDimensionType.createDefault());
@@ -256,7 +256,7 @@ public final class Machine implements Server, RunnableServer {
         }
 
         // Registering all biomes from the file into the manager
-        if (biomes.size() == 0) {
+        if (biomes.isEmpty()) {
             console.warning("There are no defined biomes in the biomes file, "
                     + "loading default biome instead");
             biomeManager.addBiome(ServerBiome.createDefault());
@@ -303,7 +303,7 @@ public final class Machine implements Server, RunnableServer {
             exceptionHandler.handle(exception, "Failed to load the server worlds from server directory");
         }
 
-        if (worldManager.getWorlds().size() == 0) {
+        if (worldManager.getWorlds().isEmpty()) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             try {
                 FileUtils.createServerFile(

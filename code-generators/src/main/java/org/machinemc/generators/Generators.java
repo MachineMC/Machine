@@ -62,7 +62,7 @@ public final class Generators {
             data = is.readAllBytes();
         }
 
-        versions = new JsonParser().parse(
+        versions = JsonParser.parseReader(
                 new InputStreamReader(new ByteArrayInputStream(data))
         ).getAsJsonObject();
 
@@ -79,7 +79,7 @@ public final class Generators {
 
         final InputStreamReader reader = new InputStreamReader(new FileInputStream(versionsFile));
         try (reader) {
-            userVersions = new JsonParser().parse(reader).getAsJsonObject();
+            userVersions = JsonParser.parseReader(reader).getAsJsonObject();
         }
 
         handle(new MaterialsLibGenerator(outputDir), regenerate);

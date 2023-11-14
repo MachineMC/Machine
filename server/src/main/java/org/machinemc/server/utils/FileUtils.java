@@ -15,6 +15,7 @@
 package org.machinemc.server.utils;
 
 import lombok.Cleanup;
+import lombok.Getter;
 import org.machinemc.server.Machine;
 
 import java.io.*;
@@ -30,6 +31,7 @@ import java.util.UUID;
  */
 public final class FileUtils {
 
+    @Getter
     private static File sourceLocation;
 
     static {
@@ -113,13 +115,6 @@ public final class FileUtils {
         } catch (IOException exception) {
             return false;
         }
-    }
-
-    /**
-     * @return location of loaded class files
-     */
-    public static File getSourceLocation() {
-        return sourceLocation;
     }
 
     /**

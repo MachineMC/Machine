@@ -588,7 +588,7 @@ public class FriendlyByteBuf implements ServerBuffer {
         writeBoolean(true);
         writeVarInt(itemStack.getMaterial().getID());
         writeByte(itemStack.getAmount());
-        if (itemStack.getNBTCompound().size() != 0)
+        if (!itemStack.getNBTCompound().isEmpty())
             writeNBT(itemStack.getNBTCompound());
         else
             writeBoolean(false);

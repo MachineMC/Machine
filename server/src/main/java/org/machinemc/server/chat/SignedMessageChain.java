@@ -38,7 +38,7 @@ public class SignedMessageChain {
 
     private LastSeenMessages lastSeenMessages = new LastSeenMessages(Collections.emptyList());
     @Getter
-    private Cache cache = new Cache(Cache.DEFAULT_CAPACITY);
+    private final Cache cache = new Cache(Cache.DEFAULT_CAPACITY);
 
     public SignedMessageChain(final int capacity) {
         Preconditions.checkArgument(capacity > 0, "Message chain can not be smaller than 1");

@@ -59,7 +59,7 @@ public class Vector3 implements Cloneable {
     }
 
     /**
-     * Add the components of the other the other vector to this one.
+     * Add the components of the other vector to this one.
      * @param other the 3D vector
      * @return this
      */
