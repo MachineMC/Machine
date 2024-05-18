@@ -20,6 +20,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
@@ -30,7 +31,7 @@ public class PacketPlayOutDisconnect extends PacketOut {
     private static final int ID = 0x1A;
 
     @Getter @Setter
-    private Component reason;
+    private ComponentProperties reason;
 
     static {
         register(PacketPlayOutDisconnect.class, ID, PacketState.PLAY_OUT,

@@ -42,7 +42,7 @@ import org.machinemc.api.world.dimensions.DimensionTypeManager;
 import org.machinemc.application.*;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
-import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
+import org.machinemc.scriptive.serialization.JSONComponentSerializer;
 import org.machinemc.server.chat.ServerMessenger;
 import org.machinemc.server.commands.MachineCommands;
 import org.machinemc.server.entities.ServerEntityManager;
@@ -130,7 +130,7 @@ public final class Machine implements Server, RunnableServer {
     @Getter
     private Messenger messenger;
     @Getter
-    private ComponentSerializer componentSerializer;
+    private ComponentSerializer<String> componentSerializer;
     @Getter
     private WorldManager worldManager;
     @Getter
@@ -176,7 +176,7 @@ public final class Machine implements Server, RunnableServer {
         final long start = System.currentTimeMillis();
 
         // TODO register other server related component types (NBTComponent, ScoreComponent, SelectorComponent)
-        componentSerializer = new ComponentSerializerImpl();
+        componentSerializer = new JSONComponentSerializer();
 
         console.info("Loading Machine Server on Minecraft " + SERVER_IMPLEMENTATION_VERSION);
 
@@ -452,7 +452,7 @@ public final class Machine implements Server, RunnableServer {
                 json.addProperty("favicon", "data:image/png;base64," + icon));
         return gson
                 .toJson(json)
-                .replace("\"%MOTD%\"", properties.getMOTD().toJson());
+                .replace("\"%MOTD%\"", componentSerializer.serialize(properties.getMOTD()));
     }
 
 }

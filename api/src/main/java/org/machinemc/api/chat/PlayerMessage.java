@@ -17,7 +17,7 @@ package org.machinemc.api.chat;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.Server;
 import org.machinemc.api.utils.Writable;
-import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 
 import java.time.Instant;
 import java.util.BitSet;
@@ -54,13 +54,13 @@ public interface PlayerMessage extends Writable {
     /**
      * @return extra message content
      */
-    Optional<Component> getUnsignedContent();
+    Optional<ComponentProperties> getUnsignedContent();
 
     /**
      * Updates unsigned content of the message.
      * @param content new content
      */
-    void setUnsignedContent(@Nullable Component content);
+    void setUnsignedContent(@Nullable ComponentProperties content);
 
     /**
      * @return filter type of the message

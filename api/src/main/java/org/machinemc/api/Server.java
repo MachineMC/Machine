@@ -141,7 +141,7 @@ public interface Server {
     /**
      * @return server's component serializer
      */
-    ComponentSerializer getComponentSerializer();
+    ComponentSerializer<String> getComponentSerializer();
 
     /**
      * @return server's world manager

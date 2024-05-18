@@ -37,14 +37,14 @@ public class ShriekParticleOption implements ParticleOption {
     @Override
     public void load(final NBTCompound compound) {
         Objects.requireNonNull(compound, "Source compound can not be null");
-        if (compound.containsKey("delay") && compound.get("delay").tag() == NBT.Tag.INT)
-            delay = compound.get("delay").value();
+        if (compound.containsKey("delay") && compound.getNBT("delay").tag() == NBT.Tag.INT)
+            delay = compound.getValue("delay");
     }
 
     @Override
     public NBTCompound toNBT() {
         final NBTCompound compound = new NBTCompound();
-        compound.put("delay", new NBTInt(delay));
+        compound.set("delay", new NBTInt(delay));
         return compound;
     }
 

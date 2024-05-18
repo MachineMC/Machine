@@ -254,9 +254,9 @@ public class ClientConnection implements PlayerConnection {
     public ChannelFuture disconnect(final Component reason) {
         try {
             if (state == ClientState.LOGIN)
-                this.send(new PacketLoginOutDisconnect(reason));
+                this.send(new PacketLoginOutDisconnect(reason.getProperties()));
             if (state == ClientState.PLAY)
-                this.send(new PacketPlayOutDisconnect(reason));
+                this.send(new PacketPlayOutDisconnect(reason.getProperties()));
         } catch (Exception ignored) { }
         return close();
     }

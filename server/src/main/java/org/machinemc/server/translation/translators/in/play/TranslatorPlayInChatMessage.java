@@ -52,7 +52,12 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
                 .orElseThrow(() -> new NullPointerException("Missing chat type 'minecraft:chat'"));
 
         final PlayerMessage message;
-        final ChatBound chatBound = new ServerChatBound(connection.getServer().getMessenger(), chatType, player.getDisplayName(), null);
+        final ChatBound chatBound = new ServerChatBound(
+                connection.getServer().getMessenger(),
+                chatType,
+                player.getDisplayName().getProperties(),
+                null
+        );
         final LastSeenMessages.Update update = new LastSeenMessages.Update(packet.getMessageCount(), packet.getAcknowledged());
         final Optional<LastSeenMessages> lastMessages = player.getMessageChain().applyUpdate(update);
         if (lastMessages.isEmpty()) {
@@ -78,7 +83,7 @@ public class TranslatorPlayInChatMessage extends PacketTranslator<PacketPlayInCh
         for (final Player serverPlayer : connection.getServer().getPlayers())
             serverPlayer.sendMessage(message);
 
-        final String consoleMessage = ChatUtils.DEFAULT_CHAT_FORMAT
+        final String consoleMessage = "<%name%> %message%"
                 .replace("%name%", player.getName())
                 .replace("%message%", packet.getMessage());
         connection.getServer().getConsole().info(consoleMessage);

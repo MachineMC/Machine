@@ -25,11 +25,14 @@ import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.Material;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentProperties;
+import org.machinemc.scriptive.serialization.ComponentProperty;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
-import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
+import org.machinemc.scriptive.serialization.JSONComponentSerializer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -505,8 +508,7 @@ public class FriendlyByteBuf implements ServerBuffer {
         final ByteArrayInputStream is = new ByteArrayInputStream(bytes, buf.readerIndex(), bytes.length);
         final NBTCompound compound;
         try {
-            compound = new NBTCompound();
-            compound.readAll(is);
+            compound = NBTCompound.readRootCompound(is);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
@@ -518,28 +520,26 @@ public class FriendlyByteBuf implements ServerBuffer {
     public FriendlyByteBuf writeNBT(final NBTCompound compound) {
         Objects.requireNonNull(compound);
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
-        compound.writeAll(os);
+        try {
+            compound.writeRoot(os);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
         buf.writeBytes(os.toByteArray());
         return this;
     }
 
-    private final ComponentSerializer serializer = new ComponentSerializerImpl();
+    private final ComponentSerializer<String> serializer = new JSONComponentSerializer();
 
     @Override
-    public Component readComponent() {
-        return readComponent(serializer);
+    public ComponentProperties readComponent() {
+        return serializer.deserializeAsProperties(readString(StandardCharsets.UTF_8));
     }
 
     @Override
-    public Component readComponent(final ComponentSerializer serializer) {
-        Objects.requireNonNull(serializer);
-        return serializer.deserializeJson(readString(StandardCharsets.UTF_8));
-    }
-
-    @Override
-    public FriendlyByteBuf writeComponent(final Component component) {
-        Objects.requireNonNull(component);
-        writeString(component.toJson(), StandardCharsets.UTF_8);
+    public ServerBuffer writeComponent(ComponentProperties properties) {
+        Objects.requireNonNull(properties);
+        writeString(serializer.serializeFromProperties(properties), StandardCharsets.UTF_8);
         return this;
     }
 

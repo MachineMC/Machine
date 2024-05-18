@@ -149,7 +149,7 @@ public class LandscapeChunk extends WorldChunk {
         final int sectionIndex = offsetY / Chunk.CHUNK_SECTION_SIZE;
         final Segment segment = getSegment(sectionIndex);
         final NBTCompound original = segment.getNBT(x, sectionY, z);
-        original.putAll(compound.clone());
+        compound.clone().forEach(original::set);
 
         final Section section = sections.getIfPresent(sectionIndex);
         // updates the visual and client nbt if the section is present

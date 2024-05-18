@@ -14,9 +14,12 @@ mojang-brigadier = "1.0.18"
 junit = "5.10.1"
 
 # Machine libraries
-machine-nbt = "1.1.1"
-machine-landscape = "1.0.3"
-machine-scriptive = "1.1"
+machine-nbt-core = "2.0.0"
+machine-nbt-parser = "2.0.0"
+machine-landscape = "1.0.4"
+machine-scriptive-core = "1.2"
+machine-scriptive-gson = "1.2"
+machine-scriptive-nbt = "1.2"
 
 # Plugins
 cadixdev-licenser = "0.6.1"
@@ -52,9 +55,12 @@ junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref 
 
 cadixdev-licenser = { module = "gradle.plugin.org.cadixdev.gradle:licenser", version.ref = "cadixdev-licenser" }
 
-machine-nbt = { module = "org.machinemc:nbt", version.ref = "machine-nbt" }
+machine-nbt-core = { module = "org.machinemc:nbt-core", version.ref = "machine-nbt-core" }
+machine-nbt-parser = { module = "org.machinemc:nbt-parser", version.ref = "machine-nbt-parser" }
 machine-landscape = { module = "org.machinemc:landscape", version.ref = "machine-landscape" }
-machine-scriptive = { module = "org.machinemc:scriptive", version.ref = "machine-scriptive" }
+machine-scriptive-core = { module = "org.machinemc:scriptive-core", version.ref = "machine-scriptive-core" }
+machine-scriptive-gson = { module = "org.machinemc:scriptive-gson", version.ref = "machine-scriptive-gson" }
+machine-scriptive-nbt = { module = "org.machinemc:scriptive-nbt", version.ref = "machine-scriptive-nbt" }
 
 [plugins]
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrains-kotlin-jvm" }

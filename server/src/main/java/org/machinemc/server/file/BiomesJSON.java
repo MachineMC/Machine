@@ -167,7 +167,7 @@ public class BiomesJSON implements ServerFile, ServerProperty {
                 try {
                     final JsonObject particleJson = effectsJson.getAsJsonObject("particle");
                     biomeParticleProbability = particleJson.get("probability").getAsFloat();
-                    particle = Particle.fromNBT(new NBTParser(particleJson.get("options").getAsString()).parse())
+                    particle = Particle.fromNBT(NBTParser.parse(particleJson.get("options").getAsString()))
                             .orElse(null);
                 } catch (Exception ignored) {
                     biomeParticleProbability = effects.getBiomeParticleProbability().orElse(null);

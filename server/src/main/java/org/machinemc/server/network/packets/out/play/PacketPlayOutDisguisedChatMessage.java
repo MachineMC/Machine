@@ -23,6 +23,7 @@ import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 import org.machinemc.server.network.packets.PacketOut;
 
 @Getter
@@ -33,10 +34,10 @@ public class PacketPlayOutDisguisedChatMessage extends PacketOut {
 
     private static final int ID = 0x1B;
 
-    private Component message;
+    private ComponentProperties message;
     private MessageType messageType;
-    private Component source;
-    private @Nullable Component target;
+    private ComponentProperties source;
+    private @Nullable ComponentProperties target;
 
     static {
         register(PacketPlayOutDisguisedChatMessage.class, ID, PacketState.PLAY_OUT,

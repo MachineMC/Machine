@@ -17,8 +17,9 @@ repositories {
 
 dependencies {
 
-    implementation(libs.machine.nbt)
-    implementation(libs.machine.scriptive)
+    implementation(libs.machine.nbt.core)
+    implementation(libs.machine.scriptive.core)
+    implementation(libs.machine.scriptive.gson)
     implementation(libs.jetbrains.annotations) // overrides default compileOnly
     implementation(libs.google.guava)
     implementation(libs.google.gson)

@@ -471,7 +471,7 @@ public class ServerWorld extends AbstractWorld {
         for (final BlockHandler handler : entityBlockType.getHandlers())
             handler.onGeneration(state);
         if (generatorData != null)
-            state.compound().putAll(generatorData.clone());
+            generatorData.clone().forEach(state.compound()::set);
         return state.compound();
     }
 

@@ -74,7 +74,6 @@ public abstract class BaseTerminal implements ApplicationTerminal {
         this.out = out;
     }
 
-
     @Override
     public MachineApplication getApplication() {
         return application;
@@ -98,10 +97,7 @@ public abstract class BaseTerminal implements ApplicationTerminal {
         if (colors) {
             info(source, ChatUtils.consoleFormatted(message));
         } else {
-            final StringBuilder builder = new StringBuilder();
-            message.separatedComponents()
-                    .forEach(component -> builder.append(component.flatten()));
-            info(source, builder.toString());
+            info(source, ChatUtils.consoleFormatted(message));
         }
     }
 

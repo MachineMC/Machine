@@ -100,7 +100,7 @@ public class ServerPropertiesImpl implements ServerProperties {
         final String motdJson = properties.getProperty("motd");
         motd = motdJson.isEmpty()
                 ? TextComponent.empty()
-                : getServer().getComponentSerializer().deserializeJson(motdJson);
+                : getServer().getComponentSerializer().deserialize(motdJson);
 
         NamespacedKey defaultWorldParsed = null;
         try {

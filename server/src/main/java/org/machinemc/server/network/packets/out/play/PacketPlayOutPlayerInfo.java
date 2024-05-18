@@ -24,6 +24,7 @@ import org.machinemc.api.entities.player.PlayerTextures;
 import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 import org.machinemc.server.network.packets.PacketOut;
 
 import java.nio.charset.StandardCharsets;
@@ -197,7 +198,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
         private @Nullable Gamemode gamemode;
         private boolean listed;
         private int latency;
-        private @Nullable Component displayName;
+        private @Nullable ComponentProperties displayName;
         private @Nullable UUID sessionID;
         private @Nullable PublicKeyData publicKeyData;
 
@@ -212,7 +213,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut {
                     player.getGamemode(),
                     player.isListed(),
                     player.getLatency(),
-                    player.getPlayerListName(),
+                    player.getPlayerListName().getProperties(),
                     player.getChatSession().map(ChatSession::getUUID).orElse(null),
                     player.getChatSession().map(ChatSession::getData).orElse(null));
         }

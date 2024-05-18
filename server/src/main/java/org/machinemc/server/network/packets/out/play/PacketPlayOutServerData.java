@@ -19,6 +19,7 @@ import org.machinemc.scriptive.components.Component;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
@@ -33,7 +34,7 @@ public class PacketPlayOutServerData extends PacketOut {
     private static final int ID = 0x45;
 
     @Getter(AccessLevel.NONE)
-    private Component motd;
+    private ComponentProperties motd;
     private @Nullable String icon;
     private boolean enforcedSecureChat;
 
@@ -75,7 +76,7 @@ public class PacketPlayOutServerData extends PacketOut {
     /**
      * @return MOTD of the server
      */
-    public Component getMOTD() {
+    public ComponentProperties getMOTD() {
         return motd;
     }
 

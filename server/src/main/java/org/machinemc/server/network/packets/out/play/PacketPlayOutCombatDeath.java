@@ -21,6 +21,7 @@ import lombok.ToString;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
@@ -33,7 +34,7 @@ public class PacketPlayOutCombatDeath extends PacketOut {
     private static final int ID = 0x38;
 
     private int playerID;
-    private Component deathMessage;
+    private ComponentProperties deathMessage;
 
     static {
         register(PacketPlayOutCombatDeath.class, ID, Packet.PacketState.PLAY_OUT,

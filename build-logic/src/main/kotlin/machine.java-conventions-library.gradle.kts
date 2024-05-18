@@ -19,8 +19,7 @@ run {
 repositories {
     mavenCentral()
     maven {
-        url = uri("http://www.machinemc.org/releases")
-        isAllowInsecureProtocol = true
+        url = uri("https://repo.machinemc.org/releases")
     }
 }
 

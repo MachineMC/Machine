@@ -100,37 +100,37 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
     @Override
     public void visit(final NBTByte nbtByte) {
         Objects.requireNonNull(nbtByte);
-        result.append(text(nbtByte.value(), NUMBER_COLOR)).append(text('b', DATA_TYPE_COLOR));
+        result.append(text(nbtByte.revert(), NUMBER_COLOR)).append(text('b', DATA_TYPE_COLOR));
     }
 
     @Override
     public void visit(final NBTShort nbtShort) {
         Objects.requireNonNull(nbtShort);
-        result.append(text(nbtShort.value(), NUMBER_COLOR)).append(text('s', DATA_TYPE_COLOR));
+        result.append(text(nbtShort.revert(), NUMBER_COLOR)).append(text('s', DATA_TYPE_COLOR));
     }
 
     @Override
     public void visit(final NBTInt nbtInt) {
         Objects.requireNonNull(nbtInt);
-        result.append(text(nbtInt.value(), NUMBER_COLOR));
+        result.append(text(nbtInt.revert(), NUMBER_COLOR));
     }
 
     @Override
     public void visit(final NBTLong nbtLong) {
         Objects.requireNonNull(nbtLong);
-        result.append(text(nbtLong.value(), NUMBER_COLOR)).append(text('L', DATA_TYPE_COLOR));
+        result.append(text(nbtLong.revert(), NUMBER_COLOR)).append(text('L', DATA_TYPE_COLOR));
     }
 
     @Override
     public void visit(final NBTFloat nbtFloat) {
         Objects.requireNonNull(nbtFloat);
-        result.append(text(nbtFloat.value(), NUMBER_COLOR)).append(text('f', DATA_TYPE_COLOR));
+        result.append(text(nbtFloat.revert(), NUMBER_COLOR)).append(text('f', DATA_TYPE_COLOR));
     }
 
     @Override
     public void visit(final NBTDouble nbtDouble) {
         Objects.requireNonNull(nbtDouble);
-        result.append(text(nbtDouble.value(), NUMBER_COLOR)).append(text('d', DATA_TYPE_COLOR));
+        result.append(text(nbtDouble.revert(), NUMBER_COLOR)).append(text('d', DATA_TYPE_COLOR));
     }
 
     @Override
@@ -138,7 +138,7 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
         Objects.requireNonNull(nbtByteArray);
         final TextComponent dataType = text('B', DATA_TYPE_COLOR);
         result.append(LEFT_BRACE).append(dataType).append(SEMI_COLON);
-        final byte[] bytes = nbtByteArray.value();
+        final byte[] bytes = nbtByteArray.revert();
 
         for (int i = 0; i < bytes.length; i++) {
             final TextComponent number = text(bytes[i], NUMBER_COLOR);
@@ -156,7 +156,7 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
         Objects.requireNonNull(nbtIntArray);
         final TextComponent dataType = text('I', DATA_TYPE_COLOR);
         result.append(LEFT_BRACE).append(dataType).append(SEMI_COLON);
-        final int[] ints = nbtIntArray.value();
+        final int[] ints = nbtIntArray.revert();
 
         for (int i = 0; i < ints.length; i++) {
             final TextComponent number = text(ints[i], NUMBER_COLOR);
@@ -174,7 +174,7 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
         Objects.requireNonNull(nbtLongArray);
         final TextComponent dataType = text('L', DATA_TYPE_COLOR);
         result.append(LEFT_BRACE).append(dataType).append(SEMI_COLON);
-        final long[] longs = nbtLongArray.value();
+        final long[] longs = nbtLongArray.revert();
 
         for (int i = 0; i < longs.length; i++) {
             final TextComponent number = text(longs[i], NUMBER_COLOR);
@@ -236,7 +236,7 @@ public class PrettyNBTStringVisitor implements NBTVisitor {
 
             result.append(Strings.repeat(indentation, depth + 1))
                     .append(handleEscape(key)).append(COLON).append(" ")
-                    .append(new PrettyNBTStringVisitor(indentation, depth + 1).visitNBT(nbtCompound.get(key)));
+                    .append(new PrettyNBTStringVisitor(indentation, depth + 1).visitNBT(nbtCompound.getNBT(key)));
         }
 
         if (hasIndentation)

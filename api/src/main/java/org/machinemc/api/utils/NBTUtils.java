@@ -40,7 +40,7 @@ public final class NBTUtils {
             Objects.requireNonNull(nbt, "NBTCompound can not be null");
             if (!file.exists() && !file.createNewFile())
                 throw new IOException("Unable to create file at " + file.getAbsolutePath());
-            nbt.write(file);
+            nbt.writeToFile(file);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
@@ -53,9 +53,7 @@ public final class NBTUtils {
      */
     public static NBTCompound deserializeNBTFile(final File file) {
         try {
-            final NBTCompound compound = new NBTCompound();
-            compound.read(Objects.requireNonNull(file, "File can not be null"));
-            return compound;
+            return NBTCompound.readFromFile(Objects.requireNonNull(file, "File can not be null"), true);
         } catch (IOException e) {
             throw new RuntimeException("Couldn't read file at " + file.getAbsolutePath(), e);
         }

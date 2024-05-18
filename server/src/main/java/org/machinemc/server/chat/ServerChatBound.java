@@ -22,7 +22,7 @@ import org.machinemc.api.chat.ChatBound;
 import org.machinemc.api.chat.ChatType;
 import org.machinemc.api.chat.Messenger;
 import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -31,18 +31,18 @@ import java.util.Optional;
 public class ServerChatBound implements ChatBound {
 
     private int chatTypeID;
-    private Component source;
+    private ComponentProperties source;
     @Getter(AccessLevel.NONE)
     @Setter
-    private @Nullable Component target;
+    private @Nullable ComponentProperties target;
 
-    public ServerChatBound(final int chatTypeID, final Component source, final @Nullable Component target) {
+    public ServerChatBound(final int chatTypeID, final ComponentProperties source, final @Nullable ComponentProperties target) {
         this.chatTypeID = chatTypeID;
         this.source = Objects.requireNonNull(source, "Source can not be null");
         this.target = target;
     }
 
-    public ServerChatBound(final Messenger messenger, final ChatType chatType, final Component name, final Component targetName) {
+    public ServerChatBound(final Messenger messenger, final ChatType chatType, final ComponentProperties name, final ComponentProperties targetName) {
         this(messenger.getChatTypeID(chatType), name, targetName);
     }
 
@@ -63,12 +63,12 @@ public class ServerChatBound implements ChatBound {
     }
 
     @Override
-    public void setSource(final Component component) {
+    public void setSource(final ComponentProperties component) {
         source = Objects.requireNonNull(component, "Source can not be null");
     }
 
     @Override
-    public Optional<Component> getTarget() {
+    public Optional<ComponentProperties> getTarget() {
         return Optional.ofNullable(target);
     }
 
