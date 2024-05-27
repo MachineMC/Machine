@@ -34,17 +34,17 @@ import java.util.regex.Pattern;
 public class PrettyNBTStringVisitor implements NBTVisitor {
 
     private static final Pattern SIMPLE_VALUE = Pattern.compile("[\\dA-Za-z_\\-.+]+");
-    private static final TextFormat KEY_FORMAT = new TextFormat(ChatColor.AQUA);
-    private static final TextFormat NUMBER_FORMAT = new TextFormat(ChatColor.GOLD);
-    private static final TextFormat STRING_FORMAT = new TextFormat(ChatColor.GREEN);
-    private static final TextFormat DATA_TYPE_FORMAT = new TextFormat(ChatColor.RED);
-    private static final TextComponent LEFT_CURLY_BRACE = TextComponent.of("{", new TextFormat(ChatColor.WHITE));
-    private static final TextComponent RIGHT_CURLY_BRACE = TextComponent.of("}", new TextFormat(ChatColor.WHITE));
-    private static final TextComponent LEFT_BRACE = TextComponent.of("[", new TextFormat(ChatColor.WHITE));
-    private static final TextComponent RIGHT_BRACE = TextComponent.of("]", new TextFormat(ChatColor.WHITE));
-    private static final TextComponent ELEMENT_SEPARATOR = TextComponent.of(",", new TextFormat(ChatColor.WHITE));
-    private static final TextComponent COLON = TextComponent.of(":", new TextFormat(ChatColor.WHITE));
-    private static final TextComponent SEMI_COLON = TextComponent.of(";", new TextFormat(ChatColor.WHITE));
+    private static final TextFormat KEY_FORMAT = ChatColor.AQUA.asTextFormat();
+    private static final TextFormat NUMBER_FORMAT = ChatColor.GOLD.asTextFormat();
+    private static final TextFormat STRING_FORMAT = ChatColor.GREEN.asTextFormat();
+    private static final TextFormat DATA_TYPE_FORMAT = ChatColor.RED.asTextFormat();
+    private static final TextComponent LEFT_CURLY_BRACE = TextComponent.of("{", ChatColor.WHITE.asTextFormat());
+    private static final TextComponent RIGHT_CURLY_BRACE = TextComponent.of("}", ChatColor.WHITE.asTextFormat());
+    private static final TextComponent LEFT_BRACE = TextComponent.of("[", ChatColor.WHITE.asTextFormat());
+    private static final TextComponent RIGHT_BRACE = TextComponent.of("]", ChatColor.WHITE.asTextFormat());
+    private static final TextComponent ELEMENT_SEPARATOR = TextComponent.of(",", ChatColor.WHITE.asTextFormat());
+    private static final TextComponent COLON = TextComponent.of(":", ChatColor.WHITE.asTextFormat());
+    private static final TextComponent SEMI_COLON = TextComponent.of(";", ChatColor.WHITE.asTextFormat());
 
     private final String indentation;
     private final int depth;
