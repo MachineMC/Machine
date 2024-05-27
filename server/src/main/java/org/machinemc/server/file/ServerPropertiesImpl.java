@@ -23,45 +23,78 @@ import org.machinemc.api.file.ServerProperties;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Difficulty;
 import org.machinemc.api.world.WorldType;
+import org.machinemc.cogwheel.TypedClassInitiator;
+import org.machinemc.cogwheel.annotations.Comment;
+import org.machinemc.cogwheel.config.ConfigSerializer;
+import org.machinemc.cogwheel.config.Configuration;
+import org.machinemc.cogwheel.properties.CommentedProperties;
+import org.machinemc.cogwheel.properties.PropertiesConfigSerializer;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.server.Machine;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Base64;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Properties;
+import java.util.function.Function;
 
 /**
  * Default implementation of server properties.
  */
 @Getter
-public class ServerPropertiesImpl implements ServerProperties {
+public class ServerPropertiesImpl implements ServerProperties, Configuration {
 
     public static final String PROPERTIES_FILE_NAME = "server.properties";
     public static final String ICON_FILE_NAME = "icon.png";
 
+    public static final Function<Server, ConfigSerializer<CommentedProperties>> CONFIG_SERIALIZER = server -> PropertiesConfigSerializer.builder()
+            .registry(server.getSerializerRegistry())
+            .classInitiator(new TypedClassInitiator(Server.class, server))
+            .errorHandler((context, error) -> server.getConsole().severe(error.type() + ": " + error.message()))
+            .emptyLineBetweenEntries(true)
+            .build();
+
     private final Server server;
 
-    private final String serverIP;
-    private final @Range(from = 0, to = 65536) int serverPort;
-    private final boolean online;
-    private final int maxPlayers;
+    @Comment("Server ip")
+    private String serverIP = "localhost";
+    @Comment("Server port")
+    private @Range(from = 0, to = 65536) int serverPort = 25565;
+    @Comment("Online mode")
+    private boolean online = true;
+    @Comment("Server max players, -1 for not limit")
+    private int maxPlayers = -1;
     @Getter(AccessLevel.NONE)
-    private final Component motd;
-    private final NamespacedKey defaultWorld;
-    private final Difficulty defaultDifficulty;
-    private final WorldType defaultWorldType;
-    private final boolean reducedDebugScreen;
-    private final int viewDistance, simulationDistance, serverResponsiveness;
+    @Comment("Server list message in json chat format")
+    private Component motd = TextComponent.of("A Machine Minecraft Server");
+    @Comment("World where players spawn in if not specified differently")
+    private NamespacedKey defaultWorld = NamespacedKey.machine("main");
+    @Comment("Default difficulty when creating a new world")
+    private Difficulty defaultDifficulty = Difficulty.DEFAULT_DIFFICULTY;
+    @Comment("The world type of the default world")
+    private WorldType defaultWorldType = WorldType.NORMAL;
+    @Comment("If true, the client will show reduces information on the debug screen")
+    private boolean reducedDebugScreen = false;
+    @Comment("The render distance (2-32)")
+    private @Range(from = 2, to = 32) int viewDistance = 8;
+    @Comment("The distance that the client will process specific things, such as entities")
+    private int simulationDistance = 8;
+    @Comment({
+            "How often the server reads incoming packets in milliseconds",
+            "If the value is 0 then the server will read the packets once every tick"
+    })
+    private int serverResponsiveness = 0;
     @Getter(AccessLevel.NONE)
-    private final int tps;
-    private final String serverBrand;
+    @Comment("How many ticks per second the server is run on")
+    private int tps = 20;
+    private String serverBrand = "Machine server";
+
     @Getter(AccessLevel.NONE)
     private final @Nullable BufferedImage icon;
     @Getter(AccessLevel.NONE)
@@ -69,75 +102,8 @@ public class ServerPropertiesImpl implements ServerProperties {
 
     private static final int ICON_SIZE = 64;
 
-    public ServerPropertiesImpl(final Server server, final File file) throws IOException {
+    public ServerPropertiesImpl(final Server server) throws IOException {
         this.server = Objects.requireNonNull(server, "Server can not be null");
-        Objects.requireNonNull(file, "Source file can not be null");
-        final Properties original = new Properties();
-
-        final InputStream originalInputStream = getOriginal().orElseThrow(() ->
-                new IllegalStateException("Default server properties file doesn't exist in the server"));
-
-        InputStreamReader stream = new InputStreamReader(originalInputStream, StandardCharsets.UTF_8);
-        original.load(stream);
-        stream.close();
-
-        final Properties properties = new Properties();
-        stream = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
-        properties.load(stream);
-        stream.close();
-
-        for (final Map.Entry<Object, Object> entry : original.entrySet())
-            properties.putIfAbsent(entry.getKey(), entry.getValue());
-
-        serverIP = properties.getProperty("server-ip");
-
-        serverPort = Integer.parseInt(properties.getProperty("server-port"));
-
-        online = Boolean.parseBoolean(properties.getProperty("online"));
-
-        maxPlayers = Integer.parseInt(properties.getProperty("max-players"));
-
-        final String motdJson = properties.getProperty("motd");
-        motd = motdJson.isEmpty()
-                ? TextComponent.empty()
-                : getServer().getComponentSerializer().deserialize(motdJson);
-
-        NamespacedKey defaultWorldParsed = null;
-        try {
-            defaultWorldParsed = NamespacedKey.parse(properties.getProperty("default-world"));
-        } catch (Exception ignored) { }
-        defaultWorld = defaultWorldParsed != null ? defaultWorldParsed : NamespacedKey.machine("main");
-
-        Difficulty difficulty;
-        try {
-            difficulty = Difficulty.valueOf(properties.getProperty("default-difficulty").toUpperCase());
-        } catch (Exception e) {
-            difficulty = Difficulty.DEFAULT_DIFFICULTY;
-        }
-        defaultDifficulty = difficulty;
-
-        WorldType worldType;
-        try {
-            worldType = WorldType.valueOf(properties.getProperty("default-world-type").toUpperCase());
-        } catch (Exception e) {
-            worldType = WorldType.NORMAL;
-        }
-        defaultWorldType = worldType;
-
-        viewDistance = Integer.parseInt(properties.getProperty("view-distance"));
-
-        simulationDistance = Integer.parseInt(properties.getProperty("simulation-distance"));
-
-        reducedDebugScreen = Boolean.parseBoolean(properties.getProperty("reduced-debug-screen"));
-
-        final int tps = Integer.parseInt(properties.getProperty("tps"));
-        this.tps = tps <= 0 ? Machine.DEFAULT_TPS : tps;
-
-        final int response = Integer.parseInt(properties.getProperty("server-responsiveness"));
-        serverResponsiveness = Math.max(response, 0);
-
-        serverBrand = properties.getProperty("server-brand");
-
         final File png = new File(server.getDirectory(), ICON_FILE_NAME);
         BufferedImage icon = null;
         String encodedIcon = null;
@@ -154,6 +120,14 @@ public class ServerPropertiesImpl implements ServerProperties {
         }
         this.icon = icon;
         this.encodedIcon = encodedIcon;
+    }
+
+    /**
+     * Saves the server properties to the specified file
+     * @param file the destination
+     */
+    public void save(final File file) {
+        CONFIG_SERIALIZER.apply(server).save(file, this);
     }
 
     @Override
@@ -189,6 +163,16 @@ public class ServerPropertiesImpl implements ServerProperties {
     @Override
     public String toString() {
         return getName();
+    }
+
+    /**
+     * Constructs a new server properties object from a properties file
+     * @param server server instance
+     * @param file server properties file
+     * @return newly created server properties
+     */
+    public static ServerProperties load(final Server server, final File file) {
+        return CONFIG_SERIALIZER.apply(server).load(file, ServerPropertiesImpl.class);
     }
 
 }

@@ -30,6 +30,9 @@ import org.machinemc.api.entities.damagetypes.DamageTypeManager;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.file.PlayerDataContainer;
 import org.machinemc.api.file.ServerProperties;
+import org.machinemc.api.serializers.EntityPositionSerializer;
+import org.machinemc.api.serializers.LocationSerializer;
+import org.machinemc.api.serializers.NamespacedKeySerializer;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.NamespacedKey;
@@ -44,6 +47,7 @@ import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
 import org.machinemc.application.*;
 import org.machinemc.cogwheel.serialization.SerializerRegistry;
+import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.JSONComponentSerializer;
@@ -54,9 +58,6 @@ import org.machinemc.server.entities.damagetypes.ServerDamageTypeManager;
 import org.machinemc.server.exception.ServerExceptionHandler;
 import org.machinemc.server.file.*;
 import org.machinemc.server.network.NettyServer;
-import org.machinemc.api.serializers.EntityPositionSerializer;
-import org.machinemc.api.serializers.LocationSerializer;
-import org.machinemc.api.serializers.NamespacedKeySerializer;
 import org.machinemc.server.server.ServerPlayerManager;
 import org.machinemc.server.translation.TranslatorDispatcher;
 import org.machinemc.server.utils.FileUtils;
@@ -70,7 +71,6 @@ import org.machinemc.server.world.dimensions.ServerDimensionType;
 import org.machinemc.server.world.dimensions.ServerDimensionTypeManager;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
@@ -185,6 +185,7 @@ public final class Machine implements Server, RunnableServer {
         final long start = System.currentTimeMillis();
 
         serializerRegistry = new SerializerRegistry();
+        serializerRegistry.addSerializer(Component.class, new org.machinemc.api.serializers.ComponentSerializer(this));
         serializerRegistry.addSerializer(NamespacedKey.class, new NamespacedKeySerializer());
         serializerRegistry.addSerializer(EntityPosition.class, new EntityPositionSerializer());
         serializerRegistry.addSerializer(Location.class, new LocationSerializer(this));
@@ -197,14 +198,16 @@ public final class Machine implements Server, RunnableServer {
         // Setting up server properties
         final File propertiesFile = new File(directory, ServerPropertiesImpl.PROPERTIES_FILE_NAME);
         if (!propertiesFile.exists()) {
-            FileUtils.createServerFile(directory, ServerPropertiesImpl.PROPERTIES_FILE_NAME);
             FileUtils.createServerFile(directory, ServerPropertiesImpl.ICON_FILE_NAME);
-        }
-        try {
-            properties = new ServerPropertiesImpl(this, propertiesFile);
-        } catch (IOException exception) {
-            exceptionHandler.handle(exception, "Failed to load server properties");
-            application.stopServer(this);
+            properties = new ServerPropertiesImpl(this);
+            ((ServerPropertiesImpl) properties).save(propertiesFile);
+        } else {
+            try {
+                properties = ServerPropertiesImpl.load(this, propertiesFile);
+            } catch (Exception exception) {
+                exceptionHandler.handle(exception, "Failed to load server properties");
+                application.stopServer(this);
+            }
         }
         console.info("Loaded server properties");
 
