@@ -32,6 +32,9 @@ import org.machinemc.api.file.PlayerDataContainer;
 import org.machinemc.api.file.ServerProperties;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.server.schedule.Scheduler;
+import org.machinemc.api.utils.NamespacedKey;
+import org.machinemc.api.world.EntityPosition;
+import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldManager;
 import org.machinemc.api.world.biomes.Biome;
@@ -40,6 +43,7 @@ import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
 import org.machinemc.application.*;
+import org.machinemc.cogwheel.serialization.SerializerRegistry;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.JSONComponentSerializer;
@@ -50,6 +54,9 @@ import org.machinemc.server.entities.damagetypes.ServerDamageTypeManager;
 import org.machinemc.server.exception.ServerExceptionHandler;
 import org.machinemc.server.file.*;
 import org.machinemc.server.network.NettyServer;
+import org.machinemc.api.serializers.EntityPositionSerializer;
+import org.machinemc.api.serializers.LocationSerializer;
+import org.machinemc.api.serializers.NamespacedKeySerializer;
 import org.machinemc.server.server.ServerPlayerManager;
 import org.machinemc.server.translation.TranslatorDispatcher;
 import org.machinemc.server.utils.FileUtils;
@@ -130,6 +137,8 @@ public final class Machine implements Server, RunnableServer {
     @Getter
     private Messenger messenger;
     @Getter
+    SerializerRegistry serializerRegistry;
+    @Getter
     private ComponentSerializer<String> componentSerializer;
     @Getter
     private WorldManager worldManager;
@@ -174,6 +183,11 @@ public final class Machine implements Server, RunnableServer {
         if (running) throw new RuntimeException("The server is already running");
 
         final long start = System.currentTimeMillis();
+
+        serializerRegistry = new SerializerRegistry();
+        serializerRegistry.addSerializer(NamespacedKey.class, new NamespacedKeySerializer());
+        serializerRegistry.addSerializer(EntityPosition.class, new EntityPositionSerializer());
+        serializerRegistry.addSerializer(Location.class, new LocationSerializer(this));
 
         // TODO register other server related component types (NBTComponent, ScoreComponent, SelectorComponent)
         componentSerializer = new JSONComponentSerializer();
@@ -286,18 +300,17 @@ public final class Machine implements Server, RunnableServer {
                 if (!path.endsWith(WorldJSON.WORLD_FILE_NAME)) continue;
                 if (path.getNameCount() < 3) continue;
                 if (!Files.isSameFile(directory.toPath(), path.getParent().getParent())) continue;
-                try {
-                    final WorldJSON worldJson = new WorldJSON(this, path.toFile());
-                    if (worldManager.isRegistered(worldJson.getWorldName())) {
-                        console.severe("World with name '" + worldJson.getName() + "' is already registered");
-                        continue;
-                    }
-                    final World world = worldJson.buildWorld();
-                    worldManager.addWorld(world);
-                    console.info("Registered world '" + world.getName() + "'");
-                } catch (IOException exception) {
-                    exceptionHandler.handle(exception);
+                final File file = path.toFile();
+                final WorldJSON worldJSON = WorldJSON.fromFile(this, file);
+                // Something went wrong. Error should be logged
+                if (worldJSON == null) continue;
+                if (worldManager.isRegistered(worldJSON.getName())) {
+                    console.severe("World with name '" + worldJSON.getName() + "' is already registered");
+                    continue;
                 }
+                final World world = worldJSON.buildWorld(file.getParentFile());
+                worldManager.addWorld(world);
+                console.info("Registered world '" + world.getName() + "'");
             }
         } catch (Exception exception) {
             exceptionHandler.handle(exception, "Failed to load the server worlds from server directory");
@@ -306,10 +319,6 @@ public final class Machine implements Server, RunnableServer {
         if (worldManager.getWorlds().isEmpty()) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             try {
-                FileUtils.createServerFile(
-                        new File(directory, ServerWorld.DEFAULT_WORLD_FOLDER + "/" + WorldJSON.WORLD_FILE_NAME),
-                        WorldJSON.WORLD_FILE_NAME
-                );
                 final World world = ServerWorld.createDefault(this);
                 worldManager.addWorld(world);
             } catch (Exception exception) {

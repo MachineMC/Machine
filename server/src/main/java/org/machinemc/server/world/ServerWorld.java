@@ -41,6 +41,7 @@ import org.machinemc.nbt.NBTCompound;
 import org.machinemc.server.Machine;
 import org.machinemc.server.chunk.ChunkSection;
 import org.machinemc.server.chunk.ChunkUtils;
+import org.machinemc.server.file.WorldJSON;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.server.utils.WeaklyTimedCache;
 import org.machinemc.server.world.blocks.WorldBlockManager;
@@ -67,6 +68,7 @@ public class ServerWorld extends AbstractWorld {
     @Getter
     private final File folder;
     private final File regionFolder;
+    private final File worldJSONFile;
 
     protected final Set<Entity> entityList = new CopyOnWriteArraySet<>();
 
@@ -89,16 +91,16 @@ public class ServerWorld extends AbstractWorld {
         final File directory = new File(server.getDirectory(), DEFAULT_WORLD_FOLDER + "/");
         if (!directory.exists() && !directory.mkdirs())
             throw new RuntimeException("Failed to create the world directory " + directory.getPath());
-        final World world = new ServerWorld(
+        final DimensionType dimensionType = server.getDimensionTypeManager().getDimensions().iterator().next();
+        return new ServerWorld(
                 directory,
                 server,
                 NamespacedKey.machine("main"),
-                server.getDimensionTypeManager().getDimensions().iterator().next(),
+                dimensionType,
                 server.getProperties().getDefaultWorldType(),
-                1);
-        world.setWorldSpawn(new Location(0, world.getDimensionType().getMinY(), 0, world));
-        world.setDifficulty(server.getProperties().getDefaultDifficulty());
-        return world;
+                1,
+                server.getProperties().getDefaultDifficulty(),
+                EntityPosition.of(0, dimensionType.getMinY(), 0));
     }
 
     public ServerWorld(final File folder,
@@ -106,10 +108,13 @@ public class ServerWorld extends AbstractWorld {
                        final NamespacedKey name,
                        final DimensionType dimensionType,
                        final WorldType worldType,
-                       final long seed) {
-        super(server, name, FileUtils.getOrCreateUUID(folder), dimensionType, worldType, seed);
+                       final long seed,
+                       final @Nullable Difficulty difficulty,
+                       final EntityPosition worldSpawn) {
+        super(server, name, FileUtils.getOrCreateUUID(folder), dimensionType, worldType, seed, difficulty, worldSpawn);
         this.folder = Objects.requireNonNull(folder, "World directory can not be null");
         regionFolder = new File(folder.getPath() + "/region/");
+        worldJSONFile = new File(folder, WorldJSON.WORLD_FILE_NAME);
         landscapeHelper = new LandscapeHelper(this,
                 regionFolder,
                 new DefaultLandscapeHandler(
@@ -132,6 +137,7 @@ public class ServerWorld extends AbstractWorld {
                             + landscapeHelper.getHandler().getDefaultType()
                             + " is not registered in the server block manager"));
         });
+        System.out.println(worldType);
     }
 
     /**
@@ -167,6 +173,8 @@ public class ServerWorld extends AbstractWorld {
         if (loaded) throw new UnsupportedOperationException("The world has already been loaded");
         if (!regionFolder.mkdirs() && !regionFolder.exists())
             throw new IllegalStateException("Could not create the region folder for the world");
+        if (!worldJSONFile.exists())
+            saveWorldJSON();
         loaded = true;
         getServer().getConsole().info("Loaded world '" + getName() + "'");
     }
@@ -186,7 +194,12 @@ public class ServerWorld extends AbstractWorld {
     public void save() {
         getServer().getConsole().info("Saving world '" + getName() + "'...");
         landscapeHelper.flush();
+        saveWorldJSON();
         getServer().getConsole().info("Saved world '" + getName() + "'");
+    }
+
+    private void saveWorldJSON() {
+        WorldJSON.fromWorld(this).save(worldJSONFile);
     }
 
     /**

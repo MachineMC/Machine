@@ -422,11 +422,11 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     /**
      * Sends packet to change world spawn.
-     * @param location new world spawn
+     * @param position new world spawn
      */
-    private void sendWorldSpawnChange(final Location location) {
-        Objects.requireNonNull(location, "Location can not be null");
-        sendPacket(new PacketPlayOutWorldSpawnPosition(location));
+    private void sendWorldSpawnChange(final EntityPosition position) {
+        Objects.requireNonNull(position, "Location can not be null");
+        sendPacket(new PacketPlayOutWorldSpawnPosition(position));
     }
 
     /**

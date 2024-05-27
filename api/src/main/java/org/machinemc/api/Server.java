@@ -40,6 +40,7 @@ import org.machinemc.api.world.biomes.BiomeManager;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
+import org.machinemc.cogwheel.serialization.SerializerRegistry;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 
 import java.io.File;
@@ -138,6 +139,11 @@ public interface Server {
      */
     Messenger getMessenger();
 
+    /**
+     * @return server's configuration serializer registry
+     */
+    SerializerRegistry getSerializerRegistry();
+    
     /**
      * @return server's component serializer
      */
