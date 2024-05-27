@@ -176,7 +176,7 @@ public abstract class BaseTerminal implements ApplicationTerminal {
      */
     public static String stripColorCodes(final String input) {
         return COLOR_CODE_PATTERN.matcher(input).replaceAll(matchResult ->
-                ChatCode.byChar(matchResult.group(1)) == null ? matchResult.group() : ""
+                ChatCode.byChar(matchResult.group(1)).isEmpty() ? matchResult.group() : ""
         );
     }
 
