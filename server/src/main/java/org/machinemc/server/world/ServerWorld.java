@@ -137,7 +137,6 @@ public class ServerWorld extends AbstractWorld {
                             + landscapeHelper.getHandler().getDefaultType()
                             + " is not registered in the server block manager"));
         });
-        System.out.println(worldType);
     }
 
     /**
