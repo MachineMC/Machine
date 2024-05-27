@@ -17,6 +17,7 @@ repositories {
 
 dependencies {
 
+    implementation(libs.machine.cogwheel.core)
     implementation(libs.machine.nbt.core)
     implementation(libs.machine.scriptive.core)
     implementation(libs.machine.scriptive.gson)
