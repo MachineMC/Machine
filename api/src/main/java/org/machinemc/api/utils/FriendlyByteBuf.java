@@ -24,9 +24,7 @@ import org.machinemc.api.inventory.Item;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.Material;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentProperties;
-import org.machinemc.scriptive.serialization.ComponentProperty;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.JSONComponentSerializer;
 
@@ -537,7 +535,7 @@ public class FriendlyByteBuf implements ServerBuffer {
     }
 
     @Override
-    public ServerBuffer writeComponent(ComponentProperties properties) {
+    public ServerBuffer writeComponent(final ComponentProperties properties) {
         Objects.requireNonNull(properties);
         writeString(serializer.serializeFromProperties(properties), StandardCharsets.UTF_8);
         return this;

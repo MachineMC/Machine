@@ -3,6 +3,7 @@
 jetbrains-kotlin-gradle = "1.9.10"
 jetbrains-annotations = "24.0.1"
 lombok = "1.18.30"
+slf4j = "2.0.13"
 google-gson = "2.10.1"
 google-guava = "32.1.3-jre"
 asm = "9.6"
@@ -37,6 +38,8 @@ jetbrains-kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin"
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
 
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+
+slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 google-gson = { module = "com.google.code.gson:gson", version.ref = "google-gson" }
 google-guava = { module = "com.google.guava:guava", version.ref = "google-guava" }

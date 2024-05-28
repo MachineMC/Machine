@@ -15,7 +15,6 @@
 package org.machinemc.server.network.packets.out.play;
 
 import lombok.*;
-import org.machinemc.scriptive.components.Component;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.ServerBuffer;

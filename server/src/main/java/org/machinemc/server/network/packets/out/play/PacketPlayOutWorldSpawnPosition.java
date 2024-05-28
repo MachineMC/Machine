@@ -21,7 +21,6 @@ import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.api.world.EntityPosition;
-import org.machinemc.api.world.Location;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 

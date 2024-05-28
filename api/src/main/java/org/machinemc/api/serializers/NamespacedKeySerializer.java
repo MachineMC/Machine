@@ -23,12 +23,12 @@ import org.machinemc.cogwheel.util.error.ErrorContainer;
 public class NamespacedKeySerializer implements Serializer<NamespacedKey> {
 
     @Override
-    public void serialize(NamespacedKey namespacedKey, DataVisitor dataVisitor) {
+    public void serialize(final NamespacedKey namespacedKey, final DataVisitor dataVisitor) {
         dataVisitor.writeString(namespacedKey.toString());
     }
 
     @Override
-    public @Nullable NamespacedKey deserialize(DataVisitor dataVisitor, ErrorContainer errorContainer) {
+    public @Nullable NamespacedKey deserialize(final DataVisitor dataVisitor, final ErrorContainer errorContainer) {
         try {
             return dataVisitor.readString()
                     .map(NamespacedKey::parse)

@@ -143,7 +143,7 @@ public interface Server {
      * @return server's configuration serializer registry
      */
     SerializerRegistry getSerializerRegistry();
-    
+
     /**
      * @return server's component serializer
      */

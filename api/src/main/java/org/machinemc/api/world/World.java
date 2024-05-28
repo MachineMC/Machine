@@ -35,7 +35,7 @@ import static org.machinemc.api.chunk.Chunk.CHUNK_SIZE_BITS;
  * Represents a world, which may contain entities, chunks and blocks.
  */
 public interface World extends ServerProperty {
-    
+
     /**
      * @return name of the world
      */

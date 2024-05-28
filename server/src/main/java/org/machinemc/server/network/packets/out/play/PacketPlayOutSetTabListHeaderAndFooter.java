@@ -18,19 +18,19 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.scriptive.components.Component;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.scriptive.serialization.ComponentProperties;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
+@Setter
+@Getter
 @ToString
 @AllArgsConstructor
 public class PacketPlayOutSetTabListHeaderAndFooter extends PacketOut {
 
     private static final int ID = 0x65;
 
-    @Getter @Setter
     private ComponentProperties header, footer;
 
     static {

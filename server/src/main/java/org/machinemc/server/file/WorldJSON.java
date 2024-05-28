@@ -16,7 +16,6 @@ package org.machinemc.server.file;
 
 import com.google.gson.JsonObject;
 import lombok.Getter;
-import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.Server;
 import org.machinemc.api.server.ServerProperty;
@@ -42,7 +41,7 @@ import java.util.function.Function;
  * Represents a json world file of server world.
  */
 @Getter
-public class WorldJSON implements ServerProperty, Configuration {
+public final class WorldJSON implements ServerProperty, Configuration {
 
     public static final String WORLD_FILE_NAME = "world.json";
 
@@ -84,7 +83,8 @@ public class WorldJSON implements ServerProperty, Configuration {
     }
 
     /**
-     * Saves the world json to the specified file
+     * Saves the world json to the specified file.
+     *
      * @param file the destination
      */
     public void save(final File file) {
@@ -93,6 +93,7 @@ public class WorldJSON implements ServerProperty, Configuration {
 
     /**
      * Creates and registers the world to the server's WorldManager.
+     *
      * @param folder the directory of the newly created world
      * @return newly created and registered world
      */
@@ -106,7 +107,8 @@ public class WorldJSON implements ServerProperty, Configuration {
     }
 
     /**
-     * Constructs a new world json object from a json file
+     * Constructs a new world json object from a json file.
+     *
      * @param server server instance
      * @param file world json file
      * @return newly created world json
@@ -116,12 +118,13 @@ public class WorldJSON implements ServerProperty, Configuration {
     }
 
     /**
-     * Constructs a new world json object from an already existing world's properties
+     * Constructs a new world json object from an already existing world's properties.
+     *
      * @param world the world
      * @return newly created world json
      */
     public static WorldJSON fromWorld(final World world) {
         return new WorldJSON(world);
     }
-    
+
 }

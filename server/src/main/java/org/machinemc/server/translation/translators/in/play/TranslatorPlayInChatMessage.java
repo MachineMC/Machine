@@ -18,7 +18,6 @@ import org.machinemc.api.chat.*;
 import org.machinemc.api.entities.Player;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.scriptive.components.TranslationComponent;
-import org.machinemc.scriptive.util.ChatUtils;
 import org.machinemc.server.chat.*;
 import org.machinemc.server.entities.ServerPlayer;
 import org.machinemc.server.network.ClientConnection;

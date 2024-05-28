@@ -73,7 +73,7 @@ public class ChunkSection implements Section {
     @Synchronized
     public void mergeData(final NBTCompound compound) {
         Objects.requireNonNull(compound, "NBTCompound can not be null");
-        NBTCompound data = dataSupplier.get();
+        final NBTCompound data = dataSupplier.get();
         compound.clone().forEach(data::set);
     }
 

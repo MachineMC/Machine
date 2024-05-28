@@ -18,12 +18,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentProperties;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 import org.machinemc.api.utils.ServerBuffer;
 
+@Setter
+@Getter
 @ToString
 @AllArgsConstructor
 public class PacketLoginOutDisconnect extends PacketOut {
@@ -36,7 +37,6 @@ public class PacketLoginOutDisconnect extends PacketOut {
         );
     }
 
-    @Getter @Setter
     private ComponentProperties message;
 
     public PacketLoginOutDisconnect(final ServerBuffer buf) {

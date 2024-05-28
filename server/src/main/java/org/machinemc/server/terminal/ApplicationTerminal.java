@@ -12,35 +12,43 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.application;
+package org.machinemc.server.terminal;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.machinemc.api.Server;
 import org.machinemc.api.chat.MessageType;
 import org.machinemc.api.commands.CommandExecutor;
+import org.machinemc.api.logging.Console;
 import org.machinemc.scriptive.components.Component;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.logging.Level;
 
 /**
- * Represents application that started up the Machine server.
+ * Terminal for Machine application.
  */
-@ApiStatus.NonExtendable
-public interface ServerApplication extends CommandExecutor {
+public interface ApplicationTerminal extends CommandExecutor, Console {
 
     /**
-     * Called when the server is exited.
-     * @param server server
+     * @return server attached to the terminal
      */
-    void exitServer(RunnableServer server);
+    Server getServer();
 
     /**
-     * Called when the server is stopped.
-     * @param server server
+     * @return whether the terminal display colors.
      */
-    void stopServer(RunnableServer server);
+    boolean isColored();
+
+    /**
+     * Changes whether the terminal displays color.
+     * <p>
+     * Some terminals might now support colors.
+     * @param colors if the colors should be displayed
+     */
+    void setColors(boolean colors);
 
     /**
      * Sends a messages to the console at certain logging level.
@@ -66,7 +74,7 @@ public interface ServerApplication extends CommandExecutor {
     }
 
     /**
-     * Sends multiple messages at WARNING logging level.
+     * Sends multiple messages at WARNING logging level with application as the message source.
      * @param messages messages to send
      */
     default void warning(String... messages) {
@@ -74,15 +82,15 @@ public interface ServerApplication extends CommandExecutor {
     }
 
     /**
-     * Sends multiple objects at WARNING logging level.
+     * Sends multiple objects at WARNING logging level with application as the message source.
      * @param objects objects to send
      */
     default void warning(Object... objects) {
-        warning(Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
+        for (final Object o : objects) warning(String.valueOf(o));
     }
 
     /**
-     * Sends multiple messages at SEVERE logging level.
+     * Sends multiple messages at SEVERE logging level with application as the message source.
      * @param messages messages to send
      */
     default void severe(String... messages) {
@@ -90,15 +98,15 @@ public interface ServerApplication extends CommandExecutor {
     }
 
     /**
-     * Sends multiple objects at SEVERE logging level.
+     * Sends multiple objects at SEVERE logging level with application as the message source.
      * @param objects objects to send
      */
     default void severe(Object... objects) {
-        severe(Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
+        for (final Object o : objects) severe(String.valueOf(o));
     }
 
     /**
-     * Sends multiple messages at CONFIG logging level.
+     * Sends multiple messages at CONFIG logging level with application as the message source.
      * @param messages messages to send
      */
     default void config(String... messages) {
@@ -106,11 +114,11 @@ public interface ServerApplication extends CommandExecutor {
     }
 
     /**
-     * Sends multiple objects at CONFIG logging level.
+     * Sends multiple objects at CONFIG logging level with application as the message source.
      * @param objects objects to send
      */
     default void config(Object... objects) {
-        config(Arrays.stream(objects).map(String::valueOf).toArray(String[]::new));
+        for (final Object o : objects) config(String.valueOf(o));
     }
 
     /**
@@ -120,5 +128,25 @@ public interface ServerApplication extends CommandExecutor {
      * @param type type of the message
      */
     void sendMessage(@Nullable UUID sender, Component message, MessageType type);
+
+    /**
+     * Starts the console command line.
+     */
+    void start();
+
+    /**
+     * Stops the console command line.
+     */
+    void stop();
+
+    /**
+     * @return input stream of the console
+     */
+    InputStream getInputStream();
+
+    /**
+     * @return output stream of the console
+     */
+    OutputStream getOutputStream();
 
 }

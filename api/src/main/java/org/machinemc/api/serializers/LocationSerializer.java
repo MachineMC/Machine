@@ -30,22 +30,22 @@ public class LocationSerializer implements Serializer<Location> {
 
     private final Server server;
 
-    public LocationSerializer(Server server) {
+    public LocationSerializer(final Server server) {
         this.server = server;
     }
 
     @Override
-    public void serialize(Location location, DataVisitor visitor) {
+    public void serialize(final Location location, final DataVisitor visitor) {
         ENTITY_POSITION_SERIALIZER.serialize(location, visitor);
         NAMESPACED_KEY_SERIALIZER.serialize(location.getWorld().getName(), visitor);
     }
 
     @Override
-    public @Nullable Location deserialize(DataVisitor visitor, ErrorContainer errorContainer) {
+    public @Nullable Location deserialize(final DataVisitor visitor, final ErrorContainer errorContainer) {
         EntityPosition entityPosition = ENTITY_POSITION_SERIALIZER.deserialize(visitor, errorContainer);
         if (entityPosition == null)
             entityPosition = EntityPosition.of(0, 0, 0);
-        NamespacedKey worldName = NAMESPACED_KEY_SERIALIZER.deserialize(visitor, errorContainer);
+        final NamespacedKey worldName = NAMESPACED_KEY_SERIALIZER.deserialize(visitor, errorContainer);
         return new Location(entityPosition, server.getWorld(worldName).orElse(null));
     }
 

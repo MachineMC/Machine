@@ -25,7 +25,6 @@ import org.machinemc.api.world.BlockPosition;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentProperties;
-import org.machinemc.scriptive.serialization.ComponentSerializer;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;

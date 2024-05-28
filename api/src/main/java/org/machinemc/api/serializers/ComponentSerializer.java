@@ -24,12 +24,12 @@ import org.machinemc.scriptive.components.Component;
 public record ComponentSerializer(Server server) implements Serializer<Component> {
 
     @Override
-    public void serialize(Component properties, DataVisitor visitor) {
+    public void serialize(final Component properties, final DataVisitor visitor) {
         visitor.writeString(server.getComponentSerializer().serialize(properties));
     }
 
     @Override
-    public @Nullable Component deserialize(DataVisitor visitor, ErrorContainer errorContainer) {
+    public @Nullable Component deserialize(final DataVisitor visitor, final ErrorContainer errorContainer) {
         return visitor.readString().map(server.getComponentSerializer()::deserialize).orElse(null);
     }
 

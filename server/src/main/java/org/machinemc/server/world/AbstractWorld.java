@@ -14,7 +14,6 @@
  */
 package org.machinemc.server.world;
 
-import com.google.gson.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +30,6 @@ import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.dimensions.DimensionType;
 
-import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 

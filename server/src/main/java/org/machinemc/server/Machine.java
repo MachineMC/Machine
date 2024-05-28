@@ -30,22 +30,19 @@ import org.machinemc.api.entities.damagetypes.DamageTypeManager;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.file.PlayerDataContainer;
 import org.machinemc.api.file.ServerProperties;
+import org.machinemc.api.logging.Console;
 import org.machinemc.api.serializers.EntityPositionSerializer;
 import org.machinemc.api.serializers.LocationSerializer;
 import org.machinemc.api.serializers.NamespacedKeySerializer;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.server.schedule.Scheduler;
 import org.machinemc.api.utils.NamespacedKey;
-import org.machinemc.api.world.EntityPosition;
-import org.machinemc.api.world.Location;
-import org.machinemc.api.world.World;
-import org.machinemc.api.world.WorldManager;
+import org.machinemc.api.world.*;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.world.biomes.BiomeManager;
 import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
-import org.machinemc.application.*;
 import org.machinemc.cogwheel.serialization.SerializerRegistry;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TranslationComponent;
@@ -58,7 +55,9 @@ import org.machinemc.server.entities.damagetypes.ServerDamageTypeManager;
 import org.machinemc.server.exception.ServerExceptionHandler;
 import org.machinemc.server.file.*;
 import org.machinemc.server.network.NettyServer;
+import org.machinemc.server.server.Argument;
 import org.machinemc.server.server.ServerPlayerManager;
+import org.machinemc.server.terminal.TerminalFactory;
 import org.machinemc.server.translation.TranslatorDispatcher;
 import org.machinemc.server.utils.FileUtils;
 import org.machinemc.server.utils.NetworkUtils;
@@ -73,14 +72,11 @@ import org.machinemc.server.world.dimensions.ServerDimensionTypeManager;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class Machine implements Server, RunnableServer {
+public final class Machine implements Server {
 
     public static final String SERVER_BRAND = "Machine";
     public static final String SERVER_IMPLEMENTATION_VERSION = "1.20.1";
@@ -92,9 +88,6 @@ public final class Machine implements Server, RunnableServer {
     public static final String SERVER_PACKAGE = "org.machinemc.server";
 
     @Getter
-    private final ServerApplication application;
-
-    @Getter
     private volatile boolean running;
 
     @Getter
@@ -104,10 +97,7 @@ public final class Machine implements Server, RunnableServer {
     private final File directory;
 
     @Getter
-    private final PlatformConsole console;
-
-    @Getter
-    private final ServerPlatform platform;
+    private final Console console;
 
     @Getter
     private TranslatorDispatcher translatorDispatcher;
@@ -159,21 +149,22 @@ public final class Machine implements Server, RunnableServer {
     @Getter
     private World defaultWorld;
 
-    public Machine(final ServerContext context) throws Exception {
-        this.application = Objects.requireNonNull(context.application(), "Application of context can not be null");
+    /**
+     * Application entry point.
+     *
+     * @param args arguments
+     */
+    public static void main(final String[] args) throws Exception {
+        new Machine(Argument.parse(args));
+    }
 
-        if (!context.directory().exists() && !context.directory().mkdirs())
-            throw new RuntimeException("Failed to create the server directory");
-        this.directory = context.directory();
-
-        this.name = Objects.requireNonNull(context.name(), "Name of the server can not be null");
-
-        this.console = Objects.requireNonNull(context.console(), "Console of the server can not be null");
-
-        this.platform = Objects.requireNonNull(context.platform(), "Platform of the server can not be null");
-
+    public Machine(final Set<Argument> arguments) throws Exception {
+        this.directory = new File(".");
+        this.name = "machine-server";
+        this.console = TerminalFactory.create(this).build(arguments);
         scheduler = new Scheduler(4);
         exceptionHandler = new ServerExceptionHandler(this);
+        run();
     }
 
     /**
@@ -206,7 +197,8 @@ public final class Machine implements Server, RunnableServer {
                 properties = ServerPropertiesImpl.load(this, propertiesFile);
             } catch (Exception exception) {
                 exceptionHandler.handle(exception, "Failed to load server properties");
-                application.stopServer(this);
+                shutdown();
+                return;
             }
         }
         console.info("Loaded server properties");
@@ -215,7 +207,8 @@ public final class Machine implements Server, RunnableServer {
         if (!NetworkUtils.available(properties.getServerPort())) {
             console.severe("Failed to bind port '" + properties.getServerPort() + "', it's already in use.");
             console.severe("Perhaps another instance of the server is already running?");
-            application.stopServer(this);
+            shutdown();
+            return;
         }
 
         if (properties.isOnline()) {
@@ -294,7 +287,8 @@ public final class Machine implements Server, RunnableServer {
             );
         } catch (Exception exception) {
             exceptionHandler.handle(exception, "Failed to create player data container");
-            application.stopServer(this);
+            shutdown();
+            return;
         }
 
         worldManager = new ServerWorldManager(this);
@@ -326,7 +320,8 @@ public final class Machine implements Server, RunnableServer {
                 worldManager.addWorld(world);
             } catch (Exception exception) {
                 exceptionHandler.handle(exception, "Failed to create the default world");
-                application.stopServer(this);
+                shutdown();
+                return;
             }
         }
         defaultWorld = worldManager.getWorld(properties.getDefaultWorld()).orElseGet(() -> {
@@ -349,7 +344,8 @@ public final class Machine implements Server, RunnableServer {
             translatorDispatcher = TranslatorDispatcher.createDefault(this);
         } catch (Exception exception) {
             exceptionHandler.handle(exception, "Failed to load packet translator dispatcher");
-            application.stopServer(this);
+            shutdown();
+            return;
         }
         console.info("Loaded all packet translators");
 
@@ -359,7 +355,7 @@ public final class Machine implements Server, RunnableServer {
                 connection.start();
             } catch (Exception exception) {
                 exceptionHandler.handle(exception);
-                application.stopServer(this);
+                shutdown();
             }
             return null;
         }).async().run(scheduler);
@@ -368,7 +364,8 @@ public final class Machine implements Server, RunnableServer {
             console.start();
         } catch (Exception exception) {
             exceptionHandler.handle(exception);
-            application.stopServer(this);
+            shutdown();
+            return;
         }
 
         running = true;
@@ -437,7 +434,7 @@ public final class Machine implements Server, RunnableServer {
             exceptionHandler.handle(exception);
         }
         console.info("Server has been stopped");
-        application.stopServer(this);
+        System.exit(0);
     }
 
     @Override

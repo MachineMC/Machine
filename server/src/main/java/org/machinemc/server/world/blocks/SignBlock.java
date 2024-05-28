@@ -23,7 +23,6 @@ import org.machinemc.api.world.blocks.BlockEntityBase;
 import org.machinemc.api.world.blocks.BlockEntityType;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.nbt.NBTCompound;
-import org.machinemc.nbt.NBTInt;
 import org.machinemc.nbt.NBTList;
 import org.machinemc.nbt.NBTString;
 import org.machinemc.scriptive.style.HexColor;

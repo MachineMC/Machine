@@ -37,7 +37,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
 import java.util.Objects;
@@ -102,7 +101,7 @@ public class ServerPropertiesImpl implements ServerProperties, Configuration {
 
     private static final int ICON_SIZE = 64;
 
-    public ServerPropertiesImpl(final Server server) throws IOException {
+    public ServerPropertiesImpl(final Server server) {
         this.server = Objects.requireNonNull(server, "Server can not be null");
         final File png = new File(server.getDirectory(), ICON_FILE_NAME);
         BufferedImage icon = null;
@@ -123,7 +122,8 @@ public class ServerPropertiesImpl implements ServerProperties, Configuration {
     }
 
     /**
-     * Saves the server properties to the specified file
+     * Saves the server properties to the specified file.
+     *
      * @param file the destination
      */
     public void save(final File file) {
@@ -166,7 +166,8 @@ public class ServerPropertiesImpl implements ServerProperties, Configuration {
     }
 
     /**
-     * Constructs a new server properties object from a properties file
+     * Constructs a new server properties object from a properties file.
+     *
      * @param server server instance
      * @param file server properties file
      * @return newly created server properties

@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.application;
+package org.machinemc.server.server;
 
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -39,7 +39,14 @@ public enum Argument {
      */
     NO_COLORS;
 
-    static @Unmodifiable Set<Argument> parse(final String[] args) {
+    /**
+     * Parses the string array of arguments during
+     * application start up.
+     *
+     * @param args arguments
+     * @return parsed arguments
+     */
+    public static @Unmodifiable Set<Argument> parse(final String[] args) {
         final Set<Argument> parsed = new LinkedHashSet<>();
         for (final String argument : args) {
             try {

@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.application.terminal.smart;
+package org.machinemc.server.terminal.smart;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.suggestion.Suggestion;
@@ -23,29 +23,18 @@ import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 import org.machinemc.api.commands.CommandExecutor;
-import org.machinemc.application.RunnableServer;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 public class SmartCompleter implements Completer {
 
     private final SmartTerminal terminal;
-    private final Supplier<RunnableServer> server;
 
-    @SuppressWarnings("unchecked")
     @Override
     public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
         final CommandDispatcher<CommandExecutor> dispatcher;
-        final CommandExecutor executor;
-        if (server.get() != null) {
-            dispatcher = server.get().getCommandDispatcher();
-            executor = server.get().getConsole();
-        } else {
-            dispatcher = (CommandDispatcher<CommandExecutor>) (CommandDispatcher<?>) terminal.getApplication().getCommandDispatcher();
-            executor = terminal.getApplication();
-        }
+        dispatcher = terminal.getServer().getCommandDispatcher();
 
         if (dispatcher == null) return;
         if (line.wordIndex() == 0) {
@@ -58,7 +47,7 @@ public class SmartCompleter implements Completer {
             );
         } else {
             final String text = line.line();
-            dispatcher.getCompletionSuggestions(dispatcher.parse(text, executor))
+            dispatcher.getCompletionSuggestions(dispatcher.parse(text, terminal))
                     .thenAccept(suggestions -> candidates.addAll(suggestions.getList().stream()
                             .map(Suggestion::getText)
                             .map(Candidate::new)

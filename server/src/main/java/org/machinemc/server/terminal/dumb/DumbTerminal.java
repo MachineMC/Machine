@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.application.terminal.dumb;
+package org.machinemc.server.terminal.dumb;
 
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -20,24 +20,18 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.machinemc.api.server.schedule.Scheduler;
-import org.machinemc.application.MachineApplication;
-import org.machinemc.application.PlatformConsole;
-import org.machinemc.application.ServerContainer;
-import org.machinemc.application.terminal.SwitchTerminal;
-import org.machinemc.application.terminal.WrappedConsole;
-import org.machinemc.server.logging.DynamicConsole;
+import org.machinemc.server.Machine;
+import org.machinemc.server.terminal.BaseTerminal;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 
 /**
  * Interactive terminal for not real terminal environments such
  * as IntelliJ terminal.
  */
-public class DumbTerminal extends SwitchTerminal {
+public class DumbTerminal extends BaseTerminal {
 
     @Getter
     private final Terminal terminal;
@@ -45,40 +39,28 @@ public class DumbTerminal extends SwitchTerminal {
 
     private final String prompt = "> ";
 
-    public DumbTerminal(final MachineApplication application,
+    public DumbTerminal(final Machine server,
                         final boolean colors,
                         final Terminal terminal,
                         final InputStream in,
                         final OutputStream out) {
-        super(application, colors, in, out);
+        super(server, colors, in, out);
         this.terminal = terminal;
     }
 
     @Override
-    public void openServer(final @Nullable ServerContainer container) {
-        clearTerminal();
-        super.openServer(container);
-    }
-
-    @Override
-    public DynamicConsole createConsole(final ServerContainer container) {
-        return new WrappedConsole(this);
-    }
-
-    @Override
-    public void log(final PlatformConsole source, final Level level, final String... messages) {
+    public void log(final Level level, final String... messages) {
         final LineReader reader = this.reader;
-        log((console, message) -> {
+        log(message -> {
             if (reader != null)
                 reader.printAbove(message);
             else
                 terminal.writer().println(message);
-        }, source, level, messages);
+        }, level, messages);
     }
 
     @Override
     public void start() {
-        clearTerminal();
         final LineReaderBuilder builder = LineReaderBuilder.builder()
                 .terminal(terminal);
         reader = builder.build();
@@ -88,39 +70,21 @@ public class DumbTerminal extends SwitchTerminal {
         info("in not real terminal environment.");
 
         Scheduler.task((i, session) -> {
-            while (getApplication().isRunning()) {
+            while (server.isRunning()) {
                 try {
                     final String command = reader.readLine(prompt);
                     execute(command);
                 } catch (Exception exception) {
-                    getApplication().handleException(exception);
+                    server.getExceptionHandler().handle(exception);
                 }
             }
             return null;
-        }).async().run(getApplication().getScheduler());
+        }).async().run(server.getScheduler());
     }
 
     @Override
     public void stop() {
-        getApplication().shutdown();
-    }
-
-    @Override
-    public void refreshHistory(final List<String> history) {
-        clearTerminal();
-        if (reader == null)
-            history.forEach(terminal.writer()::println);
-        else
-            history.forEach(reader::printAbove);
-    }
-
-    private void clearTerminal() {
-        final String[] empty = new String[100];
-        Arrays.fill(empty, "");
-        if (reader == null)
-            Arrays.stream(empty).forEach(terminal.writer()::println);
-        else
-            Arrays.stream(empty).forEach(reader::printAbove);
+        server.shutdown();
     }
 
 }

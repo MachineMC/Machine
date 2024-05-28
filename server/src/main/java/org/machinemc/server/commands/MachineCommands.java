@@ -18,7 +18,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
-import org.machinemc.api.logging.Console;
 import org.machinemc.server.Machine;
 import org.machinemc.api.commands.CommandExecutor;
 
@@ -42,7 +41,6 @@ public final class MachineCommands {
         Objects.requireNonNull(server, "Server can not be null");
         final RootCommandNode<CommandExecutor> root = dispatcher.getRoot();
         root.addChild(stopCommand(server));
-        root.addChild(exitCommand(server));
     }
 
     /**
@@ -55,22 +53,6 @@ public final class MachineCommands {
                 .<CommandExecutor>literal("stop")
                 .executes(c -> {
                     server.shutdown();
-                    return 0;
-                })
-                .build();
-    }
-
-    /**
-     * Creates the default exit command.
-     * @param server server to register commands for
-     * @return exit command
-     */
-    private static LiteralCommandNode<CommandExecutor> exitCommand(final Machine server) {
-        return LiteralArgumentBuilder
-                .<CommandExecutor>literal("exit")
-                .executes(c -> {
-                    if (!(c.getSource() instanceof Console)) return -1;
-                    server.getApplication().exitServer(server);
                     return 0;
                 })
                 .build();

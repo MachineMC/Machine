@@ -12,20 +12,22 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.application.terminal;
+package org.machinemc.server.terminal;
 
+import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.chat.MessageType;
-import org.machinemc.api.logging.Console;
-import org.machinemc.application.MachineApplication;
-import org.machinemc.application.PlatformConsole;
+import org.machinemc.api.commands.CommandExecutor;
 import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.style.ChatCode;
 import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.Colour;
 import org.machinemc.scriptive.util.ChatUtils;
+import org.machinemc.server.Machine;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,7 +43,8 @@ import java.util.regex.Pattern;
  */
 public abstract class BaseTerminal implements ApplicationTerminal {
 
-    private final MachineApplication application;
+    @Getter
+    protected final Machine server;
 
     @Setter
     private boolean colors;
@@ -64,19 +67,14 @@ public abstract class BaseTerminal implements ApplicationTerminal {
             warningColor = ChatColor.GOLD,
             severeColor = ChatColor.RED;
 
-    protected BaseTerminal(final MachineApplication application,
+    protected BaseTerminal(final Machine server,
                            final boolean colors,
                            final InputStream in,
                            final OutputStream out) {
-        this.application = application;
+        this.server = server;
         this.colors = colors;
         this.in = in;
         this.out = out;
-    }
-
-    @Override
-    public MachineApplication getApplication() {
-        return application;
     }
 
     @Override
@@ -86,19 +84,7 @@ public abstract class BaseTerminal implements ApplicationTerminal {
 
     @Override
     public void sendMessage(final @Nullable UUID sender, final Component message, final MessageType type) {
-        sendMessage(null, sender, message, type);
-    }
-
-    @Override
-    public void sendMessage(final @Nullable PlatformConsole source,
-                            final @Nullable UUID sender,
-                            final Component message,
-                            final MessageType type) {
-        if (colors) {
-            info(source, ChatUtils.consoleFormatted(message));
-        } else {
-            info(source, ChatUtils.consoleFormatted(message));
-        }
+        info(ChatUtils.consoleFormatted(message));
     }
 
     /**
@@ -143,27 +129,22 @@ public abstract class BaseTerminal implements ApplicationTerminal {
      * Logs the given messages with the specified logging level, using the provided logger.
      *
      * @param logger the logger to use for logging the messages
-     * @param source source of the message
      * @param level the logging level to use
      * @param messages the messages to log
      */
     protected void log(final SourcedLogger logger,
-                       final @Nullable PlatformConsole source,
                        final Level level,
                        final String... messages) {
         final String prefix = getPrefix(level);
         final String date = now();
         for (final String message : messages) {
-            final String messagePrefix = (source != null
-                    ? source.getSource().getName() + " | "
-                    : "application | ")
-                    + "[" + date + "] " + prefix;
+            final String messagePrefix = "[" + date + "] " + prefix;
             final String formatted = colors
                     ? messagePrefix
                     + ChatUtils.consoleFormatted(message)
                     + ChatColor.RESET.getConsoleFormat()
                     : messagePrefix + stripColorCodes(message);
-            logger.log(source, formatted);
+            logger.log(formatted);
         }
     }
 
@@ -216,15 +197,41 @@ public abstract class BaseTerminal implements ApplicationTerminal {
         return dateFormatter != null ? dateFormatter.format(LocalDateTime.now()) : "";
     }
 
+    @Override
+    public int execute(final String input) {
+        if (!server.isRunning()) return -1;
 
-    /**
-     * Called when command inside the application is executed when
-     * no server instance is active within the terminal.
-     * @param input command to execute
-     * @return result
-     */
-    public int executeApplication(final String input) {
-        return getApplication().execute(input);
+        final String formatted = CommandExecutor.formatCommandInput(input);
+        if (formatted.isEmpty()) return 0;
+        final ParseResults<CommandExecutor> parse = server.getCommandDispatcher().parse(formatted, this);
+        final String[] parts = formatted.split(" ");
+        try {
+            return server.getCommandDispatcher().execute(parse);
+        } catch (CommandSyntaxException exception) {
+            if (exception.getCursor() == 0) {
+                sendMessage(TextComponent.of("Unknown command '" + parts[0] + "'").modify()
+                        .color(ChatColor.RED)
+                        .finish());
+                return -1;
+            }
+            sendMessage(TextComponent.of(exception.getRawMessage().getString()).modify()
+                    .color(ChatColor.RED)
+                    .finish());
+            sendMessage(TextComponent.of(formatted.substring(0, exception.getCursor()))
+                    .append(TextComponent.of(formatted.substring(exception.getCursor())).modify()
+                            .color(ChatColor.RED)
+                            .underlined(true)
+                            .finish())
+                    .append(TextComponent.of("<--[HERE]").modify()
+                            .color(ChatColor.RED)
+                            .finish()));
+            return -1;
+        }
+    }
+
+    @Override
+    public boolean isRunning() {
+        return server.isRunning();
     }
 
     @FunctionalInterface
@@ -232,10 +239,9 @@ public abstract class BaseTerminal implements ApplicationTerminal {
 
         /**
          * Logs the given message.
-         * @param source source of the message
          * @param message the message to log
          */
-        void log(@Nullable Console source, String message);
+        void log(String message);
 
     }
 

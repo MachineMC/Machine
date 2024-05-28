@@ -23,7 +23,7 @@ import org.machinemc.cogwheel.util.error.ErrorContainer;
 public class EntityPositionSerializer implements Serializer<EntityPosition> {
 
     @Override
-    public void serialize(EntityPosition entityPosition, DataVisitor visitor) {
+    public void serialize(final EntityPosition entityPosition, final DataVisitor visitor) {
         visitor.enterSection().visit("x").writeNumber(entityPosition.getX())
                 .visit("y").writeNumber(entityPosition.getY())
                 .visit("z").writeNumber(entityPosition.getZ())
@@ -32,12 +32,12 @@ public class EntityPositionSerializer implements Serializer<EntityPosition> {
     }
 
     @Override
-    public @Nullable EntityPosition deserialize(DataVisitor visitor, ErrorContainer errorContainer) {
-        double x = visitor.readNumber().orElse(0d).doubleValue();
-        double y = visitor.readNumber().orElse(0d).doubleValue();
-        double z = visitor.readNumber().orElse(0d).doubleValue();
-        float yaw = visitor.readNumber().orElse(0d).floatValue();
-        float pitch = visitor.readNumber().orElse(0d).floatValue();
+    public @Nullable EntityPosition deserialize(final DataVisitor visitor, final ErrorContainer errorContainer) {
+        final double x = visitor.readNumber().orElse(0d).doubleValue();
+        final double y = visitor.readNumber().orElse(0d).doubleValue();
+        final double z = visitor.readNumber().orElse(0d).doubleValue();
+        final float yaw = visitor.readNumber().orElse(0d).floatValue();
+        final float pitch = visitor.readNumber().orElse(0d).floatValue();
         return EntityPosition.of(x, y, z, yaw, pitch);
     }
 
