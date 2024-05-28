@@ -16,7 +16,7 @@ package org.machinemc.api.chat;
 
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.utils.Writable;
-import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 
 import java.util.Optional;
 
@@ -42,21 +42,21 @@ public interface ChatBound extends Writable {
     /**
      * @return source of the message
      */
-    Component getSource();
+    ComponentProperties getSource();
 
     /**
      * @param component new source of the message
      */
-    void setSource(Component component);
+    void setSource(ComponentProperties component);
 
     /**
      * @return target of the message
      */
-    Optional<Component> getTarget();
+    Optional<ComponentProperties> getTarget();
 
     /**
      * @param target new target of the message
      */
-    void setTarget(@Nullable Component target);
+    void setTarget(@Nullable ComponentProperties target);
 
 }

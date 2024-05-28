@@ -37,14 +37,14 @@ public class SculkChargeParticleOption implements ParticleOption {
     @Override
     public void load(final NBTCompound compound) {
         Objects.requireNonNull(compound, "Source compound can not be null");
-        if (compound.containsKey("roll") && compound.get("roll").tag() == NBT.Tag.FLOAT)
-            roll = compound.get("roll").value();
+        if (compound.containsKey("roll") && compound.getNBT("roll").tag() == NBT.Tag.FLOAT)
+            roll = compound.getValue("roll");
     }
 
     @Override
     public NBTCompound toNBT() {
         final NBTCompound compound = new NBTCompound();
-        compound.put("roll", new NBTFloat(roll));
+        compound.set("roll", new NBTFloat(roll));
         return compound;
     }
 

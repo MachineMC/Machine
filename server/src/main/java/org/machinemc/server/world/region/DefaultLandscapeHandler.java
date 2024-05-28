@@ -44,7 +44,7 @@ public class DefaultLandscapeHandler implements LandscapeHandler {
             defaultBlock = NamespacedKey.minecraft("air");
         } else {
             final Set<BlockType> blockTypes = blockManager.getBlocks();
-            if (blockTypes.size() == 0)
+            if (blockTypes.isEmpty())
                 throw new IllegalStateException("There are no registered blocks in the"
                         + "server's block manager");
             for (final BlockType blockType : blockTypes) {
@@ -58,7 +58,7 @@ public class DefaultLandscapeHandler implements LandscapeHandler {
         }
 
         final Set<Biome> biomes = biomeManager.getBiomes();
-        if (biomes.size() == 0)
+        if (biomes.isEmpty())
             throw new IllegalStateException("There are no registered biomes in the"
                     + "server's biome manager");
         defaultBiome = biomes.iterator().next().getName();

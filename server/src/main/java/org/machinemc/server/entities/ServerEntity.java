@@ -32,6 +32,7 @@ import org.machinemc.nbt.NBTList;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.network.packets.out.play.*;
 import org.machinemc.server.utils.EntityUtils;
+import org.machinemc.server.utils.UUIDUtils;
 
 import java.util.*;
 
@@ -264,8 +265,8 @@ public abstract class ServerEntity implements Entity {
                 entry("WorldUUIDLeast", getWorld().getUUID().getLeastSignificantBits()),
                 entry("WorldUUIDMost", getWorld().getUUID().getMostSignificantBits())
         ));
-        compound.setUUID("UUID", uuid);
-        getCustomName().ifPresent(customName -> compound.set("CustomName", customName.toJson()));
+        compound.set("UUID", UUIDUtils.uuidToIntArray(uuid));
+        getCustomName().ifPresent(customName -> compound.set("CustomName", getServer().getComponentSerializer().serialize(customName)));
         if (isCustomNameVisible())
             compound.set("CustomNameVisible", (byte) (isCustomNameVisible() ? 1 : 0));
         if (silent)
@@ -283,13 +284,12 @@ public abstract class ServerEntity implements Entity {
         return compound;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void load(final NBTCompound nbtCompound) {
         Objects.requireNonNull(nbtCompound, "NBTCompound to load can not be null");
-        List<Double> pos = (List<Double>) ((NBTList) nbtCompound.get("Pos")).revert();
-        List<Double> motion = (List<Double>) ((NBTList) nbtCompound.get("Motion")).revert();
-        List<Float> rotation = (List<Float>) ((NBTList) nbtCompound.get("Rotation")).revert();
+        List<Double> pos = nbtCompound.getValue("Pos");
+        List<Double> motion = nbtCompound.getValue("Motion");
+        List<Float> rotation = nbtCompound.getValue("Rotation");
 
         if (pos.size() != 3)
             pos = new LinkedList<>(List.of(0d, 0d, 0d));
@@ -313,10 +313,10 @@ public abstract class ServerEntity implements Entity {
         setInvulnerable(nbtCompound.getValue("Invulnerable", (byte) 0) == 1);
         setPortalCooldown(nbtCompound.getValue("PortalCooldown", 0));
         if (nbtCompound.containsKey("UUID"))
-            uuid = nbtCompound.getUUID("UUID");
+            uuid = UUIDUtils.uuidFromIntArray(nbtCompound.getValue("UUID"));
         if (nbtCompound.containsKey("CustomName")) {
             final String string = nbtCompound.getValue("CustomName");
-            setCustomName(getServer().getComponentSerializer().deserializeJson(string));
+            setCustomName(getServer().getComponentSerializer().deserialize(string));
         }
         setCustomNameVisible(nbtCompound.getValue("CustomNameVisible", 0) == 1);
         setSilent(nbtCompound.getValue("Silent", 0) == 1);
@@ -326,7 +326,7 @@ public abstract class ServerEntity implements Entity {
         setHasVisualFire(nbtCompound.getValue("HasVisualFire", 0) == 1);
         if (nbtCompound.containsKey("Tags")) {
             tags.clear();
-            final List<String> nbtStrings = (List<String>) ((NBTList) nbtCompound.get("Tags")).revert();
+            final List<String> nbtStrings = nbtCompound.getValue("Tags");
             final int i = Math.min(nbtStrings.size(), 1024);
             for (int j = 0; j < i; j++)
                 tags.add(nbtStrings.get(j));

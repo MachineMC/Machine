@@ -254,9 +254,9 @@ public class ClientConnection implements PlayerConnection {
     public ChannelFuture disconnect(final Component reason) {
         try {
             if (state == ClientState.LOGIN)
-                this.send(new PacketLoginOutDisconnect(reason));
+                this.send(new PacketLoginOutDisconnect(reason.getProperties()));
             if (state == ClientState.PLAY)
-                this.send(new PacketPlayOutDisconnect(reason));
+                this.send(new PacketPlayOutDisconnect(reason.getProperties()));
         } catch (Exception ignored) { }
         return close();
     }
@@ -324,7 +324,7 @@ public class ClientConnection implements PlayerConnection {
      * @param encrypt cipher for encryption
      * @param decrypt cipher for decryption
      */
-    record EncryptionContext(Cipher encrypt, Cipher decrypt) {
+    protected record EncryptionContext(Cipher encrypt, Cipher decrypt) {
     }
 
     @Override

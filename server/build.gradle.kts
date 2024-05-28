@@ -25,9 +25,14 @@ dependencies {
     implementation(libs.jna)
     implementation(libs.jline)
     implementation(libs.mojang.brigadier)
-    implementation(libs.machine.nbt)
+    implementation(libs.machine.cogwheel.core)
+    implementation(libs.machine.cogwheel.json)
+    implementation(libs.machine.cogwheel.properties)
     implementation(libs.machine.landscape)
-    implementation(libs.machine.scriptive)
+    implementation(libs.machine.nbt.core)
+    implementation(libs.machine.nbt.parser)
+    implementation(libs.machine.scriptive.core)
+    implementation(libs.machine.scriptive.gson)
     implementation(libs.fastutil)
 
 }

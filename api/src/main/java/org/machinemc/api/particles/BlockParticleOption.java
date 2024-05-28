@@ -46,28 +46,28 @@ public class BlockParticleOption implements ParticleOption {
     public void load(final NBTCompound compound) {
         Objects.requireNonNull(compound, "Source compound can not be null");
         final NBTCompound value;
-        if (!compound.containsKey("value") || compound.get("value").tag() != NBT.Tag.COMPOUND)
+        if (!compound.containsKey("value") || compound.getNBT("value").tag() != NBT.Tag.COMPOUND)
             return;
         else
-            value = (NBTCompound) compound.get("value");
+            value = compound.getNBT("value");
 
         final String name;
-        if (!value.containsKey("Name") || value.get("Name").tag() != NBT.Tag.STRING)
+        if (!value.containsKey("Name") || value.getNBT("Name").tag() != NBT.Tag.STRING)
             return;
         else
-            name = value.get("Name").value();
+            name = value.getValue("Name");
 
         final NBTCompound properties;
-        if (!value.containsKey("Properties") || value.get("Properties").tag() != NBT.Tag.COMPOUND)
+        if (!value.containsKey("Properties") || value.getNBT("Properties").tag() != NBT.Tag.COMPOUND)
             properties = new NBTCompound();
         else
-            properties = value.get("Properties").value();
+            properties = value.getValue("Properties");
 
         final StringBuilder builder = new StringBuilder();
         builder.append(name).append('[');
         final int size = properties.size();
         int i = 0;
-        for (final Map.Entry<String, NBT> entry : properties.entrySet()) {
+        for (final Map.Entry<String, NBT<?>> entry : properties) {
             i++;
             builder.append(entry.getKey()).append("=").append(entry.getValue());
             if (i == size) break;
@@ -83,12 +83,12 @@ public class BlockParticleOption implements ParticleOption {
         final NBTCompound compound = new NBTCompound();
         final BlockData state = blockData != null ? blockData : DEFAULT_STATE;
         final Map<String, String> properties = state.getDataMap();
-        compound.put("Name", state.getMaterial().getName().toString());
-        if (properties.size() == 0) return new NBTCompound(Map.of("value", compound));
+        compound.set("Name", state.getMaterial().getName().toString());
+        if (properties.isEmpty()) return new NBTCompound(Map.of("value", compound));
         final NBTCompound propertiesCompound = new NBTCompound();
         for (final Map.Entry<String, String> property : properties.entrySet())
-            propertiesCompound.put(property.getKey(), property.getValue());
-        compound.put("Properties", propertiesCompound);
+            propertiesCompound.set(property.getKey(), property.getValue());
+        compound.set("Properties", propertiesCompound);
         return new NBTCompound(Map.of("value", compound));
     }
 

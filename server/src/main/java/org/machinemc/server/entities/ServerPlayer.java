@@ -174,10 +174,10 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
                 getServer().getMessenger()
         ).toNBT();
         // TODO placeholders for now
-        codec.put("minecraft:trim_pattern", Map.of(
+        codec.set("minecraft:trim_pattern", Map.of(
                 "type", "minecraft:trim_pattern",
                 "value", new NBTList()));
-        codec.put("minecraft:trim_material", Map.of(
+        codec.set("minecraft:trim_material", Map.of(
                 "type", "minecraft:trim_material",
                 "value", new NBTList()));
 
@@ -350,7 +350,7 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         }
 
         if (!Messenger.canReceiveCommand(this)) return;
-        sendPacket(new PacketPlayOutSystemChatMessage(message, false));
+        sendPacket(new PacketPlayOutSystemChatMessage(message.getProperties(), false));
     }
 
     @Override
@@ -359,7 +359,12 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
         Objects.requireNonNull(type, "Message type can not be null");
         Objects.requireNonNull(source, "Source can not be null");
         if (!Messenger.accepts(this, type)) return;
-        sendPacket(new PacketPlayOutDisguisedChatMessage(message, type, source, target));
+        sendPacket(new PacketPlayOutDisguisedChatMessage(
+                message.getProperties(),
+                type,
+                source.getProperties(),
+                target != null ? target.getProperties() : null
+        ));
     }
 
     @Override
@@ -417,11 +422,11 @@ public final class ServerPlayer extends ServerLivingEntity implements Player {
 
     /**
      * Sends packet to change world spawn.
-     * @param location new world spawn
+     * @param position new world spawn
      */
-    private void sendWorldSpawnChange(final Location location) {
-        Objects.requireNonNull(location, "Location can not be null");
-        sendPacket(new PacketPlayOutWorldSpawnPosition(location));
+    private void sendWorldSpawnChange(final EntityPosition position) {
+        Objects.requireNonNull(position, "Location can not be null");
+        sendPacket(new PacketPlayOutWorldSpawnPosition(position));
     }
 
     /**

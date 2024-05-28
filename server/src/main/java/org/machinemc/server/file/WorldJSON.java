@@ -15,132 +15,113 @@
 package org.machinemc.server.file;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import lombok.Getter;
+import lombok.ToString;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.Server;
-import org.machinemc.api.file.ServerFile;
 import org.machinemc.api.server.ServerProperty;
 import org.machinemc.api.utils.NamespacedKey;
 import org.machinemc.api.world.Difficulty;
-import org.machinemc.api.world.Location;
+import org.machinemc.api.world.EntityPosition;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldType;
 import org.machinemc.api.world.dimensions.DimensionType;
-import org.machinemc.server.Machine;
-import org.machinemc.server.world.AbstractWorld;
+import org.machinemc.cogwheel.TypedClassInitiator;
+import org.machinemc.cogwheel.annotations.Key;
+import org.machinemc.cogwheel.annotations.Optional;
+import org.machinemc.cogwheel.config.ConfigSerializer;
+import org.machinemc.cogwheel.config.Configuration;
+import org.machinemc.cogwheel.json.JSONConfigSerializer;
 import org.machinemc.server.world.ServerWorld;
 
-import java.io.*;
+import java.io.File;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Represents a json world file of server world.
  */
 @Getter
-public class WorldJSON implements ServerFile, ServerProperty {
+public class WorldJSON implements ServerProperty, Configuration {
 
     public static final String WORLD_FILE_NAME = "world.json";
 
+    public static final Function<Server, ConfigSerializer<JsonObject>> CONFIG_SERIALIZER = server -> JSONConfigSerializer.builder()
+            .gson(server.getGson())
+            .registry(server.getSerializerRegistry())
+            .classInitiator(new TypedClassInitiator(Server.class, server))
+            .errorHandler((context, error) -> server.getConsole().severe(error.type() + ": " + error.message()))
+            .build();
+
     private final Server server;
 
-    private final NamespacedKey name;
-    private final DimensionType dimensionType;
-    private final long seed;
-    private final Difficulty difficulty;
-    private final WorldType worldType;
+    private NamespacedKey name;
+    @Key("dimension")
+    private NamespacedKey dimensionTypeKey;
+    private long seed;
+    @Optional
+    private @Nullable Difficulty difficulty;
+    @Optional
+    private @Nullable WorldType worldType;
+    @Optional
+    private @Nullable EntityPosition worldSpawn;
 
-    private final File folder;
-
-    public WorldJSON(final Server server, final File file) throws IOException {
+    private WorldJSON(final Server server) {
         this.server = Objects.requireNonNull(server, "Server can not be null");
-        Objects.requireNonNull(file, "Source file can not be null");
-        folder = file.getParentFile();
-        final JsonObject json;
-        try (FileReader fileReader = new FileReader(file)) {
-            json = JsonParser.parseReader(fileReader).getAsJsonObject();
-        }
-
-        final NamespacedKey name;
-        try {
-            name = NamespacedKey.parse(json.get("name").getAsString());
-        } catch (Exception ignored) {
-            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses illegal "
-                    + "name identifier and can't be registered");
-        }
-        this.name = name;
-
-        final NamespacedKey dimensionKey;
-        try {
-            dimensionKey = NamespacedKey.parse(json.get("dimension").getAsString());
-        } catch (Exception ignored) {
-            throw new IllegalStateException("World '" + file.getParentFile().getName() + "' uses "
-                    + "illegal dimension identifier and can't be registered");
-        }
-
-        this.dimensionType = server.getDimensionTypeManager().getDimension(dimensionKey)
-                .orElseThrow(() -> new IllegalStateException("World '" + this.name + "' uses non existing dimension"));
-
-        long seedValue = 1;
-        try {
-            seedValue = json.get("seed").getAsNumber().longValue();
-        } catch (Exception exception) {
-            getServer().getConsole().severe("World '" + this.name + "' has not valid "
-                    + "defined seed, defaulting to '1' instead");
-        }
-        seed = seedValue;
-
-        final Difficulty difficulty = Difficulty.getByName(json.get("difficulty").getAsString()).orElseGet(() -> {
-            final Difficulty def = getServer().getProperties().getDefaultDifficulty();
-            json.addProperty("difficulty", def.name().toLowerCase());
-            return def;
-        });
-
-        final WorldType worldType = WorldType.getByName(json.get("worldType").getAsString()).orElseGet(() -> {
-            final WorldType def = getServer().getProperties().getDefaultWorldType();
-            json.addProperty("worldType", def.name().toLowerCase());
-            return def;
-        });
-
-        try (Writer writer = new FileWriter(file)) {
-            getServer().getGson().toJson(json, writer);
-        }
-        this.difficulty = difficulty;
-        this.worldType = worldType;
+        difficulty = getServer().getProperties().getDefaultDifficulty();
+        worldType = getServer().getProperties().getDefaultWorldType();
     }
 
-    @Override
-    public String getName() {
-        return WORLD_FILE_NAME;
-    }
-
-    @Override
-    public Optional<InputStream> getOriginal() {
-        return Optional.ofNullable(Machine.CLASS_LOADER.getResourceAsStream(WORLD_FILE_NAME));
+    private WorldJSON(final World world) {
+        Objects.requireNonNull(world, "World cannot be null");
+        this.server = world.getServer();
+        this.name = world.getName();
+        this.dimensionTypeKey = world.getDimensionType().getName();
+        this.seed = world.getSeed();
+        this.difficulty = world.getDifficulty();
+        this.worldType = world.getWorldType();
+        this.worldSpawn = world.getWorldSpawn();
     }
 
     /**
-     * @return name of the world
+     * Saves the world json to the specified file
+     * @param file the destination
      */
-    public NamespacedKey getWorldName() {
-        return name;
+    public void save(final File file) {
+        CONFIG_SERIALIZER.apply(server).save(file, this);
     }
 
     /**
      * Creates and registers the world to the server's WorldManager.
+     * @param folder the directory of the newly created world
      * @return newly created and registered world
      */
-    public World buildWorld() {
-        final AbstractWorld world = new ServerWorld(folder, server, name, dimensionType, worldType, seed);
-        // TODO should get calculated/from json
-        world.setWorldSpawn(new Location(0, dimensionType.getMinY(), 0, world));
-        world.setDifficulty(server.getProperties().getDefaultDifficulty());
-        return world;
+    public World buildWorld(final File folder) {
+        Objects.requireNonNull(folder, "folder");
+        final DimensionType dimensionType = server.getDimensionTypeManager().getDimension(dimensionTypeKey)
+                .orElseThrow(() -> new IllegalStateException("World '" + name + "' uses non existing dimension"));
+        if (worldSpawn == null)
+            worldSpawn = EntityPosition.of(0, dimensionType.getMinY(), 0);
+        return new ServerWorld(folder, server, name, dimensionType, worldType, seed, difficulty, worldSpawn);
     }
 
-    @Override
-    public String toString() {
-        return getName() + "(" + name + ')';
+    /**
+     * Constructs a new world json object from a json file
+     * @param server server instance
+     * @param file world json file
+     * @return newly created world json
+     */
+    public static WorldJSON fromFile(final Server server, final File file) {
+        return CONFIG_SERIALIZER.apply(server).load(file, WorldJSON.class);
     }
 
+    /**
+     * Constructs a new world json object from an already existing world's properties
+     * @param world the world
+     * @return newly created world json
+     */
+    public static WorldJSON fromWorld(final World world) {
+        return new WorldJSON(world);
+    }
+    
 }

@@ -124,7 +124,7 @@ public class ServerMessenger implements Messenger {
     @Override
     public void sendRejectionMessage(final Player player) {
         Objects.requireNonNull(player, "Player can not be null");
-        player.sendPacket(new PacketPlayOutSystemChatMessage(cannotSendMessage, false));
+        player.sendPacket(new PacketPlayOutSystemChatMessage(cannotSendMessage.getProperties(), false));
     }
 
     @Override

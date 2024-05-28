@@ -143,7 +143,7 @@ public final class ApplicationCommands {
                             .append(servers.size())
                             .append("): ");
                     for (int i = 0; i < servers.size(); i++) {
-                        formatted.append(servers.get(0).getName());
+                        formatted.append(servers.getFirst().getName());
                         if (i != servers.size() - 1) formatted.append(", ");
                     }
                     application.info(formatted.toString());

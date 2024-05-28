@@ -14,8 +14,10 @@
  */
 package org.machinemc.server.world;
 
+import com.google.gson.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.world.biomes.Biome;
 import org.machinemc.api.entities.Entity;
 import org.machinemc.api.Server;
@@ -29,6 +31,7 @@ import org.machinemc.api.world.blocks.BlockType;
 import org.machinemc.api.world.blocks.WorldBlock;
 import org.machinemc.api.world.dimensions.DimensionType;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -49,7 +52,7 @@ public abstract class AbstractWorld implements World {
     private final WorldType worldType;
     private final long seed;
     private Difficulty difficulty;
-    private Location worldSpawn = Location.of(0, 0, 0, this);
+    private EntityPosition worldSpawn;
     protected boolean loaded = false;
 
     public AbstractWorld(final Server server,
@@ -57,14 +60,17 @@ public abstract class AbstractWorld implements World {
                          final UUID uuid,
                          final DimensionType dimensionType,
                          final WorldType worldType,
-                         final long seed) {
+                         final long seed,
+                         final @Nullable Difficulty difficulty,
+                         final EntityPosition worldSpawn) {
         this.server = Objects.requireNonNull(server, "Server can not be null");
         this.name = Objects.requireNonNull(name, "Name can not be null");
         this.uuid = Objects.requireNonNull(uuid, "UUID can not be null");
         this.dimensionType = Objects.requireNonNull(dimensionType, "Dimension type can not be null");
         this.worldType = Objects.requireNonNull(worldType, "World type can not be null");
         this.seed = seed;
-        difficulty = server.getProperties().getDefaultDifficulty();
+        this.difficulty = difficulty != null ? difficulty : server.getProperties().getDefaultDifficulty();
+        this.worldSpawn = worldSpawn;
     }
 
     @Override
@@ -123,9 +129,9 @@ public abstract class AbstractWorld implements World {
     }
 
     @Override
-    public void setWorldSpawn(final Location location) {
-        this.worldSpawn = Objects.requireNonNull(location, "World spawn can not be null");
-        final PacketOut packet = new PacketPlayOutWorldSpawnPosition(location);
+    public void setWorldSpawn(final EntityPosition position) {
+        this.worldSpawn = Objects.requireNonNull(position, "World spawn can not be null");
+        final PacketOut packet = new PacketPlayOutWorldSpawnPosition(position);
         for (final Entity entity : getEntities()) {
             if (!(entity instanceof ServerPlayer player)) continue;
             player.sendPacket(packet);

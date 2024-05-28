@@ -51,7 +51,7 @@ public class WrappedConsole implements DynamicConsole {
         if (!running) return -1;
 
         final String formatted = CommandExecutor.formatCommandInput(input);
-        if (formatted.length() == 0) return 0;
+        if (formatted.isEmpty()) return 0;
         final ParseResults<CommandExecutor> parse = source.getCommandDispatcher().parse(formatted, this);
         final String[] parts = formatted.split(" ");
         try {

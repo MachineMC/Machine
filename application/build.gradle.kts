@@ -24,6 +24,6 @@ dependencies {
     implementation(libs.jna)
     implementation(libs.jline)
     implementation(libs.mojang.brigadier)
-    implementation(libs.machine.scriptive)
+    implementation(libs.machine.scriptive.core)
 
 }

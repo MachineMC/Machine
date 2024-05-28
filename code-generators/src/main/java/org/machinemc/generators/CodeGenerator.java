@@ -43,7 +43,6 @@ public abstract class CodeGenerator {
     public static final String STATIC_NAME = "<clinit>";
 
     protected ZipOutputStream zip;
-    protected final JsonParser parser = new JsonParser();
 
     @Getter
     private final File jar;
@@ -73,7 +72,7 @@ public abstract class CodeGenerator {
         if (jsonFile == null) return;
         final InputStream stream = getClass().getClassLoader().getResourceAsStream(jsonFile);
         Objects.requireNonNull(stream, "Json for the generator is missing");
-        json = parser.parse(new InputStreamReader(stream)).getAsJsonObject();
+        json = JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject();
     }
 
     /**

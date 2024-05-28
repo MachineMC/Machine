@@ -78,7 +78,7 @@ public interface Section extends Writable, Cloneable {
     void setData(@Nullable NBTCompound compound);
 
     /**
-     * @return sky light data of this section
+     * @return skylight data of this section
      */
     byte[] getSkyLight();
 

@@ -24,6 +24,7 @@ import org.machinemc.api.inventory.Item;
 import org.machinemc.api.world.BlockPosition;
 import org.machinemc.nbt.NBTCompound;
 import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 
 import java.nio.ByteBuffer;
@@ -451,24 +452,26 @@ public interface ServerBuffer extends Cloneable {
     ServerBuffer writeNBT(NBTCompound tag);
 
     /**
-     * @return next component using the default component serializer
+     * @return next component
      */
     @Contract("-> new")
-    Component readComponent();
-
-    /**
-     * @param serializer serializer to use
-     * @return next component using a component serializer
-     */
-    @Contract("_ -> new")
-    Component readComponent(ComponentSerializer serializer);
+    ComponentProperties readComponent();
 
     /**
      * @param component component to write
      * @return this
      */
     @Contract("_ -> this")
-    ServerBuffer writeComponent(Component component);
+    default ServerBuffer writeComponent(Component component) {
+        return writeComponent(component.getProperties());
+    }
+
+    /**
+     * @param properties component to write
+     * @return this
+     */
+    @Contract("_ -> this")
+    ServerBuffer writeComponent(ComponentProperties properties);
 
     /**
      * @return next namespaced key

@@ -25,6 +25,7 @@ import org.machinemc.scriptive.style.ChatColor;
 import org.machinemc.scriptive.style.Colour;
 import org.machinemc.scriptive.style.HexColor;
 
+import java.util.List;
 import java.util.Optional;
 
 import java.util.Objects;
@@ -48,32 +49,32 @@ public class TransitionParticleOption implements ParticleOption {
     @Override
     public void load(final NBTCompound compound) {
         Objects.requireNonNull(compound, "Source compound can not be null");
-        final NBTList fromColor = compound.getList("fromColor");
+        final List<Object> fromColor = compound.getValue("fromColor");
         if (fromColor.size() < 3)
             from = DEFAULT_COLOR;
         else {
             final int[] rgb = new int[3];
             for (int i = 0; i < rgb.length; i++) {
-                final Object value = fromColor.get(i).value();
+                final Object value = fromColor.get(i);
                 if (value instanceof Number c) rgb[i] = (int) (c.floatValue() * 255);
             }
             from = new HexColor(rgb[0], rgb[1], rgb[2]);
         }
 
-        final NBTList toColor = compound.getList("toColor");
+        final List<Object> toColor = compound.getValue("toColor");
         if (toColor.size() < 3)
             to = DEFAULT_COLOR;
         else {
             final int[] rgb = new int[3];
             for (int i = 0; i < rgb.length; i++) {
-                final Object value = toColor.get(i).value();
+                final Object value = toColor.get(i);
                 if (value instanceof Number c) rgb[i] = (int) (c.floatValue() * 255);
             }
             to = new HexColor(rgb[0], rgb[1], rgb[2]);
         }
 
-        if (compound.containsKey("scale") && compound.get("scale").tag() == NBT.Tag.FLOAT)
-            scale = compound.get("scale").value();
+        if (compound.containsKey("scale") && compound.getNBT("scale").tag() == NBT.Tag.FLOAT)
+            scale = compound.getValue("scale");
     }
 
     @Override
@@ -81,17 +82,17 @@ public class TransitionParticleOption implements ParticleOption {
         final NBTCompound compound = new NBTCompound();
         final Colour from = this.from != null ? this.from : DEFAULT_COLOR;
         final Colour to = this.to != null ? this.to : DEFAULT_COLOR;
-        compound.put("fromColor", new NBTList(
+        compound.set("fromColor", new NBTList(
                 new NBTFloat(from.getRed() / 255f),
                 new NBTFloat(from.getGreen() / 255f),
                 new NBTFloat(from.getBlue() / 255f)
         ));
-        compound.put("toColor", new NBTList(
+        compound.set("toColor", new NBTList(
                 new NBTFloat(to.getRed() / 255f),
                 new NBTFloat(to.getGreen() / 255f),
                 new NBTFloat(to.getBlue() / 255f)
         ));
-        compound.put("scale", new NBTFloat(scale));
+        compound.set("scale", new NBTFloat(scale));
         return compound;
     }
 

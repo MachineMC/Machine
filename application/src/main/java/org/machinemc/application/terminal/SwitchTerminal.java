@@ -101,7 +101,7 @@ public abstract class SwitchTerminal extends BaseTerminal {
     @Override
     public int execute(final String input) {
         final String formatted = CommandExecutor.formatCommandInput(input);
-        if (formatted.length() == 0) return 0;
+        if (formatted.isEmpty()) return 0;
         if (current == null || current.getInstance().isEmpty()) return executeApplication(formatted);
         return current.getInstance().get().getConsole().execute(formatted);
     }

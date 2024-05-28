@@ -51,10 +51,9 @@ public class MaterialsLibGenerator extends CodeGenerator {
         // Getting the BlockData information
         final String blockDataPath = BlockData.BLOCKDATA_CLASS;
         final String iBlockDataPath = BlockData.I_BLOCKDATA_CLASS;
-        final JsonParser parser = new JsonParser();
         final InputStream stream = getClass().getClassLoader().getResourceAsStream("blocks.json");
         Objects.requireNonNull(stream, "The blocks json file could not be load");
-        final JsonObject blocksJson = parser.parse(new InputStreamReader(stream)).getAsJsonObject();
+        final JsonObject blocksJson = JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject();
 
         for (final Map.Entry<String, JsonElement> entry : blocksJson.entrySet())
             handleEntry(entry, false);

@@ -20,7 +20,7 @@ import org.machinemc.api.chat.ChatBound;
 import org.machinemc.api.chat.FilterType;
 import org.machinemc.api.chat.PlayerMessage;
 import org.machinemc.api.utils.ServerBuffer;
-import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 
 import java.time.Instant;
 import java.util.*;
@@ -36,7 +36,7 @@ public class PlayerChatMessage implements PlayerMessage {
     @With(AccessLevel.PRIVATE)
     private final List<MessageSignature.Packed> chain;
 
-    private @Nullable Component unsignedPart;
+    private @Nullable ComponentProperties unsignedPart;
 
     @Getter @Setter
     private FilterType filterType;
@@ -109,12 +109,12 @@ public class PlayerChatMessage implements PlayerMessage {
     }
 
     @Override
-    public Optional<Component> getUnsignedContent() {
+    public Optional<ComponentProperties> getUnsignedContent() {
         return Optional.ofNullable(unsignedPart);
     }
 
     @Override
-    public void setUnsignedContent(final @Nullable Component content) {
+    public void setUnsignedContent(final @Nullable ComponentProperties content) {
         unsignedPart = content;
     }
 

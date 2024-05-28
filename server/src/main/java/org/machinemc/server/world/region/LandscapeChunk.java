@@ -149,7 +149,7 @@ public class LandscapeChunk extends WorldChunk {
         final int sectionIndex = offsetY / Chunk.CHUNK_SECTION_SIZE;
         final Segment segment = getSegment(sectionIndex);
         final NBTCompound original = segment.getNBT(x, sectionY, z);
-        original.putAll(compound.clone());
+        compound.clone().forEach(original::set);
 
         final Section section = sections.getIfPresent(sectionIndex);
         // updates the visual and client nbt if the section is present
@@ -340,7 +340,7 @@ public class LandscapeChunk extends WorldChunk {
 
         // Only a single block type is present in the source segment
         } else {
-            final BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(source.getBlockPalette().get(0)))
+            final BlockType blockType = server.getBlockType(LazyNamespacedKey.lazy(source.getBlockPalette().getFirst()))
                     .or(() -> server.getBlockType(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultType())))
                     .orElseThrow();
 
@@ -489,7 +489,7 @@ public class LandscapeChunk extends WorldChunk {
             });
         } else {
             final BiomeManager biomeManager = server.getBiomeManager();
-            final Biome biome = biomeManager.getBiome(LazyNamespacedKey.lazy(source.getBiomePalette().get(0)))
+            final Biome biome = biomeManager.getBiome(LazyNamespacedKey.lazy(source.getBiomePalette().getFirst()))
                     .or(() -> biomeManager.getBiome(LazyNamespacedKey.lazy(landscape.getHandler().getDefaultBiome())))
                     .orElseThrow();
             biomesPalette.fill(biomeManager.getBiomeID(biome));

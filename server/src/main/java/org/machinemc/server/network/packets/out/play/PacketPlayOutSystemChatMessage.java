@@ -20,6 +20,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
@@ -31,7 +32,7 @@ public class PacketPlayOutSystemChatMessage extends PacketOut {
 
     private static final int ID = 0x64;
 
-    private Component message;
+    private ComponentProperties message;
     private boolean overlay;
 
     static {

@@ -49,7 +49,7 @@ public class SignBlock extends BlockTypeImpl implements BlockEntityType {
         if (block == null) return Material.OAK_SIGN.createBlockData();
         final NBTCompound compound = block.compound();
         if (!compound.containsKey("rotation")) return Material.OAK_SIGN.createBlockData();
-        final int rotation = compound.get("rotation", new NBTInt(0)).value();
+        final int rotation = compound.getValue("rotation", 0);
         final OakSignData data = (OakSignData) Material.OAK_SIGN.createBlockData();
         data.setRotation(rotation);
         return data;
@@ -85,8 +85,8 @@ public class SignBlock extends BlockTypeImpl implements BlockEntityType {
             text.add(new NBTString("{\"text\":\"" + state.position().getX() + "\"}"));
             text.add(new NBTString("{\"text\":\"" + state.position().getY() + "\"}"));
             text.add(new NBTString("{\"text\":\"" + state.position().getZ() + "\"}"));
-            front.put("messages", text);
-            compound.put("front_text", front);
+            front.set("messages", text);
+            compound.set("front_text", front);
             return compound;
         });
     }

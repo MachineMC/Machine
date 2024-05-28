@@ -23,6 +23,7 @@ import org.machinemc.scriptive.components.Component;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
@@ -38,7 +39,7 @@ public class PacketPlayOutUpdateObjectives extends PacketOut {
 
     private String objectiveName;
     private Action action;
-    private @Nullable Component objectiveValue;
+    private @Nullable ComponentProperties objectiveValue;
     private @Nullable DisplayType type;
 
     static {

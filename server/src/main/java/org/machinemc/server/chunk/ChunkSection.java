@@ -73,7 +73,8 @@ public class ChunkSection implements Section {
     @Synchronized
     public void mergeData(final NBTCompound compound) {
         Objects.requireNonNull(compound, "NBTCompound can not be null");
-        dataSupplier.get().putAll(compound.clone());
+        NBTCompound data = dataSupplier.get();
+        compound.clone().forEach(data::set);
     }
 
     @Override
@@ -81,7 +82,7 @@ public class ChunkSection implements Section {
     public void setData(final @Nullable NBTCompound compound) {
         final NBTCompound original = dataSupplier.get();
         original.clear();
-        if (compound != null) original.putAll(compound.clone());
+        if (compound != null) compound.clone().forEach(original::set);
     }
 
     @Override

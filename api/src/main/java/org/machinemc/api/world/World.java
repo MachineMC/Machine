@@ -35,7 +35,7 @@ import static org.machinemc.api.chunk.Chunk.CHUNK_SIZE_BITS;
  * Represents a world, which may contain entities, chunks and blocks.
  */
 public interface World extends ServerProperty {
-
+    
     /**
      * @return name of the world
      */
@@ -67,9 +67,9 @@ public interface World extends ServerProperty {
     Difficulty getDifficulty();
 
     /**
-     * @return location of the world spawn of the world
+     * @return position of the world spawn of the world
      */
-    Location getWorldSpawn();
+    EntityPosition getWorldSpawn();
 
     /**
      * @return if the world is loaded
@@ -227,9 +227,9 @@ public interface World extends ServerProperty {
     void setDifficulty(Difficulty difficulty);
 
     /**
-     * Changes the world spawn location of the world.
-     * @param location new location
+     * Changes the world spawn position of the world.
+     * @param position new position
      */
-    void setWorldSpawn(Location location);
+    void setWorldSpawn(EntityPosition position);
 
 }

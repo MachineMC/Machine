@@ -1,28 +1,35 @@
 [versions]
 # API and Implementation
-jetbrains-kotlin-gradle = "1.6.21"
-jetbrains-annotations = "23.0.0"
-lombok = "1.18.24"
+jetbrains-kotlin-gradle = "1.9.10"
+jetbrains-annotations = "24.0.1"
+lombok = "1.18.30"
 google-gson = "2.10.1"
-google-guava = "32.1.2-jre"
-asm = "9.5"
-netty = "4.1.80.Final"
-jna = "5.12.1"
+google-guava = "32.1.3-jre"
+asm = "9.6"
+netty = "4.1.101.Final"
+jna = "5.13.0"
 fastutil = "8.5.12"
-jline = "3.21.0"
+jline = "3.24.1"
 mojang-brigadier = "1.0.18"
-junit = "5.9.1"
+junit = "5.10.1"
 
 # Machine libraries
-machine-nbt = "1.1.1"
-machine-landscape = "1.0.3"
-machine-scriptive = "1.1"
+machine-cogwheel-core = "1.1"
+machine-cogwheel-json = "1.1"
+machine-cogwheel-properties = "1.1"
+machine-cogwheel-yaml = "1.1"
+machine-landscape = "1.0.4"
+machine-nbt-core = "2.0.0"
+machine-nbt-parser = "2.0.0"
+machine-scriptive-core = "1.2"
+machine-scriptive-gson = "1.2"
+machine-scriptive-nbt = "1.2"
 
 # Plugins
 cadixdev-licenser = "0.6.1"
-jetbrains-kotlin-jvm = "1.7.20"
-checkstyle = "10.3.1"
-johnrengelman-shadow = "7.1.2"
+jetbrains-kotlin-jvm = "1.9.20"
+checkstyle = "10.3.3"
+johnrengelman-shadow = "8.1.1"
 
 
 [libraries]
@@ -52,9 +59,16 @@ junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref 
 
 cadixdev-licenser = { module = "gradle.plugin.org.cadixdev.gradle:licenser", version.ref = "cadixdev-licenser" }
 
-machine-nbt = { module = "org.machinemc:nbt", version.ref = "machine-nbt" }
+machine-cogwheel-core = { module = "org.machinemc:cogwheel-core", version.ref = "machine-cogwheel-core" }
+machine-cogwheel-json = { module = "org.machinemc:cogwheel-json", version.ref = "machine-cogwheel-json" }
+machine-cogwheel-properties = { module = "org.machinemc:cogwheel-properties", version.ref = "machine-cogwheel-properties" }
+machine-cogwheel-yaml = { module = "org.machinemc:cogwheel-yaml", version.ref = "machine-cogwheel-yaml" }
 machine-landscape = { module = "org.machinemc:landscape", version.ref = "machine-landscape" }
-machine-scriptive = { module = "org.machinemc:scriptive", version.ref = "machine-scriptive" }
+machine-nbt-core = { module = "org.machinemc:nbt-core", version.ref = "machine-nbt-core" }
+machine-nbt-parser = { module = "org.machinemc:nbt-parser", version.ref = "machine-nbt-parser" }
+machine-scriptive-core = { module = "org.machinemc:scriptive-core", version.ref = "machine-scriptive-core" }
+machine-scriptive-gson = { module = "org.machinemc:scriptive-gson", version.ref = "machine-scriptive-gson" }
+machine-scriptive-nbt = { module = "org.machinemc:scriptive-nbt", version.ref = "machine-scriptive-nbt" }
 
 [plugins]
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrains-kotlin-jvm" }

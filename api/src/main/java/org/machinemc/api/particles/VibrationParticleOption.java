@@ -52,19 +52,19 @@ public class VibrationParticleOption implements ParticleOption {
     @Override
     public void load(final NBTCompound compound) {
         Objects.requireNonNull(compound, "Source compound can not be null");
-        if (compound.containsKey("arrival_in_ticks") && compound.get("arrival_in_ticks").tag() == NBT.Tag.INT)
-            arrivalInTicks = compound.get("arrival_in_ticks").value();
+        if (compound.containsKey("arrival_in_ticks") && compound.getNBT("arrival_in_ticks").tag() == NBT.Tag.INT)
+            arrivalInTicks = compound.getValue("arrival_in_ticks");
 
-        if (!compound.containsKey("destination") || compound.get("destination").tag() != NBT.Tag.COMPOUND)
+        if (!compound.containsKey("destination") || compound.getNBT("destination").tag() != NBT.Tag.COMPOUND)
             return;
 
-        final NBTCompound destinationCompound = (NBTCompound) compound.get("destination");
+        final NBTCompound destinationCompound = compound.getNBT("destination");
         if (!destinationCompound.containsKey("type")
-                || destinationCompound.get("type").tag() != NBT.Tag.STRING)
+                || destinationCompound.getNBT("type").tag() != NBT.Tag.STRING)
             return;
         final PositionSourceType positionSourceType;
         try {
-            positionSourceType = PositionSourceType.get(NamespacedKey.parse(destinationCompound.get("type").value()))
+            positionSourceType = PositionSourceType.get(NamespacedKey.parse(destinationCompound.getValue("type")))
                     .orElse(null);
             if (positionSourceType == PositionSourceType.BLOCK)
                 destination = BlockPositionSource.create(destinationCompound);
@@ -77,12 +77,12 @@ public class VibrationParticleOption implements ParticleOption {
     @Override
     public NBTCompound toNBT() {
         final NBTCompound compound = new NBTCompound();
-        compound.put("arrival_in_ticks", NBT.convert(arrivalInTicks));
+        compound.set("arrival_in_ticks", arrivalInTicks);
         final PositionSource position = destination != null ? destination : DEFAULT_POSITION;
         final NBTCompound destinationCompound = new NBTCompound();
-        destinationCompound.put("type", position.getType().name.toString());
-        destinationCompound.putAll(position.toNBT());
-        compound.put("destination", destinationCompound);
+        destinationCompound.set("type", position.getType().name.toString());
+        position.toNBT().forEach(destinationCompound::set);
+        compound.set("destination", destinationCompound);
         return compound;
     }
 
@@ -131,14 +131,14 @@ public class VibrationParticleOption implements ParticleOption {
          */
         public static BlockPositionSource create(final NBTCompound source) {
             Objects.requireNonNull(source, "Source compound can not be null");
-            if (!source.containsKey("pos") || source.get("pos").tag() != NBT.Tag.LIST)
+            if (!source.containsKey("pos") || source.getNBT("pos").tag() != NBT.Tag.LIST)
                 throw new NBTException("NBT source does not contain valid position information");
-            final NBTList list = source.getList("pos");
+            final NBTList list = source.getNBT("pos");
             if (list.size() < 3) throw new NBTException("NBT source does not contain valid position information");
             return new BlockPositionSource(new BlockPosition(
-                    list.get(0).value(),
-                    list.get(1).value(),
-                    list.get(2).value()
+                    list.getValue(0),
+                    list.getValue(1),
+                    list.getValue(2)
             ));
         }
 
@@ -186,22 +186,22 @@ public class VibrationParticleOption implements ParticleOption {
          */
         public static EntityPositionSource create(final NBTCompound source) {
             Objects.requireNonNull(source, "Source compound can not be null");
-            if (!source.containsKey("y_offset") || source.get("y_offset").tag() != NBT.Tag.FLOAT
-                    || !source.containsKey("source_entity") || source.get("source_entity").tag() != NBT.Tag.LIST)
+            if (!source.containsKey("y_offset") || source.getNBT("y_offset").tag() != NBT.Tag.FLOAT
+                    || !source.containsKey("source_entity") || source.getNBT("source_entity").tag() != NBT.Tag.LIST)
                 throw new NBTException("NBT source does not contain valid position information");
 
-            final float offset = source.get("y_offset").value();
-            final NBTList entity = source.getList("source_entity");
+            final float offset = source.getValue("y_offset");
+            final NBTList entity = source.getNBT("source_entity");
             final int entityID;
-            if (!source.containsKey("entity_id") || source.get("entity_id").tag() != NBT.Tag.INT)
+            if (!source.containsKey("entity_id") || source.getNBT("entity_id").tag() != NBT.Tag.INT)
                 entityID = -1;
             else
-                entityID = source.get("entity_id").value();
+                entityID = source.getValue("entity_id");
 
             if (entity.size() < 4) throw new NBTException("NBT source does not contain valid position information");
             final ByteBuf buf = Unpooled.buffer();
             for (int i = 0; i < 4; i++)
-                buf.writeInt(entity.get(i).value());
+                buf.writeInt(entity.getValue(i));
             final UUID uuid = new UUID(buf.readLong(), buf.readLong());
 
             return new EntityPositionSource(uuid, entityID, offset);

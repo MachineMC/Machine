@@ -30,8 +30,14 @@ import org.machinemc.api.entities.damagetypes.DamageTypeManager;
 import org.machinemc.api.exception.ExceptionHandler;
 import org.machinemc.api.file.PlayerDataContainer;
 import org.machinemc.api.file.ServerProperties;
+import org.machinemc.api.serializers.EntityPositionSerializer;
+import org.machinemc.api.serializers.LocationSerializer;
+import org.machinemc.api.serializers.NamespacedKeySerializer;
 import org.machinemc.api.server.PlayerManager;
 import org.machinemc.api.server.schedule.Scheduler;
+import org.machinemc.api.utils.NamespacedKey;
+import org.machinemc.api.world.EntityPosition;
+import org.machinemc.api.world.Location;
 import org.machinemc.api.world.World;
 import org.machinemc.api.world.WorldManager;
 import org.machinemc.api.world.biomes.Biome;
@@ -40,9 +46,11 @@ import org.machinemc.api.world.blocks.BlockManager;
 import org.machinemc.api.world.dimensions.DimensionType;
 import org.machinemc.api.world.dimensions.DimensionTypeManager;
 import org.machinemc.application.*;
+import org.machinemc.cogwheel.serialization.SerializerRegistry;
+import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
-import org.machinemc.scriptive.serialization.ComponentSerializerImpl;
+import org.machinemc.scriptive.serialization.JSONComponentSerializer;
 import org.machinemc.server.chat.ServerMessenger;
 import org.machinemc.server.commands.MachineCommands;
 import org.machinemc.server.entities.ServerEntityManager;
@@ -63,7 +71,6 @@ import org.machinemc.server.world.dimensions.ServerDimensionType;
 import org.machinemc.server.world.dimensions.ServerDimensionTypeManager;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
@@ -130,7 +137,9 @@ public final class Machine implements Server, RunnableServer {
     @Getter
     private Messenger messenger;
     @Getter
-    private ComponentSerializer componentSerializer;
+    SerializerRegistry serializerRegistry;
+    @Getter
+    private ComponentSerializer<String> componentSerializer;
     @Getter
     private WorldManager worldManager;
     @Getter
@@ -175,22 +184,30 @@ public final class Machine implements Server, RunnableServer {
 
         final long start = System.currentTimeMillis();
 
+        serializerRegistry = new SerializerRegistry();
+        serializerRegistry.addSerializer(Component.class, new org.machinemc.api.serializers.ComponentSerializer(this));
+        serializerRegistry.addSerializer(NamespacedKey.class, new NamespacedKeySerializer());
+        serializerRegistry.addSerializer(EntityPosition.class, new EntityPositionSerializer());
+        serializerRegistry.addSerializer(Location.class, new LocationSerializer(this));
+
         // TODO register other server related component types (NBTComponent, ScoreComponent, SelectorComponent)
-        componentSerializer = new ComponentSerializerImpl();
+        componentSerializer = new JSONComponentSerializer();
 
         console.info("Loading Machine Server on Minecraft " + SERVER_IMPLEMENTATION_VERSION);
 
         // Setting up server properties
         final File propertiesFile = new File(directory, ServerPropertiesImpl.PROPERTIES_FILE_NAME);
         if (!propertiesFile.exists()) {
-            FileUtils.createServerFile(directory, ServerPropertiesImpl.PROPERTIES_FILE_NAME);
             FileUtils.createServerFile(directory, ServerPropertiesImpl.ICON_FILE_NAME);
-        }
-        try {
-            properties = new ServerPropertiesImpl(this, propertiesFile);
-        } catch (IOException exception) {
-            exceptionHandler.handle(exception, "Failed to load server properties");
-            application.stopServer(this);
+            properties = new ServerPropertiesImpl(this);
+            ((ServerPropertiesImpl) properties).save(propertiesFile);
+        } else {
+            try {
+                properties = ServerPropertiesImpl.load(this, propertiesFile);
+            } catch (Exception exception) {
+                exceptionHandler.handle(exception, "Failed to load server properties");
+                application.stopServer(this);
+            }
         }
         console.info("Loaded server properties");
 
@@ -227,7 +244,7 @@ public final class Machine implements Server, RunnableServer {
         }
 
         // Registering all dimensions from the file into the manager
-        if (dimensions.size() == 0) {
+        if (dimensions.isEmpty()) {
             console.warning("There are no defined dimensions in the dimensions file, "
                     + "loading default dimension instead");
             dimensionTypeManager.addDimension(ServerDimensionType.createDefault());
@@ -256,7 +273,7 @@ public final class Machine implements Server, RunnableServer {
         }
 
         // Registering all biomes from the file into the manager
-        if (biomes.size() == 0) {
+        if (biomes.isEmpty()) {
             console.warning("There are no defined biomes in the biomes file, "
                     + "loading default biome instead");
             biomeManager.addBiome(ServerBiome.createDefault());
@@ -286,30 +303,25 @@ public final class Machine implements Server, RunnableServer {
                 if (!path.endsWith(WorldJSON.WORLD_FILE_NAME)) continue;
                 if (path.getNameCount() < 3) continue;
                 if (!Files.isSameFile(directory.toPath(), path.getParent().getParent())) continue;
-                try {
-                    final WorldJSON worldJson = new WorldJSON(this, path.toFile());
-                    if (worldManager.isRegistered(worldJson.getWorldName())) {
-                        console.severe("World with name '" + worldJson.getName() + "' is already registered");
-                        continue;
-                    }
-                    final World world = worldJson.buildWorld();
-                    worldManager.addWorld(world);
-                    console.info("Registered world '" + world.getName() + "'");
-                } catch (IOException exception) {
-                    exceptionHandler.handle(exception);
+                final File file = path.toFile();
+                final WorldJSON worldJSON = WorldJSON.fromFile(this, file);
+                // Something went wrong. Error should be logged
+                if (worldJSON == null) continue;
+                if (worldManager.isRegistered(worldJSON.getName())) {
+                    console.severe("World with name '" + worldJSON.getName() + "' is already registered");
+                    continue;
                 }
+                final World world = worldJSON.buildWorld(file.getParentFile());
+                worldManager.addWorld(world);
+                console.info("Registered world '" + world.getName() + "'");
             }
         } catch (Exception exception) {
             exceptionHandler.handle(exception, "Failed to load the server worlds from server directory");
         }
 
-        if (worldManager.getWorlds().size() == 0) {
+        if (worldManager.getWorlds().isEmpty()) {
             console.warning("There are no valid worlds in the server folder, default world will be created");
             try {
-                FileUtils.createServerFile(
-                        new File(directory, ServerWorld.DEFAULT_WORLD_FOLDER + "/" + WorldJSON.WORLD_FILE_NAME),
-                        WorldJSON.WORLD_FILE_NAME
-                );
                 final World world = ServerWorld.createDefault(this);
                 worldManager.addWorld(world);
             } catch (Exception exception) {
@@ -452,7 +464,7 @@ public final class Machine implements Server, RunnableServer {
                 json.addProperty("favicon", "data:image/png;base64," + icon));
         return gson
                 .toJson(json)
-                .replace("\"%MOTD%\"", properties.getMOTD().toJson());
+                .replace("\"%MOTD%\"", componentSerializer.serialize(properties.getMOTD()));
     }
 
 }

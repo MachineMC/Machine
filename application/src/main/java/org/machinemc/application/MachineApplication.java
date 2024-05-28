@@ -175,7 +175,7 @@ public final class MachineApplication implements ServerApplication {
 
         terminal.start();
 
-        if (getContainers().size() == 0) {
+        if (getContainers().isEmpty()) {
             info("No server container is available, creating default '" + DEFAULT_SERVER + "' server");
             final ServerContainer container = new ServerContainer(new File(DEFAULT_SERVER + "/"), machinePlatform);
             serverManager.loadContainer(container);
@@ -393,7 +393,7 @@ public final class MachineApplication implements ServerApplication {
         if (!running) return -1;
 
         final String formatted = CommandExecutor.formatCommandInput(input);
-        if (formatted.length() == 0) return 0;
+        if (formatted.isEmpty()) return 0;
         final ParseResults<MachineApplication> parse = getCommandDispatcher().parse(formatted, this);
         final String[] parts = formatted.split(" ");
         try {

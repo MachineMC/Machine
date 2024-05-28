@@ -23,6 +23,8 @@ import org.machinemc.api.utils.ServerBuffer;
 import org.machinemc.api.utils.Writable;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Base64;
 import java.util.Objects;
@@ -51,15 +53,15 @@ public record PlayerTextures(String value,
      * @return player textures
      */
     public static PlayerTextures buildSkin(final String value,
-                                           final @Nullable String signature) throws MalformedURLException {
+                                           final @Nullable String signature) throws MalformedURLException, URISyntaxException {
         final JsonElement decoded = JsonParser.parseString(new String(Base64.getDecoder().decode(value)));
         if (!decoded.isJsonObject()) throw new JsonSyntaxException("Texture value of the skin contains "
                 + "malformed JSON format");
         final JsonObject textures = decoded.getAsJsonObject().getAsJsonObject("textures");
         final JsonObject skinJson = textures.getAsJsonObject("SKIN");
-        final URL skinURL = new URL(skinJson.get("url").getAsString());
+        final URL skinURL = new URI(skinJson.get("url").getAsString()).toURL();
         final URL capeURL = textures.has("CAPE")
-                ? new URL(textures.getAsJsonObject("CAPE").get("url").getAsString())
+                ? new URI(textures.getAsJsonObject("CAPE").get("url").getAsString()).toURL()
                 : null;
         final SkinModel skinModel = skinJson.has("metadata")
                 ? SkinModel.valueOf(skinJson.get("metadata")

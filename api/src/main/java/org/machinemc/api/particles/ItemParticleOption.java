@@ -46,16 +46,16 @@ public class ItemParticleOption implements ParticleOption {
     public void load(final NBTCompound compound) {
         Objects.requireNonNull(compound, "Source compound can not be null");
         final NBTCompound value;
-        if (!compound.containsKey("value") || compound.get("value").tag() != NBT.Tag.COMPOUND)
+        if (!compound.containsKey("value") || compound.getNBT("value").tag() != NBT.Tag.COMPOUND)
             return;
         else
-            value = (NBTCompound) compound.get("value");
+            value = compound.getNBT("value");
 
         final String name;
-        if (!value.containsKey("id") || value.get("id").tag() != NBT.Tag.STRING)
+        if (!value.containsKey("id") || value.getNBT("id").tag() != NBT.Tag.STRING)
             return;
         else
-            name = value.get("id").value();
+            name = value.getValue("id");
 
         final Material material;
         try {
@@ -65,14 +65,14 @@ public class ItemParticleOption implements ParticleOption {
         }
 
         final int amount;
-        if (value.containsKey("Count") && value.get("Count").tag() == NBT.Tag.INT)
-            amount = value.get("Count").value();
+        if (value.containsKey("Count") && value.getNBT("Count").tag() == NBT.Tag.INT)
+            amount = value.getValue("Count");
         else
             amount = 1;
 
         final NBTCompound tag;
-        if (value.containsKey("tag") && value.get("tag").tag() == NBT.Tag.COMPOUND)
-            tag = value.get("tag").value();
+        if (value.containsKey("tag") && value.getNBT("tag").tag() == NBT.Tag.COMPOUND)
+            tag = value.getValue("tag");
         else
             tag = new NBTCompound();
 
@@ -85,9 +85,9 @@ public class ItemParticleOption implements ParticleOption {
     public NBTCompound toNBT() {
         final NBTCompound compound = new NBTCompound();
         final Item item = this.item != null ? this.item : DEFAULT_ITEM;
-        compound.put("id", item.getMaterial().getName().toString());
-        compound.put("Count", (int) item.getAmount());
-        compound.put("tag", item.getNBTCompound());
+        compound.set("id", item.getMaterial().getName().toString());
+        compound.set("Count", (int) item.getAmount());
+        compound.set("tag", item.getNBTCompound());
         return new NBTCompound(Map.of("value", compound));
     }
 

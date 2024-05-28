@@ -19,6 +19,7 @@ import org.machinemc.scriptive.components.Component;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.api.network.packets.Packet;
 import org.machinemc.api.utils.ServerBuffer;
+import org.machinemc.scriptive.serialization.ComponentProperties;
 import org.machinemc.server.network.packets.PacketOut;
 import org.machinemc.api.utils.FriendlyByteBuf;
 
@@ -36,7 +37,7 @@ public class PacketPlayOutResourcePack extends PacketOut {
     private String url;
     private String hash;
     private boolean forced;
-    private @Nullable Component promptMessage;
+    private @Nullable ComponentProperties promptMessage;
 
     static {
         register(PacketPlayOutResourcePack.class, ID, Packet.PacketState.PLAY_OUT,
