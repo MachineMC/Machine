@@ -6,7 +6,7 @@ Please, go through these steps before you submit a PR.
 2. If not, then make sure that:
     - You have done your changes in a separate branch.
     - You have a descriptive commit message with a short title (first line).
-    - You follow contributing guide lines; [CONTRIBUTING.md](../CONTRIBUTING.md) and [STYLE_GUIDE.md](../STYLE_GUIDE.md).
+    - You follow contributing guidelines; [CONTRIBUTING.md](../CONTRIBUTING.md) and [STYLE_GUIDE.md](../STYLE_GUIDE.md).
     - Tests don't throw any error. If they do, fix them first.
     - Check style doesn't throw any error. If it does fix the style of the code.
     - Header is part of all code files (for java files this is done automatically when project is built).

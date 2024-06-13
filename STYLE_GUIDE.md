@@ -29,7 +29,7 @@ subject to the following changes:
   - Annotations:
     - Override annotations are required.
     - Annotations have to follow compact, no array style.
-  - Overloaded methods must be declared adjacent to each other.
+  - Interfaces can contain only constants and not methods.
   - Public, mutable, non-static fields are allowed.
   - Empty statements are not allowed.
   - Star imports are allowed.
@@ -41,6 +41,8 @@ subject to the following changes:
     - Examples of good naming: `getUUID`, `id`, `setNBT`.
 
 To perform a style check on your code, execute the `other/checkstyleMain` task within the module containing the code.
+
+The checkstyle file is available [here](build-logic/src/main/resources/machine_checks.xml)
 
 ### Recommendations
 - It is recommended to minimize the use of labels as excessive labels can make it difficult to keep track of the nesting context.
@@ -72,4 +74,4 @@ To perform a style check on your code, execute the `other/checkstyleMain` task w
   private int myVariable;
   ```
 
-- When creating getters and setters, getter method should always be declared before the setter method; when using Lombok `@Getter` and `@Setter` annotations for fields, it is recommended to place both annotations on the same line.
+- When creating getters and setters, getter method should always be declared before the setter method.

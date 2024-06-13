@@ -32,7 +32,7 @@ We encourage the use of the Optional for returning when dealing with nullable va
 The API is designed after its forerunners. It prioritizes simplicity to
 ensure ease for beginners, while offering enough advanced features for
 more experienced developers. We draw inspiration for the design of new APIs
-primarily from Bukkit, Sponge, Minestom, and Krypton.
+primarily from Bukkit, Paper, Minestom, and Velocity.
 
 The Machine API should be structured to evolve seamlessly
 with new Minecraft versions. You should always weigh the potential use cases
@@ -66,7 +66,7 @@ Third-party code may be accepted in the following circumstances:
 - It is under a compatible license and part of a public, freely-available resource.
 - You have been granted permission to include it.
 
-All code files should start with the [Machine project header](HEADER.txt).
+All code files should start with the [Machine project header](build-logic/src/main/resources/HEADER.txt).
 For Java files, this is done automatically when the project is built.
 
 ### Lombok
@@ -75,20 +75,16 @@ to minimize boilerplate code and improve its readability.
 If you intend to use Lombok in your commitments, use only annotations
 that do not modify how the code works, rather reduce boilerplate code.
 
-**Banned Lombok Features**: `var`, `val`, `@NonNull`, `@SneakyThrows`,
-`@ExtensionMethod`, `@FieldDefaults`, `@UtilityClass`, `@Helper`
-
 Please be aware that we may decide to remove Lombok from the project
 at some point in the future. Therefore, avoid overusing it when it is unnecessary.
+
+Jetbrains `@NotNull` and `@Nullable` annotations are the default null lombok annotations.
 
 ### Code Contract Annotations
 We use JetBrains code contract annotations to describe the behaviour of the code,
 make sure you use them as well to keep the code consistent. Server implementation
 doesn't need to be annotated precisely, for API it is required.
 
-- Don't use `@NotNull` annotations if it's not to remove the warnings, all
-  variables that are not marked with `@Nullable` are expected to be non-null.
-- Don't use `@Nls` and `@NonNls` annotations, localization for Machine is not planned.
+- All variables that are not marked with `@Nullable` are expected to be non-null.
 - Use `@Contract` for methods where it's suitable.
 - Mark unmodifiable collections with `@Unmodifiable`.
-- `@Pattern` annotation is banned.
