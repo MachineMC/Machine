@@ -99,4 +99,48 @@ public final class ProtocolUtils {
         }
     }
 
+    /**
+     * Reads var long from the buffer.
+     * <p>
+     * For more information about var longs see
+     * <a href="https://wiki.vg/Protocol#VarInt_and_VarLong">VarInt and VarLong</a>.
+     *
+     * @param buf buffer to read from
+     * @return next var long
+     */
+    public static long readVarLong(final ByteBuf buf) {
+        long value = 0;
+        int position = 0;
+        byte currentByte;
+        while (true) {
+            currentByte = buf.readByte();
+            value |= (long) (currentByte & VAR_SEGMENT_BITS) << position;
+            if ((currentByte & VAR_CONTINUE_BIT) == 0) break;
+            position += 7;
+            if (position >= 64) throw new RuntimeException("VarLong is too big");
+        }
+        return value;
+    }
+
+    /**
+     * Writes var long to the buffer.
+     * <p>
+     * For more information about var longs see
+     * <a href="https://wiki.vg/Protocol#VarInt_and_VarLong">VarInt and VarLong</a>.
+     *
+     * @param buf buffer to write in
+     * @param value value to write
+     */
+    public static void writeVarLong(final ByteBuf buf, final long value) {
+        long i = value;
+        while (true) {
+            if ((i & ~((long) VAR_SEGMENT_BITS)) == 0) {
+                buf.writeByte((byte) i);
+                return;
+            }
+            buf.writeByte((byte) ((i & VAR_SEGMENT_BITS) | VAR_CONTINUE_BIT));
+            i >>>= 7;
+        }
+    }
+
 }

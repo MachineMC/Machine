@@ -36,9 +36,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import static org.machinemc.network.protocol.ProtocolUtils.VAR_CONTINUE_BIT;
-import static org.machinemc.network.protocol.ProtocolUtils.VAR_SEGMENT_BITS;
-
 /**
  * A packet byte buf is a specialized byte buf with utility methods adapted
  * to Minecraft's protocol. It has serialization and deserialization of
@@ -244,19 +241,8 @@ public class FriendlyByteBuf extends ByteBuf {
      *
      * @return next var long
      */
-    // TODO move to ProtocolUtils
     public long readVarLong() {
-        long value = 0;
-        int position = 0;
-        byte currentByte;
-        while (true) {
-            currentByte = readByte();
-            value |= (long) (currentByte & VAR_SEGMENT_BITS) << position;
-            if ((currentByte & VAR_CONTINUE_BIT) == 0) break;
-            position += 7;
-            if (position >= 64) throw new RuntimeException("VarLong is too big");
-        }
-        return value;
+        return ProtocolUtils.readVarLong(this);
     }
 
     /**
@@ -268,18 +254,10 @@ public class FriendlyByteBuf extends ByteBuf {
      * @param value value to write
      * @return this
      */
-    // TODO move to ProtocolUtils
     @Contract("_ -> this")
     public FriendlyByteBuf writeVarLong(final long value) {
-        long i = value;
-        while (true) {
-            if ((i & ~((long) VAR_SEGMENT_BITS)) == 0) {
-                writeByte((byte) i);
-                return this;
-            }
-            writeByte((byte) ((i & VAR_SEGMENT_BITS) | VAR_CONTINUE_BIT));
-            i >>>= 7;
-        }
+        ProtocolUtils.writeVarLong(this, value);
+        return this;
     }
 
     /**

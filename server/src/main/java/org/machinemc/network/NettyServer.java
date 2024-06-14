@@ -21,10 +21,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.SocketChannel;
 import org.jetbrains.annotations.NotNull;
-import org.machinemc.network.protocol.handlers.LengthDecoder;
-import org.machinemc.network.protocol.handlers.LengthEncoder;
-import org.machinemc.network.protocol.handlers.PacketDecoder;
-import org.machinemc.network.protocol.handlers.PacketEncoder;
+import org.machinemc.network.protocol.HandlerNames;
+import org.machinemc.network.protocol.handlers.*;
 import org.machinemc.paklet.PacketFactory;
 
 import java.net.InetSocketAddress;
@@ -85,18 +83,16 @@ public class NettyServer {
         public void initChannel(final @NotNull SocketChannel channel) {
             final ClientConnection connection = new ClientConnection(channel);
             channel.config().setKeepAlive(true);
-            channel.pipeline().addLast(
+            channel.pipeline()
+                    .addLast(HandlerNames.LEGACY_PING_DECODER, new LegacyPingDecoder())
+                    .addLast(HandlerNames.LENGTH_DECODER, new LengthDecoder())
+                    .addLast(HandlerNames.PACKET_DECODER, new PacketDecoder(packetFactory, connection::getIncomingState))
+                    .addLast(HandlerNames.PACKET_HANDLER, connection)
 
-                    // Decoding
-                    new LengthDecoder(),
-                    new PacketDecoder(packetFactory, connection::getIncomingState),
-                    connection, // connection itself is the last inbound handler
+                    .addLast(HandlerNames.LEGACY_PING_ENCODER, new LegacyPingEncoder())
+                    .addLast(HandlerNames.LENGTH_ENCODER, new LengthEncoder())
+                    .addLast(HandlerNames.PACKET_ENCODER, new PacketEncoder(packetFactory, connection::getOutgoingState));
 
-                    // Encoding
-                    new LengthEncoder(),
-                    new PacketEncoder(packetFactory, connection::getOutgoingState)
-
-            );
             connections.add(connection);
         }
 

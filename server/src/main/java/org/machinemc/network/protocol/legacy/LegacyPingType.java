@@ -14,6 +14,25 @@
  */
 package org.machinemc.network.protocol.legacy;
 
-// TODO finish legacy ping handling
-public record LegacyPing(String reason) {
+/**
+ * Represents a type of server status request sent with legacy
+ * Minecraft clients.
+ */
+public enum LegacyPingType {
+
+    /**
+     * Server ping sent between versions b1.8 and 1.3.
+     */
+    V1_3,
+
+    /**
+     * Server ping sent between versions 1.4 and 1.5.
+     */
+    V1_5,
+
+    /**
+     * Server ping sent in version 1.6.
+     */
+    V1_6
+
 }
