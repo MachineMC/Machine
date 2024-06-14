@@ -80,6 +80,8 @@ at some point in the future. Therefore, avoid overusing it when it is unnecessar
 
 Jetbrains `@NotNull` and `@Nullable` annotations are the default null lombok annotations.
 
+For more information about lombok setup see its [config file](lombok.config).
+
 ### Code Contract Annotations
 We use JetBrains code contract annotations to describe the behaviour of the code,
 make sure you use them as well to keep the code consistent. Server implementation
