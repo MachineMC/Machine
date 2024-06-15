@@ -18,17 +18,16 @@ import com.google.common.base.Preconditions;
 import org.machinemc.barebones.key.NamespacedKey;
 
 /**
- * Represents a key of an entry in a registry.
+ * Represents a key of a server registry.
  *
- * @param registryKey key of source registry
- * @param key key of the entry
+ * @param key registry key
  * @param <T> registry entry type
+ * @param <R> type of the registry
  */
-public record TypedKey<T>(RegistryKey<T> registryKey, NamespacedKey key) {
+public record RegistryKey<T, R extends Registry<T>>(NamespacedKey key) {
 
-    public TypedKey {
-        Preconditions.checkNotNull(registryKey, "Registry key can not be null");
-        Preconditions.checkNotNull(key, "Entry key can not be null");
+    public RegistryKey {
+        Preconditions.checkNotNull(key, "Registry key can not be null");
     }
 
 }

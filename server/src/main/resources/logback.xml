@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration>
+
+<configuration>
+
+    <import class="org.machinemc.terminal.JLineAppender"/>
+
+    <appender name="TERMINAL" class="JLineAppender" />
+
+    <root level="INFO">
+        <appender-ref ref="TERMINAL" />
+    </root>
+
+</configuration>

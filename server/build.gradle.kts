@@ -23,6 +23,8 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":api"))
+
     implementation(libs.google.guava)
     implementation(libs.google.gson)
 
@@ -30,6 +32,8 @@ dependencies {
 
     implementation(libs.jna)
     implementation(libs.jline)
+    implementation(libs.slf4j.jultoslf4j)
+    implementation(libs.logback)
 
     implementation(libs.brigadier)
 

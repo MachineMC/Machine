@@ -27,6 +27,14 @@ package org.machinemc.registry;
 public non-sealed interface DataDrivenRegistry<T> extends Registry<T> {
 
     /**
+     * Returns key of this registry.
+     *
+     * @return key of this registry
+     */
+    @Override
+    RegistryKey<T, DataDrivenRegistry<T>> key();
+
+    /**
      * Returns writable copy of this registry.
      * <p>
      * Once the provided writable registry is frozen, the changes will

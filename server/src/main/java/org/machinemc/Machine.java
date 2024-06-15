@@ -15,7 +15,6 @@
 package org.machinemc;
 
 import com.google.gson.Gson;
-import lombok.SneakyThrows;
 import org.machinemc.network.NettyServer;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.ping.PingPackets;
@@ -43,7 +42,7 @@ public final class Machine {
      *
      * @param args arguments
      */
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws Exception {
         final Machine server = new Machine();
         server.run();
     }
@@ -54,10 +53,9 @@ public final class Machine {
     /**
      * Runs the server.
      */
-    @SneakyThrows
-    public void run() {
-        final SerializerProvider provider = new SerializerProviderImpl();
+    public void run() throws Exception {
 
+        final SerializerProvider provider = new SerializerProviderImpl();
         provider.addSerializers(DefaultSerializers.class);
         provider.removeSerializer(Serializers.Integer.class);
         provider.addSerializer(VarIntSerializer.class);

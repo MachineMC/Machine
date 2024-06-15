@@ -5,7 +5,7 @@ pluginManagement {
     // includeBuild("code-generators")
 }
 
-// include("api")
+include("api")
 include("server")
 
 dependencyResolutionManagement {
@@ -30,7 +30,10 @@ dependencyResolutionManagement {
 
             val slf4j: String by settings
             library("slf4j-api", "org.slf4j:slf4j-api:$slf4j")
-            library("slf4j-simple", "org.slf4j:slf4j-simple:$slf4j")
+            library("slf4j-jultoslf4j", "org.slf4j:jul-to-slf4j:$slf4j")
+
+            val logback: String by settings
+            library("logback", "ch.qos.logback:logback-classic:$logback")
 
             val googleGuava: String by settings
             library("google-guava", "com.google.guava:guava:$googleGuava")

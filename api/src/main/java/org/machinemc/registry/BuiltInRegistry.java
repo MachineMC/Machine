@@ -24,4 +24,13 @@ package org.machinemc.registry;
  * @param <T> registry entry type
  */
 public non-sealed interface BuiltInRegistry<T> extends Registry<T> {
+
+    /**
+     * Returns key of this registry.
+     *
+     * @return key of this registry
+     */
+    @Override
+    RegistryKey<T, BuiltInRegistry<T>> key();
+
 }

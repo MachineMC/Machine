@@ -40,7 +40,7 @@ public sealed interface Registry<T> extends Iterable<T> permits BuiltInRegistry,
      *
      * @return key of this registry
      */
-    RegistryKey<T> key();
+    RegistryKey<T, ?> key();
 
     /**
      * Returns numerical ID of registry entry.
