@@ -25,7 +25,7 @@ import org.jline.reader.LineReader;
  */
 public final class JLineAppender extends AppenderBase<ILoggingEvent> {
 
-    private final LineReader lineReader = ServerTerminal.get().getLineReader();
+    private final ServerTerminal serverTerminal = ServerTerminal.get();
     private final Layout<ILoggingEvent> layout = new MachineLayout();
 
     @Override
@@ -42,7 +42,14 @@ public final class JLineAppender extends AppenderBase<ILoggingEvent> {
 
     @Override
     protected void append(final ILoggingEvent event) {
-        lineReader.printAbove(layout.doLayout(event));
+        final LineReader lineReader = serverTerminal.getLineReader();
+
+        if (lineReader != null) {
+            lineReader.printAbove(layout.doLayout(event));
+            return;
+        }
+
+        serverTerminal.getTerminal().writer().print(layout.doLayout(event));
     }
 
 }

@@ -15,8 +15,8 @@
 package org.machinemc.terminal;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.machinemc.Machine;
@@ -40,7 +40,9 @@ public final class ServerTerminal {
     private static final Logger LOGGER = LoggerFactory.getLogger(Machine.class);
 
     private final Terminal terminal;
-    private final LineReader lineReader;
+
+    @Setter
+    private LineReader lineReader;
 
     /**
      * Returns the active server terminal or initializes a new one
@@ -83,7 +85,6 @@ public final class ServerTerminal {
                     .streams(System.in, System.out);
 
         terminal = builder.build();
-        lineReader = LineReaderBuilder.builder().terminal(terminal).build();
 
         injectStreams();
     }

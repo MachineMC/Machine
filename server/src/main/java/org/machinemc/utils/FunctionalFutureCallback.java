@@ -38,8 +38,8 @@ public final class FunctionalFutureCallback {
      * @param <T> type on success
      */
     public static <T> FutureCallback<T> create(final Consumer<T> onSuccess, final Consumer<Throwable> onFailure) {
-        Preconditions.checkNotNull(onSuccess);
-        Preconditions.checkNotNull(onFailure);
+        Preconditions.checkNotNull(onSuccess, "Success consumer can not be null");
+        Preconditions.checkNotNull(onFailure, "Failure consumer can not be null");
         return new FutureCallback<>() {
             @Override
             public void onSuccess(final T result) {
