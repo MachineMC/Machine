@@ -13,6 +13,8 @@ dependencies {
 
     implementation(libs.brigadier)
 
+    implementation(libs.cogwheel.core)
+
     implementation(libs.nbt.core)
 
     implementation(libs.scriptive.core)

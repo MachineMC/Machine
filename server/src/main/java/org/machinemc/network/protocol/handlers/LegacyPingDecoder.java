@@ -19,7 +19,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.machinemc.network.protocol.legacy.LegacyKick;
 import org.machinemc.network.protocol.legacy.LegacyPingType;
-import org.machinemc.network.protocol.status.clientbound.ServerStatus;
+import org.machinemc.server.ServerStatus;
 import org.machinemc.scriptive.components.TextComponent;
 
 import java.util.List;

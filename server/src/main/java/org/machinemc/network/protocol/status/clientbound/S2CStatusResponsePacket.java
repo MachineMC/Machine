@@ -21,6 +21,7 @@ import org.machinemc.network.protocol.PacketFlow;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.PacketListener;
 import org.machinemc.paklet.Packet;
+import org.machinemc.server.ServerStatus;
 
 @Data
 @Packet(

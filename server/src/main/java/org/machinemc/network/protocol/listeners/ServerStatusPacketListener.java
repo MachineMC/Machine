@@ -20,7 +20,7 @@ import org.machinemc.network.protocol.ping.clientbound.S2CPongPacket;
 import org.machinemc.network.protocol.ping.serverbound.C2SPingPacket;
 import org.machinemc.network.protocol.status.StatusPacketListener;
 import org.machinemc.network.protocol.status.clientbound.S2CStatusResponsePacket;
-import org.machinemc.network.protocol.status.clientbound.ServerStatus;
+import org.machinemc.server.ServerStatus;
 import org.machinemc.network.protocol.status.serverbound.C2SStatusRequestPacket;
 import org.machinemc.scriptive.components.TextComponent;
 

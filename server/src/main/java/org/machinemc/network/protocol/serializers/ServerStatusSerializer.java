@@ -19,7 +19,7 @@ import com.google.gson.*;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.barebones.profile.GameProfile;
-import org.machinemc.network.protocol.status.clientbound.ServerStatus;
+import org.machinemc.server.ServerStatus;
 import org.machinemc.paklet.DataVisitor;
 import org.machinemc.paklet.serialization.Serializer;
 import org.machinemc.paklet.serialization.SerializerContext;

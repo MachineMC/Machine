@@ -16,10 +16,22 @@ package org.machinemc;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.jline.utils.InfoCmp;
+import org.machinemc.barebones.key.NamespacedKey;
+import org.machinemc.cogwheel.config.Configuration;
+import org.machinemc.cogwheel.json.JSONConfigSerializer;
+import org.machinemc.cogwheel.properties.PropertiesConfigSerializer;
+import org.machinemc.cogwheel.serialization.SerializerRegistry;
+import org.machinemc.cogwheel.yaml.YamlConfigSerializer;
+import org.machinemc.file.ServerProperties;
+import org.machinemc.file.ServerPropertiesImpl;
+import org.machinemc.file.serializers.NamespacedKeySerializer;
+import org.machinemc.file.serializers.PathSerializer;
 import org.machinemc.network.NettyServer;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.ping.PingPackets;
@@ -33,18 +45,27 @@ import org.machinemc.paklet.serialization.Serializers;
 import org.machinemc.paklet.serialization.VarIntSerializer;
 import org.machinemc.paklet.serialization.catalogue.DefaultSerializationRules;
 import org.machinemc.paklet.serialization.catalogue.DefaultSerializers;
+import org.machinemc.scriptive.components.Component;
+import org.machinemc.scriptive.components.KeybindComponent;
+import org.machinemc.scriptive.components.TextComponent;
+import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
+import org.machinemc.scriptive.serialization.JSONPropertiesSerializer;
+import org.machinemc.server.ServerStatus;
 import org.machinemc.terminal.ServerTerminal;
 import org.machinemc.text.ComponentProcessor;
 import org.machinemc.text.ComponentProcessorImpl;
 import org.machinemc.text.Translator;
 import org.machinemc.text.TranslatorImpl;
+import org.machinemc.utils.FileUtils;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -57,14 +78,31 @@ public final class Machine implements Server {
     public static final String SERVER_IMPLEMENTATION_VERSION = "1.21";
     public static final int SERVER_IMPLEMENTATION_PROTOCOL = 767;
 
+    private static final String DEFAULT_LOCALE = "en_us";
+
     private final ServerTerminal terminal = ServerTerminal.get();
     private final Logger logger = ServerTerminal.logger();
 
-    private static final String DEFAULT_LOCALE = "en_us";
+    private final Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .disableHtmlEscaping()
+            .disableInnerClassSerialization()
+            .disableJdkUnsafe()
+            .serializeNulls()
+            .create();
 
-    private final Gson gson = new Gson();
+    private final SerializerRegistry serializerRegistry;
+    private final JSONConfigSerializer jsonConfigSerializer;
+    private final YamlConfigSerializer yamlConfigSerializer;
+    private final PropertiesConfigSerializer propertiesConfigSerializer;
+
+    private ServerProperties serverProperties;
+
+    @Getter(AccessLevel.NONE)
+    private ServerStatus serverStatus;
 
     private final ComponentProcessor componentProcessor;
+
     private final Translator translator;
 
     private NettyServer nettyServer;
@@ -80,7 +118,21 @@ public final class Machine implements Server {
     }
 
     private Machine() {
+        serializerRegistry = new SerializerRegistry();
+        jsonConfigSerializer = JSONConfigSerializer.builder()
+                .registry(serializerRegistry)
+                .gson(gson)
+                .build();
+        yamlConfigSerializer = YamlConfigSerializer.builder()
+                .registry(serializerRegistry)
+                .build();
+        propertiesConfigSerializer = PropertiesConfigSerializer.builder()
+                .registry(serializerRegistry)
+                .emptyLineBetweenEntries(true)
+                .build();
+
         componentProcessor = new ComponentProcessorImpl(new ComponentSerializer());
+
         translator = new TranslatorImpl(Locale.ENGLISH);
     }
 
@@ -89,17 +141,67 @@ public final class Machine implements Server {
      */
     public void run() throws Exception {
         Preconditions.checkState(terminal.getLineReader() == null, "There is a different server bound to the terminal");
-        // TODO set line reader for terminal
 
         terminal.getTerminal().puts(InfoCmp.Capability.clear_screen);
-        logger.info("Loading Machine Server for Minecraft {} (protocol {})", SERVER_IMPLEMENTATION_VERSION, SERVER_IMPLEMENTATION_PROTOCOL);
+        logger.info("Loading Machine Server for Minecraft {} (protocol {})...", SERVER_IMPLEMENTATION_VERSION, SERVER_IMPLEMENTATION_PROTOCOL);
+
+        loadSerializerRegistry();
+
+        loadServerProperties();
 
         loadTranslations(DEFAULT_LOCALE); // TODO server properties
-        logger.info("Loaded server language files");
 
         loadNettyServer();
-        logger.info("Loaded server connection");
         nettyServer.bind().get();
+
+        // TODO server started in ... ms message and then set line reader for terminal and accept console commands
+    }
+
+    @Override
+    public ServerStatus getServerStatus() {
+        return serverStatus.withPlayers(null); // TODO calculate players
+    }
+
+    /**
+     * Loads serializer registry used by server's configs.
+     */
+    @SuppressWarnings("unchecked")
+    private void loadSerializerRegistry() {
+        serializerRegistry.addSerializer(
+                Component.class,
+                new Class[] {TextComponent.class, TranslationComponent.class, KeybindComponent.class},
+                new org.machinemc.file.serializers.ComponentSerializer(componentProcessor.getSerializer(), new JSONPropertiesSerializer())
+        );
+        serializerRegistry.addSerializer(NamespacedKey.class, new NamespacedKeySerializer());
+        serializerRegistry.addSerializer(Path.class, new PathSerializer());
+        logger.info("Loaded server configuration serializer registry");
+    }
+
+    /**
+     * Loads server properties and server status.
+     */
+    private void loadServerProperties() throws IOException {
+        final File propertiesFile = new File(ServerPropertiesImpl.PATH);
+
+        final boolean exists = propertiesFile.exists();
+        if (!exists && !propertiesFile.createNewFile()) throw new IOException("Failed to create the server properties file");
+
+        if (!exists) {
+            serverProperties = new ServerPropertiesImpl();
+            propertiesConfigSerializer.save(propertiesFile, (Configuration) serverProperties);
+            FileUtils.createServerFile(new File("icon.png"), "/icon.png");
+        } else {
+            serverProperties = propertiesConfigSerializer.load(propertiesFile, ServerPropertiesImpl.class);
+        }
+
+        logger.info("Loaded server properties");
+
+        serverStatus = new ServerStatus(
+                new ServerStatus.Version(SERVER_IMPLEMENTATION_VERSION, SERVER_IMPLEMENTATION_PROTOCOL),
+                null, // is calculated with getter
+                serverProperties.getMOTD(),
+                serverProperties.enforcesSecureChat()
+        );
     }
 
     /**
@@ -117,6 +219,7 @@ public final class Machine implements Server {
             final JsonObject json = JsonParser.parseReader(new InputStreamReader(is)).getAsJsonObject();
             json.asMap().forEach((key, format) -> translator.register(locale, key, format.getAsString()));
         }
+        logger.info("Loaded server language files");
     }
 
     /**
@@ -146,8 +249,9 @@ public final class Machine implements Server {
         factory.addPackets(PacketGroups.Status.ServerBound.class);
         factory.addPackets(PingPackets.class);
 
-        // TODO server properties
-        nettyServer = new NettyServer(factory, new InetSocketAddress("localhost", 25565));
+        nettyServer = new NettyServer(factory, new InetSocketAddress(serverProperties.getServerIP(), serverProperties.getServerPort()));
+
+        logger.info("Loaded server connection");
     }
 
 }

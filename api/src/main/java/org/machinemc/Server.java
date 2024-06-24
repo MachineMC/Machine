@@ -14,6 +14,9 @@
  */
 package org.machinemc;
 
+import org.machinemc.cogwheel.serialization.SerializerRegistry;
+import org.machinemc.file.ServerProperties;
+import org.machinemc.server.ServerStatus;
 import org.machinemc.text.ComponentProcessor;
 import org.machinemc.text.Translator;
 
@@ -21,6 +24,33 @@ import org.machinemc.text.Translator;
  * Represents a Machine server implementation.
  */
 public interface Server {
+
+    /**
+     * Serializer registry used by the server with registered
+     * serializers for main data types used by Machine.
+     *
+     * @return server serializer registry
+     */
+    SerializerRegistry getSerializerRegistry();
+
+    /**
+     * Returns server properties.
+     * <p>
+     * Server properties can be customised using the
+     * {@code server.properties} file and afford very
+     * basic configuration of the server.
+     *
+     * @return server properties
+     */
+    ServerProperties getServerProperties();
+
+    /**
+     * Returns status of the server displayed in the
+     * multiplayer server menu.
+     *
+     * @return server status
+     */
+    ServerStatus getServerStatus();
 
     /**
      * Returns the component processor of the server.

@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.network.protocol.status.clientbound;
+package org.machinemc.server;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
@@ -43,6 +43,7 @@ import java.util.*;
  * @param favicon server icon image
  * @param enforcesSecureChat whether the server enforces secure chat messages
  */
+@With
 public record ServerStatus(Version version,
                            @Nullable Players players,
                            @Nullable Component description,

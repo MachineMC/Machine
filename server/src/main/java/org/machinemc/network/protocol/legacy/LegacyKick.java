@@ -16,7 +16,7 @@ package org.machinemc.network.protocol.legacy;
 
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Nullable;
-import org.machinemc.network.protocol.status.clientbound.ServerStatus;
+import org.machinemc.server.ServerStatus;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.scriptive.util.ChatUtils;
