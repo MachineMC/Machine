@@ -89,9 +89,7 @@ public final class Machine implements Server {
      */
     public void run() throws Exception {
         Preconditions.checkState(terminal.getLineReader() == null, "There is a different server bound to the terminal");
-        // TODO set line reader for terminal here
-        //  messages do not get printed to terminal in
-        //  application run task without LineReader
+        // TODO set line reader for terminal
 
         terminal.getTerminal().puts(InfoCmp.Capability.clear_screen);
         logger.info("Loading Machine Server for Minecraft {} (protocol {})", SERVER_IMPLEMENTATION_VERSION, SERVER_IMPLEMENTATION_PROTOCOL);

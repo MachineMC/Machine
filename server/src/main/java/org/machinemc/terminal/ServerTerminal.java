@@ -79,10 +79,9 @@ public final class ServerTerminal {
 
         final TerminalBuilder builder = TerminalBuilder.builder();
 
-        if (System.console() == null) // if there is no console, the environment does not offer real terminal
-            builder.dumb(true)
-                    .system(false)
-                    .streams(System.in, System.out);
+        // if there is no console, the environment does not offer real terminal
+        if (System.console() == null)
+            builder.dumb(true);
 
         terminal = builder.build();
 

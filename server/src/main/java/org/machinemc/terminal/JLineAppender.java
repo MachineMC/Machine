@@ -18,6 +18,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.Layout;
 import org.jline.reader.LineReader;
+import org.jline.terminal.Terminal;
 
 /**
  * Logback appender that uses the printAbove method of a JLine {@link LineReader}
@@ -49,7 +50,9 @@ public final class JLineAppender extends AppenderBase<ILoggingEvent> {
             return;
         }
 
-        serverTerminal.getTerminal().writer().print(layout.doLayout(event));
+        final Terminal terminal = serverTerminal.getTerminal();
+        terminal.writer().print(layout.doLayout(event));
+        terminal.flush();
     }
 
 }
