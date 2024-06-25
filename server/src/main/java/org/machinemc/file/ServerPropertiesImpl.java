@@ -23,11 +23,13 @@ import org.machinemc.cogwheel.config.Configuration;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TextComponent;
 import org.machinemc.server.ServerStatus;
+import org.machinemc.text.Translator;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -41,6 +43,11 @@ public class ServerPropertiesImpl implements ServerProperties, Configuration {
      * Path to the configuration file.
      */
     public static final String PATH = "server.properties";
+
+    /**
+     * Path to the default server icon.
+     */
+    public static final String ICON_PATH = "icon.png";
 
     @Comment("The IP address of the server.")
     private String serverIP = "localhost";
@@ -109,6 +116,9 @@ public class ServerPropertiesImpl implements ServerProperties, Configuration {
     @Comment({"Returns the simulation distance of the server worlds.",
             "Simulation distance defines how far away entities should tick."})
     private int simulationDistance = 8;
+
+    @Comment("Language used to translate in-game translation components.")
+    private Locale language = Translator.parseLocale("en_us").orElseThrow();
 
     @Override
     public Optional<URL> getAuthService() {

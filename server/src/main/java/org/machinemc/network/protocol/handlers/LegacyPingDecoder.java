@@ -17,9 +17,10 @@ package org.machinemc.network.protocol.handlers;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import lombok.RequiredArgsConstructor;
+import org.machinemc.Server;
 import org.machinemc.network.protocol.legacy.LegacyKick;
 import org.machinemc.network.protocol.legacy.LegacyPingType;
-import org.machinemc.server.ServerStatus;
 import org.machinemc.scriptive.components.TextComponent;
 
 import java.util.List;
@@ -33,7 +34,10 @@ import java.util.List;
  * before the switch to Netty in 1.7 brought the standard format that is recognized now.
  * This packet merely exists to inform legacy clients that they can't join our modern server.
  */
+@RequiredArgsConstructor
 public class LegacyPingDecoder extends ByteToMessageDecoder {
+
+    private final Server server;
 
     @Override
     protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) {
@@ -51,20 +55,14 @@ public class LegacyPingDecoder extends ByteToMessageDecoder {
 
         // Legacy handshake requesting server status
         if (first == 0xFE) {
-            // TODO request from server, not hardcoded
-            final ServerStatus status = new ServerStatus(
-                    new ServerStatus.Version("1.21", 767),
-                    null,
-                    TextComponent.of("A Machine Server"),
-                    false);
-            ctx.channel().writeAndFlush(LegacyKick.fromStatus(status, determinatePingType(in)));
+            ctx.channel().writeAndFlush(LegacyKick.fromStatus(server.getServerStatus(), determinatePingType(in)));
             return;
         }
 
         // Legacy handshake initiating the server connection
         if (first == 0x02 && in.isReadable()) {
             in.skipBytes(in.readableBytes());
-            // TODO request from server, not hardcoded
+            // TODO event
             ctx.channel().writeAndFlush(LegacyKick.withReason(TextComponent.of("Outdated client")));
             return;
         }

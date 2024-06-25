@@ -20,6 +20,7 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.server.ServerStatus;
 
 import java.net.URL;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -147,5 +148,13 @@ public interface ServerProperties {
      * @return simulation distance
      */
     int getSimulationDistance();
+
+    /**
+     * Language used to translate in-game translation components.
+     *
+     * @return language used by terminal translator
+     * @see org.machinemc.scriptive.components.TranslationComponent
+     */
+    Locale getLanguage();
 
 }

@@ -34,6 +34,13 @@ public interface Server {
     SerializerRegistry getSerializerRegistry();
 
     /**
+     * Returns the component processor of the server.
+     *
+     * @return server's component processor
+     */
+    ComponentProcessor getComponentProcessor();
+
+    /**
      * Returns server properties.
      * <p>
      * Server properties can be customised using the
@@ -47,17 +54,13 @@ public interface Server {
     /**
      * Returns status of the server displayed in the
      * multiplayer server menu.
+     * <p>
+     * Each time this method is called, new server status
+     * instance with current players is provided.
      *
      * @return server status
      */
     ServerStatus getServerStatus();
-
-    /**
-     * Returns the component processor of the server.
-     *
-     * @return server's component processor
-     */
-    ComponentProcessor getComponentProcessor();
 
     /**
      * Returns the translator used by the server.

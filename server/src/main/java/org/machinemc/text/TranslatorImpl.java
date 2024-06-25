@@ -15,7 +15,12 @@
 package org.machinemc.text;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +45,11 @@ public class TranslatorImpl implements Translator {
     @Override
     public void defaultLocale(final Locale locale) {
         defaultLocale = Preconditions.checkNotNull(locale, "Default Locale can not be null");
+        try {
+            loadLocaleDefaults(defaultLocale);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     @Override
@@ -58,8 +68,28 @@ public class TranslatorImpl implements Translator {
         if (localeLanguage == null) {
             localeLanguage = new ModifiableLocaleLanguage();
             localeLanguageMap.put(locale, localeLanguage);
+            try {
+                loadLocaleDefaults(locale);
+            } catch (IOException exception) {
+                throw new RuntimeException(exception);
+            }
         }
         return localeLanguage;
+    }
+
+    /**
+     * Loads language file from server resources for given locale to the
+     * translator.
+     *
+     * @param locale locale to load the translations for
+     */
+    private void loadLocaleDefaults(final Locale locale) throws IOException {
+        final InputStream is = getClass().getResourceAsStream("/data/lang/" + locale + ".json");
+        if (is == null) return;
+        try (is) {
+            final JsonObject json = JsonParser.parseReader(new InputStreamReader(is)).getAsJsonObject();
+            json.asMap().forEach((key, format) -> register(locale, key, format.getAsString()));
+        }
     }
 
 }

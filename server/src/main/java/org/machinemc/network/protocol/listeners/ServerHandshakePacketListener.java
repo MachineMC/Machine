@@ -14,7 +14,7 @@
  */
 package org.machinemc.network.protocol.listeners;
 
-import lombok.RequiredArgsConstructor;
+import com.google.common.base.Preconditions;
 import org.machinemc.network.ClientConnection;
 import org.machinemc.network.protocol.ConnectionState;
 import org.machinemc.network.protocol.handshake.HandshakePacketListener;
@@ -23,10 +23,13 @@ import org.machinemc.network.protocol.handshake.serverbound.C2SClientIntentionPa
 /**
  * Handshake packet listener used by the server.
  */
-@RequiredArgsConstructor
 public class ServerHandshakePacketListener implements HandshakePacketListener {
 
     private final ClientConnection connection;
+
+    public ServerHandshakePacketListener(final ClientConnection connection) {
+        this.connection = Preconditions.checkNotNull(connection, "Client connection can not be null");
+    }
 
     @Override
     public void onClientIntention(final C2SClientIntentionPacket packet) {

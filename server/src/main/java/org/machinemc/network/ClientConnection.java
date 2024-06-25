@@ -18,7 +18,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import io.netty.channel.*;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.machinemc.Machine;
 import org.machinemc.network.protocol.ConnectionState;
 import org.machinemc.network.protocol.Packet;
 import org.machinemc.network.protocol.PacketListener;
@@ -31,15 +31,20 @@ import javax.annotation.Nullable;
  * <p>
  * At the same time works as a handler of incoming packets.
  */
-@RequiredArgsConstructor
+@Getter
 public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketListener>> {
 
+    private final Machine server;
     private final Channel channel;
 
-    @Getter
     private ConnectionState incomingState, outgoingState;
 
     private PacketListener packetListener;
+
+    public ClientConnection(final Machine server, final Channel channel) {
+        this.server = Preconditions.checkNotNull(server, "Server can not be null");
+        this.channel = Preconditions.checkNotNull(channel, "Client channel can not be null");
+    }
 
     @Override
     public void handlerAdded(final ChannelHandlerContext ctx) {

@@ -18,26 +18,25 @@ import org.jetbrains.annotations.Nullable;
 import org.machinemc.cogwheel.DataVisitor;
 import org.machinemc.cogwheel.serialization.Serializer;
 import org.machinemc.cogwheel.util.error.ErrorContainer;
-import org.machinemc.scriptive.components.Component;
-import org.machinemc.scriptive.serialization.PropertiesSerializer;
+import org.machinemc.text.Translator;
+
+import java.util.Locale;
 
 /**
- * Cogwheel serializer fpr components.
- *
- * @param componentSerializer component serializer
- * @param propertiesSerializer component properties serializer
+ * Cogwheel serializer for locale.
  */
-public record ComponentSerializer(org.machinemc.scriptive.serialization.ComponentSerializer componentSerializer,
-                                  PropertiesSerializer<String> propertiesSerializer) implements Serializer<Component> {
+public class LocaleSerializer implements Serializer<Locale> {
 
     @Override
-    public void serialize(final Component properties, final DataVisitor visitor) {
-        visitor.writeString(componentSerializer.serialize(properties, propertiesSerializer));
+    public void serialize(final Locale locale, final DataVisitor dataVisitor) {
+        dataVisitor.writeString(locale.toString());
     }
 
     @Override
-    public @Nullable Component deserialize(final DataVisitor visitor, final ErrorContainer errorContainer) {
-        return visitor.readString().map(string -> componentSerializer.deserialize(string, propertiesSerializer)).orElse(null);
+    public @Nullable Locale deserialize(final DataVisitor dataVisitor, final ErrorContainer errorContainer) {
+        final String locale = dataVisitor.readString().orElse(null);
+        if (locale == null) return null;
+        return Translator.parseLocale(locale).orElse(null);
     }
 
 }

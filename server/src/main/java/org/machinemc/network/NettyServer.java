@@ -21,11 +21,14 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.SocketChannel;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.machinemc.Machine;
 import org.machinemc.network.protocol.HandlerNames;
 import org.machinemc.network.protocol.handlers.*;
 import org.machinemc.paklet.PacketFactory;
 
 import java.net.InetSocketAddress;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,17 +37,22 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NettyServer {
 
+    private final Machine server;
+
     private final PacketFactory packetFactory;
     private final InetSocketAddress address;
     private final TransportType transport;
 
     private final Set<ClientConnection> connections = ConcurrentHashMap.newKeySet();
 
-    public NettyServer(final PacketFactory packetFactory, final InetSocketAddress address) {
-        this(packetFactory, address, TransportType.getInstance());
+    private @Nullable ChannelFuture channelFuture;
+
+    public NettyServer(final Machine server, final PacketFactory packetFactory, final InetSocketAddress address) {
+        this(server, packetFactory, address, TransportType.getInstance());
     }
 
-    public NettyServer(final PacketFactory packetFactory, final InetSocketAddress address, final TransportType transport) {
+    public NettyServer(final Machine server, final PacketFactory packetFactory, final InetSocketAddress address, final TransportType transport) {
+        this.server = Preconditions.checkNotNull(server, "Server can not be null");
         this.packetFactory = Preconditions.checkNotNull(packetFactory, "Packet factory can not be null");
         this.address = Preconditions.checkNotNull(address, "Server Address can not be null");
         this.transport = Preconditions.checkNotNull(transport, "Transport type can not be null");
@@ -56,7 +64,8 @@ public class NettyServer {
      * @return future
      */
     public ChannelFuture bind() {
-        return new ServerBootstrap()
+        Preconditions.checkState(channelFuture == null, "Server channel already exists");
+        channelFuture = new ServerBootstrap()
                 .channelFactory(transport::createServerSocketChannel)
                 .group(transport.createEventLoopGroup(), transport.createEventLoopGroup())
                 .option(ChannelOption.SO_BACKLOG, 128)
@@ -72,6 +81,18 @@ public class NettyServer {
 
                 .localAddress(address)
                 .bind();
+        return channelFuture;
+    }
+
+    /**
+     * Returns server channel future or empty if
+     * the server channel does not exist.
+     *
+     * @return channel future
+     * @see #bind()
+     */
+    public Optional<ChannelFuture> getChannelFuture() {
+        return Optional.ofNullable(channelFuture);
     }
 
     /**
@@ -81,10 +102,10 @@ public class NettyServer {
 
         @Override
         public void initChannel(final @NotNull SocketChannel channel) {
-            final ClientConnection connection = new ClientConnection(channel);
+            final ClientConnection connection = new ClientConnection(server, channel);
             channel.config().setKeepAlive(true);
             channel.pipeline()
-                    .addLast(HandlerNames.LEGACY_PING_DECODER, new LegacyPingDecoder())
+                    .addLast(HandlerNames.LEGACY_PING_DECODER, new LegacyPingDecoder(server))
                     .addLast(HandlerNames.LENGTH_DECODER, new LengthDecoder())
                     .addLast(HandlerNames.PACKET_DECODER, new PacketDecoder(packetFactory, connection::getIncomingState))
                     .addLast(HandlerNames.PACKET_HANDLER, connection)

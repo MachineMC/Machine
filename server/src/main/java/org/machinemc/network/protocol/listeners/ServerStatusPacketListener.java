@@ -14,32 +14,29 @@
  */
 package org.machinemc.network.protocol.listeners;
 
-import lombok.RequiredArgsConstructor;
+import com.google.common.base.Preconditions;
 import org.machinemc.network.ClientConnection;
 import org.machinemc.network.protocol.ping.clientbound.S2CPongPacket;
 import org.machinemc.network.protocol.ping.serverbound.C2SPingPacket;
 import org.machinemc.network.protocol.status.StatusPacketListener;
 import org.machinemc.network.protocol.status.clientbound.S2CStatusResponsePacket;
-import org.machinemc.server.ServerStatus;
 import org.machinemc.network.protocol.status.serverbound.C2SStatusRequestPacket;
-import org.machinemc.scriptive.components.TextComponent;
 
 /**
  * Status packet listener used by the server.
  */
-@RequiredArgsConstructor
 public class ServerStatusPacketListener implements StatusPacketListener {
 
     private final ClientConnection connection;
 
+    public ServerStatusPacketListener(final ClientConnection connection) {
+        this.connection = Preconditions.checkNotNull(connection, "Client connection can not be null");
+    }
+
     @Override
     public void onStatusRequest(final C2SStatusRequestPacket packet) {
-        final ServerStatus status = new ServerStatus(
-                new ServerStatus.Version("1.21", 767),
-                null,
-                TextComponent.of("A Machine Server"),
-                false);
-        connection.sendPacket(new S2CStatusResponsePacket(status), true);
+        // TODO event
+        connection.sendPacket(new S2CStatusResponsePacket(connection.getServer().getServerStatus()), true);
     }
 
     @Override
