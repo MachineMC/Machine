@@ -114,6 +114,8 @@ public interface PacketGroups {
          */
         interface ServerBound {
             String NAME = "LoginServerBound";
+
+            int HELLO = 0x00;
         }
 
     }

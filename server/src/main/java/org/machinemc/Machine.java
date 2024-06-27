@@ -50,6 +50,9 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.JSONPropertiesSerializer;
 import org.machinemc.server.ServerStatus;
+import org.machinemc.server.Ticker;
+import org.machinemc.server.TickerImpl;
+import org.machinemc.terminal.LoggingThreadGroup;
 import org.machinemc.terminal.ServerTerminal;
 import org.machinemc.text.ComponentProcessor;
 import org.machinemc.text.ComponentProcessorImpl;
@@ -81,6 +84,8 @@ public final class Machine implements Server {
 
     private final Gson gson;
 
+    private Ticker ticker;
+
     private final SerializerRegistry serializerRegistry;
     private final JSONConfigSerializer jsonConfigSerializer;
     private final YamlConfigSerializer yamlConfigSerializer;
@@ -102,9 +107,19 @@ public final class Machine implements Server {
      *
      * @param args arguments
      */
-    public static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) {
         final Machine server = new Machine();
-        server.run();
+        Thread.ofPlatform().group(new LoggingThreadGroup(
+                Thread.currentThread().getThreadGroup(),
+                "MachineServer",
+                server.logger
+        )).start(() -> {
+            try {
+                server.run();
+            } catch (Exception exception) {
+                throw new RuntimeException(exception);
+            }
+        });
     }
 
     /**
@@ -158,7 +173,6 @@ public final class Machine implements Server {
         Preconditions.checkState(terminal.getLineReader() == null, "There is a different server bound to the terminal");
         running = true;
 
-        Thread.currentThread().setUncaughtExceptionHandler((thread, exception) -> logger.error("Thread {} generated unhandled exception", thread.getName(), exception));
         terminal.getTerminal().puts(InfoCmp.Capability.clear_screen);
         logger.info("Loading Machine Server for Minecraft {} (protocol {})...", SERVER_IMPLEMENTATION_VERSION, SERVER_IMPLEMENTATION_PROTOCOL);
 
@@ -176,6 +190,9 @@ public final class Machine implements Server {
 
         translator = new TranslatorImpl(serverProperties.getLanguage());
         logger.info("Loaded server language files");
+
+        ticker = new TickerImpl(Thread.ofPlatform().name("tick-thread"));
+        logger.info("Loaded server ticker");
 
         loadNettyServer();
         nettyServer.bind().get();
@@ -244,6 +261,7 @@ public final class Machine implements Server {
         factory.addPackets(PacketGroups.Handshaking.ServerBound.class);
         factory.addPackets(PacketGroups.Status.ClientBound.class);
         factory.addPackets(PacketGroups.Status.ServerBound.class);
+        factory.addPackets(PacketGroups.Login.ServerBound.class);
         factory.addPackets(PingPackets.class);
 
         nettyServer = new NettyServer(this, factory, new InetSocketAddress(serverProperties.getServerIP(), serverProperties.getServerPort()));

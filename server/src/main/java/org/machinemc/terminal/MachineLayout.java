@@ -40,6 +40,18 @@ public class MachineLayout extends LayoutBase<ILoggingEvent> {
     );
 
     @Override
+    public void start() {
+        super.start();
+        tpc.start();
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        tpc.stop();
+    }
+
+    @Override
     public String doLayout(final ILoggingEvent event) {
         if (!this.isStarted()) return "";
 

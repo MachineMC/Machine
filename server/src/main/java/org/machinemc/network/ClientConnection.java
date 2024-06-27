@@ -23,8 +23,10 @@ import org.machinemc.network.protocol.ConnectionState;
 import org.machinemc.network.protocol.Packet;
 import org.machinemc.network.protocol.PacketListener;
 import org.machinemc.network.protocol.listeners.ServerHandshakePacketListener;
+import org.machinemc.utils.FunctionalFutureCallback;
 
 import javax.annotation.Nullable;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a client connected to the server.
@@ -72,9 +74,12 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
      * @param packet packet
      * @param flush whether to flush the channel
      * @param <T> packet type
+     * @return future
      */
-    public <T extends Packet<?>> void sendPacket(final T packet, final boolean flush) {
-        sendPacket(packet, flush, null);
+    public <T extends Packet<?>> CompletableFuture<T> sendPacket(final T packet, final boolean flush) {
+        final CompletableFuture<T> future = new CompletableFuture<>();
+        sendPacket(packet, flush, FunctionalFutureCallback.create(future::complete, future::completeExceptionally));
+        return future;
     }
 
     /**

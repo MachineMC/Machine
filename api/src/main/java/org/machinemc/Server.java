@@ -17,6 +17,7 @@ package org.machinemc;
 import org.machinemc.cogwheel.serialization.SerializerRegistry;
 import org.machinemc.file.ServerProperties;
 import org.machinemc.server.ServerStatus;
+import org.machinemc.server.Ticker;
 import org.machinemc.text.ComponentProcessor;
 import org.machinemc.text.Translator;
 
@@ -24,6 +25,17 @@ import org.machinemc.text.Translator;
  * Represents a Machine server implementation.
  */
 public interface Server {
+
+    /**
+     * Returns server's ticker.
+     * <p>
+     * The Ticker is a core component of the server responsible for managing time within the game.
+     * It ensures that the game world is updated at regular intervals, known as "ticks".
+     * This always happens on the main server thread (tick thread).
+     *
+     * @return server's ticker
+     */
+    Ticker getTicker();
 
     /**
      * Serializer registry used by the server with registered
