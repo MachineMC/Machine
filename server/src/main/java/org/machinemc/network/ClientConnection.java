@@ -22,6 +22,7 @@ import org.machinemc.Machine;
 import org.machinemc.network.protocol.ConnectionState;
 import org.machinemc.network.protocol.Packet;
 import org.machinemc.network.protocol.PacketListener;
+import org.machinemc.network.protocol.Synced;
 import org.machinemc.network.protocol.listeners.ServerHandshakePacketListener;
 import org.machinemc.utils.FunctionalFutureCallback;
 
@@ -62,10 +63,17 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
      * @param packet incoming packet
      */
     @Override
-    protected void channelRead0(final ChannelHandlerContext channelHandlerContext, final Packet<PacketListener> packet) {
+    protected void channelRead0(final ChannelHandlerContext channelHandlerContext, final Packet<PacketListener> packet) throws Exception {
         if (!channel.isOpen()) return;
         Preconditions.checkNotNull(packetListener, "Received packets before initialization");
-        packet.handle(packetListener);
+
+        // runs the Synced packets on the tick thread
+        if (!packet.getClass().isAnnotationPresent(Synced.class)) {
+            packet.handle(packetListener);
+        } else {
+            final CompletableFuture<Void> future = server.getTicker().runNextTick(() -> packet.handle(packetListener));
+            if (packet.getClass().getAnnotation(Synced.class).blocks()) future.get();
+        }
     }
 
     /**

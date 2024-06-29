@@ -16,7 +16,6 @@ package org.machinemc.server;
 
 import com.google.common.util.concurrent.FutureCallback;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -39,39 +38,146 @@ import java.util.function.Supplier;
 public interface Ticker extends AutoCloseable {
 
     /**
-     * Returns whether the ticker is ticking (is active).
+     * Returns whether the ticker accepts new tasks;
+     * meaning is ticking or may be ticking in the future.
+     * <p>
+     * If the ticker is frozen but not closed, this will always return {@code true}.
+     * If the ticker is closed, it means it can not tick again and this
+     * will always return {@code false}.
      *
-     * @return whether the ticker is active
+     * @return whether the ticker is running
      */
-    boolean isRunning();
+    boolean acceptsTasks();
 
     /**
-     * Returns tick rate of the server.
+     * Returns whether the ticker is currently frozen.
+     * <p>
+     * In frozen state it is possible to call {@link #step(int)} to
+     * advances the processing by the specified number of ticks.
      *
-     * @return server tick rate
+     * @return whether the ticker is frozen
      */
-    @Range(from = 0, to = 20) float getTickRate();
+    boolean isFrozen();
 
     /**
-     * Runs given task the next game tick.
+     * Stops the ticker from ticking.
+     * <p>
+     * Does nothing if the ticker is already frozen.
+     * <p>
+     * This does not happen instantly. The current tick is finished and
+     * then the ticker is frozen.
+     * <p>
+     * Freezing the ticker has no effect on {@link #getTickRate()}.
+     *
+     * @return future of when the ticker is frozen, if the ticker is closed during the
+     * freeze request, the future is cancelled
+     * @see #isFrozen()
+     */
+    CompletableFuture<Void> freeze();
+
+    /**
+     * Starts ticking again if the ticker is frozen.
+     * <p>
+     * Does nothing if the ticker is running.
+     *
+     * @return whether the ticker has been unfrozen
+     * @see #isFrozen()
+     */
+    boolean unfreeze();
+
+    /**
+     * Advances the processing by one tick.
+     * <p>
+     * Stepping ticks forward has no effect on {@link #getTickRate()}.
+     *
+     * @return future when the ticks are processed
+     */
+    default CompletableFuture<Void> step() {
+        return step(1);
+    }
+
+    /**
+     * Advances the processing by the specified number of ticks.
+     * <p>
+     * Stepping ticks forward has no effect on {@link #getTickRate()}.
+     *
+     * @param ticks number of ticks to process
+     * @return future when the ticks are processed
+     */
+    CompletableFuture<Void> step(int ticks);
+
+    /**
+     * Returns tick rate of the ticker.
+     * <p>
+     * This is not the value set by {@link #setTargetTickRate(float)} but
+     * the real tick rate of the ticker.
+     *
+     * @return server tick rate or {@code 0} if the information is not available
+     */
+    float getTickRate();
+
+    /**
+     * Returns the target tick rate of the ticker under
+     * perfect conditions.
+     *
+     * @return target ticker
+     */
+    float getTargetTickRate();
+
+    /**
+     * Changes the target tick rate of the ticker.
+     * <p>
+     * This is not the value received by {@link #getTickRate()} but
+     * the target tick rate of the ticker under perfect conditions.
+     *
+     * @param tickRate target tick rate
+     */
+    void setTargetTickRate(float tickRate);
+
+    /**
+     * Returns the average tick duration of this ticker
+     * in milliseconds.
+     *
+     * @return average tick duration or {@code 0} if the information is not available
+     */
+    default long getAverageTickDuration() {
+        return (long) (getTargetTickRate() / getTickRate() * getTargetTickDuration());
+    }
+
+    /**
+     * Returns the target tick duration under perfect
+     * conditions.
+     *
+     * @return target tick duration
+     */
+    default long getTargetTickDuration() {
+        return (long) (1000 / getTargetTickRate());
+    }
+
+    /**
+     * Runs given task the next tick.
      *
      * @param supplier task to run
      * @return future
      * @param <T> return type
      */
-    <T> CompletableFuture<T> runNextTick(Supplier<T> supplier);
+    default <T> CompletableFuture<T> runNextTick(Supplier<T> supplier) {
+        return runAfter(supplier, 0);
+    }
 
     /**
-     * Runs given task the next game tick.
+     * Runs given task the next tick.
      *
      * @param supplier task to run
      * @param callback callback
      * @param <T> return type
      */
-    <T> void runNextTick(Supplier<T> supplier, @Nullable FutureCallback<T> callback);
+    default <T> void runNextTick(Supplier<T> supplier, @Nullable FutureCallback<T> callback) {
+        runAfter(supplier, 0, callback);
+    }
 
     /**
-     * Runs given task the next game tick.
+     * Runs given task the next tick.
      *
      * @param runnable task to run
      * @return future
@@ -81,13 +187,106 @@ public interface Ticker extends AutoCloseable {
     }
 
     /**
-     * Runs given task the next game tick.
+     * Runs given task the next tick.
      *
      * @param runnable task to run
      * @param callback callback
      */
     default void runNextTick(Runnable runnable, @Nullable FutureCallback<Void> callback) {
         runNextTick(() -> { runnable.run(); return null; }, callback);
+    }
+
+    /**
+     * Runs given task after given number of ticks.
+     *
+     * @param supplier task to run
+     * @param ticks delay in ticks
+     * @return future
+     * @param <T> return type
+     */
+    default <T> CompletableFuture<T> runAfter(Supplier<T> supplier, long ticks) {
+        return runRepeatedly(supplier, ticks, -1);
+    }
+
+    /**
+     * Runs given task after given number of ticks.
+     *
+     * @param supplier task to run
+     * @param ticks delay in ticks
+     * @param callback callback
+     * @param <T> return type
+     */
+    default <T> void runAfter(Supplier<T> supplier, long ticks, @Nullable FutureCallback<T> callback) {
+        runRepeatedly(supplier, ticks, -1, callback);
+    }
+
+    /**
+     * Runs given task after given number of ticks.
+     *
+     * @param runnable task to run
+     * @param ticks delay in ticks
+     * @return future
+     */
+    default CompletableFuture<Void> runAfter(Runnable runnable, long ticks) {
+        return runRepeatedly(() -> { runnable.run(); return null; }, ticks, -1);
+    }
+
+    /**
+     * Runs given task after given number of ticks with given period.
+     *
+     * @param runnable task to run
+     * @param ticks delay in ticks
+     * @param callback callback
+     */
+    default void runAfter(Runnable runnable, long ticks, @Nullable FutureCallback<Void> callback) {
+        runRepeatedly(() -> { runnable.run(); return null; }, ticks, -1, callback);
+    }
+
+
+    /**
+     * Runs given task after given number of ticks with given period.
+     *
+     * @param supplier task to run
+     * @param ticks delay in ticks
+     * @param period period, {@code -1} to run the task only once and not repeat it
+     * @return future
+     * @param <T> return type
+     */
+    <T> CompletableFuture<T> runRepeatedly(Supplier<T> supplier, long ticks, long period);
+
+    /**
+     * Runs given task after given number of ticks with given period.
+     *
+     * @param supplier task to run
+     * @param ticks delay in ticks
+     * @param period period, {@code -1} to run the task only once and not repeat it
+     * @param callback callback
+     * @param <T> return type
+     */
+    <T> void runRepeatedly(Supplier<T> supplier, long ticks, long period, @Nullable FutureCallback<T> callback);
+
+    /**
+     * Runs given task after given number of ticks with given period.
+     *
+     * @param runnable task to run
+     * @param ticks delay in ticks
+     * @param period period, {@code -1} to run the task only once and not repeat it
+     * @return future
+     */
+    default CompletableFuture<Void> runRepeatedly(Runnable runnable, long ticks, long period) {
+        return runRepeatedly(() -> { runnable.run(); return null; }, ticks, period);
+    }
+
+    /**
+     * Runs given task after given number of ticks with given period.
+     *
+     * @param runnable task to run
+     * @param ticks delay in ticks
+     * @param period period, {@code -1} to run the task only once and not repeat it
+     * @param callback callback
+     */
+    default void runRepeatedly(Runnable runnable, long ticks, long period, @Nullable FutureCallback<Void> callback) {
+        runRepeatedly(() -> { runnable.run(); return null; }, ticks, period, callback);
     }
 
     /**
@@ -135,5 +334,20 @@ public interface Ticker extends AutoCloseable {
      * @return scheduled executor service using the tick thread
      */
     ScheduledExecutorService getTickScheduledExecutor();
+
+
+    /**
+     * Shutdowns the ticker.
+     * <p>
+     * After that ticker can not accept any new tasks or continue ticking.
+     * <p>
+     * Before the ticker is shutdown, it will complete the current tick,
+     * if the ticker is frozen, it can not be closed safely.
+     * <p>
+     * To shut down frozen ticker, it is necessary to call {@link ScheduledExecutorService#shutdownNow()}
+     * of service return by {@link #getTickScheduledExecutor()}. This way the current tick will not be
+     * finished and list of unfinished tasks will be returned.
+     */
+    void close();
 
 }

@@ -50,6 +50,7 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.JSONPropertiesSerializer;
 import org.machinemc.server.ServerStatus;
+import org.machinemc.server.Tick;
 import org.machinemc.server.Ticker;
 import org.machinemc.server.TickerImpl;
 import org.machinemc.terminal.LoggingThreadGroup;
@@ -191,7 +192,7 @@ public final class Machine implements Server {
         translator = new TranslatorImpl(serverProperties.getLanguage());
         logger.info("Loaded server language files");
 
-        ticker = new TickerImpl(Thread.ofPlatform().name("tick-thread"));
+        ticker = new TickerImpl(Thread.ofPlatform().name("tick-thread"), (float) 1 / Tick.TICK_MILLIS * 1000);
         logger.info("Loaded server ticker");
 
         loadNettyServer();

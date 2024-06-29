@@ -188,21 +188,27 @@ class TickingTask<T> implements ScheduledFuture<T> {
 
     @Override
     public T get() throws InterruptedException, ExecutionException {
+        lock.lock();
         try {
             condition.await();
             handleResult(false); // this can never time out
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
+        } finally {
+            lock.unlock();
         }
         return result;
     }
 
     @Override
     public T get(final long timeout, final @NotNull TimeUnit unit) throws ExecutionException, TimeoutException {
+        lock.lock();
         try {
             handleResult(!condition.await(timeout, unit));
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
+        } finally {
+            lock.unlock();
         }
         return result;
     }

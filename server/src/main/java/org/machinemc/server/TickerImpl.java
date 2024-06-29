@@ -24,14 +24,16 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 import org.machinemc.utils.FunctionalFutureCallback;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 /**
@@ -41,8 +43,23 @@ public class TickerImpl implements Ticker, ScheduledExecutorService {
 
     private Thread tickThread;
 
+    private volatile boolean frozen = false; // if the ticker is frozen right now
+
+    // future used by the #freeze method, if present, indicates the
+    // freeze has been requested and the ticker should freeze before next tick
+    private @Nullable CompletableFuture<Void> freezeFuture;
+
+    private final ReentrantLock freezeLock = new ReentrantLock();
+    private final Condition freezeCondition = freezeLock.newCondition(); // stops the tick thread if frozen
+
+    // ticks to step forward while being frozen
+    private final AtomicLong steppingTicks = new AtomicLong(0);
+
+    /**
+     * Target tick rate.
+     */
     @Getter
-    private volatile boolean running = false;
+    private volatile float targetTickRate;
 
     /**
      * Active tasks left to execute.
@@ -73,8 +90,10 @@ public class TickerImpl implements Ticker, ScheduledExecutorService {
      * Creates and starts a new server ticker.
      *
      * @param tickThread thread builder used for creation of the tick thread
+     * @param targetTickRate target tick rate of the ticker
      */
-    public TickerImpl(final Thread.Builder tickThread) {
+    public TickerImpl(final Thread.Builder tickThread, final float targetTickRate) {
+        setTargetTickRate(targetTickRate);
         Preconditions.checkNotNull(tickThread, "Tick thread builder can not be null").start(this::run);
     }
 
@@ -84,7 +103,6 @@ public class TickerImpl implements Ticker, ScheduledExecutorService {
     private void run() {
         Preconditions.checkState(tickThread == null, "Ticker is already running");
         tickThread = Thread.currentThread();
-        running = true;
         tick();
     }
 
@@ -94,8 +112,6 @@ public class TickerImpl implements Ticker, ScheduledExecutorService {
     @SneakyThrows
     private void tick() {
         Preconditions.checkState(isTickThread(), "Ticking on not a tick thread");
-        if (!running) return;
-
         final Instant tickStart = Instant.now();
 
         for (final TickingTask<?> task : tasks) {
@@ -111,20 +127,49 @@ public class TickerImpl implements Ticker, ScheduledExecutorService {
         tasks.removeAll(tasksToRemove);
         tasksToRemove.clear();
 
-        final long took = ChronoUnit.MILLIS.between(tickStart, Instant.now());
+        // normal tick
+        if (!frozen && steppingTicks.get() == 0) {
+            final long took = ChronoUnit.MILLIS.between(tickStart, Instant.now());
+            final long target = (long) (1000 / targetTickRate);
 
-        if (took < Tick.TICK_MILLIS) {
-            Thread.sleep(Tick.TICK_MILLIS - took);
-            lastTicks.add(Tick.TICK_MILLIS);
-        } else {
-            lastTicks.add(took);
+            if (took < target) {
+                Thread.sleep(target - took);
+                lastTicks.addFirst(target);
+            } else {
+                lastTicks.addFirst(took);
+            }
+
+            while (lastTicks.size() > 20)
+                lastTicks.removeLast();
         }
 
-        while (lastTicks.size() > 20)
-            lastTicks.removeLast();
+        // last stepping tick while frozen
+        if (frozen && steppingTicks.get() == 1) {
+            steppingTicks.decrementAndGet();
+            freezeLock.lock();
+            try {
+                freezeCondition.await();
+            } finally {
+                freezeLock.unlock();
+            }
+        }
+
+        // freezing the ticker
+        if (freezeFuture != null && steppingTicks.get() == 0) {
+            freezeLock.lock();
+            try {
+                frozen = true;
+                freezeFuture.complete(null);
+                freezeFuture = null;
+                freezeCondition.await();
+            } finally {
+                freezeLock.unlock();
+            }
+        }
 
         tasks.addAll(tasksToAdd);
         tasksToAdd.clear();
+
         tick();
     }
 
@@ -201,15 +246,72 @@ public class TickerImpl implements Ticker, ScheduledExecutorService {
     }
 
     @Override
-    public @Range(from = 0, to = 20) float getTickRate() {
-        return (float) lastTicks.longStream().average().orElse(20);
+    public boolean acceptsTasks() {
+        return !shuttingDown;
     }
 
     @Override
-    public <T> CompletableFuture<T> runNextTick(final Supplier<T> supplier) {
+    public boolean isFrozen() {
+        return frozen;
+    }
+
+    @Override
+    public CompletableFuture<Void> freeze() {
+        if (frozen) return CompletableFuture.completedFuture(null);
+        freezeLock.lock();
+        try {
+            if (freezeFuture == null) freezeFuture = new CompletableFuture<>();
+            return freezeFuture;
+        } finally {
+            freezeLock.unlock();
+        }
+    }
+
+    @Override
+    public boolean unfreeze() {
+        if (!frozen) return false;
+        frozen = false;
+        freezeLock.lock();
+        try {
+            freezeCondition.signalAll();
+            return true;
+        } finally {
+            freezeLock.unlock();
+        }
+    }
+
+    @Override
+    public CompletableFuture<Void> step(final int ticks) {
+        if (ticks <= 0) return CompletableFuture.completedFuture(null);
+        steppingTicks.addAndGet(ticks);
+        final CompletableFuture<Void> future = runAfter(() -> null, ticks - 1); // 0 means running next tick which is the same as step 1 tick forward
+        if (frozen) {
+            freezeLock.lock();
+            try {
+                freezeCondition.signalAll();
+            } finally {
+                freezeLock.unlock();
+            }
+        }
+        return future;
+    }
+
+    @Override
+    public float getTickRate() {
+        return (float) (1000 / lastTicks.longStream().average().orElse(0));
+    }
+
+    @Override
+    public void setTargetTickRate(final float tickRate) {
+        Preconditions.checkState(tickRate > 0, "Target tick rate has to be more than 0");
+        targetTickRate = tickRate;
+    }
+
+    @Override
+    public <T> CompletableFuture<T> runRepeatedly(final Supplier<T> supplier, final long ticks, final long period) {
         final CompletableFuture<T> future = new CompletableFuture<>();
         final AtomicReference<TickingTask<T>> reference = new AtomicReference<>();
-        final TickingTask<T> task = new TickingTask<>(supplier::get, 0, -1, FunctionalFutureCallback.create(
+        final TickingTask<T> task = new TickingTask<>(supplier::get, ticks, period, FunctionalFutureCallback.create(
                 success -> {
                     if (reference.get().isCancelled()) future.cancel(true);
                     else future.complete(success);
@@ -222,8 +324,8 @@ public class TickerImpl implements Ticker, ScheduledExecutorService {
     }
 
     @Override
-    public <T> void runNextTick(final Supplier<T> supplier, final @Nullable FutureCallback<T> callback) {
-        addTask(new TickingTask<>(supplier::get, 0, -1, callback));
+    public <T> void runRepeatedly(final Supplier<T> supplier, final long ticks, final long period, final @Nullable FutureCallback<T> callback) {
+        addTask(new TickingTask<>(supplier::get, ticks, period, callback));
     }
 
     @Override
@@ -234,6 +336,11 @@ public class TickerImpl implements Ticker, ScheduledExecutorService {
     @Override
     public ScheduledExecutorService getTickScheduledExecutor() {
         return this;
+    }
+
+    @Override
+    public void close() {
+        ScheduledExecutorService.super.close();
     }
 
     @Override
@@ -259,11 +366,12 @@ public class TickerImpl implements Ticker, ScheduledExecutorService {
     @Override
     public void shutdown() {
         shuttingDown = true;
+        if (freezeFuture != null) freezeFuture.cancel(true);
     }
 
     @Override
     public @NotNull List<Runnable> shutdownNow() {
-        shuttingDown = true;
+        shutdown();
         shuttingDownNow = true;
         return tasks.stream()
                 .filter(task -> !tasksToRemove.contains(task))
