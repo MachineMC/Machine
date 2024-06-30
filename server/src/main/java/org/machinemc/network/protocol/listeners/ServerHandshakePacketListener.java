@@ -55,7 +55,8 @@ public class ServerHandshakePacketListener implements HandshakePacketListener {
      * @param transfer whether the client was transferred from another server
      */
     private void switchToLogin(final boolean transfer) {
-        throw new UnsupportedOperationException();
+        connection.setupInboundProtocol(ConnectionState.LOGIN, new ServerLoginPacketListener(connection));
+        connection.setupOutboundProtocol(ConnectionState.LOGIN);
     }
 
 }

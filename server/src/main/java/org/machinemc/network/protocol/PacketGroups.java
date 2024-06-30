@@ -107,6 +107,8 @@ public interface PacketGroups {
          */
         interface ClientBound {
             String NAME = "LoginClientBound";
+
+            int LOGIN_SUCCESS = 0x02;
         }
 
         /**
@@ -116,6 +118,7 @@ public interface PacketGroups {
             String NAME = "LoginServerBound";
 
             int HELLO = 0x00;
+            int LOGIN_ACKNOWLEDGED = 0x02;
         }
 
     }
@@ -152,6 +155,7 @@ public interface PacketGroups {
         interface ClientBound {
             String NAME = "PlayClientBound";
 
+            int DISCONNECT = 0x1D;
             int PONG = 0x36;
         }
 

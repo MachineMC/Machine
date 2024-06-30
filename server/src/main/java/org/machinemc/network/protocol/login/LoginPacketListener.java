@@ -17,6 +17,7 @@ package org.machinemc.network.protocol.login;
 import org.machinemc.network.protocol.ConnectionState;
 import org.machinemc.network.protocol.PacketListener;
 import org.machinemc.network.protocol.login.serverbound.C2SHelloPacket;
+import org.machinemc.network.protocol.login.serverbound.C2SLoginAcknowledgedPacket;
 
 /**
  * Packet listener for login packets.
@@ -29,6 +30,8 @@ public interface LoginPacketListener extends PacketListener {
      * @param packet packet
      */
     void onHello(C2SHelloPacket packet);
+
+    void onLoginAcknowledged(C2SLoginAcknowledgedPacket packet);
 
     @Override
     default ConnectionState protocol() {
