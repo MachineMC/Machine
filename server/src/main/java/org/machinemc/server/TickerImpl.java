@@ -103,74 +103,75 @@ public class TickerImpl implements Ticker, ScheduledExecutorService {
     private void run() {
         Preconditions.checkState(tickThread == null, "Ticker is already running");
         tickThread = Thread.currentThread();
-        tick();
+        startTicking();
     }
 
     /**
      * Executes the next tick.
      */
     @SneakyThrows
-    private void tick() {
+    private void startTicking() {
         Preconditions.checkState(isTickThread(), "Ticking on not a tick thread");
-        final Instant tickStart = Instant.now();
+        while (true) {
+            final Instant tickStart = Instant.now();
 
-        for (final TickingTask<?> task : tasks) {
-            if (shuttingDownNow) break;
-            if (handleTask(task)) tasksToRemove.add(task);
-        }
-
-        if (shuttingDown) {
-            terminateFuture.complete(null);
-            return;
-        }
-
-        tasks.removeAll(tasksToRemove);
-        tasksToRemove.clear();
-
-        // normal tick
-        if (!frozen && steppingTicks.get() == 0) {
-            final long took = ChronoUnit.MILLIS.between(tickStart, Instant.now());
-            final long target = (long) (1000 / targetTickRate);
-
-            if (took < target) {
-                Thread.sleep(target - took);
-                lastTicks.addFirst(target);
-            } else {
-                lastTicks.addFirst(took);
+            for (final TickingTask<?> task : tasks) {
+                if (shuttingDownNow) break;
+                if (handleTask(task)) tasksToRemove.add(task);
             }
 
-            while (lastTicks.size() > 20)
-                lastTicks.removeLast();
-        }
-
-        // last stepping tick while frozen
-        if (frozen && steppingTicks.get() == 1) {
-            steppingTicks.decrementAndGet();
-            freezeLock.lock();
-            try {
-                freezeCondition.await();
-            } finally {
-                freezeLock.unlock();
+            if (shuttingDown) {
+                terminateFuture.complete(null);
+                return;
             }
-        }
 
-        // freezing the ticker
-        if (freezeFuture != null && steppingTicks.get() == 0) {
-            freezeLock.lock();
-            try {
-                frozen = true;
-                freezeFuture.complete(null);
-                freezeFuture = null;
-                freezeCondition.await();
-            } finally {
-                freezeLock.unlock();
+            tasks.removeAll(tasksToRemove);
+            tasksToRemove.clear();
+
+            // normal tick
+            if (!frozen && steppingTicks.get() == 0) {
+                final long took = ChronoUnit.MILLIS.between(tickStart, Instant.now());
+                final long target = (long) (1000 / targetTickRate);
+
+                if (took < target) {
+                    //noinspection BusyWait
+                    Thread.sleep(target - took);
+                    lastTicks.addFirst(target);
+                } else {
+                    lastTicks.addFirst(took);
+                }
+
+                while (lastTicks.size() > 20)
+                    lastTicks.removeLast();
             }
+
+            // last stepping tick while frozen
+            if (frozen && steppingTicks.get() == 1) {
+                steppingTicks.decrementAndGet();
+                freezeLock.lock();
+                try {
+                    freezeCondition.await();
+                } finally {
+                    freezeLock.unlock();
+                }
+            }
+
+            // freezing the ticker
+            if (freezeFuture != null && steppingTicks.get() == 0) {
+                freezeLock.lock();
+                try {
+                    frozen = true;
+                    freezeFuture.complete(null);
+                    freezeFuture = null;
+                    freezeCondition.await();
+                } finally {
+                    freezeLock.unlock();
+                }
+            }
+
+            tasks.addAll(tasksToAdd);
+            tasksToAdd.clear();
         }
-
-        tasks.addAll(tasksToAdd);
-        tasksToAdd.clear();
-
-        tick();
     }
 
     /**

@@ -31,6 +31,12 @@ public interface LoginPacketListener extends PacketListener {
      */
     void onHello(C2SHelloPacket packet);
 
+    /**
+     * Called as a response to {@link org.machinemc.network.protocol.login.clientbound.S2CLoginSuccessPacket}
+     * packet.
+     *
+     * @param packet packet
+     */
     void onLoginAcknowledged(C2SLoginAcknowledgedPacket packet);
 
     @Override
