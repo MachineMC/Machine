@@ -77,6 +77,10 @@ public class ServerPropertiesImpl implements ServerProperties, Configuration {
         }
     }
 
+    @Comment({"The maximum size of a packet before it is compressed.",
+            "Any negative value disables the compression."})
+    private int compressionThreshold = 256;
+
     @Comment({"Whether the server requires sent messages being signed.",
             "If true, message sent by players can be reported to Mojang."})
     @Accessors(fluent = true)

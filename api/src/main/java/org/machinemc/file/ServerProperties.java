@@ -66,6 +66,15 @@ public interface ServerProperties {
     Optional<URL> getAuthService();
 
     /**
+     * Returns the compression threshold (maximum size of a packet before it is compressed).
+     * <p>
+     * Any negative value disables the compression.
+     *
+     * @return compression threshold
+     */
+    int getCompressionThreshold();
+
+    /**
      * Whether the server requires sent messages being signed.
      * <p>
      * If true, message sent by players can be reported to Mojang.

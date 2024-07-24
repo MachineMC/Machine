@@ -19,14 +19,15 @@ import com.google.common.util.concurrent.FutureCallback;
 import io.netty.channel.*;
 import lombok.Getter;
 import org.machinemc.Machine;
-import org.machinemc.network.protocol.ConnectionState;
-import org.machinemc.network.protocol.Packet;
-import org.machinemc.network.protocol.PacketListener;
-import org.machinemc.network.protocol.Synced;
+import org.machinemc.network.protocol.*;
+import org.machinemc.network.protocol.handlers.CompressionDecoder;
+import org.machinemc.network.protocol.handlers.CompressionEncoder;
 import org.machinemc.network.protocol.listeners.ServerHandshakePacketListener;
+import org.machinemc.network.protocol.login.clientbound.S2CSetCompressionPacket;
 import org.machinemc.utils.FunctionalFutureCallback;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -74,6 +75,12 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
             final CompletableFuture<Void> future = server.getTicker().runNextTick(() -> packet.handle(packetListener));
             if (packet.getClass().getAnnotation(Synced.class).blocks()) future.get();
         }
+    }
+
+    @Override
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
+        server.getLogger().warn("Client generated uncaught exception and has been disconnected", cause);
+        channel.close();
     }
 
     /**
@@ -139,6 +146,28 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
     // not listen to outgoing packets because that makes no sense
     public void setupOutboundProtocol(final ConnectionState state) {
         outgoingState = Preconditions.checkNotNull(state, "Connection state can not be null");
+    }
+
+    /**
+     * Changes the compression state for this connection.
+     *
+     * @param threshold compression threshold, any negative number disables the compression
+     * @return future of when compression has been enabled
+     */
+    public CompletableFuture<Void> setCompression(final int threshold) {
+        Preconditions.checkState(incomingState == ConnectionState.LOGIN, "The connection is not in login state");
+        return sendPacket(new S2CSetCompressionPacket(threshold), true)
+                .handle((result, exception) -> {
+                    if (exception != null) return null;
+                    final ChannelPipeline pipeline = channel.pipeline();
+                    final List<String> handlers = pipeline.names();
+                    if (handlers.contains(HandlerNames.COMPRESSION_DECODER)) pipeline.remove(HandlerNames.COMPRESSION_DECODER);
+                    if (handlers.contains(HandlerNames.COMPRESSION_ENCODER)) pipeline.remove(HandlerNames.COMPRESSION_ENCODER);
+                    if (threshold < 0) return null;
+                    pipeline.addAfter(HandlerNames.LENGTH_DECODER, HandlerNames.COMPRESSION_DECODER, new CompressionDecoder());
+                    pipeline.addAfter(HandlerNames.LENGTH_ENCODER, HandlerNames.COMPRESSION_ENCODER, new CompressionEncoder(threshold));
+                    return null;
+                });
     }
 
 }

@@ -109,6 +109,7 @@ public interface PacketGroups {
             String NAME = "LoginClientBound";
 
             int LOGIN_SUCCESS = 0x02;
+            int SET_COMPRESSION = 0x03;
         }
 
         /**

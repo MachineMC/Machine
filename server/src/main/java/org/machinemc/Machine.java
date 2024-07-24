@@ -230,7 +230,8 @@ public final class Machine implements Server {
         if (!exists) {
             serverProperties = new ServerPropertiesImpl();
             propertiesConfigSerializer.save(propertiesFile, (Configuration) serverProperties);
-            FileUtils.createServerFile(new File(ServerPropertiesImpl.ICON_PATH), "/" + ServerPropertiesImpl.ICON_PATH);
+            final File icon = new File(ServerPropertiesImpl.ICON_PATH);
+            if (!icon.exists()) FileUtils.createServerFile(icon, "/" + ServerPropertiesImpl.ICON_PATH);
         } else {
             serverProperties = propertiesConfigSerializer.load(propertiesFile, ServerPropertiesImpl.class);
         }

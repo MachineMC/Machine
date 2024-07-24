@@ -15,6 +15,7 @@
 package org.machinemc.network.protocol.listeners;
 
 import com.google.common.base.Preconditions;
+import lombok.SneakyThrows;
 import org.machinemc.barebones.profile.GameProfile;
 import org.machinemc.network.ClientConnection;
 import org.machinemc.network.protocol.login.LoginPacketListener;
@@ -34,13 +35,15 @@ public class ServerLoginPacketListener implements LoginPacketListener {
     }
 
     @Override
+    @SneakyThrows
     public void onHello(final C2SHelloPacket packet) {
         // TODO encryption
-        continueLogin(GameProfile.forOfflinePlayer(packet.getUsername()));
-    }
 
-    private void continueLogin(final GameProfile profile) {
-        // TODO set compression
+        final int compressionThreshold = connection.getServer().getServerProperties().getCompressionThreshold();
+        // skips the packet if the compression is disabled
+        if (compressionThreshold >= 0) connection.setCompression(compressionThreshold).get();
+
+        final GameProfile profile = GameProfile.forOfflinePlayer(packet.getUsername());
         connection.sendPacket(new S2CLoginSuccessPacket(profile, true), true);
     }
 
