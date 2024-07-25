@@ -18,11 +18,12 @@ import org.machinemc.network.protocol.ConnectionState;
 import org.machinemc.network.protocol.PacketListener;
 import org.machinemc.network.protocol.login.serverbound.C2SHelloPacket;
 import org.machinemc.network.protocol.login.serverbound.C2SLoginAcknowledgedPacket;
+import org.machinemc.network.protocol.pluginmessage.PluginMessagePacketListener;
 
 /**
  * Packet listener for login packets.
  */
-public interface LoginPacketListener extends PacketListener {
+public interface LoginPacketListener extends PacketListener, PluginMessagePacketListener {
 
     /**
      * Called when client starts logging in process.

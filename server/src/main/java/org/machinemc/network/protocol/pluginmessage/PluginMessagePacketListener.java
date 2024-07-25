@@ -12,28 +12,23 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.network.protocol.status;
+package org.machinemc.network.protocol.pluginmessage;
 
-import org.machinemc.network.protocol.ConnectionState;
 import org.machinemc.network.protocol.PacketListener;
-import org.machinemc.network.protocol.ping.PingPacketListener;
-import org.machinemc.network.protocol.status.serverbound.C2SStatusRequestPacket;
+import org.machinemc.network.protocol.pluginmessage.serverbound.C2SPluginMessagePacket;
 
 /**
- * Packet listener for status packets.
+ * Packet listener for plugin message packets.
+ * <p>
+ * This packet listener is meant to be shared by multiple implementations.
  */
-public interface StatusPacketListener extends PacketListener, PingPacketListener {
+public interface PluginMessagePacketListener extends PacketListener {
 
     /**
-     * Called when status request packet is received.
+     * Called when plugin message packet is received.
      *
      * @param packet packet
      */
-    void onStatusRequest(C2SStatusRequestPacket packet);
-
-    @Override
-    default ConnectionState protocol() {
-        return ConnectionState.STATUS;
-    }
+    void onPluginMessage(C2SPluginMessagePacket packet);
 
 }

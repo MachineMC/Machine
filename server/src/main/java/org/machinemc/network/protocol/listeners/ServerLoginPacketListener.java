@@ -18,10 +18,12 @@ import com.google.common.base.Preconditions;
 import lombok.SneakyThrows;
 import org.machinemc.barebones.profile.GameProfile;
 import org.machinemc.network.ClientConnection;
+import org.machinemc.network.protocol.ConnectionState;
 import org.machinemc.network.protocol.login.LoginPacketListener;
 import org.machinemc.network.protocol.login.clientbound.S2CLoginSuccessPacket;
 import org.machinemc.network.protocol.login.serverbound.C2SHelloPacket;
 import org.machinemc.network.protocol.login.serverbound.C2SLoginAcknowledgedPacket;
+import org.machinemc.network.protocol.pluginmessage.serverbound.C2SPluginMessagePacket;
 
 /**
  * Login packet listener used by the server.
@@ -49,8 +51,13 @@ public class ServerLoginPacketListener implements LoginPacketListener {
 
     @Override
     public void onLoginAcknowledged(final C2SLoginAcknowledgedPacket packet) {
-        // TODO switch to configuration
-        throw new UnsupportedOperationException();
+        connection.setupInboundProtocol(ConnectionState.CONFIGURATION, new ServerConfigurationPacketListener(connection));
+        connection.setupOutboundProtocol(ConnectionState.CONFIGURATION);
+    }
+
+    @Override
+    public void onPluginMessage(C2SPluginMessagePacket packet) {
+        // TODO
     }
 
 }

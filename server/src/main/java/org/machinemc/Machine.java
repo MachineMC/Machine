@@ -34,9 +34,12 @@ import org.machinemc.file.serializers.LocaleSerializer;
 import org.machinemc.file.serializers.NamespacedKeySerializer;
 import org.machinemc.file.serializers.PathSerializer;
 import org.machinemc.network.NettyServer;
+import org.machinemc.network.protocol.clientinformation.ClientInformationPackets;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.ping.PingPackets;
+import org.machinemc.network.protocol.pluginmessage.PluginMesagePackets;
 import org.machinemc.network.protocol.serializers.GameProfileSerializer;
+import org.machinemc.network.protocol.serializers.PlayerSettingsSerializer;
 import org.machinemc.network.protocol.serializers.ServerStatusSerializer;
 import org.machinemc.paklet.PacketEncoder;
 import org.machinemc.paklet.PacketFactory;
@@ -255,6 +258,8 @@ public final class Machine implements Server {
 
         // custom serializers
         provider.addSerializer(new GameProfileSerializer());
+        provider.addSerializer(new org.machinemc.network.protocol.serializers.NamespacedKeySerializer());
+        provider.addSerializer(new PlayerSettingsSerializer());
         provider.addSerializer(new ServerStatusSerializer(gson, componentProcessor.getSerializer()));
 
         // serialization rules
@@ -267,7 +272,9 @@ public final class Machine implements Server {
         factory.addPackets(PacketGroups.Status.ServerBound.class);
         factory.addPackets(PacketGroups.Login.ClientBound.class);
         factory.addPackets(PacketGroups.Login.ServerBound.class);
+        factory.addPackets(ClientInformationPackets.class);
         factory.addPackets(PingPackets.class);
+        factory.addPackets(PluginMesagePackets.class);
 
         nettyServer = new NettyServer(this, factory, new InetSocketAddress(serverProperties.getServerIP(), serverProperties.getServerPort()));
 

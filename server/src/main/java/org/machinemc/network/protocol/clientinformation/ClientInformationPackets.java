@@ -12,28 +12,15 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.network.protocol.status;
-
-import org.machinemc.network.protocol.ConnectionState;
-import org.machinemc.network.protocol.PacketListener;
-import org.machinemc.network.protocol.ping.PingPacketListener;
-import org.machinemc.network.protocol.status.serverbound.C2SStatusRequestPacket;
+package org.machinemc.network.protocol.clientinformation;
 
 /**
- * Packet listener for status packets.
+ * Packet catalogue for client information packets.
  */
-public interface StatusPacketListener extends PacketListener, PingPacketListener {
+public class ClientInformationPackets {
 
-    /**
-     * Called when status request packet is received.
-     *
-     * @param packet packet
-     */
-    void onStatusRequest(C2SStatusRequestPacket packet);
-
-    @Override
-    default ConnectionState protocol() {
-        return ConnectionState.STATUS;
+    private ClientInformationPackets() {
+        throw new UnsupportedOperationException();
     }
 
 }

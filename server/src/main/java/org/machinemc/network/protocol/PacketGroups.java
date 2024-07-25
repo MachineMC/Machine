@@ -119,7 +119,7 @@ public interface PacketGroups {
             String NAME = "LoginServerBound";
 
             int HELLO = 0x00;
-            int LOGIN_ACKNOWLEDGED = 0x02;
+            int LOGIN_ACKNOWLEDGED = 0x03;
         }
 
     }
@@ -134,6 +134,10 @@ public interface PacketGroups {
          */
         interface ClientBound {
             String NAME = "ConfigurationClientBound";
+
+            int PLUGIN_MESSAGE = 0x01;
+            int FINISH_CONFIGURATION = 0x03;
+            int PONG = 0x05;
         }
 
         /**
@@ -141,6 +145,12 @@ public interface PacketGroups {
          */
         interface ServerBound {
             String NAME = "ConfigurationServerBound";
+
+            int CLIENT_INFORMATION = 0x00;
+            int COOKIE_RESPONSE = 0x01;
+            int PLUGIN_MESSAGE = 0x02;
+            int ACKNOWLEDGE_FINISH_CONFIGURATION = 0x03;
+            int PING = 0x05;
         }
 
     }
@@ -156,6 +166,7 @@ public interface PacketGroups {
         interface ClientBound {
             String NAME = "PlayClientBound";
 
+            int PLUGIN_MESSAGE = 0x19;
             int DISCONNECT = 0x1D;
             int PONG = 0x36;
         }
@@ -166,6 +177,8 @@ public interface PacketGroups {
         interface ServerBound {
             String NAME = "PlayServerBound";
 
+            int CLIENT_INFORMATION = 0x0A;
+            int PLUGIN_MESSAGE = 0x12;
             int PING = 0x21;
         }
     }

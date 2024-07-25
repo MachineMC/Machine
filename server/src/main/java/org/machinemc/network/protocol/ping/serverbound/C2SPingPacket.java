@@ -36,6 +36,7 @@ import org.machinemc.paklet.PacketID;
         id = Packet.DYNAMIC_PACKET,
         group = {
                 PacketGroups.Status.ServerBound.NAME,
+                PacketGroups.Configuration.ServerBound.NAME,
                 PacketGroups.Play.ServerBound.NAME
         },
         catalogue = PingPackets.class
@@ -48,6 +49,7 @@ public class C2SPingPacket implements org.machinemc.network.protocol.Packet<Ping
     private static int id() {
         return PacketIDMap.compute(
                 PacketGroups.Status.ServerBound.NAME, PacketGroups.Status.ServerBound.PING,
+                PacketGroups.Configuration.ServerBound.NAME, PacketGroups.Configuration.ServerBound.PING,
                 PacketGroups.Play.ServerBound.NAME, PacketGroups.Play.ServerBound.PING
         );
     }

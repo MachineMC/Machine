@@ -12,28 +12,30 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.network.protocol.status;
+package org.machinemc.network.protocol.configuration;
 
+import org.machinemc.network.protocol.clientinformation.ClientInformationPacketListener;
 import org.machinemc.network.protocol.ConnectionState;
 import org.machinemc.network.protocol.PacketListener;
-import org.machinemc.network.protocol.ping.PingPacketListener;
-import org.machinemc.network.protocol.status.serverbound.C2SStatusRequestPacket;
+import org.machinemc.network.protocol.configuration.serverbound.C2SAcknowledgeFinishConfigurationPacket;
+import org.machinemc.network.protocol.pluginmessage.PluginMessagePacketListener;
 
 /**
- * Packet listener for status packets.
+ * Packet listener for configuration packets.
  */
-public interface StatusPacketListener extends PacketListener, PingPacketListener {
+public interface ConfigurationPacketListener extends PacketListener, ClientInformationPacketListener, PluginMessagePacketListener {
 
     /**
-     * Called when status request packet is received.
+     * Called as a response to {@link org.machinemc.network.protocol.configuration.clientbound.S2CFinishConfigurationPacket}
+     * packet.
      *
      * @param packet packet
      */
-    void onStatusRequest(C2SStatusRequestPacket packet);
+    void onAcknowledgeFinishConfiguration(C2SAcknowledgeFinishConfigurationPacket packet);
 
     @Override
     default ConnectionState protocol() {
-        return ConnectionState.STATUS;
+        return ConnectionState.CONFIGURATION;
     }
 
 }

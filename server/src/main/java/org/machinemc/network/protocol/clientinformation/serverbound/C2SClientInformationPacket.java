@@ -12,58 +12,54 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.network.protocol.ping.clientbound;
+package org.machinemc.network.protocol.clientinformation.serverbound;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.machinemc.entities.player.PlayerSettings;
+import org.machinemc.network.protocol.clientinformation.ClientInformationPacketListener;
+import org.machinemc.network.protocol.clientinformation.ClientInformationPackets;
 import org.machinemc.network.protocol.PacketFlow;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.PacketIDMap;
-import org.machinemc.network.protocol.PacketListener;
-import org.machinemc.network.protocol.ping.PingPackets;
 import org.machinemc.paklet.Packet;
 import org.machinemc.paklet.PacketID;
 
 /**
- * Pong packet used to answer {@link org.machinemc.network.protocol.ping.serverbound.C2SPingPacket}.
+ * Packet sent when the player connects, or when the settings are changed.
  */
 @Data
 @Packet(
         id = Packet.DYNAMIC_PACKET,
         group = {
-                PacketGroups.Status.ClientBound.NAME,
-                PacketGroups.Configuration.ClientBound.NAME,
-                PacketGroups.Play.ClientBound.NAME
+                PacketGroups.Configuration.ServerBound.NAME,
+                PacketGroups.Play.ServerBound.NAME,
         },
-        catalogue = PingPackets.class
+        catalogue = ClientInformationPackets.class
 )
 @NoArgsConstructor
 @AllArgsConstructor
-public class S2CPongPacket implements org.machinemc.network.protocol.Packet<PacketListener> {
+public class C2SClientInformationPacket implements org.machinemc.network.protocol.Packet<ClientInformationPacketListener> {
 
     @PacketID
     private static int id() {
         return PacketIDMap.compute(
-                PacketGroups.Status.ClientBound.NAME, PacketGroups.Status.ClientBound.PONG,
-                PacketGroups.Configuration.ClientBound.NAME, PacketGroups.Configuration.ClientBound.PONG,
-                PacketGroups.Play.ClientBound.NAME, PacketGroups.Play.ClientBound.PONG
+                PacketGroups.Configuration.ServerBound.NAME, PacketGroups.Configuration.ServerBound.CLIENT_INFORMATION,
+                PacketGroups.Play.ServerBound.NAME, PacketGroups.Play.ServerBound.CLIENT_INFORMATION
         );
     }
 
-    /**
-     * Packet ID used for verification. Should be the same as sent by the client.
-     */
-    private long payload;
+    private PlayerSettings settings;
 
     @Override
-    public void handle(final PacketListener listener) {
-        throw new UnsupportedOperationException();
+    public void handle(ClientInformationPacketListener listener) {
+        listener.onClientInformation(this);
     }
 
     @Override
     public PacketFlow flow() {
-        return PacketFlow.CLIENTBOUND;
+        return PacketFlow.SERVERBOUND;
     }
 
 }
