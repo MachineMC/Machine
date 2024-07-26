@@ -68,15 +68,15 @@ public class C2SPluginMessagePacket implements org.machinemc.network.protocol.Pa
     }
 
     @Override
-    public void construct(SerializerContext context, DataVisitor visitor) {
-        Serializer<NamespacedKey> serializer = context.serializerProvider().getFor(NamespacedKey.class);
+    public void construct(final SerializerContext context, final DataVisitor visitor) {
+        final Serializer<NamespacedKey> serializer = context.serializerProvider().getFor(NamespacedKey.class);
         channel = visitor.read(context, serializer);
         data = visitor.finish();
     }
 
     @Override
-    public void deconstruct(SerializerContext context, DataVisitor visitor) {
-        Serializer<NamespacedKey> serializer = context.serializerProvider().getFor(NamespacedKey.class);
+    public void deconstruct(final SerializerContext context, final DataVisitor visitor) {
+        final Serializer<NamespacedKey> serializer = context.serializerProvider().getFor(NamespacedKey.class);
         visitor.write(context, serializer, channel);
         visitor.writeBytes(data);
     }

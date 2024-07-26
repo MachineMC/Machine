@@ -7,7 +7,7 @@
 
     <appender name="TERMINAL" class="JLineAppender" />
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="TERMINAL" />
     </root>
 

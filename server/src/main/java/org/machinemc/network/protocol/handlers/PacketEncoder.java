@@ -39,7 +39,6 @@ public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
     protected void encode(final ChannelHandlerContext ctx, final Packet<?> packet, final ByteBuf out) {
         Preconditions.checkState(packet.flow() == FLOW, "Decoded server-bound packet in client-bound context");
         packetFactory.write(packet, PacketGroups.getGroup(state.get(), FLOW), new NettyDataVisitor(out));
-        System.out.println("OUTGOING: " + packet);
     }
 
 }

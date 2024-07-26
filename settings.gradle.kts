@@ -33,7 +33,7 @@ dependencyResolutionManagement {
             library("slf4j-jultoslf4j", "org.slf4j:jul-to-slf4j:$slf4j")
 
             val logback: String by settings
-            library("logback", "ch.qos.logback:logback-classic:$logback")
+            library("logback-classic", "ch.qos.logback:logback-classic:$logback")
 
             val googleGuava: String by settings
             library("google-guava", "com.google.guava:guava:$googleGuava")

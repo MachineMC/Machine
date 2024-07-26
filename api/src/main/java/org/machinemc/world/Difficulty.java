@@ -54,9 +54,6 @@ public enum Difficulty {
      */
     HARD("options.difficulty.hard");
 
-    /**
-     * Display name of the difficulty.
-     */
     private final Component displayName;
 
     Difficulty(String translation) {

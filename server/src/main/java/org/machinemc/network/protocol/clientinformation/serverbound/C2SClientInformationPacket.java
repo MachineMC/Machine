@@ -17,7 +17,7 @@ package org.machinemc.network.protocol.clientinformation.serverbound;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.machinemc.entities.player.PlayerSettings;
+import org.machinemc.entity.player.PlayerSettings;
 import org.machinemc.network.protocol.clientinformation.ClientInformationPacketListener;
 import org.machinemc.network.protocol.clientinformation.ClientInformationPackets;
 import org.machinemc.network.protocol.PacketFlow;
@@ -34,7 +34,7 @@ import org.machinemc.paklet.PacketID;
         id = Packet.DYNAMIC_PACKET,
         group = {
                 PacketGroups.Configuration.ServerBound.NAME,
-                PacketGroups.Play.ServerBound.NAME,
+                PacketGroups.Play.ServerBound.NAME
         },
         catalogue = ClientInformationPackets.class
 )
@@ -53,7 +53,7 @@ public class C2SClientInformationPacket implements org.machinemc.network.protoco
     private PlayerSettings settings;
 
     @Override
-    public void handle(ClientInformationPacketListener listener) {
+    public void handle(final ClientInformationPacketListener listener) {
         listener.onClientInformation(this);
     }
 

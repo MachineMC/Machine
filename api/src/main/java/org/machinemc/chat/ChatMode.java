@@ -14,10 +14,25 @@
  */
 package org.machinemc.chat;
 
+/**
+ * The behaviour of the chat on client's end.
+ */
 public enum ChatMode {
 
+    /**
+     * Enables all messages in the chat.
+     */
     ENABLED,
+
+    /**
+     * Displays only server messages (not player messages) and allows
+     * only commands for input.
+     */
     COMMANDS_ONLY,
+
+    /**
+     * Disables chat fully.
+     */
     HIDDEN
 
 }

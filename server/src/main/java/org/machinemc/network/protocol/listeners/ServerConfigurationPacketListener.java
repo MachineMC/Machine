@@ -27,23 +27,23 @@ public class ServerConfigurationPacketListener implements ConfigurationPacketLis
 
     private final ClientConnection connection;
 
-    public ServerConfigurationPacketListener(ClientConnection connection) {
+    public ServerConfigurationPacketListener(final ClientConnection connection) {
         this.connection = connection;
     }
 
     @Override
-    public void onAcknowledgeFinishConfiguration(C2SAcknowledgeFinishConfigurationPacket packet) {
+    public void onAcknowledgeFinishConfiguration(final C2SAcknowledgeFinishConfigurationPacket packet) {
         // TODO switch to play
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void onClientInformation(C2SClientInformationPacket packet) {
+    public void onClientInformation(final C2SClientInformationPacket packet) {
         connection.setPlayerSettings(packet.getSettings());
     }
 
     @Override
-    public void onPluginMessage(C2SPluginMessagePacket packet) {
+    public void onPluginMessage(final C2SPluginMessagePacket packet) {
         // TODO
     }
 

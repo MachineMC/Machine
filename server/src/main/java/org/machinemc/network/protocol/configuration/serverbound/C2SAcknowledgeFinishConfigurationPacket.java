@@ -33,7 +33,7 @@ import org.machinemc.paklet.Packet;
 public class C2SAcknowledgeFinishConfigurationPacket implements org.machinemc.network.protocol.Packet<ConfigurationPacketListener> {
 
     @Override
-    public void handle(ConfigurationPacketListener listener) {
+    public void handle(final ConfigurationPacketListener listener) {
         listener.onAcknowledgeFinishConfiguration(this);
     }
 

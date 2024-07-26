@@ -14,9 +14,7 @@
  */
 package org.machinemc.network.protocol.configuration.clientbound;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.machinemc.network.protocol.PacketFlow;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.configuration.ConfigurationPacketListener;

@@ -56,7 +56,7 @@ public class ServerLoginPacketListener implements LoginPacketListener {
     }
 
     @Override
-    public void onPluginMessage(C2SPluginMessagePacket packet) {
+    public void onPluginMessage(final C2SPluginMessagePacket packet) {
         // TODO
     }
 

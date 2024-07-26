@@ -45,7 +45,6 @@ public class PacketDecoder extends ByteToMessageDecoder {
         if (!in.isReadable()) return;
         final Packet<?> packet = packetFactory.create(PacketGroups.getGroup(state.get(), FLOW), new NettyDataVisitor(in));
         Preconditions.checkState(packet.flow() == FLOW, "Decoded client-bound packet in server-bound context");
-        System.out.println("INCOMING: " + packet);
         out.add(packet);
     }
 

@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Network serializer for {@link GameProfile}.
+ */
 @Supports(GameProfile.class)
 public class GameProfileSerializer implements Serializer<GameProfile> {
 

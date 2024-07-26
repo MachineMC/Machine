@@ -12,23 +12,52 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.entities.player;
+package org.machinemc.entity.player;
 
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
-import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Represents a part of a player skin (player model)
+ * that can be turned on or off in the client settings.
+ */
 public enum SkinPart {
-    
+
+    /**
+     * Cape.
+     */
     CAPE(0x01),
+
+    /**
+     * Jacket.
+     */
     JACKET(0x02),
+
+    /**
+     * Left sleeve.
+     */
     LEFT_SLEEVE(0x04),
+
+    /**
+     * Right sleeve.
+     */
     RIGHT_SLEEVE(0x08),
+
+    /**
+     * Left pants.
+     */
     LEFT_PANTS(0x10),
+
+    /**
+     * Right pants.
+     */
     RIGHT_PANTS(0x20),
+
+    /**
+     * Hat.
+     */
     HAT(0x40);
 
     private final byte bitMask;
@@ -37,19 +66,25 @@ public enum SkinPart {
         this.bitMask = (byte) bitMask;
     }
 
+    /**
+     * Returns bit mask of the skin part.
+     * <p>
+     * This value is used by Minecraft protocol.
+     *
+     * @return skin part bit mask
+     */
     public byte bitMask() {
         return bitMask;
     }
 
-    public Optional<SkinPart> getByName(@Nullable String name) {
-        if (name == null) return Optional.empty();
-        for (final SkinPart part : values()) {
-            if (part.name().equalsIgnoreCase(name))
-                return Optional.of(part);
-        }
-        return Optional.empty();
-    }
-
+    /**
+     * Creates a skin mask from a multiple skin parts.
+     * <p>
+     * This value is used by Minecraft protocol.
+     *
+     * @param parts skin parts
+     * @return skin mask
+     */
     public static int skinMask(final SkinPart... parts) {
         Preconditions.checkNotNull(parts, "Skin parts can not be null");
         int mask = 0;
@@ -60,6 +95,14 @@ public enum SkinPart {
         return mask;
     }
 
+    /**
+     * Creates a skin mask from a multiple skin parts.
+     * <p>
+     * This value is used by Minecraft protocol.
+     *
+     * @param parts skin parts
+     * @return skin mask
+     */
     public static int skinMask(final Set<SkinPart> parts) {
         Preconditions.checkNotNull(parts, "Skin parts can not be null");
         int mask = 0;
@@ -70,6 +113,12 @@ public enum SkinPart {
         return mask;
     }
 
+    /**
+     * Converts skin mask back to a collection of skin parts.
+     *
+     * @param mask skin mask
+     * @return skin parts
+     */
     public static Set<SkinPart> fromMask(int mask) {
         final Set<SkinPart> set = EnumSet.noneOf(SkinPart.class);
         int index = 0;

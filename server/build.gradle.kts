@@ -33,7 +33,7 @@ dependencies {
     implementation(libs.jna)
     implementation(libs.jline)
     implementation(libs.slf4j.jultoslf4j)
-    implementation(libs.logback)
+    implementation(libs.logback.classic)
 
     implementation(libs.brigadier)
 
@@ -79,6 +79,7 @@ tasks {
     }
     shadowJar {
         archiveClassifier = ""
+        mergeServiceFiles()
     }
     distTar {
         dependsOn(shadowJar)

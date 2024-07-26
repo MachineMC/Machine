@@ -20,7 +20,7 @@ import io.netty.channel.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.machinemc.Machine;
-import org.machinemc.entities.player.PlayerSettings;
+import org.machinemc.entity.player.PlayerSettings;
 import org.machinemc.network.protocol.*;
 import org.machinemc.network.protocol.handlers.CompressionDecoder;
 import org.machinemc.network.protocol.handlers.CompressionEncoder;
@@ -139,8 +139,7 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
         Preconditions.checkNotNull(packetListener, "Packet Listener can not be null");
         incomingState = state;
         this.packetListener = packetListener;
-        // TODO change to debug level and add a startup flag to enable debug messages
-        getServer().getLogger().info("Changing inbound state to: " + state);
+        getServer().getLogger().debug("Changing inbound state to: {}", state); // TODO add information about player name if available
     }
 
     /**
@@ -152,8 +151,7 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
     // not listen to outgoing packets because that makes no sense
     public void setupOutboundProtocol(final ConnectionState state) {
         outgoingState = Preconditions.checkNotNull(state, "Connection state can not be null");
-        // TODO change to debug level and add a startup flag to enable debug messages
-        getServer().getLogger().info("Changing outbound state to: " + state);
+        getServer().getLogger().debug("Changing outbound state to: {}", state); // TODO add information about player name if available
     }
 
     /**

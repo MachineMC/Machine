@@ -15,14 +15,17 @@
 package org.machinemc.network.protocol.serializers;
 
 import org.machinemc.chat.ChatMode;
-import org.machinemc.entities.player.MainHand;
-import org.machinemc.entities.player.PlayerSettings;
-import org.machinemc.entities.player.SkinPart;
+import org.machinemc.entity.player.MainHand;
+import org.machinemc.entity.player.PlayerSettings;
+import org.machinemc.entity.player.SkinPart;
 import org.machinemc.paklet.DataVisitor;
 import org.machinemc.paklet.serialization.Serializer;
 import org.machinemc.paklet.serialization.SerializerContext;
 import org.machinemc.paklet.serialization.Supports;
 
+/**
+ * Network serializer for {@link PlayerSettings}.
+ */
 @Supports(PlayerSettings.class)
 public class PlayerSettingsSerializer implements Serializer<PlayerSettings> {
 

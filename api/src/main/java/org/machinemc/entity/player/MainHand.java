@@ -12,11 +12,21 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.entities.player;
+package org.machinemc.entity.player;
 
+/**
+ * Primary hand the player uses for world interaction.
+ */
 public enum MainHand {
 
+    /**
+     * Left hand.
+     */
     LEFT,
+
+    /**
+     * Right hand.
+     */
     RIGHT
 
 }

@@ -14,11 +14,13 @@
  */
 package org.machinemc.terminal;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.Layout;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
+import org.machinemc.server.Settings;
 
 /**
  * Logback appender that uses the printAbove method of a JLine {@link LineReader}
@@ -28,6 +30,8 @@ public final class JLineAppender extends AppenderBase<ILoggingEvent> {
 
     private final ServerTerminal serverTerminal = ServerTerminal.get();
     private final Layout<ILoggingEvent> layout = new MachineLayout();
+
+    private final boolean debug = Settings.DEBUG.isEnabled();
 
     @Override
     public void start() {
@@ -43,6 +47,9 @@ public final class JLineAppender extends AppenderBase<ILoggingEvent> {
 
     @Override
     protected void append(final ILoggingEvent event) {
+        if (!debug && event.getLevel() == Level.DEBUG)
+            return;
+
         final LineReader lineReader = serverTerminal.getLineReader();
 
         if (lineReader != null) {

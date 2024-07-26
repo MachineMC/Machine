@@ -17,7 +17,7 @@ package org.machinemc.network.protocol.clientinformation;
 /**
  * Packet catalogue for client information packets.
  */
-public class ClientInformationPackets {
+public final class ClientInformationPackets {
 
     private ClientInformationPackets() {
         throw new UnsupportedOperationException();

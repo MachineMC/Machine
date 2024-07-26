@@ -38,9 +38,7 @@ import org.machinemc.network.protocol.clientinformation.ClientInformationPackets
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.ping.PingPackets;
 import org.machinemc.network.protocol.pluginmessage.PluginMesagePackets;
-import org.machinemc.network.protocol.serializers.GameProfileSerializer;
-import org.machinemc.network.protocol.serializers.PlayerSettingsSerializer;
-import org.machinemc.network.protocol.serializers.ServerStatusSerializer;
+import org.machinemc.network.protocol.serializers.MachineNetworkSerializers;
 import org.machinemc.paklet.PacketEncoder;
 import org.machinemc.paklet.PacketFactory;
 import org.machinemc.paklet.PacketFactoryImpl;
@@ -53,10 +51,7 @@ import org.machinemc.paklet.serialization.catalogue.DefaultSerializers;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.JSONPropertiesSerializer;
-import org.machinemc.server.ServerStatus;
-import org.machinemc.server.Tick;
-import org.machinemc.server.Ticker;
-import org.machinemc.server.TickerImpl;
+import org.machinemc.server.*;
 import org.machinemc.terminal.LoggingThreadGroup;
 import org.machinemc.terminal.ServerTerminal;
 import org.machinemc.text.ComponentProcessor;
@@ -113,6 +108,7 @@ public final class Machine implements Server {
      * @param args arguments
      */
     public static void main(final String[] args) {
+        Settings.initialize(args);
         final Machine server = new Machine();
         Thread.ofPlatform().group(new LoggingThreadGroup(
                 Thread.currentThread().getThreadGroup(),
@@ -257,10 +253,7 @@ public final class Machine implements Server {
         provider.addSerializer(VarIntSerializer.class);
 
         // custom serializers
-        provider.addSerializer(new GameProfileSerializer());
-        provider.addSerializer(new org.machinemc.network.protocol.serializers.NamespacedKeySerializer());
-        provider.addSerializer(new PlayerSettingsSerializer());
-        provider.addSerializer(new ServerStatusSerializer(gson, componentProcessor.getSerializer()));
+        provider.addSerializers(new MachineNetworkSerializers(this));
 
         // serialization rules
         provider.addSerializationRules(DefaultSerializationRules.class);
