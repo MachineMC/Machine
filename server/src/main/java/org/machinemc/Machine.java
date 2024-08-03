@@ -33,11 +33,12 @@ import org.machinemc.file.serializers.CogwheelComponentSerializer;
 import org.machinemc.file.serializers.LocaleSerializer;
 import org.machinemc.file.serializers.NamespacedKeySerializer;
 import org.machinemc.file.serializers.PathSerializer;
+import org.machinemc.auth.Crypt;
 import org.machinemc.network.NettyServer;
 import org.machinemc.network.protocol.clientinformation.ClientInformationPackets;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.ping.PingPackets;
-import org.machinemc.network.protocol.pluginmessage.PluginMesagePackets;
+import org.machinemc.network.protocol.pluginmessage.PluginMessagePackets;
 import org.machinemc.network.protocol.serializers.MachineNetworkSerializers;
 import org.machinemc.paklet.PacketEncoder;
 import org.machinemc.paklet.PacketFactory;
@@ -65,6 +66,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
+import java.security.KeyPair;
 import java.util.Locale;
 
 /**
@@ -101,6 +103,8 @@ public final class Machine implements Server {
     private Translator translator;
 
     private NettyServer nettyServer;
+
+    private final KeyPair encryptionKey;
 
     /**
      * Application entry point.
@@ -164,6 +168,8 @@ public final class Machine implements Server {
                 .build();
 
         componentProcessor = new ComponentProcessorImpl(new ComponentSerializer());
+
+        encryptionKey = Crypt.generateKeyPair();
     }
 
     /**
@@ -267,7 +273,7 @@ public final class Machine implements Server {
         factory.addPackets(PacketGroups.Login.ServerBound.class);
         factory.addPackets(ClientInformationPackets.class);
         factory.addPackets(PingPackets.class);
-        factory.addPackets(PluginMesagePackets.class);
+        factory.addPackets(PluginMessagePackets.class);
 
         nettyServer = new NettyServer(this, factory, new InetSocketAddress(serverProperties.getServerIP(), serverProperties.getServerPort()));
 

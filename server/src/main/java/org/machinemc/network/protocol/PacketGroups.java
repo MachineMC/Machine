@@ -108,6 +108,7 @@ public interface PacketGroups {
         interface ClientBound {
             String NAME = "LoginClientBound";
 
+            int ENCRYPTION_REQUEST = 0x01;
             int LOGIN_SUCCESS = 0x02;
             int SET_COMPRESSION = 0x03;
         }
@@ -119,6 +120,7 @@ public interface PacketGroups {
             String NAME = "LoginServerBound";
 
             int HELLO = 0x00;
+            int ENCRYPTION_RESPONSE = 0x01;
             int LOGIN_ACKNOWLEDGED = 0x03;
         }
 

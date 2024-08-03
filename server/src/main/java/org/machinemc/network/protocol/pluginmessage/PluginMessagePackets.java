@@ -17,9 +17,9 @@ package org.machinemc.network.protocol.pluginmessage;
 /**
  * Packet catalogue for plugin message packets.
  */
-public final class PluginMesagePackets {
+public final class PluginMessagePackets {
 
-    private PluginMesagePackets() {
+    private PluginMessagePackets() {
         throw new UnsupportedOperationException();
     }
 

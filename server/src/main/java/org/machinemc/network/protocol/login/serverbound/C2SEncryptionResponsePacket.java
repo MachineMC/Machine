@@ -12,7 +12,8 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.network.protocol.login.clientbound;
+package org.machinemc.network.protocol.login.serverbound;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,31 +24,36 @@ import org.machinemc.network.protocol.login.LoginPacketListener;
 import org.machinemc.paklet.Packet;
 
 /**
- * Packet sent by the server for client to change the compression settings.
+ * Packet for starting the logging in process.
  */
 @Data
 @Packet(
-        id = PacketGroups.Login.ClientBound.SET_COMPRESSION,
-        group = PacketGroups.Login.ClientBound.NAME,
-        catalogue = PacketGroups.Login.ClientBound.class
+        id = PacketGroups.Login.ServerBound.ENCRYPTION_RESPONSE,
+        group = PacketGroups.Login.ServerBound.NAME,
+        catalogue = PacketGroups.Login.ServerBound.class
 )
 @NoArgsConstructor
 @AllArgsConstructor
-public class S2CSetCompressionPacket implements org.machinemc.network.protocol.Packet<LoginPacketListener> {
+public class C2SEncryptionResponsePacket implements org.machinemc.network.protocol.Packet<LoginPacketListener> {
 
     /**
-     * Maximum size of a packet before it is compressed.
+     * Shared Secret value, encrypted with the server's public key.
      */
-    private int threshold;
+    private byte[] sharedSecret;
+
+    /**
+     * Verify Token value, encrypted with the same public key as the shared secret.
+     */
+    private byte[] verifyToken;
 
     @Override
     public void handle(final LoginPacketListener listener) {
-        throw new UnsupportedOperationException();
+        listener.onEncryptionResponse(this);
     }
 
     @Override
     public PacketFlow flow() {
-        return PacketFlow.CLIENTBOUND;
+        return PacketFlow.SERVERBOUND;
     }
 
 }

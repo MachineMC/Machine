@@ -16,6 +16,7 @@ package org.machinemc.network.protocol.login;
 
 import org.machinemc.network.protocol.ConnectionState;
 import org.machinemc.network.protocol.PacketListener;
+import org.machinemc.network.protocol.login.serverbound.C2SEncryptionResponsePacket;
 import org.machinemc.network.protocol.login.serverbound.C2SHelloPacket;
 import org.machinemc.network.protocol.login.serverbound.C2SLoginAcknowledgedPacket;
 import org.machinemc.network.protocol.pluginmessage.PluginMessagePacketListener;
@@ -31,6 +32,13 @@ public interface LoginPacketListener extends PacketListener, PluginMessagePacket
      * @param packet packet
      */
     void onHello(C2SHelloPacket packet);
+
+    /**
+     * Called when client responds to an encryption request.
+     *
+     * @param packet packet
+     */
+    void onEncryptionResponse(C2SEncryptionResponsePacket packet);
 
     /**
      * Called as a response to {@link org.machinemc.network.protocol.login.clientbound.S2CLoginSuccessPacket}

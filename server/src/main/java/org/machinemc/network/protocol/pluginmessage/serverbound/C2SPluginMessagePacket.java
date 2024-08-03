@@ -21,7 +21,7 @@ import org.machinemc.barebones.key.NamespacedKey;
 import org.machinemc.network.protocol.PacketFlow;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.PacketIDMap;
-import org.machinemc.network.protocol.pluginmessage.PluginMesagePackets;
+import org.machinemc.network.protocol.pluginmessage.PluginMessagePackets;
 import org.machinemc.network.protocol.pluginmessage.PluginMessagePacketListener;
 import org.machinemc.paklet.CustomPacket;
 import org.machinemc.paklet.DataVisitor;
@@ -40,7 +40,7 @@ import org.machinemc.paklet.serialization.SerializerContext;
                 PacketGroups.Configuration.ServerBound.NAME,
                 PacketGroups.Play.ServerBound.NAME
         },
-        catalogue = PluginMesagePackets.class
+        catalogue = PluginMessagePackets.class
 )
 @NoArgsConstructor
 @AllArgsConstructor
@@ -54,7 +54,14 @@ public class C2SPluginMessagePacket implements org.machinemc.network.protocol.Pa
         );
     }
 
+    /**
+     * Name of the plugin channel used to send the data.
+     */
     private NamespacedKey channel;
+
+    /**
+     * Any data sent by the plugin.
+     */
     private byte[] data;
 
     @Override

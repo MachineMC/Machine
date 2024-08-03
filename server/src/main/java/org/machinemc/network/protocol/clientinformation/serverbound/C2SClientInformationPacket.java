@@ -50,6 +50,9 @@ public class C2SClientInformationPacket implements org.machinemc.network.protoco
         );
     }
 
+    /**
+     * Multiplayer settings of the player.
+     */
     private PlayerSettings settings;
 
     @Override

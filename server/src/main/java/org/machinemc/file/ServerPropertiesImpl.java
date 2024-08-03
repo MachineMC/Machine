@@ -55,6 +55,16 @@ public class ServerPropertiesImpl implements ServerProperties, Configuration {
     @Comment("The server port.")
     private int serverPort = 25565;
 
+    @Comment({"Whether the server always enforces connection encryption.",
+            "",
+            "If false and server does not authenticate its users, the connection",
+            "encryption is fully disabled.",
+            "",
+            "If server does authenticate the connected players this option is",
+            "ignored."})
+    @Accessors(fluent = true)
+    private boolean alwaysEncrypt = true;
+
     @Comment({"Whether the server authenticates players using 3rd party service.",
             "",
             "It enables the requirement for Mojang user authentication, disallowing cracked Minecraft clients",
@@ -103,21 +113,21 @@ public class ServerPropertiesImpl implements ServerProperties, Configuration {
     @Getter(AccessLevel.NONE)
     private @org.machinemc.cogwheel.annotations.Optional Path favicon = Path.of("icon.png");
 
-    @Comment("Returns the default server world used to spawn newly connected players.")
+    @Comment("The default server world used to spawn newly connected players.")
     private NamespacedKey defaultWorld = NamespacedKey.machine("main");
 
     @Comment("Whether the players should have full access to the F3 menu.")
     @Accessors(fluent = true)
     private boolean hasReducedDebug = false;
 
-    @Comment({"Returns servers brand.",
+    @Comment({"Server brand.",
             "Server brand is identifier used in F3 screen and game logs."})
     private String serverBrand = "MachineMC";
 
-    @Comment("Returns the view distance of the server worlds.")
+    @Comment("The view distance of the server worlds.")
     private int viewDistance = 8;
 
-    @Comment({"Returns the simulation distance of the server worlds.",
+    @Comment({"The simulation distance of the server worlds.",
             "Simulation distance defines how far away entities should tick."})
     private int simulationDistance = 8;
 

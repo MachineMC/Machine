@@ -19,14 +19,15 @@ import com.google.gson.*;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 import org.machinemc.barebones.profile.GameProfile;
+import org.machinemc.scriptive.components.ClientComponent;
 import org.machinemc.server.ServerStatus;
 import org.machinemc.paklet.DataVisitor;
 import org.machinemc.paklet.serialization.Serializer;
 import org.machinemc.paklet.serialization.SerializerContext;
 import org.machinemc.paklet.serialization.Supports;
 import org.machinemc.scriptive.components.Component;
-import org.machinemc.scriptive.serialization.ComponentSerializer;
 import org.machinemc.scriptive.serialization.JSONPropertiesSerializer;
+import org.machinemc.text.ComponentProcessor;
 
 import java.util.List;
 import java.util.UUID;
@@ -41,8 +42,7 @@ import java.util.UUID;
 public class ServerStatusSerializer implements Serializer<ServerStatus> {
 
     private final Gson gson;
-    private final ComponentSerializer componentSerializer;
-
+    private final ComponentProcessor componentProcessor;
     private final JSONPropertiesSerializer propertiesSerializer = new JSONPropertiesSerializer();
 
     @Override
@@ -56,7 +56,8 @@ public class ServerStatusSerializer implements Serializer<ServerStatus> {
             response.add("players", players);
 
         if (serverStatus.description() != null) {
-            final String descriptionJSON = componentSerializer.serialize(serverStatus.description(), propertiesSerializer);
+            final ClientComponent transformed = componentProcessor.transform(serverStatus.description());
+            final String descriptionJSON = componentProcessor.getSerializer().serialize(transformed, propertiesSerializer);
             final JsonObject description = JsonParser.parseString(descriptionJSON).getAsJsonObject();
             response.add("description", description);
         }
@@ -83,7 +84,7 @@ public class ServerStatusSerializer implements Serializer<ServerStatus> {
 
         Component description = null;
         if (response.has("description")) {
-            description = componentSerializer.deserialize(response.getAsJsonPrimitive("description").getAsString(), propertiesSerializer);
+            description = componentProcessor.getSerializer().deserialize(response.getAsJsonPrimitive("description").getAsString(), propertiesSerializer);
         }
 
         ServerStatus.Favicon favicon = null;

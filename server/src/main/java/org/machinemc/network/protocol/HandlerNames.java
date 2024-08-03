@@ -23,6 +23,9 @@ public interface HandlerNames {
     String COMPRESSION_DECODER = "compression_decoder";
     String COMPRESSION_ENCODER = "compression_encoder";
 
+    String ENCRYPTION_DECODER = "encryption_decoder";
+    String ENCRYPTION_ENCODER = "encryption_encoder";
+
     String LEGACY_PING_DECODER = "legacy_ping_decoder";
     String LEGACY_PING_ENCODER = "legacy_ping_encoder";
 

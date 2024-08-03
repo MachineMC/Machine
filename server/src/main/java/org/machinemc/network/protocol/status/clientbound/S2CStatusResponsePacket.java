@@ -23,6 +23,10 @@ import org.machinemc.network.protocol.PacketListener;
 import org.machinemc.paklet.Packet;
 import org.machinemc.server.ServerStatus;
 
+/**
+ * Answer to {@link org.machinemc.network.protocol.status.serverbound.C2SStatusRequestPacket},
+ * contains information displayed on the multiplayer screen.
+ */
 @Data
 @Packet(
         id = PacketGroups.Status.ClientBound.STATUS_RESPONSE,
@@ -33,6 +37,9 @@ import org.machinemc.server.ServerStatus;
 @AllArgsConstructor
 public class S2CStatusResponsePacket implements org.machinemc.network.protocol.Packet<PacketListener> {
 
+    /**
+     * Server status.
+     */
     private ServerStatus status;
 
     @Override

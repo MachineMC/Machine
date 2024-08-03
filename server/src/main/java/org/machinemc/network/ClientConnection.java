@@ -20,16 +20,23 @@ import io.netty.channel.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.machinemc.Machine;
+import org.machinemc.auth.Crypt;
 import org.machinemc.entity.player.PlayerSettings;
 import org.machinemc.network.protocol.*;
 import org.machinemc.network.protocol.handlers.CompressionDecoder;
 import org.machinemc.network.protocol.handlers.CompressionEncoder;
+import org.machinemc.network.protocol.handlers.EncryptionDecoder;
+import org.machinemc.network.protocol.handlers.EncryptionEncoder;
 import org.machinemc.network.protocol.listeners.ServerHandshakePacketListener;
 import org.machinemc.network.protocol.login.clientbound.S2CSetCompressionPacket;
+import org.machinemc.network.protocol.login.serverbound.C2SHelloPacket;
 import org.machinemc.utils.FunctionalFutureCallback;
 
 import javax.annotation.Nullable;
+import javax.crypto.SecretKey;
+import java.security.InvalidKeyException;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -46,6 +53,8 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
     private ConnectionState incomingState, outgoingState;
 
     private PacketListener packetListener;
+
+    private PreLoginData preLoginData;
 
     private @Setter PlayerSettings playerSettings;
 
@@ -174,6 +183,46 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
                     pipeline.addAfter(HandlerNames.LENGTH_ENCODER, HandlerNames.COMPRESSION_ENCODER, new CompressionEncoder(threshold));
                     return null;
                 });
+    }
+
+    /**
+     * Enables encryption of the connection using the provided secret key.
+     * <p>
+     * Once the connection is encrypted it can not be changed.
+     *
+     * @param secretKey secret key
+     */
+    public void enableEncryption(final SecretKey secretKey) throws InvalidKeyException {
+        Preconditions.checkState(incomingState == ConnectionState.LOGIN, "The connection is not in login state");
+        final ChannelPipeline pipeline = channel.pipeline();
+        final List<String> handlers = pipeline.names();
+        Preconditions.checkState(
+                !handlers.contains(HandlerNames.ENCRYPTION_DECODER) && !handlers.contains(HandlerNames.ENCRYPTION_ENCODER),
+                "The connection has already been encrypted"
+        );
+        pipeline.addBefore(HandlerNames.LENGTH_DECODER, HandlerNames.ENCRYPTION_DECODER, new EncryptionDecoder(Crypt.createDecryptionCipher(secretKey)));
+        pipeline.addBefore(HandlerNames.LENGTH_DECODER, HandlerNames.ENCRYPTION_ENCODER, new EncryptionEncoder(Crypt.createEncryptionCipher(secretKey)));
+    }
+
+    /**
+     * Updates the pre-login data of this connection.
+     *
+     * @param packet hello packet containing the information
+     */
+    public void setPreLoginData(final C2SHelloPacket packet) {
+        Preconditions.checkState(preLoginData == null, "This connection has already initialized pre-login data");
+        preLoginData = new PreLoginData(packet.getUsername(), packet.getProfileID());
+    }
+
+    /**
+     * Data received from the client at the start of the
+     * login process.
+     *
+     * @param username username of the player
+     * @param profileID UUID of the player
+     * @see org.machinemc.network.protocol.login.serverbound.C2SHelloPacket
+     */
+    public record PreLoginData(String username, UUID profileID) {
     }
 
 }

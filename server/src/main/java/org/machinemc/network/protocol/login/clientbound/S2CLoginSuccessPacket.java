@@ -36,7 +36,21 @@ import org.machinemc.paklet.Packet;
 @AllArgsConstructor
 public class S2CLoginSuccessPacket implements org.machinemc.network.protocol.Packet<LoginPacketListener> {
 
+    /**
+     * Game profile of the player.
+     */
     private GameProfile profile;
+
+    /**
+     * Whether the client should immediately disconnect upon a packet processing error.
+     * The Notchian client silently ignores them when this flag is false.
+     * <p>
+     * This field was temporarily added in 1.20.5 as a way to aid modded servers with
+     * the transition to the new data pack & registry system,
+     * allowing them to tell the client to silently ignore packets containing inconsistent data.
+     * <p>
+     * It will likely be removed soon.
+     */
     private boolean strictErrorHandling;
 
     @Override

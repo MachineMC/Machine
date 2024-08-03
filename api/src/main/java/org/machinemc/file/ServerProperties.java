@@ -45,6 +45,20 @@ public interface ServerProperties {
     @Range(from = 0, to = 65536) int getServerPort();
 
     /**
+     * Returns whether the server always enforces connection encryption.
+     * <p>
+     * If false and server does not authenticate its users, the connection
+     * encryption is fully disabled.
+     * <p>
+     * If server does authenticate the connected players this option is
+     * ignored.
+     *
+     * @return whether server always encrypts the connection
+     * @see #doesAuthenticate()
+     */
+    boolean alwaysEncrypt();
+
+    /**
      * Returns whether the server authenticates players using 3rd party
      * service.
      * <p>
