@@ -18,7 +18,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import lombok.RequiredArgsConstructor;
-import org.machinemc.Server;
+import org.machinemc.Machine;
 import org.machinemc.network.protocol.legacy.LegacyKick;
 import org.machinemc.network.protocol.legacy.LegacyPingType;
 import org.machinemc.scriptive.components.TextComponent;
@@ -37,7 +37,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LegacyPingDecoder extends ByteToMessageDecoder {
 
-    private final Server server;
+    private final Machine server;
 
     @Override
     protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) {
@@ -63,7 +63,8 @@ public class LegacyPingDecoder extends ByteToMessageDecoder {
         if (first == 0x02 && in.isReadable()) {
             in.skipBytes(in.readableBytes());
             // TODO event
-            ctx.channel().writeAndFlush(LegacyKick.withReason(TextComponent.of("Outdated client")));
+            final LegacyKick kick = LegacyKick.withReason(TextComponent.of("Outdated client! Please use " + server.getMinecraftVersion()));
+            ctx.channel().writeAndFlush(kick);
             return;
         }
 

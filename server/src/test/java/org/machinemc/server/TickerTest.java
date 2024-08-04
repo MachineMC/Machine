@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -94,17 +95,16 @@ public class TickerTest {
     public void stepTicks() throws Exception {
         final Ticker ticker = new TickerImpl(Thread.ofVirtual(), 20);
         ticker.freeze().get();
-        final List<Integer> numbers = new CopyOnWriteArrayList<>();
-        ticker.runAfter(() -> numbers.add(1), 0);
-        ticker.runAfter(() -> numbers.add(2), 1);
-        ticker.runAfter(() -> numbers.add(3), 2);
+        final AtomicBoolean condition = new AtomicBoolean(false);
+        for (int i = 0; i < 5; i++) {
+            ticker.runAfter(() -> condition.set(true), i);
+        }
 
-        ticker.step().get();
-        assert numbers.size() == 1;
-        ticker.step().get();
-        assert numbers.size() == 2;
-        ticker.step().get();
-        assert numbers.size() == 3;
+        for (int i = 0; i < 5; i++) {
+            ticker.step().get();
+            assert condition.get();
+            condition.set(false);
+        }
 
         assert ticker.unfreeze();
 

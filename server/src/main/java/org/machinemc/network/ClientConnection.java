@@ -58,9 +58,13 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
 
     private PacketListener packetListener;
 
+    @Setter
+    private int protocolVersion;
+
     private PreLoginData preLoginData;
 
-    private @Setter PlayerSettings playerSettings;
+    @Setter
+    private PlayerSettings playerSettings;
 
     public ClientConnection(final Machine server, final Channel channel) {
         this.server = Preconditions.checkNotNull(server, "Server can not be null");
@@ -106,11 +110,7 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
      */
     public void handleException(final Throwable cause) {
         final StringBuilder reason = new StringBuilder("Client ");
-        if (preLoginData != null)
-            reason.append(preLoginData.username)
-                    .append(" (")
-                    .append(preLoginData.profileID)
-                    .append(") ");
+        if (preLoginData != null) reason.append(preLoginData).append(" ");
         reason.append("generated uncaught exception and has been disconnected");
         server.getLogger().warn(reason.toString(), cause);
         disconnect(TranslationComponent.of("multiplayer.disconnect.generic"));
@@ -131,9 +131,8 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
         channel.close();
         if (preLoginData == null) return;
         server.getLogger().info(
-                "Disconnected {} ({}): {}",
-                preLoginData.username,
-                preLoginData.profileID,
+                "Disconnected {}: {}",
+                preLoginData,
                 ComponentUtils.withLocaleLanguageRecursively(server.getTranslator().getLocaleLanguage(), reason).getString()
         );
     }
@@ -190,7 +189,8 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
         Preconditions.checkNotNull(packetListener, "Packet Listener can not be null");
         incomingState = state;
         this.packetListener = packetListener;
-        getServer().getLogger().debug("Changing inbound state to: {}", state); // TODO add information about player name if available
+        if (preLoginData == null) return;
+        getServer().getLogger().debug("Changing inbound state of {} to: {}", preLoginData, state);
     }
 
     /**
@@ -202,7 +202,8 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
     // not listen to outgoing packets because that makes no sense
     public void setupOutboundProtocol(final ConnectionState state) {
         outgoingState = Preconditions.checkNotNull(state, "Connection state can not be null");
-        getServer().getLogger().debug("Changing outbound state to: {}", state); // TODO add information about player name if available
+        if (preLoginData == null) return;
+        getServer().getLogger().debug("Changing outbound state of {} to: {}", preLoginData, state);
     }
 
     /**
@@ -265,6 +266,12 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
      * @see org.machinemc.network.protocol.login.serverbound.C2SHelloPacket
      */
     public record PreLoginData(String username, UUID profileID) {
+
+        @Override
+        public String toString() {
+            return username + " (" + profileID + ")";
+        }
+
     }
 
 }

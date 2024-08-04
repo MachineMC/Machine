@@ -27,6 +27,20 @@ import org.machinemc.text.Translator;
 public interface Server {
 
     /**
+     * Returns the server's Minecraft version, for example {@code 1.21}.
+     *
+     * @return server's Minecraft version
+     */
+    String getMinecraftVersion();
+
+    /**
+     * Returns the version of the protocol used by the server.
+     *
+     * @return protocol version of the server
+     */
+    int getProtocolVersion();
+
+    /**
      * Returns server's ticker.
      * <p>
      * The Ticker is a core component of the server responsible for managing time within the game.

@@ -15,10 +15,13 @@
 package org.machinemc.network.protocol.listeners;
 
 import com.google.common.base.Preconditions;
+import org.machinemc.Machine;
 import org.machinemc.network.ClientConnection;
 import org.machinemc.network.protocol.ConnectionState;
 import org.machinemc.network.protocol.handshake.HandshakePacketListener;
 import org.machinemc.network.protocol.handshake.serverbound.C2SClientIntentionPacket;
+import org.machinemc.scriptive.components.TextComponent;
+import org.machinemc.scriptive.components.TranslationComponent;
 
 /**
  * Handshake packet listener used by the server.
@@ -33,6 +36,7 @@ public class ServerHandshakePacketListener implements HandshakePacketListener {
 
     @Override
     public void onClientIntention(final C2SClientIntentionPacket packet) {
+        connection.setProtocolVersion(packet.getProtocolVersion());
         switch (packet.getIntent()) {
             case UNUSED -> throw new UnsupportedOperationException();
             case STATUS -> switchToStatus();
@@ -57,6 +61,19 @@ public class ServerHandshakePacketListener implements HandshakePacketListener {
     private void switchToLogin(final boolean transfer) {
         connection.setupInboundProtocol(ConnectionState.LOGIN, new ServerLoginPacketListener(connection));
         connection.setupOutboundProtocol(ConnectionState.LOGIN);
-    }
 
+        final Machine server = connection.getServer();
+        if (connection.getProtocolVersion() == server.getProtocolVersion()) return;
+
+        // above 1.11.2
+        if (connection.getProtocolVersion() > 316) {
+            // TODO event
+            connection.disconnect(TranslationComponent.of("multiplayer.disconnect.outdated_client", TextComponent.of(server.getMinecraftVersion())));
+            return;
+        }
+
+        // There is no translation for outdated client in older versions
+        // TODO event
+        connection.disconnect(TextComponent.of("Outdated client! Please use " + server.getMinecraftVersion()));
+    }
 }

@@ -29,7 +29,6 @@ import org.machinemc.network.protocol.login.clientbound.S2CLoginSuccessPacket;
 import org.machinemc.network.protocol.login.serverbound.C2SEncryptionResponsePacket;
 import org.machinemc.network.protocol.login.serverbound.C2SHelloPacket;
 import org.machinemc.network.protocol.login.serverbound.C2SLoginAcknowledgedPacket;
-import org.machinemc.network.protocol.pluginmessage.serverbound.C2SPluginMessagePacket;
 import org.machinemc.scriptive.components.TranslationComponent;
 
 import javax.crypto.SecretKey;
@@ -125,11 +124,6 @@ public class ServerLoginPacketListener implements LoginPacketListener {
     public void onLoginAcknowledged(final C2SLoginAcknowledgedPacket packet) {
         connection.setupInboundProtocol(ConnectionState.CONFIGURATION, new ServerConfigurationPacketListener(connection));
         connection.setupOutboundProtocol(ConnectionState.CONFIGURATION);
-    }
-
-    @Override
-    public void onPluginMessage(final C2SPluginMessagePacket packet) {
-        // TODO
     }
 
 }

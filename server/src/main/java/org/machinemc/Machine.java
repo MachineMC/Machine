@@ -181,14 +181,14 @@ public final class Machine implements Server {
         running = true;
 
         terminal.getTerminal().puts(InfoCmp.Capability.clear_screen);
-        logger.info("Loading Machine Server for Minecraft {} (protocol {})...", SERVER_IMPLEMENTATION_VERSION, SERVER_IMPLEMENTATION_PROTOCOL);
+        logger.info("Loading Machine Server for Minecraft {} (protocol {})...", getMinecraftVersion(), getProtocolVersion());
 
         loadSerializerRegistry();
 
         loadServerProperties();
 
         serverStatus = new ServerStatus(
-                new ServerStatus.Version(SERVER_IMPLEMENTATION_VERSION, SERVER_IMPLEMENTATION_PROTOCOL),
+                new ServerStatus.Version(getMinecraftVersion(), getProtocolVersion()),
                 null, // is calculated with getter
                 serverProperties.getMOTD(),
                 serverProperties.getIcon().orElse(null),
@@ -205,6 +205,16 @@ public final class Machine implements Server {
         nettyServer.bind().get();
 
         // TODO server started in ... ms message and then set line reader for terminal and accept console commands
+    }
+
+    @Override
+    public String getMinecraftVersion() {
+        return SERVER_IMPLEMENTATION_VERSION;
+    }
+
+    @Override
+    public int getProtocolVersion() {
+        return SERVER_IMPLEMENTATION_PROTOCOL;
     }
 
     @Override
@@ -271,6 +281,8 @@ public final class Machine implements Server {
         factory.addPackets(PacketGroups.Status.ServerBound.class);
         factory.addPackets(PacketGroups.Login.ClientBound.class);
         factory.addPackets(PacketGroups.Login.ServerBound.class);
+        factory.addPackets(PacketGroups.Configuration.ClientBound.class);
+        factory.addPackets(PacketGroups.Configuration.ServerBound.class);
         factory.addPackets(ClientInformationPackets.class);
         factory.addPackets(PingPackets.class);
         factory.addPackets(PluginMessagePackets.class);
