@@ -75,7 +75,7 @@ public class AuthService {
                 final JsonObject json = (JsonObject) JsonParser.parseString(response.body());
                 return Optional.of(parseGameProfile(json));
             } catch (Exception exception) {
-                return Optional.empty();
+                throw new RuntimeException(exception);
             }
         });
     }

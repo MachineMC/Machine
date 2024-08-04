@@ -108,6 +108,7 @@ public interface PacketGroups {
         interface ClientBound {
             String NAME = "LoginClientBound";
 
+            int DISCONNECT = 0x00;
             int ENCRYPTION_REQUEST = 0x01;
             int LOGIN_SUCCESS = 0x02;
             int SET_COMPRESSION = 0x03;

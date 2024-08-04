@@ -84,7 +84,7 @@ public class TranslatorImpl implements Translator {
      * @param locale locale to load the translations for
      */
     private void loadLocaleDefaults(final Locale locale) throws IOException {
-        final InputStream is = getClass().getResourceAsStream("/data/lang/" + locale + ".json");
+        final InputStream is = getClass().getResourceAsStream("/data/lang/" + locale.toString().toLowerCase() + ".json");
         if (is == null) return;
         try (is) {
             final JsonObject json = JsonParser.parseReader(new InputStreamReader(is)).getAsJsonObject();

@@ -21,6 +21,7 @@ import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.scriptive.locale.LocaleLanguage;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -44,8 +45,13 @@ public final class ComponentUtils {
     @Contract(pure = true)
     public static Component withLocaleLanguageRecursively(final LocaleLanguage locale, final Component component) {
         Component withLocale = component.clone();
-        if (withLocale instanceof TranslationComponent translation)
+        if (withLocale instanceof TranslationComponent translation) {
+            final List<Component> arguments = Arrays.stream(translation.getArguments())
+                    .map(c -> withLocaleLanguageRecursively(locale, c))
+                    .toList();
+            translation.setArguments(arguments.toArray(new Component[0]));
             withLocale = translation.withLocaleLanguage(locale);
+        }
         final List<Component> siblings = withLocale.getSiblings();
         withLocale.clearSiblings();
         for (final Component sibling : siblings)

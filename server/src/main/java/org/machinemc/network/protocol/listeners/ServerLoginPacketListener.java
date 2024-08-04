@@ -30,6 +30,7 @@ import org.machinemc.network.protocol.login.serverbound.C2SEncryptionResponsePac
 import org.machinemc.network.protocol.login.serverbound.C2SHelloPacket;
 import org.machinemc.network.protocol.login.serverbound.C2SLoginAcknowledgedPacket;
 import org.machinemc.network.protocol.pluginmessage.serverbound.C2SPluginMessagePacket;
+import org.machinemc.scriptive.components.TranslationComponent;
 
 import javax.crypto.SecretKey;
 import java.net.URL;
@@ -90,11 +91,19 @@ public class ServerLoginPacketListener implements LoginPacketListener {
         );
 
         final AuthService authService = new AuthService(authServiceURL);
-        final GameProfile gameProfile = authService.getGameProfile(serverHash, username).get().orElse(null);
+        final GameProfile gameProfile = authService.getGameProfile(serverHash, username).handle((result, exception) -> {
+            if (exception != null) {
+                connection.disconnect(TranslationComponent.of("multiplayer.disconnect.authservers_down"));
+                return null;
+            }
+            if (result.isEmpty()) {
+                connection.disconnect(TranslationComponent.of("disconnect.loginFailedInfo.invalidSession"));
+                return null;
+            }
+            return result.get();
+        }).get();
 
-        // TODO kick if game profile is null (auth failed)
-        Preconditions.checkNotNull(gameProfile, "Failed authentication");
-
+        if (gameProfile == null) return;
         finishLogin(gameProfile);
     }
 
