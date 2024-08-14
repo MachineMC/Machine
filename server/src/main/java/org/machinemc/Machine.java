@@ -76,7 +76,7 @@ import java.util.Locale;
 public final class Machine implements Server {
 
     public static final String SERVER_BRAND = "Machine";
-    public static final String SERVER_IMPLEMENTATION_VERSION = "1.21";
+    public static final String SERVER_IMPLEMENTATION_VERSION = "1.21.1";
     public static final int SERVER_IMPLEMENTATION_PROTOCOL = 767;
 
     private boolean running;
@@ -114,17 +114,18 @@ public final class Machine implements Server {
     public static void main(final String[] args) {
         Settings.initialize(args);
         final Machine server = new Machine();
-        Thread.ofPlatform().group(new LoggingThreadGroup(
+        final ThreadGroup threadGroup = new LoggingThreadGroup(
                 Thread.currentThread().getThreadGroup(),
                 "MachineServer",
                 server.logger
-        )).start(() -> {
+        );
+        new TickThread(threadGroup, () -> {
             try {
                 server.run();
             } catch (Exception exception) {
                 throw new RuntimeException(exception);
             }
-        });
+        }, server::getTicker).start();
     }
 
     /**

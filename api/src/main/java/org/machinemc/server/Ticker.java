@@ -17,6 +17,7 @@ package org.machinemc.server;
 import com.google.common.util.concurrent.FutureCallback;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,6 +37,18 @@ import java.util.function.Supplier;
  * Maintaining a consistent TPS is crucial for smooth gameplay.
  */
 public interface Ticker extends AutoCloseable {
+
+    /**
+     * Returns ticker for current thread if such a ticker
+     * exists.
+     *
+     * @return ticker for current thread
+     */
+    static Optional<Ticker> current() {
+        final Thread current = Thread.currentThread();
+        if (!(current instanceof TickThread tickThread)) return Optional.empty();
+        return Optional.of(tickThread.getTicker());
+    }
 
     /**
      * Returns whether the ticker accepts new tasks;
@@ -295,7 +308,7 @@ public interface Ticker extends AutoCloseable {
      * @return whether the current thread is the tick thread
      */
     default boolean isTickThread() {
-        return isTickTread(Thread.currentThread());
+        return isTickThread(Thread.currentThread());
     }
 
     /**
@@ -304,7 +317,7 @@ public interface Ticker extends AutoCloseable {
      * @param thread thread
      * @return whether the given thread is the tick thread
      */
-    boolean isTickTread(Thread thread);
+    boolean isTickThread(Thread thread);
 
     /**
      * Returns an executor that will run tasks on the next server tick.

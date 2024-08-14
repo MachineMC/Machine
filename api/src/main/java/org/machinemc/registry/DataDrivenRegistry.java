@@ -19,8 +19,6 @@ package org.machinemc.registry;
  * <p>
  * Data-driven registries are fully created be the server and sent to the client
  * and can be managed during server's runtime.
- * <p>
- * It is possible
  *
  * @param <T> registry entry type
  */

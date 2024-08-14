@@ -40,7 +40,7 @@ public class TickerTest {
     @Test
     public void testTickerThread() throws Exception {
         final Ticker ticker = new TickerImpl(Thread.ofVirtual(), 20);
-        assert ticker.runNextTick(ticker::isTickThread).get();
+        assert ticker.runNextTick(() -> ticker.isTickThread()).get();
         ticker.close();
     }
 

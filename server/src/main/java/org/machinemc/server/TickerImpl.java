@@ -330,7 +330,7 @@ public class TickerImpl implements Ticker, ScheduledExecutorService {
     }
 
     @Override
-    public boolean isTickTread(final Thread thread) {
+    public boolean isTickThread(final Thread thread) {
         return tickThread.equals(thread);
     }
 
