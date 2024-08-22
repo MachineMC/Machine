@@ -14,6 +14,7 @@
  */
 package org.machinemc.client.cookie;
 
+import org.machinemc.annotation.TickerAware;
 import org.machinemc.barebones.key.NamespacedKey;
 
 import java.util.Optional;
@@ -38,6 +39,7 @@ public interface CookieHolder {
      * @param key key of the cookie
      * @return cookie
      */
+    @TickerAware
     CompletableFuture<Optional<Cookie>> requestCookie(NamespacedKey key);
 
     /**
@@ -48,6 +50,7 @@ public interface CookieHolder {
      * @param cookie cookie to store
      * @return previously stored cookie with the same key
      */
+    @TickerAware
     CompletableFuture<Optional<Cookie>> storeCookie(Cookie cookie);
 
 }

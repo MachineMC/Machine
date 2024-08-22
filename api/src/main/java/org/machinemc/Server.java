@@ -27,7 +27,7 @@ import org.machinemc.text.Translator;
 public interface Server {
 
     /**
-     * Returns the server's Minecraft version, for example {@code 1.21}.
+     * Returns the server's Minecraft version, for example {@code 1.21.1}.
      *
      * @return server's Minecraft version
      */

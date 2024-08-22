@@ -78,6 +78,8 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
         setupOutboundProtocol(ConnectionState.HANDSHAKING);
     }
 
+    private volatile CompletableFuture<Void> syncingFuture;
+
     /**
      * Handles incoming packets from the client.
      *
@@ -89,12 +91,18 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
         if (!channel.isOpen()) return;
         Preconditions.checkNotNull(packetListener, "Received packets before initialization");
 
+        if (syncingFuture != null) syncingFuture.get();
+
         // runs the Synced packets on the tick thread
         if (!packet.getClass().isAnnotationPresent(Synced.class)) {
             packet.handle(packetListener);
         } else {
             final CompletableFuture<Void> future = server.getTicker().runNextTick(() -> packet.handle(packetListener));
-            if (packet.getClass().getAnnotation(Synced.class).blocks()) future.get();
+            if (packet.getClass().getAnnotation(Synced.class).blocks()) {
+                syncingFuture = future;
+                future.get();
+                syncingFuture = null;
+            }
         }
     }
 

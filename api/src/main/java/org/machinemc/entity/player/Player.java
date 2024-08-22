@@ -22,13 +22,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents a player actively playing on the server.
  * <p>
- * New instance of the player gets created each time client enters
- * the play phase.
- * <p>
  * To access the API specific to configuration state, use {@link #switchToConfiguration()}.
- * <p>
- * There can always exist only one active instance of {@link Player}
- * and {@link LoadingPlayer}, and both can not exist at the same time.
  */
 public interface Player extends Client {
 

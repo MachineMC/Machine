@@ -22,19 +22,19 @@ import java.util.concurrent.CompletableFuture;
  * Represents a player in configuration phase.
  * <p>
  * To access the API specific to play state, use {@link #switchToGame()}.
- * <p>
- * There can always exist only one active instance of {@link Player}
- * and {@link LoadingPlayer}, and both can not exist at the same time.
  */
 public interface LoadingPlayer extends Client {
 
     /**
      * Switches the player from configuration to playing state.
-     * <p>
-     * This action will make this loading player instance inactive.
      *
      * @return player instance
      */
     CompletableFuture<Player> switchToGame();
+
+    /**
+     * Resets the chat history of the player.
+     */
+    void resetChat();
 
 }

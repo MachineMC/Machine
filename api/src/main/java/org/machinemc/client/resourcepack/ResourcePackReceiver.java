@@ -14,6 +14,8 @@
  */
 package org.machinemc.client.resourcepack;
 
+import org.machinemc.annotation.TickerAware;
+
 import java.util.UUID;
 
 /**
@@ -27,6 +29,7 @@ public interface ResourcePackReceiver {
      * @param request request
      * @param callback callback
      */
+    @TickerAware
     void sendResourcePack(ResourcePackRequest request, ResourcePackRequest.Callback callback);
 
     /**
