@@ -29,7 +29,7 @@ import org.machinemc.cogwheel.properties.PropertiesConfigSerializer;
 import org.machinemc.cogwheel.serialization.SerializerRegistry;
 import org.machinemc.cogwheel.yaml.YamlConfigSerializer;
 import org.machinemc.event.EventManager;
-import org.machinemc.event.ServerEventManager;
+import org.machinemc.event.EventManagerImpl;
 import org.machinemc.file.ServerProperties;
 import org.machinemc.file.ServerPropertiesImpl;
 import org.machinemc.file.serializers.CogwheelComponentSerializer;
@@ -206,7 +206,7 @@ public final class Machine implements Server {
         ticker = new TickerImpl(Thread.ofPlatform().name("tick-thread"), (float) 1 / Tick.TICK_MILLIS * 1000);
         logger.info("Loaded server ticker");
 
-        eventManager = new ServerEventManager();
+        eventManager = new EventManagerImpl();
 
         loadNettyServer();
         nettyServer.bind().get();

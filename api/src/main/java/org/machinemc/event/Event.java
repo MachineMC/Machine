@@ -19,5 +19,4 @@ package org.machinemc.event;
  * Implementing this interface indicates that the class represents an event.
  */
 public interface Event {
-
 }

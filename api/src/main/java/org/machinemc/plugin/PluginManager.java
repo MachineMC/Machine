@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.plugins;
+package org.machinemc.plugin;
 
 /**
  * An interface that provides methods to manage plugins within the server.

@@ -33,4 +33,11 @@ public interface Cancellable {
      */
     void cancelled(boolean cancelled);
 
+    /**
+     * Sets the cancellation state of the event to true.
+     */
+    default void cancel() {
+        cancelled(true);
+    }
+
 }

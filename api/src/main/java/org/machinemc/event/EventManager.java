@@ -14,7 +14,7 @@
  */
 package org.machinemc.event;
 
-import org.machinemc.plugins.Plugin;
+import org.machinemc.plugin.Plugin;
 
 /**
  * An interface providing methods to manage event listeners and fire events.
@@ -61,5 +61,19 @@ public interface EventManager {
      * @param event the event to be fired
      */
     void fireEvent(Event event);
+
+    /**
+     * Fires cancellable event, notifying all registered listeners,
+     * and returns {@code true} if the event has been successfully executed,
+     * or {@code false} if cancelled.
+     *
+     * @param event cancellable event
+     * @return whether the event has been successfully executed
+     * @param <E> event
+     */
+    default <E extends Cancellable & Event> boolean fireEvent(E event) {
+        fireEvent((Event) event);
+        return event.cancelled();
+    }
 
 }

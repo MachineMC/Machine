@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.plugins;
+package org.machinemc.plugin;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -43,16 +43,16 @@ public @interface PluginMetadata {
     /**
      * The version of the plugin.
      *
-     * @return the version of the plugin, or an empty string if not provided
+     * @return the version of the plugin
      */
-    String version() default "";
+    String version();
 
     /**
-     * The author of the plugin.
+     * The authors of the plugin.
      *
-     * @return the author of the plugin, or an empty string if not provided
+     * @return the authors of the plugin, or an empty array if not provided
      */
-    String author() default "";
+    String[] authors() default {};
 
     /**
      * The website of the plugin.

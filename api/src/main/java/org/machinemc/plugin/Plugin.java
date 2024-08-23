@@ -12,12 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.plugins;
-
-import org.machinemc.Server;
-import org.slf4j.Logger;
-
-import java.io.File;
+package org.machinemc.plugin;
 
 /**
  * An interface that must be implemented by all Machine plugins
@@ -40,39 +35,10 @@ public interface Plugin {
     void disable();
 
     /**
-     * Gets the server instance associated with this plugin.
-     *
-     * @return the server instance
-     */
-    Server getServer();
-
-    /**
-     * Gets the source file of the plugin.
-     *
-     * @return the source file
-     */
-    File getSource();
-
-    /**
-     * Gets the logger instance for this plugin.
-     *
-     * @return the logger instance
-     */
-    Logger getLogger();
-
-    /**
      * Gets the metadata of the plugin.
      *
      * @return the plugin metadata
      */
     PluginMetadata getMetadata();
-
-    /**
-     * Registers a listener for this plugin.
-     *
-     * @param <Listener> the type of the listener
-     * @param listener the listener to be registered
-     */
-    <Listener> void registerListener(Listener listener);
 
 }
