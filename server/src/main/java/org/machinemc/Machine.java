@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.jline.utils.InfoCmp;
+import org.machinemc.auth.Crypt;
 import org.machinemc.barebones.key.NamespacedKey;
 import org.machinemc.cogwheel.ErrorHandler;
 import org.machinemc.cogwheel.config.Configuration;
@@ -27,16 +28,17 @@ import org.machinemc.cogwheel.json.JSONConfigSerializer;
 import org.machinemc.cogwheel.properties.PropertiesConfigSerializer;
 import org.machinemc.cogwheel.serialization.SerializerRegistry;
 import org.machinemc.cogwheel.yaml.YamlConfigSerializer;
+import org.machinemc.event.EventManager;
+import org.machinemc.event.ServerEventManager;
 import org.machinemc.file.ServerProperties;
 import org.machinemc.file.ServerPropertiesImpl;
 import org.machinemc.file.serializers.CogwheelComponentSerializer;
 import org.machinemc.file.serializers.LocaleSerializer;
 import org.machinemc.file.serializers.NamespacedKeySerializer;
 import org.machinemc.file.serializers.PathSerializer;
-import org.machinemc.auth.Crypt;
 import org.machinemc.network.NettyServer;
-import org.machinemc.network.protocol.clientinformation.ClientInformationPackets;
 import org.machinemc.network.protocol.PacketGroups;
+import org.machinemc.network.protocol.clientinformation.ClientInformationPackets;
 import org.machinemc.network.protocol.ping.PingPackets;
 import org.machinemc.network.protocol.pluginmessage.PluginMessagePackets;
 import org.machinemc.network.protocol.serializers.MachineNetworkSerializers;
@@ -87,6 +89,8 @@ public final class Machine implements Server {
     private final Gson gson;
 
     private Ticker ticker;
+
+    private EventManager eventManager;
 
     private final SerializerRegistry serializerRegistry;
     private final JSONConfigSerializer jsonConfigSerializer;
@@ -201,6 +205,8 @@ public final class Machine implements Server {
 
         ticker = new TickerImpl(Thread.ofPlatform().name("tick-thread"), (float) 1 / Tick.TICK_MILLIS * 1000);
         logger.info("Loaded server ticker");
+
+        eventManager = new ServerEventManager();
 
         loadNettyServer();
         nettyServer.bind().get();

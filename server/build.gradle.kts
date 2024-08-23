@@ -25,6 +25,8 @@ repositories {
 dependencies {
     implementation(project(":api"))
 
+    implementation(libs.asm)
+
     implementation(libs.google.guava)
     implementation(libs.google.gson)
 

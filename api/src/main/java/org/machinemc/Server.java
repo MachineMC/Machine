@@ -15,6 +15,7 @@
 package org.machinemc;
 
 import org.machinemc.cogwheel.serialization.SerializerRegistry;
+import org.machinemc.event.EventManager;
 import org.machinemc.file.ServerProperties;
 import org.machinemc.server.ServerStatus;
 import org.machinemc.server.Ticker;
@@ -50,6 +51,16 @@ public interface Server {
      * @return server's ticker
      */
     Ticker getTicker();
+
+    /**
+     * Returns the event manager of the server.
+     * <p>
+     * The EventManager is responsible for managing and dispatching events within the server.
+     * It allows for the registration of listeners and the firing of events.
+     *
+     * @return server's event manager
+     */
+    EventManager getEventManager();
 
     /**
      * Serializer registry used by the server with registered
