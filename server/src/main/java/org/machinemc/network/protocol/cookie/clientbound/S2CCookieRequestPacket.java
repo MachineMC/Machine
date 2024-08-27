@@ -12,50 +12,58 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.network.protocol.ping.clientbound;
+package org.machinemc.network.protocol.cookie.clientbound;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.machinemc.barebones.key.NamespacedKey;
+import org.machinemc.client.cookie.Cookie;
 import org.machinemc.network.protocol.PacketFlow;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.PacketIDMap;
-import org.machinemc.network.protocol.ping.PingPacketListener;
-import org.machinemc.network.protocol.ping.PingPackets;
+import org.machinemc.network.protocol.cookie.CookiePacketListener;
+import org.machinemc.network.protocol.cookie.CookiePackets;
 import org.machinemc.paklet.Packet;
 import org.machinemc.paklet.PacketID;
 
 /**
- * Pong packet used to answer {@link org.machinemc.network.protocol.ping.serverbound.C2SPingPacket}.
+ * Plugin message packet used to request stored cookie from a player.
  */
 @Data
 @Packet(
         id = Packet.DYNAMIC_PACKET,
         group = {
-                PacketGroups.Status.ClientBound.NAME,
+                PacketGroups.Login.ClientBound.NAME,
+                PacketGroups.Configuration.ClientBound.NAME,
                 PacketGroups.Play.ClientBound.NAME
         },
-        catalogue = PingPackets.class
+        catalogue = CookiePackets.class
 )
 @NoArgsConstructor
 @AllArgsConstructor
-public class S2CPongPacket implements org.machinemc.network.protocol.Packet<PingPacketListener> {
+public class S2CCookieRequestPacket implements org.machinemc.network.protocol.Packet<CookiePacketListener> {
 
     @PacketID
     private static int id() {
         return PacketIDMap.compute(
-                PacketGroups.Status.ClientBound.NAME, PacketGroups.Status.ClientBound.PONG,
-                PacketGroups.Play.ClientBound.NAME, PacketGroups.Play.ClientBound.PONG
+                PacketGroups.Login.ClientBound.NAME, PacketGroups.Login.ClientBound.COOKIE_REQUEST,
+                PacketGroups.Configuration.ClientBound.NAME, PacketGroups.Configuration.ClientBound.COOKIE_REQUEST,
+                PacketGroups.Play.ClientBound.NAME, PacketGroups.Play.ClientBound.COOKIE_REQUEST
         );
     }
 
     /**
-     * Packet ID used for verification. Should be the same as sent by the client.
+     * Key of the cookie.
      */
-    private long payload;
+    private NamespacedKey key;
+
+    public S2CCookieRequestPacket(final Cookie cookie) {
+        this(cookie.key());
+    }
 
     @Override
-    public void handle(final PingPacketListener listener) {
+    public void handle(final CookiePacketListener listener) {
         throw new UnsupportedOperationException();
     }
 

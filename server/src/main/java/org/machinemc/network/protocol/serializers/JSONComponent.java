@@ -33,8 +33,8 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE_USE)
-@SerializerAlias(JSONTextComponent.Serializer.class)
-public @interface JSONTextComponent {
+@SerializerAlias(JSONComponent.Serializer.class)
+public @interface JSONComponent {
 
     /**
      * Implementation of the serializer.
@@ -46,15 +46,15 @@ public @interface JSONTextComponent {
         private final JSONPropertiesSerializer propertiesSerializer = new JSONPropertiesSerializer();
 
         @Override
-        public void serialize(final SerializerContext serializerContext, final DataVisitor dataVisitor, final Component component) {
+        public void serialize(final SerializerContext context, final DataVisitor visitor, final Component component) {
             final ClientComponent transformed = componentProcessor.transform(component);
             final String json = componentProcessor.getSerializer().serialize(transformed, propertiesSerializer);
-            serializerContext.serializerProvider().getFor(String.class).serialize(serializerContext, dataVisitor, json);
+            context.serializerProvider().getFor(String.class).serialize(context, visitor, json);
         }
 
         @Override
-        public Component deserialize(final SerializerContext serializerContext, final DataVisitor dataVisitor) {
-            final String json = serializerContext.serializerProvider().getFor(String.class).deserialize(serializerContext, dataVisitor);
+        public Component deserialize(final SerializerContext context, final DataVisitor visitor) {
+            final String json = context.serializerProvider().getFor(String.class).deserialize(context, visitor);
             return componentProcessor.getSerializer().deserialize(json, propertiesSerializer);
         }
 

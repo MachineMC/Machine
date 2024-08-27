@@ -12,50 +12,51 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.network.protocol.ping.clientbound;
+package org.machinemc.network.protocol.cookie.clientbound;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.machinemc.client.cookie.Cookie;
 import org.machinemc.network.protocol.PacketFlow;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.PacketIDMap;
-import org.machinemc.network.protocol.ping.PingPacketListener;
-import org.machinemc.network.protocol.ping.PingPackets;
+import org.machinemc.network.protocol.cookie.CookiePacketListener;
+import org.machinemc.network.protocol.cookie.CookiePackets;
 import org.machinemc.paklet.Packet;
 import org.machinemc.paklet.PacketID;
 
 /**
- * Pong packet used to answer {@link org.machinemc.network.protocol.ping.serverbound.C2SPingPacket}.
+ * Plugin message packet used to store cookie to a player session.
  */
 @Data
 @Packet(
         id = Packet.DYNAMIC_PACKET,
         group = {
-                PacketGroups.Status.ClientBound.NAME,
+                PacketGroups.Configuration.ClientBound.NAME,
                 PacketGroups.Play.ClientBound.NAME
         },
-        catalogue = PingPackets.class
+        catalogue = CookiePackets.class
 )
 @NoArgsConstructor
 @AllArgsConstructor
-public class S2CPongPacket implements org.machinemc.network.protocol.Packet<PingPacketListener> {
+public class S2CStoreCookiePacket implements org.machinemc.network.protocol.Packet<CookiePacketListener> {
 
     @PacketID
     private static int id() {
         return PacketIDMap.compute(
-                PacketGroups.Status.ClientBound.NAME, PacketGroups.Status.ClientBound.PONG,
-                PacketGroups.Play.ClientBound.NAME, PacketGroups.Play.ClientBound.PONG
+                PacketGroups.Configuration.ClientBound.NAME, PacketGroups.Configuration.ClientBound.STORE_COOKIE,
+                PacketGroups.Play.ClientBound.NAME, PacketGroups.Play.ClientBound.STORE_COOKIE
         );
     }
 
     /**
-     * Packet ID used for verification. Should be the same as sent by the client.
+     * Cookie to store.
      */
-    private long payload;
+    private Cookie cookie;
 
     @Override
-    public void handle(final PingPacketListener listener) {
+    public void handle(final CookiePacketListener listener) {
         throw new UnsupportedOperationException();
     }
 

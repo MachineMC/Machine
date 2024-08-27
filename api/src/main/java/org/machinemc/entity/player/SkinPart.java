@@ -121,14 +121,8 @@ public enum SkinPart {
      */
     public static Set<SkinPart> fromMask(int mask) {
         final Set<SkinPart> set = EnumSet.noneOf(SkinPart.class);
-        int index = 0;
-        final SkinPart[] values = values();
-        final int length = values.length;
-        while (mask != 0 || index >= length) {
-            if ((mask & 1) == 1)
-                set.add(values[index++]);
-            mask >>>= 1;
-        }
+        for (final SkinPart part : SkinPart.values())
+            if ((part.bitMask & mask) == mask) set.add(part);
         return set;
     }
 

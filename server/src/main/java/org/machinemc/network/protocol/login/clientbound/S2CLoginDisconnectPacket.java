@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 import org.machinemc.network.protocol.PacketFlow;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.login.LoginPacketListener;
-import org.machinemc.network.protocol.serializers.JSONTextComponent;
+import org.machinemc.network.protocol.serializers.JSONComponent;
 import org.machinemc.paklet.Packet;
 import org.machinemc.scriptive.components.Component;
 
@@ -35,12 +35,12 @@ import org.machinemc.scriptive.components.Component;
 )
 @NoArgsConstructor
 @AllArgsConstructor
-public class S2CDisconnectPacket implements org.machinemc.network.protocol.Packet<LoginPacketListener> {
+public class S2CLoginDisconnectPacket implements org.machinemc.network.protocol.Packet<LoginPacketListener> {
 
     /**
      * The reason why the player was disconnected.
      */
-    private @JSONTextComponent Component reason;
+    private @JSONComponent Component reason;
 
     @Override
     public void handle(final LoginPacketListener listener) {

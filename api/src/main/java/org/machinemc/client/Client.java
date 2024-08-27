@@ -14,15 +14,16 @@
  */
 package org.machinemc.client;
 
+import org.machinemc.barebones.profile.GameProfile;
+import org.machinemc.barebones.profile.PlayerTextures;
 import org.machinemc.client.cookie.CookieHolder;
 import org.machinemc.client.resourcepack.ResourcePackReceiver;
 import org.machinemc.entity.player.Player;
+import org.machinemc.entity.player.PlayerSettings;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TranslationComponent;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Contains shared logic for a client connected to the server.
@@ -33,6 +34,46 @@ import java.util.Map;
 public interface Client extends CookieHolder, ResourcePackReceiver {
 
     // TODO plugin messaging
+
+    /**
+     * Returns game profile of the client.
+     *
+     * @return game profile
+     */
+    GameProfile getGameProfile();
+
+    /**
+     * Returns username of the client.
+     *
+     * @return username of the client
+     */
+    default String getUsername() {
+        return getGameProfile().name();
+    }
+
+    /**
+     * Returns UUID of the client.
+     *
+     * @return UUID of the client
+     */
+    default UUID getUUID() {
+        return getGameProfile().uuid();
+    }
+
+    /**
+     * Returns skin textures of the player or empty optional if
+     * there are none textures assigned to the player's game profile.
+     *
+     * @return skin textures of the player
+     */
+    Optional<PlayerTextures> getSkinTextures();
+
+    /**
+     * Returns multiplayer settings of this player.
+     *
+     * @return multiplayer settings of the player
+     */
+    PlayerSettings getMultiplayerSettings();
 
     /**
      * Disconnects the client.

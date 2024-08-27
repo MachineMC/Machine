@@ -29,7 +29,7 @@ public class TickerTest {
      */
     @Test
     public void testTicker() throws Exception {
-        final Ticker ticker = new TickerImpl(Thread.ofVirtual(), 20);
+        final Ticker ticker = new TickerImpl(20);
         assert ticker.runNextTick(() -> 1).get(1, TimeUnit.SECONDS).equals(1);
         ticker.close();
     }
@@ -39,7 +39,7 @@ public class TickerTest {
      */
     @Test
     public void testTickerThread() throws Exception {
-        final Ticker ticker = new TickerImpl(Thread.ofVirtual(), 20);
+        final Ticker ticker = new TickerImpl(20);
         assert ticker.runNextTick(() -> ticker.isTickThread()).get();
         ticker.close();
     }
@@ -49,7 +49,7 @@ public class TickerTest {
      */
     @Test
     public void testFreeze() throws Exception {
-        final Ticker ticker = new TickerImpl(Thread.ofVirtual(), 20);
+        final Ticker ticker = new TickerImpl(20);
         ticker.freeze().get();
         assert ticker.isFrozen();
         assertThrows(TimeoutException.class, () -> ticker.runNextTick(() -> 1).get(1, TimeUnit.SECONDS));
@@ -62,7 +62,7 @@ public class TickerTest {
      */
     @Test
     public void testUnfreeze() throws Exception {
-        final Ticker ticker = new TickerImpl(Thread.ofVirtual(), 20);
+        final Ticker ticker = new TickerImpl(20);
         ticker.freeze().get();
         final CompletableFuture<Integer> future = ticker.runNextTick(() -> 1);
         assert ticker.isFrozen();
@@ -77,7 +77,7 @@ public class TickerTest {
      */
     @Test
     public void testOrder() throws Exception {
-        final Ticker ticker = new TickerImpl(Thread.ofVirtual(), 20);
+        final Ticker ticker = new TickerImpl(20);
         final List<Integer> numbers = new CopyOnWriteArrayList<>();
         ticker.runAfter(() -> numbers.add(1), 1);
         ticker.runAfter(() -> numbers.add(2), 1);
@@ -93,7 +93,7 @@ public class TickerTest {
      */
     @Test
     public void stepTicks() throws Exception {
-        final Ticker ticker = new TickerImpl(Thread.ofVirtual(), 20);
+        final Ticker ticker = new TickerImpl(20);
         ticker.freeze().get();
         final AtomicBoolean condition = new AtomicBoolean(false);
         for (int i = 0; i < 5; i++) {
@@ -116,7 +116,7 @@ public class TickerTest {
      */
     @Test
     public void testTPS() throws Exception {
-        final Ticker ticker = new TickerImpl(Thread.ofVirtual(), 20);
+        final Ticker ticker = new TickerImpl(20);
         ticker.runNextTick(() -> {
             try {
                 Thread.sleep(100);

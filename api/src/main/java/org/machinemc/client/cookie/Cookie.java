@@ -30,6 +30,7 @@ public record Cookie(NamespacedKey key, byte[] payload) {
     public Cookie {
         Preconditions.checkNotNull(key, "Cookie key can not be null");
         Preconditions.checkNotNull(payload, "Cookie payload can not be null");
+        Preconditions.checkState(payload.length != 0, "Cookie payload can not be empty");
         Preconditions.checkState(payload.length <= 5120, "Only cookies of up to 5 kiB in size are accepted");
     }
 

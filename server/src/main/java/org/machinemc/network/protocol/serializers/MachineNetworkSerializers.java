@@ -33,9 +33,12 @@ public final class MachineNetworkSerializers implements DynamicCatalogue.Seriali
     @Override
     public Collection<Serializer<?>> provideSerializers() {
         return List.of(
+                new ComponentSerializer(server.getComponentProcessor()),
+                new CookieSerializer(),
                 new GameProfileSerializer(),
-                new JSONTextComponent.Serializer(server.getComponentProcessor()),
+                new JSONComponent.Serializer(server.getComponentProcessor()),
                 new NamespacedKeySerializer(),
+                new NBTCompoundSerializer(),
                 new PlayerSettingsSerializer(),
                 new ServerStatusSerializer(server.getGson(), server.getComponentProcessor())
         );

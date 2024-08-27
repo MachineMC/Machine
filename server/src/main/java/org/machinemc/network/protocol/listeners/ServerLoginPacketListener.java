@@ -19,6 +19,7 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.Blocking;
 import org.machinemc.auth.AuthService;
 import org.machinemc.barebones.profile.GameProfile;
+import org.machinemc.client.ServerPlayer;
 import org.machinemc.file.ServerProperties;
 import org.machinemc.network.ClientConnection;
 import org.machinemc.auth.Crypt;
@@ -117,10 +118,12 @@ public class ServerLoginPacketListener implements LoginPacketListener {
         // skips the packet if the compression is disabled
         if (compressionThreshold >= 0) connection.setCompression(compressionThreshold).get();
 
+        connection.setPlayer(new ServerPlayer(connection, profile));
         connection.sendPacket(new S2CLoginSuccessPacket(profile, true), true);
     }
 
     @Override
+    @SneakyThrows
     public void onLoginAcknowledged(final C2SLoginAcknowledgedPacket packet) {
         connection.setupInboundProtocol(ConnectionState.CONFIGURATION, new ServerConfigurationPacketListener(connection));
         connection.setupOutboundProtocol(ConnectionState.CONFIGURATION);

@@ -20,11 +20,11 @@ import com.google.common.base.Supplier;
 /**
  * Represents a thread with assigned ticker.
  */
-public final class TickThread extends Thread {
+public class TickThread extends Thread {
 
     private final Supplier<Ticker> ticker;
 
-    public TickThread(ThreadGroup group, Runnable task, Supplier<Ticker> ticker) {
+    protected TickThread(ThreadGroup group, Runnable task, Supplier<Ticker> ticker) {
         super(group, task);
         this.ticker = Preconditions.checkNotNull(ticker, "Ticker supplier can not be null");
     }

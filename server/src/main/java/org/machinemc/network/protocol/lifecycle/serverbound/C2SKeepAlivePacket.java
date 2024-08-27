@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.network.protocol.ping.clientbound;
+package org.machinemc.network.protocol.lifecycle.serverbound;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,32 +20,35 @@ import lombok.NoArgsConstructor;
 import org.machinemc.network.protocol.PacketFlow;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.PacketIDMap;
-import org.machinemc.network.protocol.ping.PingPacketListener;
-import org.machinemc.network.protocol.ping.PingPackets;
+import org.machinemc.network.protocol.lifecycle.LifeCyclePacketListener;
+import org.machinemc.network.protocol.lifecycle.LifeCyclePackets;
 import org.machinemc.paklet.Packet;
 import org.machinemc.paklet.PacketID;
 
 /**
- * Pong packet used to answer {@link org.machinemc.network.protocol.ping.serverbound.C2SPingPacket}.
+ * The server will frequently send out a keep-alive,
+ * each containing a random ID. The client must respond with the same packet.
+ *
+ * @see org.machinemc.network.protocol.lifecycle.clientbound.S2CKeepAlivePacket
  */
 @Data
 @Packet(
         id = Packet.DYNAMIC_PACKET,
         group = {
-                PacketGroups.Status.ClientBound.NAME,
-                PacketGroups.Play.ClientBound.NAME
+                PacketGroups.Configuration.ServerBound.NAME,
+                PacketGroups.Play.ServerBound.NAME
         },
-        catalogue = PingPackets.class
+        catalogue = LifeCyclePackets.class
 )
 @NoArgsConstructor
 @AllArgsConstructor
-public class S2CPongPacket implements org.machinemc.network.protocol.Packet<PingPacketListener> {
+public class C2SKeepAlivePacket implements org.machinemc.network.protocol.Packet<LifeCyclePacketListener> {
 
     @PacketID
     private static int id() {
         return PacketIDMap.compute(
-                PacketGroups.Status.ClientBound.NAME, PacketGroups.Status.ClientBound.PONG,
-                PacketGroups.Play.ClientBound.NAME, PacketGroups.Play.ClientBound.PONG
+                PacketGroups.Configuration.ServerBound.NAME, PacketGroups.Configuration.ServerBound.KEEP_ALIVE,
+                PacketGroups.Play.ServerBound.NAME, PacketGroups.Play.ServerBound.KEEP_ALIVE
         );
     }
 
@@ -55,8 +58,8 @@ public class S2CPongPacket implements org.machinemc.network.protocol.Packet<Ping
     private long payload;
 
     @Override
-    public void handle(final PingPacketListener listener) {
-        throw new UnsupportedOperationException();
+    public void handle(final LifeCyclePacketListener listener) {
+        listener.onKeepAlive(this);
     }
 
     @Override

@@ -36,8 +36,22 @@ public interface CookieHolder {
      * Returns empty optional if there is no such a cookie
      * stored in the client.
      *
+     * @param cookie requested cookie
+     * @return cookie stored on the client
+     */
+    @TickerAware
+    default CompletableFuture<Optional<Cookie>> requestCookie(Cookie cookie) {
+        return requestCookie(cookie.key());
+    }
+
+    /**
+     * Requests cookie from a client.
+     * <p>
+     * Returns empty optional if there is no such a cookie
+     * stored in the client.
+     *
      * @param key key of the cookie
-     * @return cookie
+     * @return cookie stored on the client
      */
     @TickerAware
     CompletableFuture<Optional<Cookie>> requestCookie(NamespacedKey key);

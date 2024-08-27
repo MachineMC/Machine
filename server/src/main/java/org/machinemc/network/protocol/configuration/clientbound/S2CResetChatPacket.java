@@ -12,38 +12,27 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.network.protocol.status.clientbound;
+package org.machinemc.network.protocol.configuration.clientbound;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.machinemc.network.protocol.PacketFlow;
 import org.machinemc.network.protocol.PacketGroups;
-import org.machinemc.network.protocol.status.StatusPacketListener;
+import org.machinemc.network.protocol.configuration.ConfigurationPacketListener;
 import org.machinemc.paklet.Packet;
-import org.machinemc.server.ServerStatus;
 
 /**
- * Answer to {@link org.machinemc.network.protocol.status.serverbound.C2SStatusRequestPacket},
- * contains information displayed on the multiplayer screen.
+ * Packet sent by the server to reset client's chat.
  */
 @Data
 @Packet(
-        id = PacketGroups.Status.ClientBound.STATUS_RESPONSE,
-        group = PacketGroups.Status.ClientBound.NAME,
-        catalogue = PacketGroups.Status.ClientBound.class
+        id = PacketGroups.Configuration.ClientBound.RESET_CHAT,
+        group = PacketGroups.Configuration.ClientBound.NAME,
+        catalogue = PacketGroups.Configuration.ClientBound.class
 )
-@NoArgsConstructor
-@AllArgsConstructor
-public class S2CStatusResponsePacket implements org.machinemc.network.protocol.Packet<StatusPacketListener> {
-
-    /**
-     * Server status.
-     */
-    private ServerStatus status;
+public class S2CResetChatPacket implements org.machinemc.network.protocol.Packet<ConfigurationPacketListener> {
 
     @Override
-    public void handle(final StatusPacketListener listener) {
+    public void handle(final ConfigurationPacketListener listener) {
         throw new UnsupportedOperationException();
     }
 

@@ -39,6 +39,8 @@ import org.machinemc.file.serializers.PathSerializer;
 import org.machinemc.network.NettyServer;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.clientinformation.ClientInformationPackets;
+import org.machinemc.network.protocol.cookie.CookiePackets;
+import org.machinemc.network.protocol.lifecycle.LifeCyclePackets;
 import org.machinemc.network.protocol.ping.PingPackets;
 import org.machinemc.network.protocol.pluginmessage.PluginMessagePackets;
 import org.machinemc.network.protocol.serializers.MachineNetworkSerializers;
@@ -88,7 +90,7 @@ public final class Machine implements Server {
 
     private final Gson gson;
 
-    private Ticker ticker;
+    private final Ticker ticker;
 
     private EventManager eventManager;
 
@@ -118,18 +120,13 @@ public final class Machine implements Server {
     public static void main(final String[] args) {
         Settings.initialize(args);
         final Machine server = new Machine();
-        final ThreadGroup threadGroup = new LoggingThreadGroup(
-                Thread.currentThread().getThreadGroup(),
-                "MachineServer",
-                server.logger
-        );
-        new TickThread(threadGroup, () -> {
+        server.getTicker().runNextTick(() -> {
             try {
                 server.run();
             } catch (Exception exception) {
                 throw new RuntimeException(exception);
             }
-        }, server::getTicker).start();
+        });
     }
 
     /**
@@ -150,6 +147,15 @@ public final class Machine implements Server {
                 .disableJdkUnsafe()
                 .serializeNulls()
                 .create();
+
+        ticker = new TickerImpl(
+                new LoggingThreadGroup(
+                        Thread.currentThread().getThreadGroup(),
+                        "MachineServer",
+                        logger
+                ),
+                (float) 1 / Tick.TICK_MILLIS * 1000
+        );
 
         serializerRegistry = new SerializerRegistry();
         final ErrorHandler configErrorHandler = (context, errorEntry) -> logger.error(
@@ -203,7 +209,6 @@ public final class Machine implements Server {
         translator = new TranslatorImpl(serverProperties.getLanguage());
         logger.info("Loaded server language files");
 
-        ticker = new TickerImpl(Thread.ofPlatform().name("tick-thread"), (float) 1 / Tick.TICK_MILLIS * 1000);
         logger.info("Loaded server ticker");
 
         eventManager = new EventManagerImpl();
@@ -291,6 +296,8 @@ public final class Machine implements Server {
         factory.addPackets(PacketGroups.Configuration.ClientBound.class);
         factory.addPackets(PacketGroups.Configuration.ServerBound.class);
         factory.addPackets(ClientInformationPackets.class);
+        factory.addPackets(CookiePackets.class);
+        factory.addPackets(LifeCyclePackets.class);
         factory.addPackets(PingPackets.class);
         factory.addPackets(PluginMessagePackets.class);
 

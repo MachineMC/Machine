@@ -89,12 +89,22 @@ public class TickerImpl implements Ticker, ScheduledExecutorService {
     /**
      * Creates and starts a new server ticker.
      *
-     * @param tickThread thread builder used for creation of the tick thread
      * @param targetTickRate target tick rate of the ticker
      */
-    public TickerImpl(final Thread.Builder tickThread, final float targetTickRate) {
+    public TickerImpl(final float targetTickRate) {
+        this(Thread.currentThread().getThreadGroup(), targetTickRate);
+    }
+
+    /**
+     * Creates and starts a new server ticker.
+     *
+     * @param tickThreadGroup group used by the tick thread
+     * @param targetTickRate target tick rate of the ticker
+     */
+    public TickerImpl(final ThreadGroup tickThreadGroup, final float targetTickRate) {
+        Preconditions.checkNotNull(tickThreadGroup, "Tick thread group can not be null");
         setTargetTickRate(targetTickRate);
-        Preconditions.checkNotNull(tickThread, "Tick thread builder can not be null").start(this::run);
+        new TickThread(tickThreadGroup, this::run, () -> this).start();
     }
 
     /**

@@ -18,12 +18,19 @@ import org.machinemc.network.protocol.clientinformation.ClientInformationPacketL
 import org.machinemc.network.protocol.ConnectionState;
 import org.machinemc.network.protocol.PacketListener;
 import org.machinemc.network.protocol.configuration.serverbound.C2SAcknowledgeFinishConfigurationPacket;
+import org.machinemc.network.protocol.cookie.CookiePacketListener;
+import org.machinemc.network.protocol.lifecycle.LifeCyclePacketListener;
 import org.machinemc.network.protocol.pluginmessage.PluginMessagePacketListener;
 
 /**
  * Packet listener for configuration packets.
  */
-public interface ConfigurationPacketListener extends PacketListener, ClientInformationPacketListener, PluginMessagePacketListener {
+public interface ConfigurationPacketListener extends
+        PacketListener,
+        ClientInformationPacketListener,
+        CookiePacketListener,
+        LifeCyclePacketListener,
+        PluginMessagePacketListener {
 
     /**
      * Called as a response to {@link org.machinemc.network.protocol.configuration.clientbound.S2CFinishConfigurationPacket}

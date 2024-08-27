@@ -17,18 +17,21 @@ package org.machinemc.network;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import io.netty.channel.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 import org.machinemc.Machine;
 import org.machinemc.auth.Crypt;
-import org.machinemc.entity.player.PlayerSettings;
+import org.machinemc.client.ServerPlayer;
 import org.machinemc.network.protocol.*;
 import org.machinemc.network.protocol.handlers.CompressionDecoder;
 import org.machinemc.network.protocol.handlers.CompressionEncoder;
 import org.machinemc.network.protocol.handlers.EncryptionDecoder;
 import org.machinemc.network.protocol.handlers.EncryptionEncoder;
+import org.machinemc.network.protocol.lifecycle.clientbound.S2CDisconnectPacket;
 import org.machinemc.network.protocol.listeners.ServerHandshakePacketListener;
-import org.machinemc.network.protocol.login.clientbound.S2CDisconnectPacket;
+import org.machinemc.network.protocol.login.clientbound.S2CLoginDisconnectPacket;
 import org.machinemc.network.protocol.login.clientbound.S2CSetCompressionPacket;
 import org.machinemc.network.protocol.login.serverbound.C2SHelloPacket;
 import org.machinemc.scriptive.components.Component;
@@ -36,10 +39,10 @@ import org.machinemc.scriptive.components.TranslationComponent;
 import org.machinemc.text.ComponentUtils;
 import org.machinemc.utils.FunctionalFutureCallback;
 
-import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 import java.security.InvalidKeyException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -63,8 +66,8 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
 
     private PreLoginData preLoginData;
 
-    @Setter
-    private PlayerSettings playerSettings;
+    @Getter(AccessLevel.NONE)
+    private @Nullable ServerPlayer player;
 
     public ClientConnection(final Machine server, final Channel channel) {
         this.server = Preconditions.checkNotNull(server, "Server can not be null");
@@ -131,12 +134,10 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
      */
     public void disconnect(final Component reason) {
         switch (getOutgoingState()) {
-            case LOGIN -> sendPacket(new S2CDisconnectPacket(reason), true);
-            case CONFIGURATION, PLAY -> {
-                // TODO disconnect play packet
-            }
+            case LOGIN -> sendPacket(new S2CLoginDisconnectPacket(reason), true);
+            case CONFIGURATION, PLAY -> sendPacket(new S2CDisconnectPacket(reason), true);
         }
-        channel.close();
+        // channel.close();
         if (preLoginData == null) return;
         server.getLogger().info(
                 "Disconnected {}: {}",
@@ -253,6 +254,30 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<PacketL
         );
         pipeline.addBefore(HandlerNames.LENGTH_DECODER, HandlerNames.ENCRYPTION_DECODER, new EncryptionDecoder(Crypt.createDecryptionCipher(secretKey)));
         pipeline.addBefore(HandlerNames.LENGTH_DECODER, HandlerNames.ENCRYPTION_ENCODER, new EncryptionEncoder(Crypt.createEncryptionCipher(secretKey)));
+    }
+
+    /**
+     * Returns instance of server player assigned to this connection if it
+     * is available.
+     *
+     * @return player instance for this connection
+     */
+    public Optional<ServerPlayer> getPlayer() {
+        return Optional.ofNullable(player);
+    }
+
+    /**
+     * Assigns the player instance to this connection.
+     * <p>
+     * Only one player instance can be assigned to a connection during its
+     * lifetime and the same player instance can not be assigned to multiple connections.
+     *
+     * @param player new player instance
+     */
+    public void setPlayer(final ServerPlayer player) {
+        Preconditions.checkState(player.getConnection().equals(this), "Can not assign player with different client connection");
+        Preconditions.checkState(this.player == null, "There is already a player assigned to this connection");
+        this.player = player;
     }
 
     /**

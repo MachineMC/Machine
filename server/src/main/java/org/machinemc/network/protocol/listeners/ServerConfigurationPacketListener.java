@@ -18,6 +18,8 @@ import org.machinemc.network.ClientConnection;
 import org.machinemc.network.protocol.clientinformation.serverbound.C2SClientInformationPacket;
 import org.machinemc.network.protocol.configuration.ConfigurationPacketListener;
 import org.machinemc.network.protocol.configuration.serverbound.C2SAcknowledgeFinishConfigurationPacket;
+import org.machinemc.network.protocol.cookie.serverbound.C2SCookieResponsePacket;
+import org.machinemc.network.protocol.lifecycle.serverbound.C2SKeepAlivePacket;
 import org.machinemc.network.protocol.pluginmessage.serverbound.C2SPluginMessagePacket;
 
 /**
@@ -33,18 +35,27 @@ public class ServerConfigurationPacketListener implements ConfigurationPacketLis
 
     @Override
     public void onAcknowledgeFinishConfiguration(final C2SAcknowledgeFinishConfigurationPacket packet) {
-        // TODO switch to play
-        throw new UnsupportedOperationException();
+
     }
 
     @Override
     public void onClientInformation(final C2SClientInformationPacket packet) {
-        connection.setPlayerSettings(packet.getSettings());
+        connection.getPlayer().orElseThrow().setMultiplayerSettings(packet.getSettings());
+    }
+
+    @Override
+    public void onCookieResponse(final C2SCookieResponsePacket packet) {
+        connection.getPlayer().orElseThrow().onCookieResponse(packet);
+    }
+
+    @Override
+    public void onKeepAlive(final C2SKeepAlivePacket packet) {
+
     }
 
     @Override
     public void onPluginMessage(final C2SPluginMessagePacket packet) {
-        // TODO
+
     }
 
 }

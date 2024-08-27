@@ -112,6 +112,7 @@ public interface PacketGroups {
             int ENCRYPTION_REQUEST = 0x01;
             int LOGIN_SUCCESS = 0x02;
             int SET_COMPRESSION = 0x03;
+            int COOKIE_REQUEST = 0x05;
         }
 
         /**
@@ -123,6 +124,7 @@ public interface PacketGroups {
             int HELLO = 0x00;
             int ENCRYPTION_RESPONSE = 0x01;
             int LOGIN_ACKNOWLEDGED = 0x03;
+            int COOKIE_RESPONSE = 0x04;
         }
 
     }
@@ -138,9 +140,13 @@ public interface PacketGroups {
         interface ClientBound {
             String NAME = "ConfigurationClientBound";
 
+            int COOKIE_REQUEST = 0x00;
             int PLUGIN_MESSAGE = 0x01;
+            int DISCONNECT = 0x02;
             int FINISH_CONFIGURATION = 0x03;
-            int PONG = 0x05;
+            int KEEP_ALIVE = 0x04;
+            int RESET_CHAT = 0x06;
+            int STORE_COOKIE = 0x0A;
         }
 
         /**
@@ -153,7 +159,7 @@ public interface PacketGroups {
             int COOKIE_RESPONSE = 0x01;
             int PLUGIN_MESSAGE = 0x02;
             int ACKNOWLEDGE_FINISH_CONFIGURATION = 0x03;
-            int PING = 0x05;
+            int KEEP_ALIVE = 0x04;
         }
 
     }
@@ -169,9 +175,12 @@ public interface PacketGroups {
         interface ClientBound {
             String NAME = "PlayClientBound";
 
+            int COOKIE_REQUEST = 0x16;
             int PLUGIN_MESSAGE = 0x19;
+            int KEEP_ALIVE = 0x26;
             int DISCONNECT = 0x1D;
             int PONG = 0x36;
+            int STORE_COOKIE = 0x6B;
         }
 
         /**
@@ -181,7 +190,9 @@ public interface PacketGroups {
             String NAME = "PlayServerBound";
 
             int CLIENT_INFORMATION = 0x0A;
+            int COOKIE_RESPONSE = 0x11;
             int PLUGIN_MESSAGE = 0x12;
+            int KEEP_ALIVE = 0x18;
             int PING = 0x21;
         }
     }

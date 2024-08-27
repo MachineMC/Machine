@@ -46,7 +46,7 @@ public class ServerStatusSerializer implements Serializer<ServerStatus> {
     private final JSONPropertiesSerializer propertiesSerializer = new JSONPropertiesSerializer();
 
     @Override
-    public void serialize(final SerializerContext serializerContext, final DataVisitor dataVisitor, final ServerStatus serverStatus) {
+    public void serialize(final SerializerContext context, final DataVisitor visitor, final ServerStatus serverStatus) {
         final JsonObject response = new JsonObject();
 
         response.add("version", getVersionJSON(serverStatus.version()));
@@ -68,12 +68,12 @@ public class ServerStatusSerializer implements Serializer<ServerStatus> {
         response.addProperty("enforcesSecureChat", serverStatus.enforcesSecureChat());
 
         final String responseString = gson.toJson(response);
-        serializerContext.serializerProvider().getFor(String.class).serialize(serializerContext, dataVisitor, responseString);
+        context.serializerProvider().getFor(String.class).serialize(context, visitor, responseString);
     }
 
     @Override
-    public ServerStatus deserialize(final SerializerContext serializerContext, final DataVisitor dataVisitor) {
-        final String responseString = serializerContext.serializerProvider().getFor(String.class).deserialize(serializerContext, dataVisitor);
+    public ServerStatus deserialize(final SerializerContext context, final DataVisitor visitor) {
+        final String responseString = context.serializerProvider().getFor(String.class).deserialize(context, visitor);
         final JsonObject response = JsonParser.parseString(responseString).getAsJsonObject();
 
         final ServerStatus.Version version = fromVersionJSON(response.getAsJsonObject("version"));

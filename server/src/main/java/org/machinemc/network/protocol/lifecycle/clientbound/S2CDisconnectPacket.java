@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Machine.
  * If not, see https://www.gnu.org/licenses/.
  */
-package org.machinemc.network.protocol.ping.clientbound;
+package org.machinemc.network.protocol.lifecycle.clientbound;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,42 +20,43 @@ import lombok.NoArgsConstructor;
 import org.machinemc.network.protocol.PacketFlow;
 import org.machinemc.network.protocol.PacketGroups;
 import org.machinemc.network.protocol.PacketIDMap;
-import org.machinemc.network.protocol.ping.PingPacketListener;
-import org.machinemc.network.protocol.ping.PingPackets;
+import org.machinemc.network.protocol.lifecycle.LifeCyclePacketListener;
+import org.machinemc.network.protocol.lifecycle.LifeCyclePackets;
 import org.machinemc.paklet.Packet;
 import org.machinemc.paklet.PacketID;
+import org.machinemc.scriptive.components.Component;
 
 /**
- * Pong packet used to answer {@link org.machinemc.network.protocol.ping.serverbound.C2SPingPacket}.
+ * Packet sent by the server for client to exit the game.
  */
 @Data
 @Packet(
         id = Packet.DYNAMIC_PACKET,
         group = {
-                PacketGroups.Status.ClientBound.NAME,
+                PacketGroups.Configuration.ClientBound.NAME,
                 PacketGroups.Play.ClientBound.NAME
         },
-        catalogue = PingPackets.class
+        catalogue = LifeCyclePackets.class
 )
 @NoArgsConstructor
 @AllArgsConstructor
-public class S2CPongPacket implements org.machinemc.network.protocol.Packet<PingPacketListener> {
+public class S2CDisconnectPacket implements org.machinemc.network.protocol.Packet<LifeCyclePacketListener> {
 
     @PacketID
     private static int id() {
         return PacketIDMap.compute(
-                PacketGroups.Status.ClientBound.NAME, PacketGroups.Status.ClientBound.PONG,
-                PacketGroups.Play.ClientBound.NAME, PacketGroups.Play.ClientBound.PONG
+                PacketGroups.Configuration.ClientBound.NAME, PacketGroups.Configuration.ClientBound.DISCONNECT,
+                PacketGroups.Play.ClientBound.NAME, PacketGroups.Play.ClientBound.DISCONNECT
         );
     }
 
     /**
-     * Packet ID used for verification. Should be the same as sent by the client.
+     * The reason why the player was disconnected.
      */
-    private long payload;
+    private Component reason;
 
     @Override
-    public void handle(final PingPacketListener listener) {
+    public void handle(final LifeCyclePacketListener listener) {
         throw new UnsupportedOperationException();
     }
 
