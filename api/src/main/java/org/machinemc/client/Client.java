@@ -23,6 +23,7 @@ import org.machinemc.entity.player.PlayerSettings;
 import org.machinemc.scriptive.components.Component;
 import org.machinemc.scriptive.components.TranslationComponent;
 
+import java.net.InetSocketAddress;
 import java.util.*;
 
 /**
@@ -88,6 +89,28 @@ public interface Client extends CookieHolder, ResourcePackReceiver {
      * @param reason reason
      */
     void disconnect(Component reason);
+
+    /**
+     * Notifies the client that it should transfer to the given server.
+     * Cookies previously stored are preserved between server transfers.
+     *
+     * @param address address of the server
+     */
+    default void transfer(InetSocketAddress address) {
+        transfer(address.getHostName(), address.getPort());
+    }
+
+    /**
+     * Notifies the client that it should transfer to the given server.
+     * Cookies previously stored are preserved between server transfers.
+     * <p>
+     * This method uses the default server port {@code 25565} for the transfer.
+     *
+     * @param hostname the hostname or IP of the server
+     */
+    default void transfer(String hostname) {
+        transfer(hostname, 25565);
+    }
 
     /**
      * Notifies the client that it should transfer to the given server.

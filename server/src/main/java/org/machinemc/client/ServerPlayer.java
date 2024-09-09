@@ -29,6 +29,7 @@ import org.machinemc.entity.player.MainHand;
 import org.machinemc.entity.player.Player;
 import org.machinemc.entity.player.PlayerSettings;
 import org.machinemc.network.ClientConnection;
+import org.machinemc.network.protocol.configuration.clientbound.S2CResetChatPacket;
 import org.machinemc.network.protocol.cookie.clientbound.S2CCookieRequestPacket;
 import org.machinemc.network.protocol.cookie.clientbound.S2CStoreCookiePacket;
 import org.machinemc.network.protocol.cookie.serverbound.C2SCookieResponsePacket;
@@ -48,6 +49,8 @@ public class ServerPlayer implements Player, LoadingPlayer {
 
     private final ClientConnection connection;
 
+    private ClientState state;
+
     private final GameProfile gameProfile;
     @Getter(AccessLevel.NONE)
     private final @Nullable PlayerTextures skinTextures;
@@ -61,6 +64,7 @@ public class ServerPlayer implements Player, LoadingPlayer {
         Preconditions.checkState(connection.getPlayer().isEmpty(), "There is another player already assigned to this client connection");
 
         this.connection = Preconditions.checkNotNull(connection, "Player connection can not be null");
+        state = ClientState.CONFIGURATION;
         this.gameProfile = Preconditions.checkNotNull(gameProfile, "Player game profile can not be null");
 
         skinTextures = gameProfile.getProperty(PlayerTextures.TEXTURES).isPresent()
@@ -87,7 +91,8 @@ public class ServerPlayer implements Player, LoadingPlayer {
 
     @Override
     public void resetChat() {
-
+        checkState(ClientState.CONFIGURATION);
+        connection.sendPacket(new S2CResetChatPacket(), false);
     }
 
     @Override
@@ -148,7 +153,7 @@ public class ServerPlayer implements Player, LoadingPlayer {
     @Override
     public CompletableFuture<Optional<Cookie>> storeCookie(final Cookie cookie) {
         final CompletableFuture<Optional<Cookie>> future = requestCookie(cookie);
-        connection.sendPacket(new S2CStoreCookiePacket(cookie), true);
+        connection.sendPacket(new S2CStoreCookiePacket(cookie), false);
         return future;
     }
 
@@ -170,6 +175,15 @@ public class ServerPlayer implements Player, LoadingPlayer {
     @Override
     public String toString() {
         return getUsername();
+    }
+
+    /**
+     * Checks if player is in given state.
+     *
+     * @param state state
+     */
+    private void checkState(final ClientState state) {
+        Preconditions.checkState(getState() == state, "Player is not in " + state + " state");
     }
 
 }
