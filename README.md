@@ -46,6 +46,6 @@ users to understand how the server works and to modify it as needed.
 See [CONTRIBUTING.md](CONTRIBUTING.md) file fore more information about contributing and project guidelines.
 
 ## License
-Machine is free software licensed under the [GPUv3 license](LICENSE).
+Machine is free software licensed under the [GPLv3 license](LICENSE).
 
 ![bottom](.github/assets/bottom.png)
