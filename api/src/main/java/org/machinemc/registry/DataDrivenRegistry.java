@@ -14,6 +14,10 @@
  */
 package org.machinemc.registry;
 
+import lombok.Locked;
+
+import java.util.function.Consumer;
+
 /**
  * Represents a data-driven registry.
  * <p>
@@ -33,31 +37,21 @@ public non-sealed interface DataDrivenRegistry<T> extends Registry<T> {
     RegistryKey<T, DataDrivenRegistry<T>> key();
 
     /**
-     * Returns writable copy of this registry.
+     * Modifies the registry using the provided consumer.
      * <p>
-     * Once the provided writable registry is frozen, the changes will
-     * be applied to this instance, and in case this is a valid server
-     * registry, then also for all currently connected players.
+     * The consumer receives a writable copy of the registry, which can be modified.
+     * Once the writable registry is frozen, the changes will be applied to this instance,
+     * and in case this is a valid server registry, then also for all currently connected players.
      *
-     * @return creates writable copy of this registry
+     * @param consumer the consumer that modifies the writable registry
      */
-    Writable<T> modify();
+    void modify(Consumer<Writable<T>> consumer);
 
     /**
      * Writable data driven registry.
      *
      * @param <T> registry entry type
      */
-    interface Writable<T> extends DataDrivenRegistry<T>, Registry.Writable<T> {
-
-        /**
-         * Pushes the changes to the data driven registry this writable registry
-         * was created from.
-         *
-         * @return original data driven registry
-         */
-        DataDrivenRegistry<T> freeze();
-
-    }
+    interface Writable<T> extends DataDrivenRegistry<T>, Registry.Writable<T> { }
 
 }

@@ -14,7 +14,7 @@
  */
 package org.machinemc.registry;
 
-import org.jetbrains.annotations.UnmodifiableView;
+import org.jetbrains.annotations.Unmodifiable;
 import org.machinemc.barebones.key.NamespacedKey;
 
 import java.util.Optional;
@@ -263,20 +263,20 @@ public sealed interface Registry<T> extends Iterable<T> permits BuiltInRegistry,
     int size();
 
     /**
-     * Returns view of the registry key set of this registry.
+     * Returns an unmodifiable copy of the registry key set of this registry.
      *
      * @return key set of this registry
      * @see #keySet()
      */
-    @UnmodifiableView Set<TypedKey<T>> registryKeySet();
+    @Unmodifiable Set<TypedKey<T>> registryKeySet();
 
     /**
-     * Returns view of the key set of this registry.
+     * Returns an unmodifiable copy of the key set of this registry.
      *
      * @return key set of this registry
      * @see #registryKeySet()
      */
-    @UnmodifiableView Set<NamespacedKey> keySet();
+    @Unmodifiable Set<NamespacedKey> keySet();
 
     /**
      * Returns stream of elements in this registry.
@@ -351,24 +351,6 @@ public sealed interface Registry<T> extends Iterable<T> permits BuiltInRegistry,
             if (key == null) return false;
             return unregister(key);
         }
-
-        /**
-         * Returns the frozen registry created from this registry.
-         * <p>
-         * At the same time it freezes this writable registry and disables
-         * any further modification.
-         *
-         * @return frozen registry
-         */
-        Registry<T> freeze();
-
-        /**
-         * Returns whether this writable registry allows further modifications
-         * or whether it is frozen and can not be modified.
-         *
-         * @return whether the registry is frozen
-         */
-        boolean isFrozen();
 
     }
 
